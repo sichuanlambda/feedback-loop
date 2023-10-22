@@ -1,0 +1,24 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ */
+
+/* Styles for custom icons */
+.custom-icon {
+  font-size: 48px; /* Adjust the size as needed */
+}
+
+/* Styles for centering content */
+.center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Add application-wide styles to this file */
+/* Styles you add here take precedence over styles defined in any other CSS */
+
+/* If you want to include other stylesheets or import external CSS frameworks, you can do so below */
+
+

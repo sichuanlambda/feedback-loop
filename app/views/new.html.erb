@@ -1,0 +1,12 @@
+<h1>Submit Feedback</h1>
+
+<%= form_with(model: @feedback, url: feedbacks_path, method: :post) do |form| %>
+  <div class="field">
+    <%= form.label :vote, "Select Feedback" %>
+    <%= form.select :vote, [['Thumbs Up', true], ['Thumbs Down', false]], prompt: 'Choose one' %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit 'Submit Feedback' %>
+  </div>
+<% end %>

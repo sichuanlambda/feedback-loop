@@ -1,0 +1,18 @@
+<h1>Submit Feedback</h1>
+
+<%= form_with(model: @feedback, url: feedbacks_path, method: :post) do |form| %>
+  <div class="feedback-selection">
+    <%= form.button type: 'submit', class: 'btn btn-success' do %>
+<div class="center-content">
+  <i class="fas fa-thumbs-up custom-icon"></i>  <!-- Font Awesome "Thumbs Up" icon -->
+    <% end %>
+    <%= form.hidden_field :vote, value: true %>
+
+    <%= form.button type: 'submit', class: 'btn btn-danger' do %>
+  <i class="fas fa-thumbs-down custom-icon"></i>  <!-- Font Awesome "Thumbs Down" icon -->
+</div> 
+   <% end %>
+    <%= form.hidden_field :vote, value: false %>
+  </div>
+<% end %>
+
