@@ -1,7 +1,7 @@
 class FeedbacksController < ApplicationController
   # Display the feedback form
   def new
-    @feedback = Feedback.new  # Initialize a new Feedback object for the form
+    @feedback = Feedback.new
   end
 
   # Handle the form submission
@@ -17,13 +17,21 @@ class FeedbacksController < ApplicationController
     end
   end
 
-  # Define any other controller actions here if needed
-
+def submit_comment
+  @feedback = Feedback.find(params[:id])  # Replace :id with your actual parameter
+  if @feedback.update(feedback_params)
+    # Handle successful comment submission (e.g., redirect to a thank-you page)
+    redirect_to thank_you_path
+  else
+    # Handle validation errors (e.g., re-render the form with error messages)
+    render 'new'
+  end
+end
   private
 
   # Strong parameters for feedback form
   def feedback_params
-    params.require(:feedback).permit(:vote)
+    params.require(:feedback).permit(:vote, :comment)
   end
 end
 

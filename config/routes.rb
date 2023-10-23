@@ -3,6 +3,11 @@ Rails.application.routes.draw do
   get "feedbacks/new", to: "feedbacks#new"
   post "feedbacks", to: "feedbacks#create"
 get "thank_you", to: "feedbacks#thank_you"
+resources :feedbacks do
+member do
+patch 'submit_comment'
+end
+end
 #these are for two buttons 
 get 'thumbs_up', to: 'feedbacks#thumbs_up'
 get 'thumbs_down', to: 'feedbacks#thumbs_down'
