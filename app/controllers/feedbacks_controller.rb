@@ -4,6 +4,9 @@ class FeedbacksController < ApplicationController
     @feedback = Feedback.new
   end
 
+def about
+end
+
   # Handle the form submission
   def create
     @feedback = Feedback.new(feedback_params)

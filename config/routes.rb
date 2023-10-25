@@ -1,9 +1,11 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   get "feedbacks/new", to: "feedbacks#new"
+  get "about", to: "feedbacks#about" 
   post "feedbacks", to: "feedbacks#create"
-get "thank_you", to: "feedbacks#thank_you"
-resources :feedbacks do
+  get "thank_you", to: "feedbacks#thank_you"
+
+  resources :feedbacks do
 member do
 patch 'submit_comment'
 end
