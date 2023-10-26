@@ -16,5 +16,8 @@
     <%= form.text_area :comment, class: 'form-control', placeholder: 'Enter your feedback here' %>
     <%= form.button 'Submit Feedback with Comment', type: 'submit', class: 'btn btn-primary' %>
   </div>
+  <button onclick="toggleVisibility()">Click me to toggle text visibility</button>
+<p id="hiddenText" style="display: none;">This is some text that was hidden!</p>
+
 <% end %>
 
