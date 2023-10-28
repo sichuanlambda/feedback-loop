@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback</title>
+  <style>
+    body {
+      text-align: center;
+    }
+    .hidden {
+      display: none;
+    }
+    .button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #d2d2d2;
+      border: #6a6a6a;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      border: 2px solid #565656;
+      border-radius: 5px;
+    }
+    .button:hover {
+      background-color: #acacac; 
+      border-color: #565656;
+    }
+    #thankYouMessage {
+      margin-top: 20px;
+      font-size: 20px;
+      color: green;
+      background-color: #28a745;
+    }
+    #negativeFeedbackForm {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Give Your Feedback</h1>
+  <button id="thumbsUp" class="button">👍</button>
+  <button id="thumbsDown" class="button">👎</button>
+  <div id="thankYouMessage" class="hidden">Thank you for your positive feedback!</div>
+  <div id="negativeFeedbackForm" class="hidden">
+    <label for="feedback">Please tell us what went wrong:</label><br>
+    <textarea id="feedback" name="feedback"></textarea><br>
+    <button type="button" onclick="submitFeedback()" class="button">Submit Feedback</button>
+  </div>
+  <script>
+    document.getElementById('thumbsUp').addEventListener('click', function() {
+      document.getElementById('thankYouMessage').classList.remove('hidden');
+      document.getElementById('negativeFeedbackForm').classList.add('hidden');
+    });
+
+    document.getElementById('thumbsDown').addEventListener('click', function() {
+      document.getElementById('negativeFeedbackForm').classList.remove('hidden');
+      document.getElementById('thankYouMessage').classList.add('hidden');
+    });
+
+    function submitFeedback() {
+      const feedback = document.getElementById('feedback').value;
+      if (feedback.trim() !== '') {
+        alert('Feedback submitted: ' + feedback);
+        document.getElementById('negativeFeedbackForm').classList.add('hidden');
+      } else {
+        alert('Please enter your feedback before submitting.');
+      }
+    }
+  </script>
+</body>
+</html>
