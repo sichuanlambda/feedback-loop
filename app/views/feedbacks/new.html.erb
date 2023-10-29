@@ -1,23 +1,64 @@
-<h1>Submit Feedback</h1>
+<h1>Your GPT Wrapper</h1>
 
 <%= form_with(model: @feedback, url: feedbacks_path, method: :post) do |form| %>
-  <div class="feedback-selection">
+
+<input type="text" id="userInput" placeholder="Ask me anything...">
+<button onclick="askChatGPT()">Ask ChatGPT</button>
+<div id="chatGPTResponse"></div>
+
+  <div id="suzuki" class="feedback-selection">
     <%= form.button type: 'submit', class: 'btn btn-success' do %>
   <i class="fas fa-thumbs-up custom-icon"></i>  <!-- Font Awesome "Thumbs Up" icon -->
     <% end %>
     <%= form.hidden_field :vote, value: true %>
 
-    <%= form.button type: 'submit', class: 'btn btn-danger' do %>
+    <%= form.button type: 'button', class: 'btn btn-danger' do %>
   <i class="fas fa-thumbs-down custom-icon"></i>  <!-- Font Awesome "Thumbs Down" icon -->
    <% end %>
     <%= form.hidden_field :vote, value: false %>
   </div>
  <div id="comment-box" style="display: none;">
-    <%= form.text_area :comment, class: 'form-control', placeholder: 'Enter your feedback here' %>
+    <%= form.text_area :comment, class: 'form-control', placeholder: 'Enter your feedback here, or not' %>
     <%= form.button 'Submit Feedback with Comment', type: 'submit', class: 'btn btn-primary' %>
   </div>
-  <button onclick="toggleVisibility()">Click me to toggle text visibility</button>
-<p id="hiddenText" style="display: none;">This is some text that was hidden!</p>
-
 <% end %>
 
+<script>
+  document.addEventListener('DOMContentLoaded', (event) => {
+    const thumbsDownButton = document.getElementById('thumbs-down');
+    const commentBox = document.getElementById('comment-box');
+    
+    if (thumbsDownButton && commentBox) {
+      thumbsDownButton.addEventListener('click', function() {
+        commentBox.style.display = 'none';
+      });
+    } else {
+      console.error('Element not found!');
+    }
+  });
+  async function askChatGPT() {
+  const userInput = document.getElementById('userInput').value;
+  const responseContainer = document.getElementById('chatGPTResponse');
+  
+  try {
+    const response = await fetch('http://your-server-url/ask-chatgpt', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message: userInput })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      responseContainer.innerHTML = data.response;
+    } else {
+      responseContainer.innerHTML = 'Failed to get response from ChatGPT.';
+    }
+  } catch (error) {
+    console.error('Error communicating with ChatGPT:', error);
+    responseContainer.innerHTML = 'An error occurred while communicating with ChatGPT.';
+  }
+}
+
+</script>

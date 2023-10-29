@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 ruby "3.0.0"
 #for javascript visibility toggle
-gem 'webpacker', '~> 5.0'
+#gem 'webpacker', '~> 5.0'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.1"
