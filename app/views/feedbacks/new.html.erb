@@ -3,40 +3,53 @@
 <%= form_with(model: @feedback, url: feedbacks_path, method: :post) do |form| %>
 
 <input type="text" id="userInput" placeholder="Ask me anything...">
-<button onclick="askChatGPT()">Ask ChatGPT</button>
+<button id="askGPTButton" type="button">Ask ChatGPT</button> <!-- Changed here: added ID, and type="button" -->
 <div id="chatGPTResponse"></div>
+<p> this is the result above the json file</p>
 
   <div id="suzuki" class="feedback-selection">
     <%= form.button type: 'submit', class: 'btn btn-success' do %>
-  <i class="fas fa-thumbs-up custom-icon"></i>  <!-- Font Awesome "Thumbs Up" icon -->
+      <i class="fas fa-thumbs-up custom-icon"></i>  <!-- Font Awesome "Thumbs Up" icon -->
     <% end %>
     <%= form.hidden_field :vote, value: true %>
 
-    <%= form.button type: 'button', class: 'btn btn-danger' do %>
-  <i class="fas fa-thumbs-down custom-icon"></i>  <!-- Font Awesome "Thumbs Down" icon -->
-   <% end %>
+    <%= form.button id="thumbs-down", type: 'button', class: 'btn btn-danger' do %> <!-- Changed here: added ID -->
+      <i class="fas fa-thumbs-down custom-icon"></i>  <!-- Font Awesome "Thumbs Down" icon -->
+    <% end %>
     <%= form.hidden_field :vote, value: false %>
   </div>
- <div id="comment-box" style="display: none;">
+
+  <div id="comment-box" style="display: none;">
     <%= form.text_area :comment, class: 'form-control', placeholder: 'Enter your feedback here, or not' %>
     <%= form.button 'Submit Feedback with Comment', type: 'submit', class: 'btn btn-primary' %>
   </div>
 <% end %>
 
 <script>
-  document.addEventListener('DOMContentLoaded', (event) => {
-    const thumbsDownButton = document.getElementById('thumbs-down');
-    const commentBox = document.getElementById('comment-box');
-    
-    if (thumbsDownButton && commentBox) {
-      thumbsDownButton.addEventListener('click', function() {
-        commentBox.style.display = 'none';
-      });
-    } else {
-      console.error('Element not found!');
-    }
-  });
-  async function askChatGPT() {
+document.addEventListener('DOMContentLoaded', (event) = {
+  const askGPTButton = document.getElementById('askGPTButton');
+  const thumbsDownButton = document.getElementById('thumbs-down');
+  const commentBox = document.getElementById('comment-box');
+  
+  if (askGPTButton) {
+    askGPTButton.addEventListener('click', function(event) {
+      event.preventDefault();
+      askChatGPT();
+    });
+  } else {
+    console.error('Ask GPT Button not found!');
+  }
+  
+  if (thumbsDownButton && commentBox) {
+    thumbsDownButton.addEventListener('click', function() {
+      commentBox.style.display = 'none';
+    });
+  } else {
+    console.error('Element not found!');
+  }
+});
+
+async function askChatGPT() {
   const userInput = document.getElementById('userInput').value;
   const responseContainer = document.getElementById('chatGPTResponse');
   
@@ -60,5 +73,4 @@
     responseContainer.innerHTML = 'An error occurred while communicating with ChatGPT.';
   }
 }
-
 </script>
