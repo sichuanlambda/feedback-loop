@@ -30,12 +30,18 @@ def submit_comment
     render 'new'
   end
 end
+
+def dashboard
+  @feedbacks = Feedback.all
+end
+
   private
 
   # Strong parameters for feedback form
   def feedback_params
     params.require(:feedback).permit(:vote, :comment)
   end
+  
 end
 
 

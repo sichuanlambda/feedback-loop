@@ -4,8 +4,12 @@ Rails.application.routes.draw do
   get "about", to: "feedbacks#about" 
   post "feedbacks", to: "feedbacks#create"
   get "thank_you", to: "feedbacks#thank_you"
+  get 'feedbacks/dashboard', to: 'feedbacks#dashboard', as: 'feedbacks_dashboard'
 
-  resources :feedbacks do
+
+  # this is for displaying the feedback on the dashboard(?)
+resources :feedbacks do
+  get 'dashboard', on: :collection  # This will route to feedbacks#dashboard
 member do
 patch 'submit_comment'
 end
