@@ -1,28 +1,83 @@
-<h1>Feedback Dashboard</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
 
-<table style="border: 1px solid black;">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Comment</th>
-      <th>Vote</th>
-      <th>Submitted At</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% if @feedbacks && !@feedbacks.empty? %>
-      <% @feedbacks.each do |feedback| %>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Feedback App</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="#">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Submit Feedback</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">About</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h1>Feedback Dashboard</h1>
+
+    <table class="table table-bordered table-hover">
+        <thead>
         <tr>
-          <td><%= feedback.id %></td>
-          <%# <td><%= feedback.comment || "No Comment" %></td>
-          <%# <td><%= feedback.vote ? "Thumbs Up" : "Thumbs Down" %></td>
-          <td><%= feedback.created_at.strftime('%Y-%m-%d %H:%M:%S') %></td>
-        </tr>  
-      <% end %>
-    <% else %>
-      <tr>
-        <td colspan="4">No feedbacks found</td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+            <th>ID</th>
+            <th>Comment</th>
+            <th>Vote</th>
+            <th>Submitted At</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% if @feedbacks && !@feedbacks.empty? %>
+            <% @feedbacks.each do |feedback| %>
+                <tr>
+                    <td><%= feedback.id %></td>
+                    <td class="comment">
+                        <%= feedback.comment.present? ? feedback.comment : content_tag(:span, 'No Comment', class: 'placeholder') %>
+                    </td>
+                    <td>
+                        <%= feedback.vote ? '<i class="fas fa-thumbs-up"></i>' : '<i class="fas fa-thumbs-down"></i>' %>
+                    </td>
+                    <td><%= time_ago_in_words(feedback.created_at) %> ago</td>
+                    <td>
+                        <%= link_to 'Edit', edit_feedback_path(feedback) %>
+                        <%= link_to 'Delete', feedback, method: :delete, data: { confirm: 'Are you sure?' } %>
+                    </td>
+                </tr>
+            <% end %>
+        <% else %>
+            <tr>
+                <td colspan="5">No feedbacks found</td>
+            </tr>
+        <% end %>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<style>
+    .comment .placeholder {
+        color: #aaa;
+    }
+</style>
+
+</body>
+</html>
