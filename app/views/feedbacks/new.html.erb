@@ -1,76 +1,121 @@
-<h1>Your GPT Wrapper</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT Wrapper</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .comment .placeholder {
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
 
-<%= form_with(model: @feedback, url: feedbacks_path, method: :post) do |form| %>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Feedback App</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:3000/feedbacks/dashboard">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:3000/feedbacks/new">Submit Feedback</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:3000/about">About</a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-<input type="text" id="userInput" placeholder="Ask me anything...">
-<button id="askGPTButton" type="button">Ask ChatGPT</button> <!-- Changed here: added ID, and type="button" -->
-<div id="chatGPTResponse"></div>
-<p> this is the result above the json file</p>
+<div class="container mt-5">
+    <h1>Your GPT Wrapper</h1>
 
-  <div id="suzuki" class="feedback-selection">
-    <%= form.button type: 'submit', class: 'btn btn-success' do %>
-      <i class="fas fa-thumbs-up custom-icon"></i>  <!-- Font Awesome "Thumbs Up" icon -->
+    <%= form_with(model: @feedback, url: feedbacks_path, method: :post) do |form| %>
+    
+    <input type="text" id="userInput" placeholder="Ask me anything...">
+    <button id="askGPTButton" type="button">Ask ChatGPT</button>
+    <div id="chatGPTResponse"></div>
+    <p>this is the result above the json file</p>
+
+    <div id="suzuki" class="feedback-selection">
+        <%= form.button type: 'submit', class: 'btn btn-success' do %>
+        <i class="fas fa-thumbs-up custom-icon"></i>
+        <% end %>
+        <%= form.hidden_field :vote, value: true %>
+        
+        <%= form.button id="thumbs-down", type: 'button', class: 'btn btn-danger' do %>
+        <i class="fas fa-thumbs-down custom-icon"></i>
+        <% end %>
+        <%= form.hidden_field :vote, value: false %>
+    </div>
+
+    <div id="comment-box" style="display: none;">
+        <%= form.text_area :comment, class: 'form-control', placeholder: 'Enter your feedback here, or not' %>
+        <%= form.button 'Submit Feedback with Comment', type: 'submit', class: 'btn btn-primary' %>
+    </div>
     <% end %>
-    <%= form.hidden_field :vote, value: true %>
+</div>
 
-    <%= form.button id="thumbs-down", type: 'button', class: 'btn btn-danger' do %> <!-- Changed here: added ID -->
-      <i class="fas fa-thumbs-down custom-icon"></i>  <!-- Font Awesome "Thumbs Down" icon -->
-    <% end %>
-    <%= form.hidden_field :vote, value: false %>
-  </div>
-
-  <div id="comment-box" style="display: none;">
-    <%= form.text_area :comment, class: 'form-control', placeholder: 'Enter your feedback here, or not' %>
-    <%= form.button 'Submit Feedback with Comment', type: 'submit', class: 'btn btn-primary' %>
-  </div>
-<% end %>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', (event) = {
-  const askGPTButton = document.getElementById('askGPTButton');
-  const thumbsDownButton = document.getElementById('thumbs-down');
-  const commentBox = document.getElementById('comment-box');
-  
-  if (askGPTButton) {
-    askGPTButton.addEventListener('click', function(event) {
-      event.preventDefault();
-      askChatGPT();
-    });
-  } else {
-    console.error('Ask GPT Button not found!');
-  }
-  
-  if (thumbsDownButton && commentBox) {
-    thumbsDownButton.addEventListener('click', function() {
-      commentBox.style.display = 'none';
-    });
-  } else {
-    console.error('Element not found!');
-  }
+document.addEventListener('DOMContentLoaded', (event) => {
+    const askGPTButton = document.getElementById('askGPTButton');
+    const thumbsDownButton = document.getElementById('thumbs-down');
+    const commentBox = document.getElementById('comment-box');
+    
+    if (askGPTButton) {
+        askGPTButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            askChatGPT();
+        });
+    } else {
+        console.error('Ask GPT Button not found!');
+    }
+
+    if (thumbsDownButton && commentBox) {
+        thumbsDownButton.addEventListener('click', function() {
+            commentBox.style.display = 'none';
+        });
+    } else {
+        console.error('Element not found!');
+    }
 });
 
 async function askChatGPT() {
-  const userInput = document.getElementById('userInput').value;
-  const responseContainer = document.getElementById('chatGPTResponse');
-  
-  try {
-    const response = await fetch('http://your-server-url/ask-chatgpt', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ message: userInput })
-    });
+    const userInput = document.getElementById('userInput').value;
+    const responseContainer = document.getElementById('chatGPTResponse');
 
-    if (response.ok) {
-      const data = await response.json();
-      responseContainer.innerHTML = data.response;
-    } else {
-      responseContainer.innerHTML = 'Failed to get response from ChatGPT.';
+    try {
+        const response = await fetch('http://your-server-url/ask-chatgpt', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userInput })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            responseContainer.innerHTML = data.response;
+        } else {
+            responseContainer.innerHTML = 'Failed to get response from ChatGPT.';
+        }
+    } catch (error) {
+        console.error('Error communicating with ChatGPT:', error);
+        responseContainer.innerHTML = 'An error occurred while communicating with ChatGPT.';
     }
-  } catch (error) {
-    console.error('Error communicating with ChatGPT:', error);
-    responseContainer.innerHTML = 'An error occurred while communicating with ChatGPT.';
-  }
 }
 </script>
+
+</body>
+</html>
