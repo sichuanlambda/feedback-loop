@@ -1,23 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback Dashboard</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" rel="stylesheet">
-    <!-- Data Tables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.css">
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h1 {
+            border-bottom: 2px solid #f4f6f9;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f4f6f9;
+        }
+
+        .comment .placeholder {
+            color: #aaa;
+        }
+
+        /* DataTables Pagination Styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            background-color: transparent !important;
+            border: 1px solid #ddd !important;
+            padding: 5px 10px;
+            margin-left: 5px;
+            transition: background-color 0.2s;
+            color: #333 !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background-color: #f4f6f9 !important;
+            border-color: #white !important;
+            color: #555 !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            border: 1px solid #eee !important;
+            color: #aaa !important;
+            cursor: not-allowed;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {    
+            color: aaa !important;
+            border-color: #white !important;
+        }
+
+    </style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-white">
     <a class="navbar-brand" href="#">Feedback App</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
+        <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
                 <a class="nav-link" href="http://localhost:3000/feedbacks/dashboard">Dashboard</a>
             </li>
@@ -30,63 +96,185 @@
         </ul>
     </div>
 </nav>
+<div class="container mt-5">
+    <h1>Feedback Over Time</h1>
+    
+    <!-- Add this canvas element for the chart -->
+    <canvas id="feedbackOverTimeChart" width="400" height="60"></canvas>
+</div>
+
+<div>
+<div class="container mt-5">
+   <h1>% Feedback Good/Bad</h1>
+    
+    <canvas id="feedbackPercentageChart" width="400" height="60"></canvas>
+</div>
 
 <div class="container mt-5">
     <h1>Feedback Dashboard</h1>
 
     <table class="table table-bordered table-hover" id="feedbackTable">
         <thead>
-        <tr>
-            <th>ID</th>
-            <th>Comment</th>
-            <th>Vote</th>
-            <th>Submitted At</th>
-            <th>Actions</th>
-        </tr>
+            <tr>
+                <th>ID</th>
+                <th>Comment</th>
+                <th>Vote</th>
+                <th>Submitted At</th>
+                <th>Actions</th>
+            </tr>
         </thead>
         <tbody>
-        <% if @feedbacks && !@feedbacks.empty? %>
-            <% @feedbacks.each do |feedback| %>
+            <% if @feedbacks && !@feedbacks.empty? %>
+                <% @feedbacks.each do |feedback| %>
+                    <tr>
+                        <td><%= feedback.id %></td>
+                        <td class="comment">
+                            <%= feedback.comment.present? ? feedback.comment : content_tag(:span, 'No Comment', class: 'placeholder') %>
+                        </td>
+                        <td>
+                            <%= feedback.vote ? '<i class="fas fa-thumbs-up text-success"></i>' : '<i class="fas fa-thumbs-down text-danger"></i>' %>
+                        </td>
+                        <td><%= time_ago_in_words(feedback.created_at) %> ago</td>
+                        <td>
+                            <%= link_to 'Edit', edit_feedback_path(feedback) %>
+                            <%= link_to 'Delete', feedback, method: :delete, data: { confirm: 'Are you sure?' } %>
+                        </td>
+                    </tr>
+                <% end %>
+            <% else %>
                 <tr>
-                    <td><%= feedback.id %></td>
-                    <td class="comment">
-                        <%= feedback.comment.present? ? feedback.comment : content_tag(:span, 'No Comment', class: 'placeholder') %>
-                    </td>
-                    <td>
-                        <%= feedback.vote ? '<i class="fas fa-thumbs-up"></i>' : '<i class="fas fa-thumbs-down"></i>' %>
-                    </td>
-                    <td><%= time_ago_in_words(feedback.created_at) %> ago</td>
-                    <td>
-                        <%= link_to 'Edit', edit_feedback_path(feedback) %>
-                        <%= link_to 'Delete', feedback, method: :delete, data: { confirm: 'Are you sure?' } %>
-                    </td>
+                    <td colspan="5">No feedbacks found</td>
                 </tr>
             <% end %>
-        <% else %>
-            <tr>
-                <td colspan="5">No feedbacks found</td>
-            </tr>
-        <% end %>
         </tbody>
     </table>
 </div>
-
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<!-- Data Tables JS -->
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
 <script>
     $(document).ready(function() {
         $('#feedbackTable').DataTable();
+
+        const now = new Date();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+        var feedbackDates = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
+        var goodFeedbackCounts = Array.from({ length: daysInMonth }, () => 0);
+        var badFeedbackCounts = Array.from({ length: daysInMonth }, () => 0);
+        var cumulativeFeedback = Array.from({ length: daysInMonth }, () => 0);
+
+for (let i = 0; i < daysInMonth; i++) {
+    cumulativeFeedback[i] = (i === 0 ? 0 : cumulativeFeedback[i - 1]) + goodFeedbackCounts[i] + badFeedbackCounts[i];
+}
+
+
+        
+        $('#feedbackTable tbody tr').each(function() {
+            const dateCell = new Date($(this).find('td:eq(0)').html());
+            const voteCell = $(this).find('td:eq(2)').html();
+            
+            const dayOfMonth = dateCell.getDate() - 1;
+
+            if (voteCell.includes('fa-thumbs-up')) {
+                goodFeedbackCounts[dayOfMonth] += 1;
+            } else {
+                badFeedbackCounts[dayOfMonth] += 1;
+            }
+        });
+
+        var goodFeedbackPercentage = goodFeedbackCounts.map((count, index) => {
+            const total = count + badFeedbackCounts[index];
+            return total === 0 ? 0 : (count / total) * 100;
+        });
+
+        var badFeedbackPercentage = goodFeedbackCounts.map((count, index) => {
+            const total = count + badFeedbackCounts[index];
+            return total === 0 ? 0 : (badFeedbackCounts[index] / total) * 100;
+        });
+
+        var feedbackPercentageData = {
+            labels: feedbackDates,
+            datasets: [{
+                    label: 'Good Feedback %',
+                    data: goodFeedbackPercentage,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Bad Feedback %',
+                    data: badFeedbackPercentage,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }
+            ]
+        };
+
+        var percentageCtx = document.getElementById('feedbackPercentageChart').getContext('2d');
+        var feedbackPercentageChart = new Chart(percentageCtx, {
+            type: 'line',
+            data: feedbackPercentageData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Day of Month'
+                        }
+                    }
+                }
+            }
+        });
+        var feedbackOverTimeData = {
+            labels: feedbackDates,
+            datasets: [{
+                label: 'Cumulative Feedback',
+                data: cumulativeFeedback,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        var timeCtx = document.getElementById('feedbackOverTimeChart').getContext('2d');
+        var feedbackOverTimeChart = new Chart(timeCtx, {
+    type: 'line',
+    data: feedbackOverTimeData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Number of Feedbacks'
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Day of Month'
+                }
+            }
+        }
+    }
+});
+
     });
+    
 </script>
 
-<style>
-    .comment .placeholder {
-        color: #aaa;
-    }
-</style>
-
 </body>
+
 </html>
