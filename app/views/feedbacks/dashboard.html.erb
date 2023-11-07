@@ -156,7 +156,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
 <script>
     $(document).ready(function() {
-        $('#feedbackTable').DataTable();
+        // Initialize the DataTable with sorting on the "Submitted At" column in descending order.
+        $('#feedbackTable').DataTable({
+            "order": [[0, "desc"]]
+        });
 
         const now = new Date();
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
@@ -164,18 +167,13 @@
         var feedbackDates = Array.from({ length: daysInMonth }, (_, i) => (i + 1).toString());
         var goodFeedbackCounts = Array.from({ length: daysInMonth }, () => 0);
         var badFeedbackCounts = Array.from({ length: daysInMonth }, () => 0);
-        var cumulativeFeedback = Array.from({ length: daysInMonth }, () => 0);
+        var totalFeedbackCounts = Array.from({ length: daysInMonth }, () => 0);
 
-for (let i = 0; i < daysInMonth; i++) {
-    cumulativeFeedback[i] = (i === 0 ? 0 : cumulativeFeedback[i - 1]) + goodFeedbackCounts[i] + badFeedbackCounts[i];
-}
-
-
-        
+        // Process feedback data.
         $('#feedbackTable tbody tr').each(function() {
             const dateCell = new Date($(this).find('td:eq(0)').html());
             const voteCell = $(this).find('td:eq(2)').html();
-            
+
             const dayOfMonth = dateCell.getDate() - 1;
 
             if (voteCell.includes('fa-thumbs-up')) {
@@ -183,37 +181,51 @@ for (let i = 0; i < daysInMonth; i++) {
             } else {
                 badFeedbackCounts[dayOfMonth] += 1;
             }
+            totalFeedbackCounts[dayOfMonth] += 1;
         });
 
+        // Calculate feedback percentages.
         var goodFeedbackPercentage = goodFeedbackCounts.map((count, index) => {
-            const total = count + badFeedbackCounts[index];
+            const total = totalFeedbackCounts[index];
             return total === 0 ? 0 : (count / total) * 100;
         });
 
-        var badFeedbackPercentage = goodFeedbackCounts.map((count, index) => {
-            const total = count + badFeedbackCounts[index];
-            return total === 0 ? 0 : (badFeedbackCounts[index] / total) * 100;
+        var badFeedbackPercentage = badFeedbackCounts.map((count, index) => {
+            const total = totalFeedbackCounts[index];
+            return total === 0 ? 0 : (count / total) * 100;
         });
 
+        // Feedback Percentage Chart Data.
         var feedbackPercentageData = {
             labels: feedbackDates,
             datasets: [{
-                    label: 'Good Feedback %',
-                    data: goodFeedbackPercentage,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                },
-                {
-                    label: 'Bad Feedback %',
-                    data: badFeedbackPercentage,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }
-            ]
+                label: 'Good Feedback %',
+                data: goodFeedbackPercentage,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Bad Feedback %',
+                data: badFeedbackPercentage,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
         };
 
+        // Feedback Over Time Chart Data.
+        var feedbackOverTimeData = {
+            labels: feedbackDates,
+            datasets: [{
+                label: 'Feedback Over Time',
+                data: totalFeedbackCounts,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        // Feedback Percentage Chart.
         var percentageCtx = document.getElementById('feedbackPercentageChart').getContext('2d');
         var feedbackPercentageChart = new Chart(percentageCtx, {
             type: 'line',
@@ -237,42 +249,32 @@ for (let i = 0; i < daysInMonth; i++) {
                 }
             }
         });
-        var feedbackOverTimeData = {
-            labels: feedbackDates,
-            datasets: [{
-                label: 'Cumulative Feedback',
-                data: cumulativeFeedback,
-                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                borderColor: 'rgba(153, 102, 255, 1)',
-                borderWidth: 1
-            }]
-        };
 
+        // Feedback Over Time Chart.
         var timeCtx = document.getElementById('feedbackOverTimeChart').getContext('2d');
         var feedbackOverTimeChart = new Chart(timeCtx, {
-    type: 'line',
-    data: feedbackOverTimeData,
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Number of Feedbacks'
-                }
-            },
-            x: {
-                title: {
-                    display: true,
-                    text: 'Day of Month'
+            type: 'line',
+            data: feedbackOverTimeData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Feedbacks'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Day of Month'
+                        }
+                    }
                 }
             }
-        }
-    }
-});
+        });
 
     });
-    
 </script>
 
 </body>
