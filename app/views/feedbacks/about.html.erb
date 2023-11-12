@@ -36,9 +36,52 @@
     </div>
 </nav>
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 20vh;">
     <h1 class="mt-5">hello world</h1>
 </div>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 20vh;">
+<%= form_with url: ask_gpt_path, method: :post, id: "gpt-form", local: false do |form| %>
+  <%= text_field_tag :question, nil, placeholder: "Ask me anything...", class: "question-input" %>
+  <%= submit_tag "Ask GPT", class: "gpt-submit" %>
+<% end %>
 
+<div id="gpt-answer"></div>
+</div>
 </body>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('gpt-form');
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const question = formData.get('question');
+    
+    fetch('/ask_gpt', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json', 
+        'X-CSRF-Token': document.querySelector("[name='csrf-token']").content,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prompt: question })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Received data:", data); // Log the data for debugging
+      if (data.text) {
+        document.getElementById('gpt-answer').textContent = data.text;
+      } else {
+        document.getElementById('gpt-answer').textContent = 'No response or error received';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      document.getElementById('gpt-answer').textContent = 'Error: Unable to fetch response.';
+    });
+  });
+});
+</script>
+
 </html>

@@ -1,8 +1,9 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   get "feedbacks/new", to: "feedbacks#new"
-  get "about", to: "feedbacks#about" 
+  get "about", to: "feedbacks#about"
   post "feedbacks", to: "feedbacks#create"
+  post 'ask_gpt', to: 'feedbacks#ask_gpt', defaults: { format: :json }
   get "thank_you", to: "feedbacks#thank_you"
   get 'feedbacks/dashboard', to: 'feedbacks#dashboard', as: 'feedbacks_dashboard'
 
@@ -14,7 +15,7 @@ member do
 patch 'submit_comment'
 end
 end
-#these are for two buttons 
+#these are for two buttons
 get 'thumbs_up', to: 'feedbacks#thumbs_up'
 get 'thumbs_down', to: 'feedbacks#thumbs_down'
 
@@ -27,4 +28,3 @@ get 'thumbs_down', to: 'feedbacks#thumbs_down'
   # Defines the root path route ("/")
   # root "posts#index"
 end
-

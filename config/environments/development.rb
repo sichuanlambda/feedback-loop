@@ -73,4 +73,10 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Add a reminder here to set the OPENAI_API_KEY environment variable for development.
+  # This should NOT be committed to version control. Instead, use environment
+  # variables or the dotenv-rails gem to manage your API keys securely.
+  # Example:
+  # export OPENAI_API_KEY=your_api_key_here
 end
