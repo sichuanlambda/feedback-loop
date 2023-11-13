@@ -7,7 +7,7 @@ class GptService
   def initialize
     @options = {
       headers: {
-        "Authorization" => "Bearer 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",
+        "Authorization" => "Bearer #{Rails.application.credentials.openai[:api_key]}",
         "Content-Type" => "application/json"
       }
     }
