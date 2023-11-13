@@ -13,6 +13,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<style>
+        .gpt-form-container {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        .gpt-answer-container {
+            margin-top: 1rem;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
 
@@ -36,17 +48,31 @@
     </div>
 </nav>
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 20vh;">
-    <h1 class="mt-5">hello world</h1>
-</div>
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 20vh;">
-<%= form_with url: ask_gpt_path, method: :post, id: "gpt-form", local: false do |form| %>
-  <%= text_field_tag :question, nil, placeholder: "Ask me anything...", class: "question-input" %>
-  <%= submit_tag "Ask GPT", class: "gpt-submit" %>
-<% end %>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center">
+                <h1 class="mt-5">Ask GPT</h1>
+                <p>Feel free to ask any question you have in mind.</p>
+            </div>
 
-<div id="gpt-answer"></div>
+            <div class="gpt-form-container">
+                <%= form_with url: ask_gpt_path, method: :post, id: "gpt-form", local: false do |form| %>
+                    <div class="form-group">
+                        <%= text_field_tag :question, nil, placeholder: "Ask me anything...", class: "form-control" %>
+                    </div>
+                    <%= submit_tag "Ask GPT", class: "btn btn-primary btn-block" %>
+                <% end %>
+            </div>
+
+            <div id="gpt-answer" class="gpt-answer-container"></div>
+        </div>
+    </div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
 </body>
 
 <script>
