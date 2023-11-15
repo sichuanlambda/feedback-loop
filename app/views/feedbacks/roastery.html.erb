@@ -82,9 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData(form);
     let question = formData.get('question');
 
-    // Augment the user's input here
-    const additionalContent = " Roast my tweet about its virality potential using gen z slang, unless the tweet has relative viral potential, the response should more make fun of the tweet in gen z slang";
-    question += additionalContent;
+    // Augment the user's input by prepending additional content
+    const additionalContent = "Roast my tweet about its virality potential using gen z slang, unless the tweet has relative viral potential, the response should more make fun of the tweet in gen z slang";
+    question = additionalContent + question;
 
     fetch('/ask_gpt', {
       method: 'POST',
