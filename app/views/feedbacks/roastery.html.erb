@@ -18,11 +18,39 @@
             margin-top: 2rem;
             margin-bottom: 2rem;
         }
+        .form-control {
+            padding: 10px;
+            font-size: 16px;
+        }
+        .btn-primary {
+            padding: 10px 15px;
+            font-size: 18px;
+        }
         .gpt-answer-container {
             margin-top: 1rem;
-            background-color: #f8f9fa;
             padding: 1rem;
             border-radius: 5px;
+            font-size: 16px;
+            display: none; /* Initially hidden */
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #3498db;
+            width: 50px;
+            height: 50px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+            margin: auto;
+            display: none; /* Initially hidden */
+        }
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -58,7 +86,6 @@
                 <h1 class="mt-5">Welcome to the Roastery</h1>
                 <p>Paste in your supposedly "viral" tweet, and we'll see just how true that is...</p>
             </div>
-
             <div class="gpt-form-container">
                 <%= form_with url: ask_gpt_path, method: :post, id: "gpt-form", local: false do |form| %>
                     <div class="form-group">
@@ -67,8 +94,10 @@
                     <%= submit_tag "Check it", class: "btn btn-primary btn-block" %>
                 <% end %>
             </div>
-
-            <div id="gpt-answer" class="gpt-answer-container"></div>
+            <div id="gpt-answer" class="gpt-answer-container">
+                <div class="loader"></div>
+                <div id="response-text"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -76,15 +105,21 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('gpt-form');
+  const loader = document.querySelector('.loader');
+  const responseText = document.getElementById('response-text');
+  const answerContainer = document.getElementById('gpt-answer');
+
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    loader.style.display = 'block';
+    responseText.textContent = ''; // Clear previous response text
+    answerContainer.style.display = 'block'; // Show container
 
     const formData = new FormData(form);
     let question = formData.get('question');
 
-    // Augment the user's input by prepending additional content
     const additionalContent = "Roast my tweet about its virality potential using gen z slang, unless the tweet has relative viral potential, the response should more make fun of the tweet in gen z slang";
-    question = additionalContent + question;
+    question = additionalContent + " " + question;
 
     fetch('/ask_gpt', {
       method: 'POST',
@@ -97,19 +132,21 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(response => response.json())
     .then(data => {
-      console.log("Received data:", data); // Log the data for debugging
+      loader.style.display = 'none';
       if (data.text) {
-        document.getElementById('gpt-answer').textContent = data.text;
+        responseText.textContent = data.text;
       } else {
-        document.getElementById('gpt-answer').textContent = 'No response or error received';
+        responseText.textContent = 'No response or error received';
       }
     })
     .catch(error => {
+      loader.style.display = 'none';
+      responseText.textContent = 'Error: Unable to fetch response.';
       console.error('Error:', error);
-      document.getElementById('gpt-answer').textContent = 'Error: Unable to fetch response.';
     });
   });
 });
 </script>
 
+</body>
 </html>
