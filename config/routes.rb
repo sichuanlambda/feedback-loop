@@ -7,19 +7,20 @@ Rails.application.routes.draw do
   get "thank_you", to: "feedbacks#thank_you"
   get 'feedbacks/dashboard', to: 'feedbacks#dashboard', as: 'feedbacks_dashboard'
 
+  # Route for the Roastery page
+  get "roastery", to: "feedbacks#roastery"
 
   # this is for displaying the feedback on the dashboard(?)
-resources :feedbacks do
-  get 'dashboard', on: :collection  # This will route to feedbacks#dashboard
-member do
-patch 'submit_comment'
-end
-end
-#these are for two buttons
-get 'thumbs_up', to: 'feedbacks#thumbs_up'
-get 'thumbs_down', to: 'feedbacks#thumbs_down'
+  resources :feedbacks do
+    get 'dashboard', on: :collection  # This will route to feedbacks#dashboard
+    member do
+      patch 'submit_comment'
+    end
+  end
 
-
+  # these are for two buttons
+  get 'thumbs_up', to: 'feedbacks#thumbs_up'
+  get 'thumbs_down', to: 'feedbacks#thumbs_down'
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

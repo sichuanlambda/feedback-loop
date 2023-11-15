@@ -10,6 +10,9 @@ class FeedbacksController < ApplicationController
 
   def about
   end
+  def roastery
+    # any necessary logic for the Roastery page
+  end
 
   # Handle the form submission
   def create

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - Feedback App</title>
+    <title>Score Your "Viral" Tweet</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Optional: jQuery library -->
@@ -41,11 +41,11 @@
             <li class="nav-item">
                 <a class="nav-link" href="http://localhost:3000/feedbacks/new">Submit Feedback</a>
             </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="http://localhost:3000/about">About</a>
             <li class="nav-item">
-                <a class="nav-link" href="http://localhost:3000/roastery">Roastery 🔥</a>
+                <a class="nav-link" href="http://localhost:3000/about">About</a>
             </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="http://localhost:3000/roastery">Roastery 🔥</a>
             </li>
         </ul>
     </div>
@@ -55,16 +55,16 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="text-center">
-                <h1 class="mt-5">Ask GPT</h1>
-                <p>Feel free to ask any question you have in mind.</p>
+                <h1 class="mt-5">Welcome to the Roastery</h1>
+                <p>Paste in your supposedly "viral" tweet, and we'll see just how true that is...</p>
             </div>
 
             <div class="gpt-form-container">
                 <%= form_with url: ask_gpt_path, method: :post, id: "gpt-form", local: false do |form| %>
                     <div class="form-group">
-                        <%= text_field_tag :question, nil, placeholder: "Ask me anything...", class: "form-control" %>
+                        <%= text_area_tag :question, nil, placeholder: "Wen lambo to the moon 🚀🤔", class: "form-control", rows: 4 %>
                     </div>
-                    <%= submit_tag "Ask GPT", class: "btn btn-primary btn-block" %>
+                    <%= submit_tag "Check it", class: "btn btn-primary btn-block" %>
                 <% end %>
             </div>
 
@@ -80,8 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
 
     const formData = new FormData(form);
-    const question = formData.get('question');
-    
+    let question = formData.get('question');
+
+    // Augment the user's input here
+    const additionalContent = " Roast my tweet about its virality potential using gen z slang, unless the tweet has relative viral potential, the response should more make fun of the tweet in gen z slang";
+    question += additionalContent;
+
     fetch('/ask_gpt', {
       method: 'POST',
       headers: {
