@@ -9,7 +9,7 @@ class GptService
 
     @options = {
       headers: {
-        "Authorization" => "Bearer #{Rails.application.credentials.openai[:api_key]}",
+        "Authorization" => "Bearer #{api_key}",
         "Content-Type" => "application/json"
       }
     }
