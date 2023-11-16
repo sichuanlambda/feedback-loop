@@ -5,6 +5,8 @@ class GptService
   base_uri 'https://api.openai.com/v1'
 
   def initialize
+    api_key = Rails.env.production? ? ENV['GPT_API_KEY_PRODUCTION'] : Rails.application.credentials.openai[:api_key]
+
     @options = {
       headers: {
         "Authorization" => "Bearer #{Rails.application.credentials.openai[:api_key]}",
