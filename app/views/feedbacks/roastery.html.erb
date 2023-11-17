@@ -23,29 +23,68 @@
         gtag('config', 'G-M4TLZ8N6CC');
     </script>
     <style>
-        .gpt-form-container {
-            margin-top: 2rem;
-            margin-bottom: 2rem;
+        body {
+            background: #eff6e0; /* Creamy background */;
+            font-family: 'Righteous';
         }
-        .form-control {
-            padding: 10px;
-            font-size: 16px;
+        .navbar {
+            background: transparent !important;
+            border-bottom: 3px solid #eff6e0;
+        }
+        .container {
+            background: #aec3b0; /* Muted green container */;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        .gpt-form-container {
+            background-color: #eff6e0; /* Creamy background for answer */
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .btn-primary {
-            padding: 10px 15px;
+            background-color: #598392; 
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
             font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #fdab76;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        .btn-primary.disabled, .btn-primary:disabled, .btn btn-primary btn-block {
+            background-color: #598392; 
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .form-control {
+            border-radius: 20px;
+            font-size: 16px;
         }
         .gpt-answer-container {
+            background: #eff6e0; /* A light yellow to stand out */
             margin-top: 1rem;
             padding: 1rem;
             border-radius: 5px;
             font-size: 16px;
             display: none; /* Initially hidden */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .loader {
             border: 5px solid #f3f3f3;
             border-radius: 50%;
-            border-top: 5px solid #3498db;
+            border-top: 5px solid #598392;
             width: 50px;
             height: 50px;
             -webkit-animation: spin 2s linear infinite;
@@ -92,8 +131,8 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="text-center">
-                <h1 class="mt-5">Welcome to the Roastery</h1>
-                <p>Paste in your supposedly "viral" tweet, and we'll see just how true that is...</p>
+                <h1 class="mt-5" style="color: #01161e;"> Welcome to the Roastery</h1>
+                <p style="color: #01161e;">Paste in your supposedly "viral" tweet, and we'll see just how true that is...</p>
             </div>
             <div class="gpt-form-container">
                 <%= form_with url: ask_gpt_path, method: :post, id: "gpt-form", local: false do |form| %>
