@@ -163,6 +163,11 @@
                 <% end %>
             </div>
             <div id="gpt-answer" class="gpt-answer-container">
+            <div class="loader"></div>
+            <img id="response-gif" src="https://media.tenor.com/j78-Owc0WLQAAAAi/oooo-oo.gif" style="display: none; position: absolute; right: -100px; top: 0;" alt="Response GIF">
+            <div id="response-text"></div>
+            </div>
+            <div id="gpt-answer" class="gpt-answer-container">
                 <div class="loader"></div>
                 <div id="response-text"></div>
             </div>
@@ -176,11 +181,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const loader = document.querySelector('.loader');
   const responseText = document.getElementById('response-text');
   const answerContainer = document.getElementById('gpt-answer');
+  const responseGif = document.getElementById('response-gif'); // Get the response GIF element
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     loader.style.display = 'block';
     responseText.textContent = ''; // Clear previous response text
+    responseGif.style.display = 'none'; // Ensure the GIF is hidden each time the form is submitted
     answerContainer.style.display = 'block'; // Show container
 
     const formData = new FormData(form);
@@ -192,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/ask_gpt', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json', 
+        'Accept': 'application/json',
         'X-CSRF-Token': document.querySelector("[name='csrf-token']").content,
         'Content-Type': 'application/json'
       },
@@ -203,7 +210,14 @@ document.addEventListener('DOMContentLoaded', () => {
       loader.style.display = 'none';
       if (data.text) {
         responseText.textContent = data.text;
-      } else {
+        // Show the GIF when the response is received
+        responseGif.style.display = 'block';
+        responseGif.style.right = '10px'; // Adjust this value as necessary for your layout
+        setTimeout(() => {
+        responseGif.style.display = 'none';
+        }, 5000); // 5000 milliseconds = 5 seconds
+      } 
+      else {
         responseText.textContent = 'No response or error received';
       }
     })
