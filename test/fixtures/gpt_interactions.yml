@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  submitted_at: 2023-11-19 16:03:34
+  response_time: 1
+  user_input: MyText
+  gpt_response: MyText
+
+two:
+  submitted_at: 2023-11-19 16:03:34
+  response_time: 1
+  user_input: MyText
+  gpt_response: MyText
