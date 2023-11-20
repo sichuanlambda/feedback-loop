@@ -171,38 +171,56 @@
                 <div class="loader"></div>
                 <div id="response-text"></div>
             </div>
+            <div id="feedback-buttons" style="display: none;">
+            <%= form_with url: feedbacks_path, method: :post, id: "feedback-form" do |form| %>
+                <%= form.button type: 'submit', class: 'btn btn-success', id: 'thumbs-up' do %>
+                <i class="fas fa-thumbs-up custom-icon"></i>
+                <% end %>
+                <%= form.hidden_field :vote, value: true, id: 'positive-vote' %>
+
+                <%= form.button type: 'button', class: 'btn btn-danger', id: 'thumbs-down' do %>
+                <i class="fas fa-thumbs-down custom-icon"></i>
+                <% end %>
+                <%= form.hidden_field :vote, value: false, id: 'negative-vote' %>
+
+                <%= form.hidden_field :gpt_interaction_id, id: 'gpt-interaction-id' %>
+            <% end %>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('gpt-form');
-  const loader = document.querySelector('.loader');
-  const responseText = document.getElementById('response-text');
-  const answerContainer = document.getElementById('gpt-answer');
-  const responseGif = document.getElementById('response-gif'); // Get the response GIF element
+    const form = document.getElementById('gpt-form');
+    const loader = document.querySelector('.loader');
+    const responseText = document.getElementById('response-text');
+    const answerContainer = document.getElementById('gpt-answer');
+    const responseGif = document.getElementById('response-gif');
+    const thumbsUpButton = document.getElementById('thumbs-up');
+    const thumbsDownButton = document.getElementById('thumbs-down');
+    let currentGptInteractionId;
 
-  function fetchWithRetry(url, options, retries, delay) {
+    function fetchWithRetry(url, options, retries, delay) {
     return fetch(url, options)
-      .then(response => {
-        if (!response.ok && retries > 0) {
-          return new Promise(resolve => setTimeout(resolve, delay))
-            .then(() => fetchWithRetry(url, options, retries - 1, delay));
-        } else {
-          return response.json(); // Or handle non-OK responses if needed
+        .then(response => {
+        if (!response.ok) {
+            if (retries > 0) {
+            return new Promise(resolve => setTimeout(resolve, delay))
+                .then(() => fetchWithRetry(url, options, retries - 1, delay));
+            }
+            return Promise.reject(new Error('Failed to fetch'));
         }
-      })
-      .catch(error => {
+        return response.json();
+        })
+        .catch(error => {
         if (retries > 0) {
-          return new Promise(resolve => setTimeout(resolve, delay))
+            return new Promise(resolve => setTimeout(resolve, delay))
             .then(() => fetchWithRetry(url, options, retries - 1, delay));
-        } else {
-          throw error;
         }
-      });
-  }
-
+        throw error;
+        });
+    }
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     loader.style.display = 'block';
@@ -226,26 +244,64 @@ document.addEventListener('DOMContentLoaded', () => {
       body: JSON.stringify({ prompt: question })
     };
 
-    fetchWithRetry('/ask_gpt', fetchOptions, 5, 1000) // 5 retries, 1000 ms delay
-      .then(data => {
-        loader.style.display = 'none';
-        if (data.text) {
-          responseText.textContent = data.text;
-          responseGif.style.display = 'block';
-          responseGif.style.right = '10px';
-          setTimeout(() => {
-            responseGif.style.display = 'none';
-          }, 7000); // 7000 milliseconds = 7 seconds
-        } else {
-          responseText.textContent = 'No response or error received';
-        }
-      })
+    fetchWithRetry('/ask_gpt', fetchOptions, 5, 1000)
+            .then(data => {
+                loader.style.display = 'none';
+                if (data.text) {
+                    responseText.textContent = data.text;
+                    responseGif.style.display = 'block';
+                    responseGif.style.right = '10px';
+                    setTimeout(() => {
+                        responseGif.style.display = 'none';
+                    }, 7000); // 7000 milliseconds = 7 seconds
+
+                    // Save the interaction ID and show feedback buttons
+                    currentGptInteractionId = data.gpt_interaction_id;
+                    document.getElementById('feedback-buttons').style.display = 'block';
+                } else {
+                    responseText.textContent = 'No response or error received';
+                }
+            })
       .catch(error => {
         loader.style.display = 'none';
         responseText.textContent = 'Error: Unable to fetch response after retries.';
         console.error('Error:', error);
       });
   });
+// Event listener for thumbs up button
+    thumbsUpButton.addEventListener('click', function() {
+        sendFeedback(true);
+    });
+
+    // Event listener for thumbs down button
+    thumbsDownButton.addEventListener('click', function() {
+        sendFeedback(false);
+    });
+
+    function sendFeedback(isPositive) {
+        fetch('/submit_feedback', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-Token': document.querySelector("[name='csrf-token']").content,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                vote: isPositive,
+                gpt_interaction_id: currentGptInteractionId
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Feedback sent successfully');
+            } else {
+                console.error('Error sending feedback');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
 });
 </script>
 

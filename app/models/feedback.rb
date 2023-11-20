@@ -1,3 +1,4 @@
 class Feedback < ApplicationRecord
-attr_accessor :comment
+  belongs_to :gpt_interaction, optional: true
+  attr_accessor :comment
 end
