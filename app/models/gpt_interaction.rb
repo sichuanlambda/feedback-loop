@@ -1,0 +1,2 @@
+class GptInteraction < ApplicationRecord
+end
