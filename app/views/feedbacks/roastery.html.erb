@@ -101,6 +101,10 @@
             display: none; /* Initially hidden */
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .btn-small {
+            padding: 2px 5px;
+            font-size: 5px;
+        }
         .loader {
             border: 5px solid #f3f3f3; /* Light loader ring */
             border-radius: 50%;
@@ -155,22 +159,32 @@
                 <p style="color: #01161e;">Paste in your supposedly "viral" tweet, and we'll see just how true that is...</p>
             </div>
             <div class="gpt-form-container">
-                <%= form_with url: ask_gpt_path, method: :post, id: "gpt-form", local: false do |form| %>
-                    <div class="form-group">
-                        <%= text_area_tag :question, nil, placeholder: "Wen lambo to the moon 🚀🤔", class: "form-control", rows: 4 %>
-                    </div>
-                    <%= submit_tag "Check it 🔥", class: "btn btn-primary btn-block" %>
-                <% end %>
-            </div>
-            <div id="gpt-answer" class="gpt-answer-container">
+            <%= form_with url: ask_gpt_path, method: :post, id: "gpt-form", local: false do |form| %>
+                <div class="form-group">
+                    <%= text_area_tag :question, nil, placeholder: "Wen lambo to the moon 🚀🤔", class: "form-control", rows: 4 %>
+                </div>
+                <%= submit_tag "Check it 🔥", class: "btn btn-primary btn-block" %>
+            <% end %>
+        </div>
+        <div id="gpt-answer" class="gpt-answer-container">
             <div class="loader"></div>
-            <img id="response-gif" src="https://media.tenor.com/j78-Owc0WLQAAAAi/oooo-oo.gif" style="display: none; position: absolute; right: -100px; top: 0;" alt="Response GIF">
             <div id="response-text"></div>
-            </div>
-            <div id="gpt-answer" class="gpt-answer-container">
-                <div class="loader"></div>
-                <div id="response-text"></div>
-            </div>
+            <img id="response-gif" src="https://media.tenor.com/j78-Owc0WLQAAAAi/oooo-oo.gif" style="display: none; position: absolute; right: -100px; top: 0;" alt="Response GIF">
+
+            <%= form_with model: @feedback, url: feedbacks_path, local: true, id: 'feedback-form' do |form| %>
+                <div id="feedback-selection" class="feedback-selection">
+                    <%= form.button type: 'submit', class: 'btn btn-small', name: 'feedback[vote]', value: 'true', style: 'padding: 5px 10px; font-size: 12px; background-color: grey; border-color: grey; color: white;' do %>
+                        <i class="fas fa-thumbs-up custom-icon" style="font-size: 12px; color: white;"></i>
+                    <% end %>
+
+                    <%= form.button type: 'submit', class: 'btn btn-small', name: 'feedback[vote]', value: 'false', style: 'padding: 5px 10px; font-size: 12px; background-color: grey; border-color: grey; color: white;' do %>
+                        <i class="fas fa-thumbs-down custom-icon" style="font-size: 12px; color: white;"></i>
+                    <% end %>
+                </div>
+            <% end %>
+
+
+        </div>
         </div>
     </div>
 </div>
@@ -182,7 +196,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const responseText = document.getElementById('response-text');
   const answerContainer = document.getElementById('gpt-answer');
   const responseGif = document.getElementById('response-gif'); // Get the response GIF element
+  const thumbsUpButtonRoastery = document.getElementById('thumbs-up-roastery');
+  const thumbsDownButtonRoastery = document.getElementById('thumbs-down-roastery');
+      if (thumbsUpButtonRoastery) {
+        thumbsUpButtonRoastery.addEventListener('click', function() {
+            // Implement logic for thumbs up (e.g., sending data to the server)
+        });
+    }
 
+    if (thumbsDownButtonRoastery) {
+        thumbsDownButtonRoastery.addEventListener('click', function() {
+            // Implement logic for thumbs down (e.g., sending data to the server)
+        });
+    }
   function fetchWithRetry(url, options, retries, delay) {
     return fetch(url, options)
       .then(response => {
