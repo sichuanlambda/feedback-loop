@@ -45,6 +45,10 @@ class FeedbacksController < ApplicationController
     @feedbacks = Feedback.all
   end
 
+  def screenshot_searcher
+    # Any setup needed for the view
+  end
+
   # everything below (except final end) is for the integraiton with GPT
   def ask_gpt
     start_time = Time.current  # Capture the start time

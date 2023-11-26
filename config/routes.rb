@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   post 'ask_gpt', to: 'feedbacks#ask_gpt', defaults: { format: :json }
   get "thank_you", to: "feedbacks#thank_you"
   get 'feedbacks/dashboard', to: 'feedbacks#dashboard', as: 'feedbacks_dashboard'
+  get 'screenshot_searcher', to: 'feedbacks#screenshot_searcher'
+
 
   # Route for the Roastery page
   get "roastery", to: "feedbacks#roastery"
