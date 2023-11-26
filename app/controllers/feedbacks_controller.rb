@@ -64,8 +64,13 @@ class FeedbacksController < ApplicationController
     end
   end
   def analyze_screenshot
-    # Assuming `screenshot` is the name of the file field in your form
     uploaded_file = params[:screenshot]
+
+    if uploaded_file.nil?
+      # Handle the case where the file is not uploaded
+      render json: { error: "No file uploaded" }, status: :bad_request
+      return
+    end
 
     # Create an Amazon Textract client
     textract = Aws::Textract::Client.new
