@@ -250,6 +250,27 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.readAsDataURL(this.files[0]);
         }
     });
+    //Code for the submit button to send data to aws textract
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+
+        fetch('/analyze_screenshot', { // Replace with the correct path
+        method: 'POST',
+        body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+        // Display the extracted text
+        responseText.textContent = data.extracted_text;
+        // Hide loader, display response container, etc.
+        })
+        .catch(error => {
+        console.error('Error:', error);
+        // Handle errors
+        });
+    });
 
     // Your existing JavaScript for handling the GPT form
     const gptForm = document.getElementById('gpt-form');

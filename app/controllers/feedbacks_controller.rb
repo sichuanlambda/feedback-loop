@@ -1,6 +1,7 @@
 require 'open-uri'
 require 'net/http'
 require 'json'
+require 'aws-sdk-textract'
 
 class FeedbacksController < ApplicationController
   # Display the feedback form
@@ -62,7 +63,26 @@ class FeedbacksController < ApplicationController
       render json: { error: 'No response from GPT service' }, status: :bad_request
     end
   end
+  def analyze_screenshot
+    # Assuming `screenshot` is the name of the file field in your form
+    uploaded_file = params[:screenshot]
 
+    # Create an Amazon Textract client
+    textract = Aws::Textract::Client.new
+
+    # Call Textract to analyze the document
+    response = textract.detect_document_text({
+      document: {
+        bytes: uploaded_file.read
+      }
+    })
+
+    # Process Textract response
+    extracted_text = response.blocks.map(&:text).join(' ')
+
+    # Respond with the extracted text
+    render json: { extracted_text: extracted_text }
+  end
   private
 
   def feedback_params

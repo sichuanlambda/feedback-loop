@@ -70,3 +70,5 @@ group :test do
 end
 
 gem 'httparty'
+
+gem 'aws-sdk-textract'
