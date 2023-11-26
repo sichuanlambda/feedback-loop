@@ -63,15 +63,19 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .btn-primary {
-            background-color: #0056b3; /* Blue button background */
-            border: none;
+        .btn-primary, .custom-file-upload {
+            width: 100%; /* Make buttons take full width of the container */
+            background-color: #0056b3;
+            color: white;
             border-radius: 20px;
             padding: 10px 20px;
             font-size: 18px;
             font-weight: bold;
+            text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            border: none;
+            margin-bottom: 10px; /* Add spacing between buttons */
         }
         .btn-primary:hover {
             background-color: #004080; /* Darker blue on hover */
@@ -92,6 +96,9 @@
             font-size: 16px;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); /* Slight inset shadow for depth */
         }
+        .custom-file-upload {
+            cursor: pointer; /* Indicate it's clickable */
+        }
         .gpt-answer-container {
             background: #FFFFFF; /* A white background */
             margin-top: 1rem;
@@ -106,6 +113,24 @@
             font-size: 5px;
         }
           #screenshot-input {
+            display: none;
+        }
+        #image-preview-container {
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically (if needed) */
+            text-align: center; /* Center the image horizontally */
+            margin-top: 20px; /* Add some space above the container */
+        }
+        #image-preview {
+            max-width: 80%; /* Set max width to 80% of its container */
+            max-height: auto; /* Maintain aspect ratio */
+            margin-top: 10px;
+            border-radius: 5px;
+            display: none; /* Hidden initially */
+        }
+        /* Hide the actual file input control */
+        #screenshot-input {
             display: none;
         }
         .loader {
@@ -155,22 +180,30 @@
 </nav>
 
  <div class="container" style="background: #FFFFFF; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="text-center">
-                    <h1 class="mt-5" style="color: #01161e;"> Welcome to Screenshot Searcher</h1>
-                    <p style="color: #01161e;">Upload your screenshot, and we'll analyze it...</p>
-                </div>
-                <div class="gpt-form-container">
-                    <!-- Update form action URL as per the new functionality -->
-                <%= form_with url: '#', method: :post, local: true, multipart: true, id: "screenshot-form" do |form| %>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center">
+                <h1 class="mt-5" style="color: #01161e;"> Screenshot Extractor ⛏️</h1>
+                <p style="color: #01161e;">Upload your screenshot, and we'll analyze it...</p>
+            </div>
+
+            <div class="gpt-form-container text-center"> <!-- Ensure text-center is here -->
+                <%= form_with url: analyze_screenshot_path, method: :post, local: true, multipart: true, id: "screenshot-upload-form" do |form| %>
                     <div class="form-group">
-                        <%= file_field_tag :screenshot, class: "form-control", id: "screenshot-input" %>
-                        <label for="screenshot-input" class="btn btn-primary btn-block">1. ⬆️ Upload Screenshot</label>
+                        <label for="screenshot-input" class="custom-file-upload" id="file-upload-label">
+                            1. ⬆️ Upload Screenshot
+                        </label>
+                        <%= form.file_field :screenshot, class: "form-control", id: "screenshot-input" %>
+
+                        <!-- Optional: Image preview -->
+                        <div id="image-preview-container" class="text-center"> <!-- Ensure text-center is here -->
+                            <img id="image-preview" src="#" alt="Image Preview" style="display: none; max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 5px;"/>
+                        </div>
                     </div>
-                    <%= submit_tag "2. 🔍 Analyze Screenshot", class: "btn btn-primary btn-block" %>
+                    <%= form.submit "2. 🔍 Analyze Screenshot", class: "btn btn-primary btn-block" %>
                 <% end %>
-                </div>
+            </div>
+                
                 <div id="screenshot-answer" class="gpt-answer-container">
                     <div class="loader"></div>
                     <div id="response-text"></div>
@@ -191,24 +224,55 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('gpt-form');
-  const loader = document.querySelector('.loader');
-  const responseText = document.getElementById('response-text');
-  const answerContainer = document.getElementById('gpt-answer');
-  const responseGif = document.getElementById('response-gif'); // Get the response GIF element
-  const thumbsUpButtonRoastery = document.getElementById('thumbs-up-roastery');
-  const thumbsDownButtonRoastery = document.getElementById('thumbs-down-roastery');
-      if (thumbsUpButtonRoastery) {
-        thumbsUpButtonRoastery.addEventListener('click', function() {
-            // Implement logic for thumbs up (e.g., sending data to the server)
+    // Get the form and other elements
+    const form = document.getElementById('screenshot-upload-form');
+    const loader = document.querySelector('.loader');
+    const responseText = document.getElementById('response-text');
+    const answerContainer = document.getElementById('gpt-answer');
+    const responseGif = document.getElementById('response-gif');
+    const screenshotInput = document.getElementById('screenshot-input');
+    const imagePreview = document.getElementById('image-preview');
+    const uploadButton = document.querySelector('.custom-file-upload');
+
+    // Event listener for the screenshot input change
+    screenshotInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Your existing JavaScript for handling the GPT form
+    const gptForm = document.getElementById('gpt-form');
+    if (gptForm) {
+        gptForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            // Additional code for handling GPT form submission
+            // ...
         });
     }
 
-    if (thumbsDownButtonRoastery) {
-        thumbsDownButtonRoastery.addEventListener('click', function() {
-            // Implement logic for thumbs down (e.g., sending data to the server)
-        });
-    }
+    // Event listener for custom upload button click
+    // uploadButton.addEventListener('click', function() {
+    //     screenshotInput.click();
+    // });
+    //   if (thumbsUpButtonRoastery) {
+    //     thumbsUpButtonRoastery.addEventListener('click', function() {
+    //         // Implement logic for thumbs up (e.g., sending data to the server)
+    //     });
+    // }
+
+    // if (thumbsDownButtonRoastery) {
+    //     thumbsDownButtonRoastery.addEventListener('click', function() {
+    //         // Implement logic for thumbs down (e.g., sending data to the server)
+    //     });
+    // }
   function fetchWithRetry(url, options, retries, delay) {
     return fetch(url, options)
       .then(response => {
@@ -251,7 +315,12 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       body: JSON.stringify({ prompt: question })
     };
-
+    document.getElementById('screenshot-input').addEventListener('change', function() {
+    document.getElementById('screenshot-upload-form').submit();
+    });
+    document.querySelector('.custom-file-upload').addEventListener('click', function() {
+    document.getElementById('screenshot-input').click();
+    });
     fetchWithRetry('/ask_gpt', fetchOptions, 5, 1000) // 5 retries, 1000 ms delay
       .then(data => {
         loader.style.display = 'none';

@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   get "thank_you", to: "feedbacks#thank_you"
   get 'feedbacks/dashboard', to: 'feedbacks#dashboard', as: 'feedbacks_dashboard'
   get 'screenshot_searcher', to: 'feedbacks#screenshot_searcher'
-
+  post 'analyze_screenshot', to: 'feedbacks#analyze_screenshot', as: 'analyze_screenshot'
 
   # Route for the Roastery page
   get "roastery", to: "feedbacks#roastery"
