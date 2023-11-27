@@ -210,16 +210,6 @@
                 <div id="screenshot-answer" class="gpt-answer-container">
                     <div class="loader"></div>
                     <div id="response-text"></div>
-                    <!-- Update the response GIF or remove if not needed -->
-                    <img id="response-gif" src="https://media.tenor.com/j78-Owc0WLQAAAAi/oooo-oo.gif" style="display: none; position: absolute; right: -100px; top: 0;" alt="Response GIF">
-                    
-                    <!-- Feedback form remains the same -->
-                    <%= form_with model: @feedback, url: feedbacks_path, local: true, id: 'feedback-form' do |form| %>
-                        <div id="feedback-selection" class="feedback-selection">
-                            <!-- Feedback buttons remain the same -->
-                            <!-- ... (feedback buttons content) ... -->
-                        </div>
-                    <% end %>
                 </div>
             </div>
         </div>
@@ -232,10 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.querySelector('.loader');
     const responseText = document.getElementById('response-text');
     const answerContainer = document.getElementById('screenshot-answer');
-    const responseGif = document.getElementById('response-gif');
     const screenshotInput = document.getElementById('screenshot-input');
     const imagePreview = document.getElementById('image-preview');
-    const uploadButton = document.querySelector('.custom-file-upload');
 
     // Event listener for the screenshot input change
     screenshotInput.addEventListener('change', function() {
@@ -250,12 +238,13 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.readAsDataURL(this.files[0]);
         }
     });
-    //Code for the submit button to send data to aws textract
+
+    // Event listener for the form submit action
     form.addEventListener('submit', (event) => {
+        console.log("Form submitted");
         event.preventDefault();
         loader.style.display = 'block';
         responseText.textContent = ''; // Clear previous response text
-        responseGif.style.display = 'none'; // Ensure the GIF is hidden each time the form is submitted
         answerContainer.style.display = 'block'; // Show container
 
         const formData = new FormData(form);
@@ -275,16 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error:', error);
         });
     });
-
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    loader.style.display = 'block';
-    responseText.textContent = ''; // Clear previous response text
-    responseGif.style.display = 'none'; // Ensure the GIF is hidden each time the form is submitted
-    answerContainer.style.display = 'block'; // Show container
-
-    const formData = new FormData(form);
-  });
 });
 </script>
 
