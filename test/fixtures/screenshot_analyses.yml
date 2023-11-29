@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  extracted_text: MyText
+  screenshot: one
+
+two:
+  extracted_text: MyText
+  screenshot: two

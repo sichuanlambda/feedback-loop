@@ -10,6 +10,7 @@ class FeedbacksController < ApplicationController
   end
 
   def about
+    # Logic for the about page
   end
 
   def roastery
@@ -21,7 +22,37 @@ class FeedbacksController < ApplicationController
   end
 
   def analyze_screenshot
-    # Logic for analyzing the screenshot
+    uploaded_file = params[:screenshot]
+
+    if uploaded_file.nil?
+      # Handle the case where the file is not uploaded
+      render json: { error: "No file uploaded" }, status: :bad_request
+      return
+    end
+
+    # Create an Amazon Textract client
+    textract = Aws::Textract::Client.new
+
+    # Call Textract to analyze the document
+    response = textract.detect_document_text({
+      document: {
+        bytes: uploaded_file.read
+      }
+    })
+
+    # Process Textract response
+    extracted_text = response.blocks.map(&:text).join(' ')
+
+    # Create a new ScreenshotAnalysis record
+    screenshot_analysis = ScreenshotAnalysis.new(extracted_text: extracted_text)
+    screenshot_analysis.screenshot.attach(uploaded_file)
+    if screenshot_analysis.save
+      # Respond with the extracted text and successful message
+      render json: { extracted_text: extracted_text, message: 'Screenshot and text saved successfully' }
+    else
+      # Handle save error
+      render json: { error: screenshot_analysis.errors.full_messages.join(", ") }, status: :unprocessable_entity
+    end
   end
 
   def create
@@ -54,8 +85,6 @@ class FeedbacksController < ApplicationController
   end
 
   def ask_gpt
-    start_time = Time.current
-
     prompt_response = GptService.new.send_prompt(params[:prompt])
     if prompt_response
       render json: { text: prompt_response }
@@ -63,31 +92,7 @@ class FeedbacksController < ApplicationController
       render json: { error: 'No response from GPT service' }, status: :bad_request
     end
   end
-  def analyze_screenshot
-    uploaded_file = params[:screenshot]
 
-    if uploaded_file.nil?
-      # Handle the case where the file is not uploaded
-      render json: { error: "No file uploaded" }, status: :bad_request
-      return
-    end
-
-    # Create an Amazon Textract client
-    textract = Aws::Textract::Client.new
-
-    # Call Textract to analyze the document
-    response = textract.detect_document_text({
-      document: {
-        bytes: uploaded_file.read
-      }
-    })
-
-    # Process Textract response
-    extracted_text = response.blocks.map(&:text).join(' ')
-
-    # Respond with the extracted text
-    render json: { extracted_text: extracted_text }
-  end
   private
 
   def feedback_params
