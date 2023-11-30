@@ -18,7 +18,12 @@ class FeedbacksController < ApplicationController
   end
 
   def screenshot_searcher
+    if params[:search].present?
+      # Search and filter records based on the search term
+    @screenshot_analyses = ScreenshotAnalysis.where("extracted_text LIKE ?", "%#{params[:search]}%")
+    else
     @screenshot_analyses = ScreenshotAnalysis.all.order(created_at: :desc)
+    end
   end
 
   def analyze_screenshot

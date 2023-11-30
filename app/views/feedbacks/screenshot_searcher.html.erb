@@ -191,8 +191,7 @@
         </ul>
     </div>
 </nav>
-
- <div class="container" style="background: #FFFFFF; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
+<div class="container" style="background: #FFFFFF; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="text-center">
@@ -226,7 +225,13 @@
     </div>
 <div class="container">
   <h2>Image Submissions</h2>
-  <table class="table">
+
+  <%= form_tag screenshot_searcher_path, method: :get, class: "search-form" do %>
+    <%= text_field_tag :search, params[:search], placeholder: "Search Extracted Text", class: "form-control" %>
+    <%= submit_tag "Search", class: "btn btn-primary" %>
+  <% end %>
+
+    <table class="table">
     <thead>
       <tr>
         <th>ID</th>
