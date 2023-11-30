@@ -18,7 +18,7 @@ class FeedbacksController < ApplicationController
   end
 
   def screenshot_searcher
-    # Logic for the screenshot searcher page
+    @screenshot_analyses = ScreenshotAnalysis.all.order(created_at: :desc)
   end
 
   def analyze_screenshot
