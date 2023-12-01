@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   get 'feedbacks/dashboard', to: 'feedbacks#dashboard', as: 'feedbacks_dashboard'
   get 'screenshot_searcher', to: 'feedbacks#screenshot_searcher'
   post 'analyze_screenshot', to: 'feedbacks#analyze_screenshot', as: 'analyze_screenshot'
+  get 'custom_sign_out', to: 'feedbacks#custom_sign_out'
+  get 'sign_out_confirmation', to: 'feedbacks#sign_out_confirmation'
 
   # Route for the Roastery page
   get "roastery", to: "feedbacks#roastery"

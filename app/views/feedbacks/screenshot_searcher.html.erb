@@ -165,32 +165,6 @@
     </style>
 </head>
 <body>
-
-<nav class="navbar navbar-expand-lg navbar-light" style="background: #F4F7FA; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <a class="navbar-brand" href="#" style="color: #01161e;">Feedback App</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="http://localhost:3000/feedbacks/dashboard">Dashboard</a>
-            </li>
-            <%# <li class="nav-item">
-                <a class="nav-link" href="http://localhost:3000/feedbacks/new">Submit Feedback</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="http://localhost:3000/about">About</a>
-            </li> %>
-            <li class="nav-item">
-                <a class="nav-link" href="http://localhost:3000/roastery">Roastery 🔥</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="http://localhost:3000/screenshot_searcher">Extractor 📲</a>
-            </li>
-        </ul>
-    </div>
-</nav>
 <div class="container" style="background: #FFFFFF; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
     <div class="row justify-content-center">
         <div class="col-md-12">
@@ -203,7 +177,7 @@
                 <%= form_with url: analyze_screenshot_path, method: :post, local: true, multipart: true, id: "screenshot-upload-form" do |form| %>
                     <div class="form-group">
                         <label for="screenshot-input" class="custom-file-upload" id="file-upload-label">
-                            1. ⬆️ Upload Screenshot
+                            Upload Screenshot
                         </label>
                         <%= form.file_field :screenshot, class: "form-control", id: "screenshot-input" %>
 
@@ -212,7 +186,7 @@
                             <img id="image-preview" src="#" alt="Image Preview" style="display: none; max-width: 100%; max-height: 500px; margin-top: 10px; border-radius: 5px;"/>
                         </div>
                     </div>
-                    <%= form.submit "2. 🔍 Analyze Screenshot", class: "btn btn-primary" %>
+                    <%= form.submit "Analyze Screenshot", class: "btn btn-primary" %>
                 <% end %>
             </div>
                 
@@ -231,8 +205,8 @@
     <%= submit_tag "Search", class: "btn btn-primary" %>
   <% end %>
 
-    <table class="table">
-    <thead>
+    <table class="table table-striped">
+    <thead class="thread-dark">
       <tr>
         <th>ID</th>
         <th>Filename</th>

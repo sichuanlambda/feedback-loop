@@ -1,26 +1,46 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>FeedbackApp</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
+<head>
+  <title>FeedbackApp</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
-    <%# <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
-    <% if user_signed_in? %>
-    <%= link_to 'Logout', destroy_user_session_path, method: :delete %>
-    <p>Welcome, <%= current_user.email %></p>
-    <% else %>
-      <%= link_to 'Login', new_user_session_path %> |
-      <%= link_to 'Sign up', new_user_registration_path %>
-    <% end %>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <%= stylesheet_link_tag 'application', 'data-turbo-track': 'reload' %>
+  <%= javascript_importmap_tags %>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <%# Add any additional stylesheet or javascript pack tags if necessary %>
+</head>
+<body>
 
-  </head>
+<nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background: #F4F7FA; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" style="color: #01161e;">Feedback App</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav mr-auto">
+        <a class="nav-item nav-link" href="/feedbacks/dashboard">Dashboard</a>
+        <a class="nav-item nav-link" href="/roastery">Roastery 🔥</a>
+        <a class="nav-item nav-link" href="/screenshot_searcher">Extractor 📲</a>
+      </div>
+      <div class="navbar-nav">
+        <% if user_signed_in? %>
+          <span class="navbar-text">Welcome, <%= current_user.email %></span>
+          <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
+        <% else %>
+          <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
+          <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</nav>
 
-  <body>
-    <%= yield %>
-  </body>
+<div class="container mt-4">
+  <%= yield %>
+</div>
+
+</body>
 </html>

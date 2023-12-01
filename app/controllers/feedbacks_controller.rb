@@ -99,6 +99,14 @@ class FeedbacksController < ApplicationController
     end
   end
 
+  def sign_out_confirmation
+    # Any additional logic (if needed)
+  end
+  def custom_sign_out
+    sign_out current_user
+    redirect_to sign_out_confirmation_path
+  end
+
   private
 
   def feedback_params
