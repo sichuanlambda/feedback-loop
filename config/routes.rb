@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :users
   # Define the root (home page) route
   root 'feedbacks#roastery'
 

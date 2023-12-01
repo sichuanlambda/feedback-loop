@@ -9,6 +9,13 @@
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
     <%# <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <% if user_signed_in? %>
+    <%= link_to 'Logout', destroy_user_session_path, method: :delete %>
+    <p>Welcome, <%= current_user.email %></p>
+    <% else %>
+      <%= link_to 'Login', new_user_session_path %> |
+      <%= link_to 'Sign up', new_user_registration_path %>
+    <% end %>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
   </head>

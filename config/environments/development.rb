@@ -74,6 +74,8 @@ Rails.application.configure do
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
 
+  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+
   # Add a reminder here to set the OPENAI_API_KEY environment variable for development.
   # This should NOT be committed to version control. Instead, use environment
   # variables or the dotenv-rails gem to manage your API keys securely.

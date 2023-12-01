@@ -72,3 +72,5 @@ end
 gem 'httparty'
 
 gem 'aws-sdk-textract'
+
+gem "devise", "~> 4.9"
