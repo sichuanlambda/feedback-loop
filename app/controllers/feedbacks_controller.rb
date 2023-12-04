@@ -28,36 +28,40 @@ class FeedbacksController < ApplicationController
   end
 
   def analyze_screenshot
-    uploaded_file = params[:screenshot]
+    uploaded_files = params[:screenshots]
 
-    if uploaded_file.nil?
-      # Handle the case where the file is not uploaded
+    if uploaded_files.blank?
       render json: { error: "No file uploaded" }, status: :bad_request
       return
     end
 
-    # Create an Amazon Textract client
     textract = Aws::Textract::Client.new
+    successes = 0
+    errors = []
 
-    # Call Textract to analyze the document
-    response = textract.detect_document_text({
-      document: {
-        bytes: uploaded_file.read
-      }
-    })
+    uploaded_files.each do |uploaded_file|
+      next if uploaded_file.blank? # Skip any blank file inputs
 
-    # Process Textract response
-    extracted_text = response.blocks.map(&:text).join(' ')
+      response = textract.detect_document_text({
+        document: { bytes: uploaded_file.read }
+      })
 
-    # Create a new ScreenshotAnalysis record
-    screenshot_analysis = ScreenshotAnalysis.new(extracted_text: extracted_text)
-    screenshot_analysis.screenshot.attach(uploaded_file)
-    if screenshot_analysis.save
-      # Respond with the extracted text and successful message
-      render json: { extracted_text: extracted_text, message: 'Screenshot and text saved successfully' }
+      extracted_text = response.blocks.map(&:text).join(' ')
+      screenshot_analysis = ScreenshotAnalysis.new(extracted_text: extracted_text)
+
+      screenshot_analysis.screenshots.attach(uploaded_file)
+
+      if screenshot_analysis.save
+        successes += 1
+      else
+        errors << screenshot_analysis.errors.full_messages.join(", ")
+      end
+    end
+
+    if errors.empty?
+      render json: { message: "#{successes} screenshots processed and saved successfully" }
     else
-      # Handle save error
-      render json: { error: screenshot_analysis.errors.full_messages.join(", ") }, status: :unprocessable_entity
+      render json: { message: "#{successes} screenshots saved, but errors occurred: #{errors.join("; ")}" }, status: :unprocessable_entity
     end
   end
 

@@ -1,3 +1,3 @@
 class ScreenshotAnalysis < ApplicationRecord
-  has_one_attached :screenshot
+  has_many_attached :screenshots
 end

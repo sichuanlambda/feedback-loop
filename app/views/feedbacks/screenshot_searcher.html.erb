@@ -122,7 +122,7 @@
             align-items: center; /* Center vertically (if needed) */
             text-align: center; /* Center the image horizontally */
             border-radius: 5px;
-            border: 2px solid #ddd; /* Example: a light grey border, 2 pixels thick */
+            border: none; /* Example: a light grey border, 2 pixels thick */
             margin-top: 20px; /* Add some space above the container */
         }
         #image-preview {
@@ -170,7 +170,7 @@
         <div class="col-md-12">
             <div class="text-center">
                 <h1 class="mt-5" style="color: #01161e;"> Screenshot Extractor ⛏️</h1>
-                <p style="color: #01161e;">Upload your screenshot, and we'll analyze it...</p>
+                <p style="color: #01161e;">Upload your screenshot, and we'll extract any text from it</p>
             </div>
 
             <div class="gpt-form-container text-center"> <!-- Ensure text-center is here -->
@@ -179,13 +179,14 @@
                         <label for="screenshot-input" class="custom-file-upload" id="file-upload-label">
                             Upload Screenshot
                         </label>
-                        <%= form.file_field :screenshot, class: "form-control", id: "screenshot-input" %>
-
+                        <%= form.file_field :screenshot, multiple: true, name: 'screenshots[]', class: "form-control", id: "screenshot-input" %>
                         <!-- Optional: Image preview -->
+                        <div id="file-info" style="margin-top: 10px;"></div>
                         <div id="image-preview-container" class="text-center"> <!-- Ensure text-center is here -->
                             <img id="image-preview" src="#" alt="Image Preview" style="display: none; max-width: 100%; max-height: 500px; margin-top: 10px; border-radius: 5px;"/>
                         </div>
                     </div>
+                    <div class="loader"></div>
                     <%= form.submit "Analyze Screenshot", class: "btn btn-primary" %>
                 <% end %>
             </div>
@@ -216,13 +217,13 @@
       </tr>
     </thead>
     <tbody>
-      <% @screenshot_analyses.each_with_index do |analysis, index| %>
+    <% @screenshot_analyses.each_with_index do |analysis, index| %>
         <tr>
-          <td><%= analysis.id %></td>
-          <td><%= analysis.screenshot.filename.to_s if analysis.screenshot.attached? %></td>
-          <td><%= truncate(analysis.extracted_text, length: 100) %></td>
-          <td><%= analysis.created_at.strftime("%b %d, %Y %H:%M") %></td>
-          <td>
+        <td><%= analysis.id %></td>
+        <td><%= analysis.screenshots.map(&:filename).join(', ') if analysis.screenshots.attached? %></td> <!-- Corrected this line -->
+        <td><%= truncate(analysis.extracted_text, length: 100) %></td>
+        <td><%= analysis.created_at.strftime("%b %d, %Y %H:%M") %></td>
+        <td>
             <!-- Trigger button for Modal -->
             <%= button_tag class: 'custom-icon', data: { toggle: 'modal', target: "#imageModal#{index}" } do %>
             <i class="fa fa-search"></i>
@@ -230,58 +231,50 @@
 
             <!-- Modal -->
             <div class="modal fade" id="imageModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel<%= index %>" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
-                  <div class="modal-header">
+                <div class="modal-header">
                     <h5 class="modal-title" id="imageModalLabel<%= index %>">Image Preview</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">&times;</span>
                     </button>
-                  </div>
-                  <div class="modal-body">
-                    <%= image_tag analysis.screenshot, class: 'img-fluid' if analysis.screenshot.attached? %>
-                  </div>
                 </div>
-              </div>
+                <div class="modal-body">
+                    <% if analysis.screenshots.attached? %>
+                    <% analysis.screenshots.each do |screenshot| %>
+                        <%= image_tag screenshot, class: 'img-fluid' %>
+                    <% end %>
+                    <% end %>                  
+                    </div>
+                </div>
             </div>
-          </td>
+            </div>
+        </td>
         </tr>
-      <% end %>
+    <% end %>
     </tbody>
   </table>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Get the form and other elements
     const form = document.getElementById('screenshot-upload-form');
     const loader = document.querySelector('.loader');
-    const responseText = document.getElementById('response-text');
-    const answerContainer = document.getElementById('screenshot-answer');
+    const fileInfo = document.getElementById('file-info');
     const screenshotInput = document.getElementById('screenshot-input');
-    const imagePreview = document.getElementById('image-preview');
 
-    // Event listener for the screenshot input change
     screenshotInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-            };
-
-            reader.readAsDataURL(this.files[0]);
+        if (this.files.length > 0) {
+            const fileNames = Array.from(this.files).map(file => file.name).join(', ');
+            fileInfo.textContent = `Selected files: ${fileNames}`;
+        } else {
+            fileInfo.textContent = '';
         }
     });
 
-    // Event listener for the form submit action
     form.addEventListener('submit', (event) => {
-        console.log("Form submitted");
         event.preventDefault();
         loader.style.display = 'block';
-        responseText.textContent = ''; // Clear previous response text
-        answerContainer.style.display = 'block'; // Show container
 
         const formData = new FormData(form);
 
@@ -292,11 +285,12 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             loader.style.display = 'none';
-            responseText.textContent = data.extracted_text; // Display the Textract response
+            fileInfo.textContent = 'Upload and analysis successful! Refresh page to search across your updated library!'; // Update the message as needed
+            // updateTableWithNewData(data); // Remove or comment out this line
         })
         .catch(error => {
             loader.style.display = 'none';
-            responseText.textContent = 'Error: ' + error.message;
+            fileInfo.textContent = 'Error processing files';
             console.error('Error:', error);
         });
     });
