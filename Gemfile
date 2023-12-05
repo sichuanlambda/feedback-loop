@@ -76,3 +76,7 @@ gem 'aws-sdk-textract'
 gem "devise", "~> 4.9"
 
 gem 'aws-sdk-s3', require: false
+
+gem 'kaminari-bootstrap'
+
+gem 'image_processing', '~> 1.2'

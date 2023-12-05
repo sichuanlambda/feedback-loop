@@ -15,6 +15,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -183,7 +184,7 @@
                         <!-- Optional: Image preview -->
                         <div id="file-info" style="margin-top: 10px;"></div>
                         <div id="image-preview-container" class="text-center"> <!-- Ensure text-center is here -->
-                            <img id="image-preview" src="#" alt="Image Preview" style="display: none; max-width: 100%; max-height: 500px; margin-top: 10px; border-radius: 5px;"/>
+                        <img id="image-preview" src="#" alt="Image Preview" style="display: none; max-width: 100%; max-height: 500px; margin-top: 10px; border-radius: 5px;"/>
                         </div>
                     </div>
                     <div class="loader"></div>
@@ -206,54 +207,54 @@
     <%= submit_tag "Search", class: "btn btn-primary" %>
   <% end %>
 
-    <table class="table table-striped">
-    <thead class="thread-dark">
-      <tr>
-        <th>ID</th>
-        <th>Filename</th>
-        <th>Extracted Text</th>
-        <th>Submitted At</th>
-        <th>Image</th>
-      </tr>
-    </thead>
-    <tbody>
-    <% @screenshot_analyses.each_with_index do |analysis, index| %>
-        <tr>
-        <td><%= analysis.id %></td>
-        <td><%= analysis.screenshots.map(&:filename).join(', ') if analysis.screenshots.attached? %></td> <!-- Corrected this line -->
-        <td><%= truncate(analysis.extracted_text, length: 100) %></td>
-        <td><%= analysis.created_at.strftime("%b %d, %Y %H:%M") %></td>
-        <td>
-            <!-- Trigger button for Modal -->
-            <%= button_tag class: 'custom-icon', data: { toggle: 'modal', target: "#imageModal#{index}" } do %>
-            <i class="fa fa-search"></i>
-            <% end %>            
+  <!-- Pagination controls at the top -->
+  <%= paginate @screenshot_analyses %>
 
-            <!-- Modal -->
-            <div class="modal fade" id="imageModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel<%= index %>" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="imageModalLabel<%= index %>">Image Preview</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <% if analysis.screenshots.attached? %>
-                    <% analysis.screenshots.each do |screenshot| %>
-                        <%= image_tag screenshot, class: 'img-fluid' %>
-                    <% end %>
-                    <% end %>                  
-                    </div>
-                </div>
-            </div>
-            </div>
-        </td>
-        </tr>
+  <div class="row">
+    <% @screenshot_analyses.each_with_index do |analysis, index| %>
+<div class="col-md-4">
+  <div class="card">
+    <% if analysis.screenshots.attached? %>
+      <% analysis.screenshots.each do |screenshot| %>
+        <%= image_tag screenshot, class: 'card-img-top thumbnail' %>
+      <% end %>
     <% end %>
-    </tbody>
-  </table>
+    <div class="card-body">
+      <h5 class="card-title">Screenshot <%= analysis.id %></h5>
+      <p class="card-text"><%= truncate(analysis.extracted_text, length: 100) %></p>
+      <p class="card-text"><small class="text-muted"><%= analysis.created_at.strftime("%b %d, %Y %H:%M") %></small></p>
+      <%= button_tag class: 'btn btn-primary', data: { toggle: 'modal', target: "#imageModal#{index}" } do %>
+        <i class="fa fa-search"></i>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="imageModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel<%= index %>" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="imageModalLabel<%= index %>">Image Preview</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <% if analysis.screenshots.attached? %>
+                <% analysis.screenshots.each do |screenshot| %>
+                  <%= image_tag screenshot, class: 'img-fluid' %>
+                <% end %>
+              <% end %>                  
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Pagination controls at the bottom -->
+  <%= paginate @screenshot_analyses %>
 </div>
 
 <script>

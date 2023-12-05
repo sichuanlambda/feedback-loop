@@ -25,6 +25,7 @@ class FeedbacksController < ApplicationController
     else
     @screenshot_analyses = ScreenshotAnalysis.all.order(created_at: :desc)
     end
+    @screenshot_analyses = ScreenshotAnalysis.page(params[:page]).per(12)
   end
 
   def analyze_screenshot
