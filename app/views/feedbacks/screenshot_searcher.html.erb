@@ -155,6 +155,28 @@
             margin: auto;
             display: none; /* Initially hidden */
         }
+        .card {
+            display: flex;
+            border: 3px solid #black; 
+            border-radius: 5%;
+            flex-direction: column;
+            height: 100%; /* This ensures all cards have the same height */
+        }
+        .card-img-top {
+            border: 3px solid, #black;
+            border radius: 5%;
+            width: 100%;
+            height: 100px; /* Adjust the height as needed */
+            object-fit: cover; /* This will cover the area, similar to 'background-size: cover' */
+        }
+        .date-and-button-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px; /* Adjust as needed */
+            margin-top: 10px; /* Adjust as needed */
+        }
         @-webkit-keyframes spin {
             0% { -webkit-transform: rotate(0deg); }
             100% { -webkit-transform: rotate(360deg); }
@@ -212,20 +234,21 @@
 
   <div class="row">
     <% @screenshot_analyses.each_with_index do |analysis, index| %>
-<div class="col-md-4">
+<div class="col-md-4 mb-4"">
   <div class="card">
     <% if analysis.screenshots.attached? %>
       <% analysis.screenshots.each do |screenshot| %>
-        <%= image_tag screenshot, class: 'card-img-top thumbnail' %>
+        <%= image_tag screenshot, class: 'card-img-top' %>
       <% end %>
     <% end %>
-    <div class="card-body">
-      <h5 class="card-title">Screenshot <%= analysis.id %></h5>
-      <p class="card-text"><%= truncate(analysis.extracted_text, length: 100) %></p>
-      <p class="card-text"><small class="text-muted"><%= analysis.created_at.strftime("%b %d, %Y %H:%M") %></small></p>
-      <%= button_tag class: 'btn btn-primary', data: { toggle: 'modal', target: "#imageModal#{index}" } do %>
+    <div class="date-and-button-containter" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+      <small class="text-muted"><%= analysis.created_at.strftime("%b %d, %Y %H:%M") %></small>
+      <%= button_tag class: 'btn btn-primary btn-preview', data: { toggle: 'modal', target: "#imageModal#{index}" } do %>
         <i class="fa fa-search"></i>
       <% end %>
+    </div>
+    <div class-"card-body">
+      <p class="card-text"><%= truncate(analysis.extracted_text, length: 100) %></p>
     </div>
   </div>
 </div>
