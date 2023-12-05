@@ -157,10 +157,9 @@
         }
         .card {
             display: flex;
-            border: 3px solid #black; 
-            border-radius: 5%;
             flex-direction: column;
             height: 100%; /* This ensures all cards have the same height */
+            padding: 5px;
         }
         .card-img-top {
             border: 3px solid, #black;
@@ -210,9 +209,11 @@
                         </div>
                     </div>
                     <div class="loader"></div>
-                    <%= form.submit "Analyze Screenshot", class: "btn btn-primary" %>
-                <% end %>
-            </div>
+                    <div style="display: flex; justify-content: center; margin-top: 10px;">
+                        <%= form.submit "Analyze Screenshot", class: "btn btn-primary", id: "analyze-button", style: "display: none;" %>
+                    </div>
+                     <% end %>
+                </div>
                 
                 <div id="screenshot-answer" class="gpt-answer-container">
                     <div class="loader"></div>
@@ -286,13 +287,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.querySelector('.loader');
     const fileInfo = document.getElementById('file-info');
     const screenshotInput = document.getElementById('screenshot-input');
+    const analyzeButton = document.getElementById('analyze-button'); // Get the analyze button
 
     screenshotInput.addEventListener('change', function() {
         if (this.files.length > 0) {
             const fileNames = Array.from(this.files).map(file => file.name).join(', ');
             fileInfo.textContent = `Selected files: ${fileNames}`;
+            analyzeButton.style.display = 'block'; // Show the analyze button
         } else {
             fileInfo.textContent = '';
+            analyzeButton.style.display = 'none'; // Hide the analyze button if no files are selected
         }
     });
 
@@ -309,13 +313,16 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             loader.style.display = 'none';
-            fileInfo.textContent = 'Upload and analysis successful! Refresh page to search across your updated library!'; // Update the message as needed
-            // updateTableWithNewData(data); // Remove or comment out this line
+            fileInfo.textContent = 'Upload and analysis successful! Refresh page to search across your updated library!';
+            // Hide the analyze button after submission
+            analyzeButton.style.display = 'none';
         })
         .catch(error => {
             loader.style.display = 'none';
             fileInfo.textContent = 'Error processing files';
             console.error('Error:', error);
+            // Hide the analyze button if there's an error
+            analyzeButton.style.display = 'none';
         });
     });
 });
