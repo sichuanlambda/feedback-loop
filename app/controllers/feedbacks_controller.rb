@@ -20,15 +20,16 @@ class FeedbacksController < ApplicationController
 
   def screenshot_searcher
     if params[:search].present?
-      # Search and filter records based on the search term
-      @screenshot_analyses = ScreenshotAnalysis.where("extracted_text LIKE ?", "%#{params[:search]}%")
-                                                .order(created_at: :desc)
-                                                .page(params[:page])
-                                                .per(12)
+      # Search and filter records based on the search term for the current user
+      @screenshot_analyses = current_user.screenshot_analyses.where("extracted_text LIKE ?", "%#{params[:search]}%")
+                                                              .order(created_at: :desc)
+                                                              .page(params[:page])
+                                                              .per(12)
     else
-      @screenshot_analyses = ScreenshotAnalysis.order(created_at: :desc)
-                                                .page(params[:page])
-                                                .per(12)
+      # Fetch only the current user's screenshot analyses
+      @screenshot_analyses = current_user.screenshot_analyses.order(created_at: :desc)
+                                                              .page(params[:page])
+                                                              .per(12)
     end
   end
 
@@ -52,7 +53,8 @@ class FeedbacksController < ApplicationController
       })
 
       extracted_text = response.blocks.map(&:text).join(' ')
-      screenshot_analysis = ScreenshotAnalysis.new(extracted_text: extracted_text)
+      # Create a new ScreenshotAnalysis associated with the current user
+      screenshot_analysis = current_user.screenshot_analyses.new(extracted_text: extracted_text)
 
       screenshot_analysis.screenshots.attach(uploaded_file)
 
