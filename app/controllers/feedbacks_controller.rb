@@ -8,6 +8,9 @@ class FeedbacksController < ApplicationController
   # Display the feedback form
   def new
     @feedback = Feedback.new
+    @gpt_interactions_count = GptInteraction.count
+    @users = User.count
+    @screenshots = Screenshot.count
   end
 
   def about

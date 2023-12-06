@@ -19,16 +19,8 @@
     <!-- Custom Styles -->
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Roboto', sans-serif;
             background-color: #f4f6f9;
-        }
-
-        .navbar {
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar-brand {
-            font-weight: bold;
         }
 
         .container {
@@ -36,106 +28,80 @@
             padding: 20px 30px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
+            margin-bottom: 30px;
         }
 
         h1 {
-            border-bottom: 2px solid #f4f6f9;
-            padding-bottom: 15px;
+            font-size: 28px;
+            color: #333;
             margin-bottom: 20px;
         }
 
-        .table-hover tbody tr:hover {
-            background-color: #f4f6f9;
+        .metric-container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
         }
 
-        .comment .placeholder {
-            color: #aaa;
+        .metric-container:hover {
+            transform: translateY(-5px);
         }
 
-        /* DataTables Pagination Styling */
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            background-color: transparent !important;
-            border: 1px solid #ddd !important;
-            padding: 5px 10px;
-            margin-left: 5px;
-            transition: background-color 0.2s;
-            color: #333 !important;
+        .metric-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
         }
 
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background-color: #f4f6f9 !important;
-            border-color: #white !important;
-            color: #555 !important;
+        .metric-number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #4a90e2;
         }
 
-        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-            border: 1px solid #eee !important;
-            color: #aaa !important;
-            cursor: not-allowed;
+        .metric-description {
+            font-size: 18px;
+            color: #666;
         }
 
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {    
-            color: aaa !important;
-            border-color: #white !important;
-        }
+        /* Colors for different metrics */
+        .tweets .metric-icon { color: #1DA1F2; }
+        .users .metric-icon { color: #FFC107; }
+        .screenshots .metric-icon { color: #E91E63; }
 
+        /* Responsive Grid */
+        @media (min-width: 768px) {
+            .metric-row {
+                display: flex;
+                justify-content: space-around;
+            }
+        }
     </style>
 </head>
 
 <body>
-<div class="container mt-5">
-    <h1>Feedback Over Time</h1>
-    
-    <!-- Add this canvas element for the chart -->
-    <canvas id="feedbackOverTimeChart" width="400" height="60"></canvas>
-</div>
+    <div class="container">
+        <h1>Dashboard Overview</h1>
+        <div class="metric-row">
+            <div class="metric-container tweets">
+                <i class="fas fa-feather metric-icon"></i>
+                <div class="metric-number"><%= GptInteraction.count %></div>
+                <div class="metric-description">Tweets Roasted</div>
+            </div>
+            <div class="metric-container users">
+                <i class="fas fa-users metric-icon"></i>
+                <div class="metric-number"><%= User.count %></div>
+                <div class="metric-description">Total Users</div>
+            </div>
+            <div class="metric-container screenshots">
+                <i class="fas fa-file-image metric-icon"></i>
+                <div class="metric-number"><%= ScreenshotAnalysis.count %></div>
+                <div class="metric-description">Screenshots Uploaded</div>
+            </div>
+        </div>
+    </div>
 
-<div>
-<div class="container mt-5">
-   <h1>% Feedback Good/Bad</h1>
-    
-    <canvas id="feedbackPercentageChart" width="400" height="60"></canvas>
-</div>
-
-<div class="container mt-5">
-    <h1>Feedback Dashboard</h1>
-
-    <table class="table table-bordered table-hover" id="feedbackTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Comment</th>
-                <th>Vote</th>
-                <th>Submitted At</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% if @feedbacks && !@feedbacks.empty? %>
-                <% @feedbacks.each do |feedback| %>
-                    <tr>
-                        <td><%= feedback.id %></td>
-                        <td class="comment">
-                            <%= feedback.comment.present? ? feedback.comment : content_tag(:span, 'No Comment', class: 'placeholder') %>
-                        </td>
-                        <td>
-                            <%= feedback.vote ? '<i class="fas fa-thumbs-up text-success"></i>' : '<i class="fas fa-thumbs-down text-danger"></i>' %>
-                        </td>
-                        <td><%= time_ago_in_words(feedback.created_at) %> ago</td>
-                        <td>
-                            <%= link_to 'Edit', edit_feedback_path(feedback) %>
-                            <%= link_to 'Delete', feedback, method: :delete, data: { confirm: 'Are you sure?' } %>
-                        </td>
-                    </tr>
-                <% end %>
-            <% else %>
-                <tr>
-                    <td colspan="5">No feedbacks found</td>
-                </tr>
-            <% end %>
-        </tbody>
-    </table>
-</div>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
