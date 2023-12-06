@@ -4,7 +4,7 @@ require 'json'
 require 'aws-sdk-textract'
 
 class FeedbacksController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, only: [:screenshot_searcher, :analyze_screenshot]
   # Display the feedback form
   def new
     @feedback = Feedback.new
