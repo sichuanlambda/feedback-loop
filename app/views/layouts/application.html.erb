@@ -25,7 +25,18 @@
         <a class="nav-item nav-link" href="/roastery">Roastery 🔥</a>
         <a class="nav-item nav-link" href="/screenshot_searcher">Extractor 📲</a>
       </div>
-      <div class="navbar-nav">
+
+      <!-- Centered Icons -->
+      <div class="navbar-nav mx-auto">
+        <a href="https://twitter.com/NathanSRobinson" target="_blank" class="nav-item nav-link">
+          <i class="fab fa-twitter" aria-hidden="true"></i>
+        </a>
+        <a href="https://productlaunchpro.co/" target="_blank" class="nav-item nav-link">
+          <i class="fas fa-rocket" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <div class="navbar-nav ml-auto">
         <% if user_signed_in? %>
           <span class="navbar-text">Welcome, <%= current_user.email %></span>
           <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
