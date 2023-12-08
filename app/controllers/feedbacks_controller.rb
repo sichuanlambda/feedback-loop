@@ -135,6 +135,14 @@ class FeedbacksController < ApplicationController
     redirect_to sign_out_confirmation_path
   end
 
+  def rate_my_dog
+    # Display the "Rate My Dog" form
+  end
+
+  def process_dog_image
+    # Logic to handle the uploaded image and interact with the GPT service
+  end
+
   private
 
   def feedback_params
