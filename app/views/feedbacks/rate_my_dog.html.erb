@@ -76,8 +76,8 @@
             <p style="color: #01161e;">Upload an image of your dog and get it rated!</p>
             <%= form_with url: rate_dog_path, method: :post, local: true, multipart: true, id: "dog-rating-form" do |form| %>
                 <div class="form-group">
-                    <label for="dog-image-input" class="custom-file-upload">Upload Dog Image</label>
-                    <%= form.file_field :dog_image, class: "form-control", id: "dog-image-input", required: true %>
+                    <label for="dog-image-input" class="custom-file-upload btn btn-primary btn-block">Upload Dog Image</label>
+                    <%= form.file_field :dog_image, class: "form-control", id: "dog-image-input", required: true, style: "display: none;" %>
 
                     <!-- Image preview container -->
                     <div id="image-preview-container" class="text-center">
@@ -94,27 +94,28 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('dog-rating-form');
-    const dogImageInput = document.getElementById('dog-image-input');
-    const imagePreview = document.getElementById('image-preview');
+    document.addEventListener('DOMContentLoaded', () => {
+        const dogImageInput = document.getElementById('dog-image-input');
+        const imagePreview = document.getElementById('image-preview');
+        const customUploadLabel = document.querySelector('.custom-file-upload');
 
-    dogImageInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-            };
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
+        // Preventing event propagation
+        customUploadLabel.addEventListener('click', function(event) {
+            event.preventDefault(); // This prevents any default action
+            dogImageInput.click(); // Trigger click on actual file input
+        });
 
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        // Logic to send the image to the server and handle the response
+        dogImageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block'; // Ensure the image preview is visible
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
     });
-});
 </script>
 </body>
 </html>
