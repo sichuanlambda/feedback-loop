@@ -140,7 +140,20 @@ class FeedbacksController < ApplicationController
   end
 
   def process_dog_image
-    # Logic to handle the uploaded image and interact with the GPT service
+    uploaded_image = params[:dog_image]
+
+    if uploaded_image.blank?
+      render json: { error: "No image uploaded" }, status: :bad_request
+      return
+    end
+
+    gpt_response = GptService.new.send_image(uploaded_image)
+
+    if gpt_response
+      render json: { response: gpt_response }
+    else
+      render json: { error: 'No response from GPT service' }, status: :bad_request
+    end
   end
 
   private
