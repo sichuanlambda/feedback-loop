@@ -2,16 +2,18 @@ class GptService
   include HTTParty
   base_uri 'https://api.openai.com/v1'
 
-  def initialize
+  def initialize(content_type = 'application/json')
     api_key = Rails.env.production? ? ENV['GPT_API_KEY_PRODUCTION'] : Rails.application.credentials.openai[:api_key]
+    raise "API key not found" if api_key.nil?
 
     @options = {
       headers: {
-        "Authorization" => "Bearer #{api_key}",
-        "Content-Type" => "application/json"
+        "Authorization" => "Bearer #{api_key}"
       }
     }
+    @options[:headers]["Content-Type"] = content_type if content_type
   end
+
 
   def send_prompt(prompt)
     body = {
@@ -31,6 +33,7 @@ class GptService
   end
 
   def send_image(image)
+    service = GptService.new(nil) # No Content-Type specified
     encoded_image = Base64.encode64(image.read)
 
     body = {
