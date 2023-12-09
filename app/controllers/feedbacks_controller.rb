@@ -147,6 +147,8 @@ class FeedbacksController < ApplicationController
       return
     end
 
+    gpt_service = GptService.new(nil)
+
     gpt_response = GptService.new.send_image(uploaded_image)
 
     if gpt_response

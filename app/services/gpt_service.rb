@@ -47,7 +47,7 @@ class GptService
       }
     }.to_json
 
-    response = self.class.post('/image/completions', @options.merge(body: body)) # Update endpoint if needed
+    response = self.class.post('/image/completions', body: body, headers: {"Authorization" => "Bearer #{api_key}"})
 
     if response.code == 200
       parse_response(response)
