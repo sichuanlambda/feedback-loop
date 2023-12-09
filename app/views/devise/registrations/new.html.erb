@@ -1,10 +1,30 @@
 <!-- app/views/devise/registrations/new.html.erb -->
 <head>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .align-items-center {
+      display: flex;
+      align-items: center;
+    }
+    .image-column {
+      display: flex;
+      justify-content: center; /* Center the image horizontally */
+    }
+    .image-column img {
+      max-width: 100%; /* Ensure image is responsive and doesn't overflow */
+      height: auto;
+    }
+  </style>
 </head>
 <!-- app/views/devise/registrations/new.html.erb -->
 <div class="container mt-5">
-  <div class="row justify-content-center">
+  <div class="row justify-content-center align-items-center">
+
+    <!-- Column for the Image -->
+    <div class="col-md-9 image-column">
+      <%= image_tag 'screenshot_extractor_explainer.jpg', class: 'img-fluid' %>
+    </div>
+
     <div class="col-md-6">
       <div class="card">
         <h5 class="card-header text-center" style="color: #01161e;">Sign Up</h5>
