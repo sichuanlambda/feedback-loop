@@ -140,21 +140,30 @@ class FeedbacksController < ApplicationController
   end
 
   def process_dog_image
+    Rails.logger.info "Started process_dog_image method"
+
     uploaded_image = params[:dog_image]
 
     if uploaded_image.blank?
+      Rails.logger.error "No image uploaded"
       render json: { error: "No image uploaded" }, status: :bad_request
       return
     end
 
-    gpt_service = GptService.new(nil)
+    begin
+      Rails.logger.info "Calling GptService with uploaded image"
+      gpt_response = GptService.new.send_image(uploaded_image)
 
-    gpt_response = GptService.new.send_image(uploaded_image)
-
-    if gpt_response
-      render json: { response: gpt_response }
-    else
-      render json: { error: 'No response from GPT service' }, status: :bad_request
+      if gpt_response
+        Rails.logger.info "Received response from GPT service"
+        render json: { response: gpt_response }, status: :ok
+      else
+        Rails.logger.error "No response from GPT service"
+        render json: { error: 'No response from GPT service' }, status: :service_unavailable
+      end
+    rescue StandardError => e
+      Rails.logger.error "Exception in process_dog_image: #{e.message}"
+      render json: { error: e.message }, status: :internal_server_error
     end
   end
 

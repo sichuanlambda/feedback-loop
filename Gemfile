@@ -80,3 +80,5 @@ gem 'aws-sdk-s3', require: false
 gem 'kaminari-bootstrap'
 
 gem 'image_processing', '~> 1.2'
+
+gem 'mini_magick'
