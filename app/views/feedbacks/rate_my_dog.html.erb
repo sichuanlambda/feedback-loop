@@ -18,7 +18,7 @@
             color: #01161e; /* Dark blue text */
         }
         .btn-primary, .custom-file-upload {
-            width: 100%; /* Make buttons take full width of the container */
+            width: 40%; /* Make buttons take full width of the container */
             background-color: #0056b3;
             color: white;
             border-radius: 20px;
@@ -33,6 +33,12 @@
         }
         .btn-primary:hover {
             background-color: #004080; /* Darker blue on hover */
+        }
+        .button-container {
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            margin-top: 30px;
+            margin-bottom: 10px; /* Add spacing between buttons */
         }
         .form-control {
             border-radius: 20px;
@@ -66,6 +72,25 @@
             display: none; /* Initially hidden */
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .loader {
+            border: 5px solid #f3f3f3; /* Light loader ring */
+            border-radius: 50%;
+            border-top: 5px solid #0056b3; /* Blue loader top */
+            width: 50px;
+            height: 50px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+            margin: auto;
+            display: none; /* Initially hidden */
+        }
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         /* Additional styles... */
     </style>
 </head>
@@ -73,22 +98,28 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h1 class="mt-5" style="color: #01161e;">Rate My Dog</h1>
-            <p style="color: #01161e;">Upload an image of your dog and get it rated!</p>
+            <h1 class="mt-5 text-center" style="color: #01161e;">Rate My Dog</h1>
+            <p class="text-center" style="color: #01161e;">I already love them, I promise ❤️</p>
             <%= form_with url: rate_dog_path, method: :post, local: true, multipart: true, id: "dog-rating-form" do |form| %>
                 <div class="form-group">
-                    <label for="dog-image-input" class="custom-file-upload btn btn-primary btn-block">Upload Dog Image</label>
-                    <%= form.file_field :dog_image, class: "form-control", id: "dog-image-input", required: true, style: "display: none;" %>
+                    <div class="button-container">
+                        <label for="dog-image-input" class="custom-file-upload btn btn-primary">Upload Dog Image</label>
+                        <%= form.file_field :dog_image, class: "form-control", id: "dog-image-input", required: true, style: "display: none;" %>
+                    </div>
 
                     <!-- Image preview container -->
                     <div id="image-preview-container" class="text-center">
                         <img id="image-preview" src="#" alt="Dog Image Preview" style="display: none; max-width: 80%; max-height: auto; margin-top: 10px; border-radius: 5px;"/>
                     </div>
+
+                    <div class="button-container">
+                        <%= form.submit "Rate My Dog", class: "btn btn-primary" %>
+                    </div>
                 </div>
-                <%= form.submit "Rate My Dog", class: "btn btn-primary btn-block" %>
             <% end %>
         </div>
     </div>
+    <div class="loader"></div>
     <div id="rating-response" class="gpt-answer-container" style="display: none;">
         <!-- Response will be displayed here -->
     </div>
@@ -101,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imagePreview = document.getElementById('image-preview');
     const customUploadLabel = document.querySelector('.custom-file-upload');
     const ratingResponse = document.getElementById('rating-response');
+    const loader = document.querySelector('.loader'); // Get the loader element
 
     customUploadLabel.addEventListener('click', function(event) {
         event.preventDefault();
@@ -122,12 +154,19 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const formData = new FormData(form);
 
+        // Show the loader when the form is submitted
+        loader.style.display = 'block';
+        ratingResponse.style.display = 'none'; // Hide previous response
+
         fetch('/process_dog_image', { 
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
+            // Hide the loader when fetch is complete
+            loader.style.display = 'none';
+
             if (data.response) {
                 ratingResponse.textContent = data.response;
                 ratingResponse.style.display = 'block';
@@ -137,6 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
         .catch(error => {
+            // Hide the loader if there is an error
+            loader.style.display = 'none';
+
             console.error('Error:', error);
             ratingResponse.textContent = 'Error processing the image';
             ratingResponse.style.display = 'block';
