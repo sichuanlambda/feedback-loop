@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   # Routes for dog page
   get '/rate_my_dog', to: 'feedbacks#rate_my_dog'
   post '/process_dog_image', to: 'feedbacks#process_dog_image', as: 'rate_dog'
+  post '/upload_to_s3', to: 'feedbacks#upload_to_s3'
 
   # Route for the Roastery page
   get "roastery", to: "feedbacks#roastery"

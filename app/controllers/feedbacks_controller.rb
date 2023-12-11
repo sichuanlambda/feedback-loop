@@ -2,6 +2,7 @@ require 'open-uri'
 require 'net/http'
 require 'json'
 require 'aws-sdk-textract'
+require 'aws-sdk-s3'
 
 class FeedbacksController < ApplicationController
   before_action :authenticate_user!, only: [:screenshot_searcher, :analyze_screenshot]
@@ -140,34 +141,41 @@ class FeedbacksController < ApplicationController
   end
 
   def process_dog_image
-    Rails.logger.info "Started process_dog_image method"
-
     uploaded_image = params[:dog_image]
 
     if uploaded_image.blank?
-      Rails.logger.error "No image uploaded"
       render json: { error: "No image uploaded" }, status: :bad_request
       return
     end
 
     begin
-      Rails.logger.info "Calling GptService with uploaded image"
-      gpt_response = GptService.new.send_image(uploaded_image)
+      image_url = upload_image_to_s3(uploaded_image)
+      return render json: { error: 'S3 upload failed' }, status: :unprocessable_entity if image_url.nil?
+
+      gpt_response = GptService.new.send_image_url(image_url)
 
       if gpt_response
-        Rails.logger.info "Received response from GPT service"
         render json: { response: gpt_response }, status: :ok
       else
-        Rails.logger.error "No response from GPT service"
         render json: { error: 'No response from GPT service' }, status: :service_unavailable
       end
-    rescue StandardError => e
-      Rails.logger.error "Exception in process_dog_image: #{e.message}"
+    rescue => e
       render json: { error: e.message }, status: :internal_server_error
     end
   end
 
   private
+  def upload_image_to_s3(uploaded_file)
+    return nil if uploaded_file.blank?
+
+    s3 = Aws::S3::Resource.new(region: 'us-east-2')
+    obj = s3.bucket('rating-dogs').object("uploads/#{uploaded_file.original_filename}")
+    obj.upload_file(uploaded_file.tempfile.path)
+    obj.public_url
+  rescue => e
+    Rails.logger.error "S3 Upload Failed: #{e.message}"
+    nil
+  end
 
   def feedback_params
     params.require(:feedback).permit(:vote, :comment, :screenshot)

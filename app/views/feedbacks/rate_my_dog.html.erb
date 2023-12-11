@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%= csrf_meta_tags %>
     <title>Rate My Dog</title>
     <!-- Bootstrap CSS and other dependencies -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -94,53 +95,54 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('dog-rating-form');
-        const dogImageInput = document.getElementById('dog-image-input');
-        const imagePreview = document.getElementById('image-preview');
-        const customUploadLabel = document.querySelector('.custom-file-upload');
-        const ratingResponse = document.getElementById('rating-response');
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('dog-rating-form');
+    const dogImageInput = document.getElementById('dog-image-input');
+    const imagePreview = document.getElementById('image-preview');
+    const customUploadLabel = document.querySelector('.custom-file-upload');
+    const ratingResponse = document.getElementById('rating-response');
 
-        customUploadLabel.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent default action
-            dogImageInput.click(); // Trigger click on actual file input
-        });
+    customUploadLabel.addEventListener('click', function(event) {
+        event.preventDefault();
+        dogImageInput.click();
+    });
 
-        dogImageInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block'; // Display image preview
-                };
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
+    dogImageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
 
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const formData = new FormData(form);
-            fetch('/process_dog_image', { 
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.response) {
-                    ratingResponse.textContent = data.response;
-                    ratingResponse.style.display = 'block';
-                } else {
-                    ratingResponse.textContent = 'Error: No response from GPT service';
-                    ratingResponse.style.display = 'block';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                ratingResponse.textContent = 'Error processing the image';
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(form);
+
+        fetch('/process_dog_image', { 
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.response) {
+                ratingResponse.textContent = data.response;
                 ratingResponse.style.display = 'block';
-            });
+            } else {
+                ratingResponse.textContent = 'Error: No response from GPT service';
+                ratingResponse.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            ratingResponse.textContent = 'Error processing the image';
+            ratingResponse.style.display = 'block';
         });
     });
+});
 </script>
 </body>
 </html>
