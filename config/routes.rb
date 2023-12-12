@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users
   # Define the root (home page) route
-  root 'feedbacks#roastery'
+  root 'pages#home'
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   get "feedbacks/new", to: "feedbacks#new"

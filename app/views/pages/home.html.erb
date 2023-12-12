@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Validator - Home</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        /* Include styles from your feedback dashboard page */
+        /* ... */
+
+        .landing-section {
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .feature-card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            text-align: center;
+        }
+
+        .feature-card img {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px;
+            text-align: center;
+            /* Set a max-width for the cards */
+            max-width: 250px; /* Adjust as needed */
+        }
+
+        .feature-card h3 {
+            margin-top: 15px;
+        }
+
+        .feature-card p {
+            color: #666;
+        }
+
+        /* Responsive Grid for feature cards */
+        @media (min-width: 768px) {
+            .card-row {
+                display: flex;
+                justify-content: space-around;
+            }
+        }
+        .emoji-icon {
+            font-size: 40px; /* Adjust the size as needed */
+            margin-bottom: 15px; /* Add some space below the emoji */
+        }
+        .landing-section {
+            padding: 40px 0;
+            text-align: center;
+            /* Add bottom padding */
+            padding-bottom: 60px; /* Adjust the value as needed */
+        }
+
+        /* Additional custom styles */
+    </style>
+</head>
+<body>
+    <div class="landing-section">
+        <!-- Top section with image, title, subtitle, and email waitlist -->
+        <section class="landing-section">
+            <div class="d-flex align-items-center justify-content-center">
+                <div>
+                    <h1>Future Home to a Tool<br>for Builders of AI Tools</h1>
+                    <p>Current home of a series of micro apps that I build to build up my programming skills and to eventually eat my own dog food and build my LLM Validation app for myself.</p>
+                    <!-- Email waitlist form -->
+                    <form action="your_signup_endpoint">
+                        <input type="email" placeholder="email">
+                        <button type="submit" class="btn btn-primary">Notify Me</button>
+                    </form>
+                </div>
+                <%= image_tag 'validator.png', alt: 'Logo', style: 'max-width:100px; height:auto; margin: 40px;' %>
+            </div>
+        </section>
+
+        <!-- Feature Cards Section -->
+        <section class="row">
+            <div class="col-12 col-md-4 d-flex">
+                    <div class="feature-card w-100">
+                    <div class="emoji-icon">🐶</div>
+                    <h3>Rate My Dog</h3>
+                    <p>Upload an image of your dog and get a cute rating!</p>
+                    <p>What I Learned:</p>
+                        <li>Utilizing GPT-4 Image Preview</li>
+                        <li>Using a URL rather than the image</li>
+                        <li>AWS S3 Buckets & Policies</li>
+                    <a href="/rate_my_dog" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 d-flex">
+                    <div class="feature-card w-100">
+                    <div class="emoji-icon">📸</div>
+                    <h3>Screenshot Searcher</h3>
+                    <p>Upload your screenshots, find them again by the text inside them.</p>
+                    <p>What I Learned:</p>
+                        <li>AWS Textract</li>
+                        <li>User Authentication</li>
+                        <li>AWS S3 Buckets</li>
+                    <a href="/screenshot_searcher" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 d-flex">
+                    <div class="feature-card w-100">
+                    <div class="emoji-icon">🐦</div>
+                    <h3>Tweet Roastery</h3>
+                    <p>Paste your tweet and have it roasted in gen-z slang.</p>
+                    <p>What I Learned:</p>
+                       <li>UI, Navs, HTML & CSS</li>
+                       <li>GPT API & Prompt Augmentation</li>
+                       <li>Animations & Logic</li>
+                    <a href="/roastery" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+            <!-- Additional cards if necessary -->
+        </section>
+    </div>
+
+
+    <!-- Include necessary scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
