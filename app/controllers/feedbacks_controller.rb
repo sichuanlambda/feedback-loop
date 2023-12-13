@@ -155,6 +155,7 @@ class FeedbacksController < ApplicationController
       gpt_response = GptService.new.send_image_url(image_url)
 
       if gpt_response
+        DogRating.create(image: image_url, caption: gpt_response)
         render json: { response: gpt_response }, status: :ok
       else
         render json: { error: 'No response from GPT service' }, status: :service_unavailable
