@@ -13,7 +13,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <style>
         body {
-            background: #202020; /* Light blue background */
+            background: #E8E8E8; /* Light blue background */
             font-family: 'Arial', sans-serif; /* Clean, sans-serif font */
             color: #01161e; /* Dark blue text */
         }
@@ -98,8 +98,8 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h1 class="mt-5 text-center" style="color: #fff;">Rate My Dog</h1>
-            <p class="text-center" style="color: #fff;">I already love them, I promise ❤️</p>
+            <h1 class="mt-5 text-center" style="color: black;">Rate My Dog</h1>
+            <p class="text-center" style="color: black;">I already love them, I promise ❤️</p>
             <%= form_with url: rate_dog_path, method: :post, local: true, multipart: true, id: "dog-rating-form" do |form| %>
                 <div class="form-group">
                     <div class="button-container">
