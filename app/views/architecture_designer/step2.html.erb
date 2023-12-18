@@ -152,27 +152,64 @@
 </head>
 <body>
     <div class="container">
-        <!-- Start Form -->
         <%= form_with url: '/architecture_designer/step3', method: :get, id: 'step2_form' do |form| %>
-            
-            <% # Assuming 5 questions each with 4 options %>
-            <% 5.times do |question_index| %>
-                <div class="feature-card d-flex">
-                    <div class="card-content col-md-12 text-center">
-                        <h3>Question <%= question_index + 1 %></h3>
-                        <% ['Option A', 'Option B', 'Option C', 'Option D'].each do |option| %>
-                            <button type="button" class="btn option-btn" data-value="<%= "Q#{question_index+1}_#{option}" %>"><%= option %></button>
-                        <% end %>
-                        <%= form.hidden_field "selected_options_q#{question_index+1}", value: '', id: "selected_options_q#{question_index+1}" %>
-                    </div>
-                </div>
-            <% end %>
 
-            <!-- Button Group -->
-            <div class="button-group d-flex justify-content-center align-items-center mt-3">
+            <!-- Primary Inspiration Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Primary Inspiration</h3>
+                    <% ['Futuristic/Sci-fi', 'Historical (e.g., Gothic, Romanesque)', 'Natural/Environmental', 'Abstract/Artistic', 'Industrial/Urban', 'Classical/Renaissance', 'Minimalist/Modern', 'Art Nouveau/Art Deco', 'Rustic/Country', 'Coastal/Mediterranean', 'Bohemian/Eclectic', 'Traditional/Colonial'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="primary_inspiration_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Dominant Material Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Dominant Material</h3>
+                    <% ['Glass and Steel', 'Brick and Stone', 'Wood and Natural Fibers', 'Concrete and Metal', 'Plaster and Ceramic', 'Copper and Bronze', 'Aluminum and Plastic', 'Bamboo and Rattan', 'Fabric and Textile', 'Recycled Materials', 'Terracotta and Clay', 'Composite Materials'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="dominant_material_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Color Palette Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Color Palette</h3>
+                    <% ['Monochromatic and Neutral', 'Earth Tones and Warm Colors', 'Bold and Vibrant Colors', 'Pastel and Soft Colors', 'Black, White, and Grey', 'Metallics (Gold, Silver, Copper)', 'Jewel Tones (Ruby, Emerald, Sapphire)', 'Primary Colors (Red, Blue, Yellow)', 'Neon and Electric', 'Cool Tones (Blues, Greens, Purples)', 'Muted and Desaturated', 'Bright and Cheerful'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="color_palette_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Form and Structure Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Form and Structure</h3>
+                    <% ['Geometric and Angular', 'Curved and Organic', 'Asymmetrical and Unconventional', 'Symmetrical and Traditional', 'Modular and Prefabricated', 'Freeform and Sculptural', 'Layered and Stacked', 'Streamlined and Aerodynamic', 'Compact and Efficient', 'Expansive and Open', 'Multi-level and Terraced', 'Interlocking and Overlapping'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="form_structure_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Decorative Elements Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Decorative Elements</h3>
+                    <% ['Minimalist and Functional', 'Ornate and Detailed', 'Naturalistic and Themed', 'Abstract and Symbolic', 'Vintage and Retro', 'Handmade and Artisan', 'Luxurious and Glamorous', 'Industrial and Raw', 'Whimsical and Playful', 'Cultural and Ethnic', 'Nautical and Coastal', 'Botanical and Floral'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="decorative_elements_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Button Group for navigation -->
+            <div class="button-group">
                 <%= link_to 'Back', '/architecture_designer/step1', class: 'btn btn-secondary' %>
                 <%= form.submit 'Next', class: 'btn btn-primary' %>
             </div>
+
         <% end %>
     </div>
 
@@ -186,44 +223,30 @@
         optionButtons.forEach(function (btn) {
             btn.addEventListener('click', function () {
                 this.classList.toggle('active');
-                updateSelectedOptions(this);
+                updateSelectedOptions(this.closest('.feature-card'));
             });
         });
 
-        function updateSelectedOptions(clickedBtn) {
-            const questionIndex = clickedBtn.getAttribute('data-value').match(/Q(\d+)_/)[1];
-            const selectedOptions = Array.from(document.querySelectorAll(`.option-btn[data-value^="Q${questionIndex}_"].active`))
-                .map(btn => btn.getAttribute('data-value').split('_')[1]);
-            document.getElementById(`selected_options_q${questionIndex}`).value = selectedOptions.join(',');
+        function updateSelectedOptions(featureCard) {
+            let selectedOptions = Array.from(featureCard.querySelectorAll('.option-btn.active'))
+                .map(btn => btn.getAttribute('data-value').split('_').pop());
+            let key = 'selected_options_' + featureCard.querySelector('.card-content h3').textContent.replace(/\s+/g, '_');
+            localStorage.setItem(key, JSON.stringify(selectedOptions));
         }
 
-        // Save state when navigating away
-        window.onbeforeunload = saveState;
-
-        // Function to save the state to localStorage
-        function saveState() {
-            const allAnswers = {};
-            document.querySelectorAll('[id^="selected_options_q"]').forEach(function (input) {
-                allAnswers[input.id] = input.value;
-            });
-            localStorage.setItem('step2Answers', JSON.stringify(allAnswers));
-        }
-
-        // Function to restore the state from localStorage
+        // Restore the state from localStorage
         function restoreState() {
-            const savedAnswers = JSON.parse(localStorage.getItem('step2Answers'));
-            if (savedAnswers) {
-                for (const key in savedAnswers) {
-                    const value = savedAnswers[key].split(',');
-                    value.forEach(function (optionValue) {
-                        const buttonToActivate = document.querySelector(`.option-btn[data-value="${key}_${optionValue}"]`);
-                        if (buttonToActivate) {
-                            buttonToActivate.classList.add('active');
+            document.querySelectorAll('.feature-card').forEach(featureCard => {
+                let key = 'selected_options_' + featureCard.querySelector('.card-content h3').textContent.replace(/\s+/g, '_');
+                let savedOptions = JSON.parse(localStorage.getItem(key));
+                if (savedOptions) {
+                    featureCard.querySelectorAll('.option-btn').forEach(btn => {
+                        if (savedOptions.includes(btn.getAttribute('data-value').split('_').pop())) {
+                            btn.classList.add('active');
                         }
                     });
-                    document.getElementById(key).value = savedAnswers[key];
                 }
-            }
+            });
         }
     });
 </script>

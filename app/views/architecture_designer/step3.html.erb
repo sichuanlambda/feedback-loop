@@ -152,64 +152,116 @@
 </head>
 <body>
     <div class="container">
-        <!-- Start Form -->
-        <%= form_with url: '/architecture_designer/step3', method: :get, id: 'step2_form' do |form| %>
-            
-            <% # Assuming 5 questions each with 4 options %>
-            <% 5.times do |question_index| %>
-                <div class="feature-card d-flex">
-                    <div class="card-content col-md-12 text-center">
-                        <h3>Question <%= question_index + 1 %></h3>
-                        <% ['Option A', 'Option B', 'Option C', 'Option D'].each do |option| %>
-                            <button type="button" class="btn option-btn" data-value="<%= "Q#{question_index+1}_#{option}" %>"><%= option %></button>
-                        <% end %>
-                        <%= form.hidden_field "selected_options_q#{question_index+1}", value: '', id: "selected_options_q#{question_index+1}" %>
-                    </div>
-                </div>
-            <% end %>
+        <%= form_with url: '/architecture_designer/finish', method: :post, id: 'step3_form' do |form| %>
 
-            <!-- Button Group -->
+            <!-- Windows and Lighting Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Windows and Lighting</h3>
+                    <% ['Large Panoramic Windows', 'Small, Intricate Window Designs', 'Skylights and Natural Light Focus', 
+                    'Artificial and Ambient Lighting', 'Stained Glass and Decorative', 'Energy-Efficient and Smart Windows', 
+                    'Bay and Bow Windows', 'Sliding and Folding Windows', 'Picture and Fixed Windows', 'Tinted and Reflective Glass', 
+                    'Louvered and Shuttered', 'Clerestory and High Windows'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="windows_lighting_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Outdoor Integration Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Outdoor Integration</h3>
+                    <% ['Extensive Green Spaces and Gardens', 'Sculptures and Water Features', 'Terraces and Outdoor Living Areas', 
+                    'Minimal Outdoor Interaction', 'Rooftop Gardens and Patios', 'Balconies and Verandas', 'Courtyards and Enclosed Spaces', 
+                    'Natural Landscaping and Xeriscaping', 'Decking and Pergolas', 'Outdoor Kitchens and Fire Pits', 'Walkways and Pathways', 
+                    'Conservatories and Sunrooms'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="outdoor_integration_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Sustainability Features Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Sustainability Features</h3>
+                    <% ['Solar Panels and Renewable Energy', 'Green Roofs and Natural Insulation', 'Rainwater Harvesting and Greywater Systems', 
+                    'Smart Building Technologies', 'Energy-Efficient Appliances and Systems', 'Sustainable Building Materials', 
+                    'Passive Solar Design', 'Low-impact and Regenerative Design', 'Waste Reduction and Recycling Facilities', 
+                    'Eco-friendly Transportation Access', 'Bioclimatic Design', 'Habitat Restoration and Biodiversity'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="sustainability_features_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Interior Elements Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Interior Elements</h3>
+                    <% ['Open Plan and Spacious', 'Cozy and Compartmentalized', 'Versatile and Multi-Functional', 
+                    'Luxurious and Opulent', 'Minimalist and Uncluttered', 'Rustic and Natural', 'Industrial and Exposed', 
+                    'Bohemian and Colorful', 'Traditional and Classic', 'Contemporary and Trendy', 'Artistic and Gallery-Like', 
+                    'Tech-Integrated and Smart Homes'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="interior_elements_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Cultural Influences Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Cultural Influences</h3>
+                    <% ['Asian (e.g., Japanese, Chinese)', 'European (e.g., French, Italian)', 'Middle Eastern (e.g., Persian, Moroccan)', 
+                    'Indigenous/Native (e.g., African, Native American)', 'Latin American (e.g., Mexican, Brazilian)', 'Scandinavian/Nordic', 
+                    'Mediterranean (e.g., Greek, Spanish)', 'Eastern European (e.g., Russian, Polish)', 'South Asian (e.g., Indian, Sri Lankan)', 
+                    'Southeast Asian (e.g., Thai, Vietnamese)', 'Australian Aboriginal', 'North American (e.g., Canadian, United States)'].each do |option| %>
+                        <button type="button" class="btn option-btn" data-value="cultural_influences_<%= option %>"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Button Group for navigation -->
             <div class="button-group d-flex justify-content-center align-items-center mt-3">
                 <%= link_to 'Back', '/architecture_designer/step2', class: 'btn btn-secondary' %>
                 <%= form.submit 'Finish', class: 'btn btn-primary' %>
             </div>
+
         <% end %>
     </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const optionButtons = document.querySelectorAll('.option-btn');
+ <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const optionButtons = document.querySelectorAll('.option-btn');
 
-        restoreState(); // Call restoreState on page load
+            // Restore state if there's any saved in localStorage
+            restoreState();
 
-        optionButtons.forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                this.classList.toggle('active');
-                updateSelectedOptions(this);
+            optionButtons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    this.classList.toggle('active');
+                    updateSelectedOptions(this.closest('.feature-card'));
+                });
             });
-        });
 
-        function updateSelectedOptions(clickedBtn) {
-            const questionIndex = clickedBtn.getAttribute('data-value').match(/Q(\d+)_/)[1];
-            const selectedOptions = Array.from(document.querySelectorAll(`.option-btn[data-value^="Q${questionIndex}_"].active`))
-                .map(btn => btn.getAttribute('data-value').split('_')[1]);
-            document.getElementById(`selected_options_q${questionIndex}`).value = selectedOptions.join(',');
-        }
-
-        function restoreState() {
-            const savedAnswers = JSON.parse(localStorage.getItem('step2Answers'));
-            if (savedAnswers) {
-                for (const key in savedAnswers) {
-                    const values = savedAnswers[key].split(',');
-                    values.forEach(val => {
-                        const button = document.querySelector(`.option-btn[data-value="${key}_${val}"]`);
-                        if (button) {
-                            button.classList.add('active');
-                        }
-                    });
-                }
+            function updateSelectedOptions(featureCard) {
+                let selectedOptions = Array.from(featureCard.querySelectorAll('.option-btn.active'))
+                    .map(btn => btn.getAttribute('data-value').split('_').pop());
+                let key = 'selected_options_' + featureCard.querySelector('.card-content h3').textContent.replace(/\s+/g, '_');
+                localStorage.setItem(key, JSON.stringify(selectedOptions));
             }
-        }
-    });
-</script>
+
+            function restoreState() {
+                document.querySelectorAll('.feature-card').forEach(featureCard => {
+                    let key = 'selected_options_' + featureCard.querySelector('.card-content h3').textContent.replace(/\s+/g, '_');
+                    let savedOptions = JSON.parse(localStorage.getItem(key));
+                    if (savedOptions) {
+                        featureCard.querySelectorAll('.option-btn').forEach(btn => {
+                            if (savedOptions.includes(btn.getAttribute('data-value').split('_').pop())) {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
