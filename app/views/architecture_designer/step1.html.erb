@@ -32,9 +32,10 @@
             background-color: white;
             color: grey;
             margin: 5px;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 12px 18px; /* Increased padding */
+            border-radius: 20px;
             transition: background-color 0.3s, color 0.3s;
+            font-size: 1.1rem; /* Slightly larger font size */
         }
 
         .option-btn.active {
@@ -42,6 +43,26 @@
             color: white;
             transform: scale(1.05); /* Slightly increase the size */
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .option-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .option-image {
+            width: 125px; /* Increased width by 25% */
+            height: 125px; /* Increased height by 25% */
+            object-fit: cover; /* Ensures the image covers the area without distorting */
+            margin-bottom: 5px;
+            border-radius: 10px; /* Optional: for rounded corners */
+        }
+
+        .options-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         .landing-section {
             padding: 40px 0;
@@ -135,36 +156,52 @@
             color: black;
             margin-bottom: 20px;
         }
+        h3 {
+            margin: 30px;
+        }
     </style>
 </head>
-<body>
-    <div class="landing-section">
-        <div>
-            <h1>Bring Your Architectural Vision into Reality</h1>
-            <p style="color: black;">Custom design your own home, building, or entire architectural style!</p>
+    <body>
+        <div class="landing-section">
+            <div>
+                <h1>Bring Your Architectural Vision into Reality</h1>
+                <p style="color: black;">Custom design your own home, building, or entire architectural style!</p>
+            </div>
+            <%= image_tag 'Architecture Style.png', alt: 'Architecture Style', class: 'img-fluid' %>
         </div>
-        <%= image_tag 'Architecture Style.png', alt: 'Architecture Style', class: 'img-fluid' %>
-    </div>
 
-    <div class="container">
-        <!-- Question Section -->
-        <div class="feature-card d-flex">
-        <div class="card-content col-md-12 text-center">
-            <h3>What Would You Like to Bring to Life?</h3>
-            <%= form_with url: '/architecture_designer/step2', method: :get, id: 'options_form' do |form| %>
-                <% # List of options %>
-                <% ['Residential Home', 'Large Building', 'Interior Style', 'Architecture Style'].each do |option| %>
-                    <button type="button" class="btn option-btn" data-value="<%= option %>"><%= option %></button>
-                <% end %>
+   <div class="container">
+        <%= form_with url: '/architecture_designer/step2', method: :get, id: 'options_form' do |form| %>
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>What Would You Like to Bring to Life?</h3>
 
-                <%= form.hidden_field :selected_options, value: '', id: 'selected_options' %>
+                    <div class="options-row">
+                        <% ['Residential Home', 'Large Building', 'Interior Design', 'Architecture Style'].each do |option| %>
+                            <div class="option-container">
+                                <% image_file = case option
+                                    when 'Residential Home' then 'residential_home.png'
+                                    when 'Large Building' then 'large_building.png'
+                                    when 'Interior Design' then 'interior_style.png'
+                                    when 'Architecture Style' then 'architecture_style.png'
+                                    else 'default.png' # default image if none of the above
+                                end %>
+                                <%= image_tag image_file, alt: "#{option} Image", class: 'option-image' %>
+                                <button type="button" class="btn option-btn" data-value="<%= option %>"><%= option %></button>
+                            </div>
+                        <% end %>
+                    </div>
 
-                <!-- 'Next' button below the options -->
-                <div class="mt-3"> <!-- Add margin top for spacing -->
-                    <%= form.submit 'Next', class: 'btn btn-primary' %>
+                    <%= form.hidden_field :selected_options, value: '', id: 'selected_options' %>
                 </div>
-            <% end %>
-        </div>
+            </div>
+
+            <div class="next-button-container mt-3 text-center">
+                <%= button_tag type: 'submit', form: 'options_form', class: 'btn btn-primary' do %>
+                    Next
+                <% end %>
+            </div>
+        <% end %>
     </div>
 
 <script>
