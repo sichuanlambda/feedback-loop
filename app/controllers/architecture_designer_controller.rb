@@ -1,0 +1,2 @@
+class ArchitectureDesignerController < ApplicationController
+end

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Validator - Home</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        .container{
+            padding: 40px 0;
+            width: 75%; /* Full width of the column */
+        }
+        .btn-primary{
+            width: 30%; /* Make buttons take full width of the container */
+            background-color: #0056b3;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #004080; /* Darker blue on hover */
+        }
+        .button-group {
+            position: relative; /* Relative positioning for the container */
+            display: flex;
+            justify-content: center; /* Center the content (primarily for the 'Next' button) */
+            align-items: center;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            position: absolute; /* Absolute positioning for the 'Back' button */
+            left: 0; /* Align to the left */
+            border-radius: 20px;
+            padding: 10px 20px;
+        }
+        .option-btn {
+            border: 2px solid #0056b3; /* Primary color border */
+            background-color: white;
+            color: grey;
+            margin: 5px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .option-btn.active {
+            background-color: #0056b3; /* Change to primary color for active state */
+            color: white;
+            transform: scale(1.05); /* Slightly increase the size */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .landing-section {
+            padding: 40px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .landing-section img {
+            width: 50%; /* Reduced image size by about 50% */
+            border-radius: 20px;
+        }
+        .feature-card {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            background: white;
+            min-height: 200px;
+            margin-bottom: 30px; /* Reduced space between cards */
+        }
+        .feature-card .row {
+            margin-left: 0; /* Reset row margin */
+            margin-right: 0; /* Reset row margin */
+        }
+
+        .feature-card .card-img {
+            width: 100%; /* Full width of the column */
+            margin-right: 0; /* Reset margin right */
+            padding-right: 0; /* Reset padding right */
+            /* Adjust image size as needed */
+        }
+
+        .card-content {
+            flex-grow: 1;
+            text-align: center;
+            padding: 15px; /* Reduced padding */
+        }
+
+        .card-content h3 {
+            font-size: 1.25rem; /* Adjust headline font size if needed */
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-content p {
+            font-size: 0.9rem; /* Reduced font size */
+            margin-bottom: 0.5rem; /* Reduced bottom margin */
+            padding: 20px;
+        }
+
+        .stat {
+            padding: 15px; /* Reduced padding */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center stat vertically */
+            padding: 20px;
+        }
+
+        .metric-number {
+            font-size: 1.5rem; /* Adjusted for space */
+        }
+
+        .metric-description {
+            font-size: 0.9rem; /* Reduced font size */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .feature-card {
+                flex-direction: column;
+            }
+
+            .feature-card .card-img,
+            .card-content,
+            .stat {
+                width: 100%; /* Full width on smaller screens */
+            }
+
+            .card-content h3 {
+                font-size: 1.2rem; /* Adjusted for smaller screens */
+                white-space: normal; /* Allow wrapping on small screens */
+            }
+        }
+           body {
+        background-color: #E8E8E8; /* Sets the entire page background to black */
+        }
+        h1 {
+            font-size: 48px;
+            color: black;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Form -->
+        <%= form_with url: '/architecture_designer/step3', method: :get, id: 'step2_form' do |form| %>
+            
+            <% # Assuming 5 questions each with 4 options %>
+            <% 5.times do |question_index| %>
+                <div class="feature-card d-flex">
+                    <div class="card-content col-md-12 text-center">
+                        <h3>Question <%= question_index + 1 %></h3>
+                        <% ['Option A', 'Option B', 'Option C', 'Option D'].each do |option| %>
+                            <button type="button" class="btn option-btn" data-value="<%= "Q#{question_index+1}_#{option}" %>"><%= option %></button>
+                        <% end %>
+                        <%= form.hidden_field "selected_options_q#{question_index+1}", value: '', id: "selected_options_q#{question_index+1}" %>
+                    </div>
+                </div>
+            <% end %>
+
+            <!-- Button Group -->
+            <div class="button-group d-flex justify-content-center align-items-center mt-3">
+                <%= link_to 'Back', '/architecture_designer/step2', class: 'btn btn-secondary' %>
+                <%= form.submit 'Finish', class: 'btn btn-primary' %>
+            </div>
+        <% end %>
+    </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const optionButtons = document.querySelectorAll('.option-btn');
+
+        restoreState(); // Call restoreState on page load
+
+        optionButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                this.classList.toggle('active');
+                updateSelectedOptions(this);
+            });
+        });
+
+        function updateSelectedOptions(clickedBtn) {
+            const questionIndex = clickedBtn.getAttribute('data-value').match(/Q(\d+)_/)[1];
+            const selectedOptions = Array.from(document.querySelectorAll(`.option-btn[data-value^="Q${questionIndex}_"].active`))
+                .map(btn => btn.getAttribute('data-value').split('_')[1]);
+            document.getElementById(`selected_options_q${questionIndex}`).value = selectedOptions.join(',');
+        }
+
+        function restoreState() {
+            const savedAnswers = JSON.parse(localStorage.getItem('step2Answers'));
+            if (savedAnswers) {
+                for (const key in savedAnswers) {
+                    const values = savedAnswers[key].split(',');
+                    values.forEach(val => {
+                        const button = document.querySelector(`.option-btn[data-value="${key}_${val}"]`);
+                        if (button) {
+                            button.classList.add('active');
+                        }
+                    });
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

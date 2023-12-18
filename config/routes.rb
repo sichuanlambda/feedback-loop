@@ -15,6 +15,16 @@ Rails.application.routes.draw do
   get 'custom_sign_out', to: 'feedbacks#custom_sign_out'
   get 'sign_out_confirmation', to: 'feedbacks#sign_out_confirmation'
 
+  # Routes for Architecture Designer
+  resources :architecture_designer, only: [] do
+    collection do
+      get 'step1'
+      get 'step2'
+      get 'step3'
+      post 'submit'
+    end
+  end
+
   # Routes for dog page
   get '/rate_my_dog', to: 'feedbacks#rate_my_dog'
   post '/process_dog_image', to: 'feedbacks#process_dog_image', as: 'rate_dog'
