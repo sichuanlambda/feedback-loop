@@ -152,7 +152,7 @@
 </head>
 <body>
     <div class="container">
-        <%= form_with url: '/architecture_designer/finish', method: :post, id: 'step3_form' do |form| %>
+        <%= form_with url: '/architecture_designer/submit', method: :post, id: 'step3_form', remote: true do |form| %>
 
             <!-- Windows and Lighting Section -->
             <div class="feature-card">
@@ -162,7 +162,8 @@
                     'Artificial and Ambient Lighting', 'Stained Glass and Decorative', 'Energy-Efficient and Smart Windows', 
                     'Bay and Bow Windows', 'Sliding and Folding Windows', 'Picture and Fixed Windows', 'Tinted and Reflective Glass', 
                     'Louvered and Shuttered', 'Clerestory and High Windows'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="windows_lighting_<%= option %>"><%= option %></button>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
+                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -175,20 +176,8 @@
                     'Minimal Outdoor Interaction', 'Rooftop Gardens and Patios', 'Balconies and Verandas', 'Courtyards and Enclosed Spaces', 
                     'Natural Landscaping and Xeriscaping', 'Decking and Pergolas', 'Outdoor Kitchens and Fire Pits', 'Walkways and Pathways', 
                     'Conservatories and Sunrooms'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="outdoor_integration_<%= option %>"><%= option %></button>
-                    <% end %>
-                </div>
-            </div>
-
-            <!-- Sustainability Features Section -->
-            <div class="feature-card">
-                <div class="card-content text-center">
-                    <h3>Sustainability Features</h3>
-                    <% ['Solar Panels and Renewable Energy', 'Green Roofs and Natural Insulation', 'Rainwater Harvesting and Greywater Systems', 
-                    'Smart Building Technologies', 'Energy-Efficient Appliances and Systems', 'Sustainable Building Materials', 
-                    'Passive Solar Design', 'Low-impact and Regenerative Design', 'Waste Reduction and Recycling Facilities', 
-                    'Eco-friendly Transportation Access', 'Bioclimatic Design', 'Habitat Restoration and Biodiversity'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="sustainability_features_<%= option %>"><%= option %></button>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
+                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -201,7 +190,8 @@
                     'Luxurious and Opulent', 'Minimalist and Uncluttered', 'Rustic and Natural', 'Industrial and Exposed', 
                     'Bohemian and Colorful', 'Traditional and Classic', 'Contemporary and Trendy', 'Artistic and Gallery-Like', 
                     'Tech-Integrated and Smart Homes'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="interior_elements_<%= option %>"><%= option %></button>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
+                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -210,11 +200,12 @@
             <div class="feature-card">
                 <div class="card-content text-center">
                     <h3>Cultural Influences</h3>
-                    <% ['Asian (e.g., Japanese, Chinese)', 'European (e.g., French, Italian)', 'Middle Eastern (e.g., Persian, Moroccan)', 
-                    'Indigenous/Native (e.g., African, Native American)', 'Latin American (e.g., Mexican, Brazilian)', 'Scandinavian/Nordic', 
-                    'Mediterranean (e.g., Greek, Spanish)', 'Eastern European (e.g., Russian, Polish)', 'South Asian (e.g., Indian, Sri Lankan)', 
-                    'Southeast Asian (e.g., Thai, Vietnamese)', 'Australian Aboriginal', 'North American (e.g., Canadian, United States)'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="cultural_influences_<%= option %>"><%= option %></button>
+                    <% ['Asian', 'European', 'Middle Eastern', 
+                    'Indigenous/Native', 'Latin American', 'Scandinavian/Nordic', 
+                    'Mediterranean', 'Eastern European', 'African', 
+                    'Southeast Asian'].each do |option| %>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
+                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -227,40 +218,39 @@
 
         <% end %>
     </div>
- <script>
+
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             const optionButtons = document.querySelectorAll('.option-btn');
-
-            // Restore state if there's any saved in localStorage
-            restoreState();
 
             optionButtons.forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     this.classList.toggle('active');
-                    updateSelectedOptions(this.closest('.feature-card'));
+                    var optionId = this.getAttribute('data-value').split('_').pop();
+                    toggleSelection(optionId);
                 });
             });
 
-            function updateSelectedOptions(featureCard) {
-                let selectedOptions = Array.from(featureCard.querySelectorAll('.option-btn.active'))
-                    .map(btn => btn.getAttribute('data-value').split('_').pop());
-                let key = 'selected_options_' + featureCard.querySelector('.card-content h3').textContent.replace(/\s+/g, '_');
-                localStorage.setItem(key, JSON.stringify(selectedOptions));
-            }
+            window.toggleSelection = function(optionId) {
+                var input = document.getElementById('input_' + optionId);
+                input.disabled = !input.disabled;
+            };
 
-            function restoreState() {
-                document.querySelectorAll('.feature-card').forEach(featureCard => {
-                    let key = 'selected_options_' + featureCard.querySelector('.card-content h3').textContent.replace(/\s+/g, '_');
-                    let savedOptions = JSON.parse(localStorage.getItem(key));
-                    if (savedOptions) {
-                        featureCard.querySelectorAll('.option-btn').forEach(btn => {
-                            if (savedOptions.includes(btn.getAttribute('data-value').split('_').pop())) {
-                                btn.classList.add('active');
-                            }
-                        });
-                    }
-                });
-            }
+            document.getElementById('step3_form').addEventListener('ajax:success', function(event) {
+                const [data, status, xhr] = event.detail;
+                const image_url = data.image_url;
+                if (image_url) {
+                    document.getElementById('generated-design').src = image_url;
+                    document.getElementById('generated-design').style.display = 'block';
+                    document.getElementById('design-message').textContent = 'Your Custom Design:';
+                } else {
+                    document.getElementById('design-message').textContent = 'No design was generated.';
+                }
+            });
+
+            document.getElementById('step3_form').addEventListener('ajax:error', function(event) {
+                document.getElementById('design-message').textContent = 'Error in generating design.';
+            });
         });
     </script>
 </body>

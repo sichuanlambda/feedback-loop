@@ -1,54 +1,48 @@
 Rails.application.routes.draw do
   devise_for :users
-  # Define the root (home page) route
   root 'pages#home'
 
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  # Feedbacks Routes
   get "feedbacks/new", to: "feedbacks#new"
   get "about", to: "feedbacks#about"
   post "feedbacks", to: "feedbacks#create"
-  post 'ask_gpt', to: 'feedbacks#ask_gpt', defaults: { format: :json }
   get "thank_you", to: "feedbacks#thank_you"
   get 'feedbacks/dashboard', to: 'feedbacks#dashboard', as: 'feedbacks_dashboard'
+  post 'ask_gpt', to: 'feedbacks#ask_gpt', defaults: { format: :json }
   get 'screenshot_searcher', to: 'feedbacks#screenshot_searcher'
   post 'analyze_screenshot', to: 'feedbacks#analyze_screenshot', as: 'analyze_screenshot'
   get 'custom_sign_out', to: 'feedbacks#custom_sign_out'
   get 'sign_out_confirmation', to: 'feedbacks#sign_out_confirmation'
+  get 'designs/show_image', to: 'designs#show_image', as: 'show_image'
 
-  # Routes for Architecture Designer
+  # Architecture Designer Routes
   resources :architecture_designer, only: [] do
     collection do
       get 'step1'
       get 'step2'
       get 'step3'
-      post 'submit'
+      post 'submit', to: 'designs#submit'
     end
   end
 
-  # Routes for dog page
+  # Dog Rating Page Routes
   get '/rate_my_dog', to: 'feedbacks#rate_my_dog'
   post '/process_dog_image', to: 'feedbacks#process_dog_image', as: 'rate_dog'
   post '/upload_to_s3', to: 'feedbacks#upload_to_s3'
 
-  # Route for the Roastery page
+  # Roastery Page Route
   get "roastery", to: "feedbacks#roastery"
 
-  # this is for displaying the feedback on the dashboard(?)
+  # Feedbacks Resource
   resources :feedbacks do
-    get 'dashboard', on: :collection  # This will route to feedbacks#dashboard
+    get 'dashboard', on: :collection
     member do
       patch 'submit_comment'
     end
   end
 
-  # these are for two buttons
+  # Miscellaneous Routes
   get 'thumbs_up', to: 'feedbacks#thumbs_up'
   get 'thumbs_down', to: 'feedbacks#thumbs_down'
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
-
-  # Defines the root path route ("/")
-  # root "posts#index"
 end

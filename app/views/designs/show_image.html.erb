@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Your head content -->
+</head>
+  <% if @image_url.present? %>
+    <img src="<%= @image_url %>" alt="Generated Design">
+  <% else %>
+    <p>No design was generated.</p>
+  <% end %>
+</body>
+</html>

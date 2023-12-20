@@ -152,14 +152,15 @@
 </head>
 <body>
     <div class="container">
-        <%= form_with url: '/architecture_designer/step3', method: :get, id: 'step2_form' do |form| %>
+        <%= form_with url: '/architecture_designer/step3', method: :get, id: 'step2_form' do %>
 
             <!-- Primary Inspiration Section -->
             <div class="feature-card">
                 <div class="card-content text-center">
                     <h3>Primary Inspiration</h3>
                     <% ['Futuristic/Sci-fi', 'Historical (e.g., Gothic, Romanesque)', 'Natural/Environmental', 'Abstract/Artistic', 'Industrial/Urban', 'Classical/Renaissance', 'Minimalist/Modern', 'Art Nouveau/Art Deco', 'Rustic/Country', 'Coastal/Mediterranean', 'Bohemian/Eclectic', 'Traditional/Colonial'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="primary_inspiration_<%= option %>"><%= option %></button>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
+                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -169,7 +170,8 @@
                 <div class="card-content text-center">
                     <h3>Dominant Material</h3>
                     <% ['Glass and Steel', 'Brick and Stone', 'Wood and Natural Fibers', 'Concrete and Metal', 'Plaster and Ceramic', 'Copper and Bronze', 'Aluminum and Plastic', 'Bamboo and Rattan', 'Fabric and Textile', 'Recycled Materials', 'Terracotta and Clay', 'Composite Materials'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="dominant_material_<%= option %>"><%= option %></button>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
+                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -179,7 +181,8 @@
                 <div class="card-content text-center">
                     <h3>Color Palette</h3>
                     <% ['Monochromatic and Neutral', 'Earth Tones and Warm Colors', 'Bold and Vibrant Colors', 'Pastel and Soft Colors', 'Black, White, and Grey', 'Metallics (Gold, Silver, Copper)', 'Jewel Tones (Ruby, Emerald, Sapphire)', 'Primary Colors (Red, Blue, Yellow)', 'Neon and Electric', 'Cool Tones (Blues, Greens, Purples)', 'Muted and Desaturated', 'Bright and Cheerful'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="color_palette_<%= option %>"><%= option %></button>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
+                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -189,7 +192,8 @@
                 <div class="card-content text-center">
                     <h3>Form and Structure</h3>
                     <% ['Geometric and Angular', 'Curved and Organic', 'Asymmetrical and Unconventional', 'Symmetrical and Traditional', 'Modular and Prefabricated', 'Freeform and Sculptural', 'Layered and Stacked', 'Streamlined and Aerodynamic', 'Compact and Efficient', 'Expansive and Open', 'Multi-level and Terraced', 'Interlocking and Overlapping'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="form_structure_<%= option %>"><%= option %></button>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
+                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -199,7 +203,8 @@
                 <div class="card-content text-center">
                     <h3>Decorative Elements</h3>
                     <% ['Minimalist and Functional', 'Ornate and Detailed', 'Naturalistic and Themed', 'Abstract and Symbolic', 'Vintage and Retro', 'Handmade and Artisan', 'Luxurious and Glamorous', 'Industrial and Raw', 'Whimsical and Playful', 'Cultural and Ethnic', 'Nautical and Coastal', 'Botanical and Floral'].each do |option| %>
-                        <button type="button" class="btn option-btn" data-value="decorative_elements_<%= option %>"><%= option %></button>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
+                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -207,7 +212,7 @@
             <!-- Button Group for navigation -->
             <div class="button-group">
                 <%= link_to 'Back', '/architecture_designer/step1', class: 'btn btn-secondary' %>
-                <%= form.submit 'Next', class: 'btn btn-primary' %>
+                <%= submit_tag 'Next', class: 'btn btn-primary' %>
             </div>
 
         <% end %>
@@ -217,37 +222,41 @@
     document.addEventListener('DOMContentLoaded', function () {
         const optionButtons = document.querySelectorAll('.option-btn');
 
-        // Restore state if there's any saved in localStorage
-        restoreState();
-
+        // Initialize or update the state based on localStorage
         optionButtons.forEach(function (btn) {
             btn.addEventListener('click', function () {
                 this.classList.toggle('active');
-                updateSelectedOptions(this.closest('.feature-card'));
+                var optionId = this.getAttribute('data-value').split('_').pop();
+                toggleSelection(optionId);
+                updateLocalStorage();
             });
         });
 
-        function updateSelectedOptions(featureCard) {
-            let selectedOptions = Array.from(featureCard.querySelectorAll('.option-btn.active'))
-                .map(btn => btn.getAttribute('data-value').split('_').pop());
-            let key = 'selected_options_' + featureCard.querySelector('.card-content h3').textContent.replace(/\s+/g, '_');
-            localStorage.setItem(key, JSON.stringify(selectedOptions));
+        window.toggleSelection = function(optionId) {
+            var input = document.getElementById('input_' + optionId);
+            input.disabled = !input.disabled;
+        };
+
+        function updateLocalStorage() {
+            let selectedOptions = Array.from(document.querySelectorAll('.option-btn.active'))
+                .map(btn => btn.getAttribute('data-value'));
+            localStorage.setItem('selectedOptions', JSON.stringify(selectedOptions));
+        }
+        function restoreState() {
+            let savedOptions = JSON.parse(localStorage.getItem('selectedOptions'));
+            if (savedOptions) {
+                savedOptions.forEach(function(savedOption) {
+                    let btn = document.querySelector('.option-btn[data-value="' + savedOption + '"]');
+                    if (btn) {
+                        btn.classList.add('active');
+                        let optionId = btn.getAttribute('data-value').split('_').pop();
+                        toggleSelection(optionId);
+                    }
+                });
+            }
         }
 
-        // Restore the state from localStorage
-        function restoreState() {
-            document.querySelectorAll('.feature-card').forEach(featureCard => {
-                let key = 'selected_options_' + featureCard.querySelector('.card-content h3').textContent.replace(/\s+/g, '_');
-                let savedOptions = JSON.parse(localStorage.getItem(key));
-                if (savedOptions) {
-                    featureCard.querySelectorAll('.option-btn').forEach(btn => {
-                        if (savedOptions.includes(btn.getAttribute('data-value').split('_').pop())) {
-                            btn.classList.add('active');
-                        }
-                    });
-                }
-            });
-        }
+        restoreState(); // Call this function to restore the state when the page loads
     });
 </script>
 </body>
