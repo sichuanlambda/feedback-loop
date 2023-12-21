@@ -32,7 +32,7 @@ class DesignsController < ApplicationController
   end
 
   def generate_prompt(user_selections)
-    "Generate an image of a building design that that draws inspiration from the following features: #{user_selections.join(", ")}."
+    "Generate an image to showcase a new architecture style with the following Windows and Lighting, Outdoor Integration, Interior Elements, and Cultural Influences: #{user_selections.join(", ")}."
   end
 
   def send_image_generation_request(prompt)
@@ -40,6 +40,7 @@ class DesignsController < ApplicationController
     response.code == 200 ? JSON.parse(response.body) : nil
 
     body = {
+      model: 'dall-e-3',
       prompt: prompt,
       n: 1,  # Number of images to generate
       size: "1024x1024"  # Size of the generated images
@@ -50,6 +51,7 @@ class DesignsController < ApplicationController
       body: body,
       headers: @gpt_api_options[:headers]
     )
+    Rails.logger.debug "API Response: #{response.body}"  # Log the entire response
 
     response.code == 200 ? JSON.parse(response.body) : nil
   end
