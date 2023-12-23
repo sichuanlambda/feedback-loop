@@ -3,11 +3,15 @@ require 'httparty'
 class DesignsController < ApplicationController
   before_action :set_gpt_api_options
 
+  # This action handles the final submission and API call
   def submit
     Rails.logger.debug "Params: #{params.inspect}"
-    user_selections = params[:user_selections]
+    step1_selection = session[:architecture_type] || 'default architecture type'
+    step2_selections = session[:step2_selections] || []
+    step3_selections = params[:user_selections] || []
 
-    prompt = generate_prompt(user_selections)
+    all_selections = step2_selections + step3_selections
+    prompt = generate_prompt(step1_selection, all_selections)
     gpt_response = send_image_generation_request(prompt)
 
     @image_url = extract_image_url_from_gpt_response(gpt_response)
@@ -15,6 +19,12 @@ class DesignsController < ApplicationController
 
     # Render the show_image view directly with @image_url
     render :show_image
+  end
+
+  # This action might be used to handle Step 1 form submission
+  def step1_process
+    session[:architecture_type] = params[:selected_option]
+    redirect_to step2_path  # Redirect to Step 2
   end
 
   private
@@ -31,8 +41,9 @@ class DesignsController < ApplicationController
     }
   end
 
-  def generate_prompt(user_selections)
-    "Generate an image to showcase a new architecture style with the following Windows and Lighting, Outdoor Integration, Interior Elements, and Cultural Influences: #{user_selections.join(", ")}."
+  # This method generates the prompt for the DALL-E API
+  def generate_prompt(step1_selection, all_selections)
+    "Generate an image of a #{step1_selection} with style and inspiration drawing from #{all_selections.join(", ")}."
   end
 
   def send_image_generation_request(prompt)
