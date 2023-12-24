@@ -17,6 +17,9 @@ class DesignsController < ApplicationController
     @image_url = extract_image_url_from_gpt_response(gpt_response)
     Rails.logger.debug "Image URL: #{@image_url}"
 
+    if @image_url.present?
+      ArchImageGen.create(created_at: Time.current)
+    end
     # Render the show_image view directly with @image_url
     render :show_image
   end

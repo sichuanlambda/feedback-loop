@@ -1,0 +1,2 @@
+class ArchImageGen < ApplicationRecord
+end

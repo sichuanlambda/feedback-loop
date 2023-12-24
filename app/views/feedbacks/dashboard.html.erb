@@ -24,6 +24,7 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             border-radius: 5px;
             margin-bottom: 30px;
+            max-width: 80%; 
         }
 
         h1 {
@@ -64,6 +65,7 @@
         .tweets .metric-icon { color: #1DA1F2; }
         .users .metric-icon { color: #FFC107; }
         .screenshots .metric-icon { color: #E91E63; }
+        .arch-image-gen .metric-icon { color: #800020; } /* Burgundy for ArchImageGen */
 
         /* Responsive Grid */
         @media (min-width: 768px) {
@@ -102,6 +104,11 @@
                 <div class="metric-number"><%= DogRating.count %></div>
                 <div class="metric-description">Dogs Rated</div>
             </div>
+            <div class="metric-container arch-image-gen">                
+                <i class="fas fa-home metric-icon"></i>
+                <div class="metric-number"><%= ArchImageGen.count %></div>
+                <div class="metric-description">Architecture Images Generated</div>
+                </div>
         </div>
     </div>
 
