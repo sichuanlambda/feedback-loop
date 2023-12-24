@@ -148,6 +148,26 @@
             color: black;
             margin-bottom: 20px;
         }
+        .loader {
+            border: 5px solid #f3f3f3; /* Light loader ring */
+            border-radius: 50%;
+            border-top: 5px solid #0056b3; /* Blue loader top */
+            width: 50px;
+            height: 50px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+            margin: auto;
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+        }
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -215,43 +235,38 @@
                 <%= link_to 'Back', '/architecture_designer/step2', class: 'btn btn-secondary' %>
                 <%= form.submit 'Finish', class: 'btn btn-primary' %>
             </div>
+            
+            <div class="loader"></div>
 
         <% end %>
     </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Reference to the form and loader elements
+        const form = document.getElementById('step3_form');
+        const loader = document.querySelector('.loader');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const optionButtons = document.querySelectorAll('.option-btn');
+        // When the form is submitted, show the loader
+        form.addEventListener('submit', function(event) {
+            loader.style.display = 'block';
+        });
 
-            optionButtons.forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    this.classList.toggle('active');
-                    var optionId = this.getAttribute('data-value').split('_').pop();
-                    toggleSelection(optionId);
-                });
-            });
-
-            window.toggleSelection = function(optionId) {
-                var input = document.getElementById('input_' + optionId);
-                input.disabled = !input.disabled;
-            };
-
-            document.getElementById('step3_form').addEventListener('ajax:success', function(event) {
-                const [data, status, xhr] = event.detail;
-                const image_url = data.image_url;
-                if (image_url) {
-                    document.getElementById('generated-design').src = image_url;
-                    document.getElementById('generated-design').style.display = 'block';
-                    document.getElementById('design-message').textContent = 'Your Custom Design:';
-                } else {
-                    document.getElementById('design-message').textContent = 'No design was generated.';
-                }
-            });
-
-            document.getElementById('step3_form').addEventListener('ajax:error', function(event) {
-                document.getElementById('design-message').textContent = 'Error in generating design.';
+        // Logic for handling the toggling of option buttons
+        const optionButtons = document.querySelectorAll('.option-btn');
+        optionButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                this.classList.toggle('active');
+                var optionId = this.getAttribute('data-value').split('_').pop();
+                toggleSelection(optionId);
             });
         });
-    </script>
+
+        // Function to toggle the disabled state of the hidden inputs
+        window.toggleSelection = function(optionId) {
+            var input = document.getElementById('input_' + optionId);
+            input.disabled = !input.disabled;
+        };
+    });
+</script>
 </body>
 </html>
