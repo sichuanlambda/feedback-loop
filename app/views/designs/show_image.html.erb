@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>Architecture Generator Results</title>
-  <link rel="stylesheet" href="path_to_your_stylesheet.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
 
@@ -28,9 +27,25 @@
     }
 
     .btn-primary:hover {
-        background-color: #004080;
+      background-color: #004080;
+    }
+    .btn-secondary {
+      background-color: white;
+      color: #0056b3; /* Adjust the color to match your theme */
+      border: 2px solid #0056b3; /* Blue border */
+      border-radius: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      text-align: center;
+      transition: all 0.3s ease;
+      margin: 10px
     }
 
+    .btn-secondary:hover {
+      background-color: #f0f0f0; /* Light grey for hover effect, adjust as needed */
+      color: #003366; /* Darker blue for hover text */
+      border-color: #003366; /* Darker blue for hover border */
+    }
     .image-container {
         margin-bottom: 30px;
     }
@@ -141,12 +156,9 @@
 </div>
 <div class="container text-center">
   <% if @image_url.present? %>
-    <%# <button class="btn btn-primary name-style-btn">Name Style</button> %>
-
     <div class="image-container my-4">
       <img src="<%= @image_url %>" alt="Generated Design" class="img-fluid">
     </div>
-
     <div class="button-group my-3">
       <button class="btn btn-primary" onclick="shareImage()">🚧 Share Image 🚧</button>
       <button class="btn btn-primary" onclick="shareTool()">Share Tool</button>
@@ -157,29 +169,38 @@
   <% end %>
 </div>
 
+<!-- Share Modal -->
 <div class="modal" id="shareModal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">&times;</span>
     <p>Share the gift of a free tool for your architectural imagination!</p>
     <div class="share-icons">
-      <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.llmvalidator.com/architecture_designer/step1" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://www.pinterest.com/pin/create/button/?url=https://www.llmvalidator.com/architecture_designer/step1" target="_blank" title="Pinterest"><i class="fab fa-pinterest-p"></i></a>
-      <a href="https://www.reddit.com/submit?url=https://www.llmvalidator.com/architecture_designer/step1" target="_blank" title="Reddit"><i class="fab fa-reddit-alien"></i></a>
-      <a href="https://twitter.com/intent/tweet?url=https://www.llmvalidator.com/architecture_designer/step1" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+      <!-- Add your sharing links here -->
+      <a href="#" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" target="_blank" title="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+      <a href="#" target="_blank" title="Reddit"><i class="fab fa-reddit-alien"></i></a>
+      <a href="#" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
     </div>
     <div class="link-copy-area">
-      <input type="text" value="https://www.llmvalidator.com/architecture_designer/step1" id="shareLink" readonly>
+      <input type="text" value="Your shareable link here" id="shareLink" readonly>
       <button class="btn btn-primary" onclick="copyLink()">Copy</button>
     </div>
   </div>
 </div>
 
-<script>
-  function shareImage() {
-    // Implement the logic to share the image
-    alert("Share Image feature is coming soon!");
-  }
+<!-- New Design Modal -->
+<div class="modal" id="newDesignModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeNewDesignModal()">&times;</span>
+    <p>Please consider supporting this tool to help keep it free. Unfortunately, GPT image generation is a tad expensive.</p>
+    <div class="button-group">
+      <a href="https://www.buymeacoffee.com/nathanrobinson" target="_blank" class="btn btn-primary">Support ❤️</a>
+      <button class="btn btn-secondary" onclick="continueWithoutSupporting()">Nah</button>
+    </div>
+  </div>
+</div>
 
+<script>
   function shareTool() {
     var modal = document.getElementById("shareModal");
     modal.style.display = "block";
@@ -191,29 +212,28 @@
   }
 
   function newDesign() {
+    var newDesignModal = document.getElementById("newDesignModal");
+    newDesignModal.style.display = "block";
+  }
+
+  function closeNewDesignModal() {
+    var newDesignModal = document.getElementById("newDesignModal");
+    newDesignModal.style.display = "none";
+  }
+
+  function continueWithoutSupporting() {
     window.location.href = 'https://www.llmvalidator.com/architecture_designer/step1';
   }
 
-  // Close the modal when clicking anywhere outside of it
   window.onclick = function(event) {
-    var modal = document.getElementById("shareModal");
-    if (event.target == modal) {
-      modal.style.display = "none";
+    var shareModal = document.getElementById("shareModal");
+    var newDesignModal = document.getElementById("newDesignModal");
+
+    if (event.target == shareModal) {
+      shareModal.style.display = "none";
+    } else if (event.target == newDesignModal) {
+      newDesignModal.style.display = "none";
     }
-  }
-    function closeModal() {
-    var modal = document.getElementById("shareModal");
-    modal.style.display = "none";
-  }
-
-  function copyLink() {
-    var copyText = document.getElementById("shareLink");
-    copyText.select();
-    copyText.setSelectionRange(0, 99999); /* For mobile devices */
-    document.execCommand("copy");
-
-    // Alert the copied text
-    alert("Copied the link: " + copyText.value);
   }
 </script>
 </body>
