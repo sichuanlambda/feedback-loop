@@ -17,9 +17,13 @@ class DesignsController < ApplicationController
     @image_url = extract_image_url_from_gpt_response(gpt_response)
     Rails.logger.debug "Image URL: #{@image_url}"
 
+    # Save the image URL in the ArchImageGen model
     if @image_url.present?
-      ArchImageGen.create(created_at: Time.current)
+      ArchImageGen.create(image_url: @image_url)
+    else
+      Rails.logger.debug "No image URL to save"
     end
+
     # Render the show_image view directly with @image_url
     render :show_image
   end
@@ -28,6 +32,11 @@ class DesignsController < ApplicationController
   def step1_process
     session[:architecture_type] = params[:selected_option]
     redirect_to step2_path  # Redirect to Step 2
+  end
+
+  def step1
+    @latest_images = ArchImageGen.order(created_at: :desc).limit(5)
+    Rails.logger.debug "Latest Images: #{@latest_images}"
   end
 
   private

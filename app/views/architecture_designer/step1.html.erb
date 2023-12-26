@@ -160,6 +160,23 @@
         h3 {
             margin: 30px;
         }
+        .latest-images-row {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .latest-image-container {
+            margin: 10px;
+            padding: 5px;
+        }
+
+        .latest-image {
+            width: 150px; /* Adjust as needed */
+            border-radius: 5px;
+            height: auto;
+            object-fit: cover;
+        }
     </style>
 </head>
   <body>
@@ -170,7 +187,20 @@
         </div>
         <%= image_tag 'Architecture Style.png', alt: 'Architecture Style', class: 'img-fluid' %>
     </div>
-
+    <!-- Latest Images Section -->
+    <h2>Latest Creations</h2>
+    <div class="latest-images-row">
+        <% @latest_images.each do |image| %>
+            <% if image.image_url.present? %>
+                <div class="latest-image-container">
+                    <%= image_tag image.image_url, alt: "Latest Image", class: "latest-image" %>
+                </div>
+            <% else %>
+                <p>Image not available</p>
+            <% end %>
+        <% end %>
+    </div>
+    <!--section with the initial selections-->
     <div class="container">
         <%= form_with url: '/architecture_designer/step2', method: :get, id: 'options_form' do %>
             <div class="feature-card">
