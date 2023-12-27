@@ -1,40 +1,90 @@
-<!-- app/views/devise/sessions/new.html.erb -->
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <h5 class="card-header text-center" style="color: #01161e;">Log in</h5>
-        <div class="card-body">
-          <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-            <%= render "devise/shared/error_messages", resource: resource %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Validator - Home</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
+    <style>
+        .landing-section {
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
-            <div class="form-group">
-              <%= f.label :email, class: 'control-label' %>
-              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+        .btn-sign-up {
+            background-color: #0056b3;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .btn-sign-up:hover {
+            background-color: #004080;
+        }
+
+        .card {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+
+            <!-- Text Section -->
+            <div class="col-lg-6 landing-section">
+                <h1>Welcome Back</h1>
+                <p>Not a user? Get Exclusive Architecture AI Features & More Tools, Free</p>
+                <a href="/users/sign_up" class="btn btn-sign-up">Sign Up Now</a>
             </div>
 
-            <div class="form-group">
-              <%= f.label :password, class: 'control-label' %>
-              <%= f.password_field :password, autocomplete: "current-password", class: "form-control" %>
+            <!-- Login Form Section -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <h5 class="card-header text-center" style="color: #01161e;">Log in</h5>
+                    <div class="card-body">
+                        <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+                            <%= render "devise/shared/error_messages", resource: resource %>
+
+                            <div class="form-group">
+                                <%= f.label :email, class: 'control-label' %>
+                                <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+                            </div>
+
+                            <div class="form-group">
+                                <%= f.label :password, class: 'control-label' %>
+                                <%= f.password_field :password, autocomplete: "current-password", class: "form-control" %>
+                            </div>
+
+                            <% if devise_mapping.rememberable? %>
+                                <div class="form-group form-check">
+                                    <%= f.check_box :remember_me, class: 'form-check-input' %>
+                                    <%= f.label :remember_me, class: 'form-check-label' %>
+                                </div>
+                            <% end %>
+
+                            <div class="actions text-center">
+                                <%= f.submit "Log in", class: "btn btn-primary btn-block" %>
+                            </div>
+                        <% end %>
+
+                        <div class="text-center mt-3">
+                            <%= render "devise/shared/links" %>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <% if devise_mapping.rememberable? %>
-              <div class="form-group form-check">
-                <%= f.check_box :remember_me, class: 'form-check-input' %>
-                <%= f.label :remember_me, class: 'form-check-label' %>
-              </div>
-            <% end %>
-
-            <div class="actions text-center">
-              <%= f.submit "Log in", class: "btn btn-primary btn-block" %>
-            </div>
-          <% end %>
-
-          <div class="text-center mt-3">
-            <%= render "devise/shared/links" %>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-</div>
+</body>
+</html>
