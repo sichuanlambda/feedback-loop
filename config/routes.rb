@@ -15,6 +15,11 @@ Rails.application.routes.draw do
   get 'sign_out_confirmation', to: 'feedbacks#sign_out_confirmation'
   get 'designs/show_image', to: 'designs#show_image', as: 'show_image'
 
+  # Architecture Explorer routes
+    get 'architecture_explorer/new', to: 'architecture_explorer#new', as: :architecture_explorer_new
+    post 'architecture_explorer', to: 'architecture_explorer#create', as: :architecture_explorer
+    get 'architecture_explorer/:id', to: 'architecture_explorer#show', as: :architecture_explorer_show
+
   # Architecture Designer Routes
   resources :architecture_designer, only: [] do
     collection do

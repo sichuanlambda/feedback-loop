@@ -1,0 +1,2 @@
+module ArchitectureExplorerHelper
+end

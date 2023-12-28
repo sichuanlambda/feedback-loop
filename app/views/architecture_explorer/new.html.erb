@@ -1,0 +1,62 @@
+<style>
+        .btn-primary{
+            width: 30%; /* Make buttons take full width of the container */
+            background-color: #0056b3;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: none;
+            margin-bottom: 10px; /* Add spacing between buttons */
+        }
+        .btn-primary:hover {
+            background-color: #004080; /* Darker blue on hover */
+        }
+        h1 {
+            font-size: 48px;
+            color: black;
+            margin-bottom: 20px;
+        }
+        h3 {
+            margin: 30px;
+        }
+</style>
+<div class="container" style="background: #FFFFFF; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
+  <div class="row justify-content-center">
+    <div class="col-md-12">
+      <div class="text-center">
+        <h1 class="mt-5" style="color: #01161e;">Architecture Explorer 🏛️</h1>
+        <p style="color: #01161e;">Upload a building image, and we'll analyze it...</p>
+
+        <%= form_with url: architecture_explorer_path, local: true, multipart: true, html: { class: "gpt-form-container" } do |form| %>
+          <div class="custom-file-upload" style="margin-bottom: 20px;">
+            <%= form.file_field :image, direct_upload: true, onchange: "previewImage(event)", class: "custom-file-input" %>
+            <label for="image" class="btn btn-primary" style="padding: 10px 20px; margin-top: 10px;">Choose File</label>
+          </div>
+
+          <!-- Image Preview -->
+          <div id="image-preview-container" class="text-center" style="margin-top: 20px;">
+            <img id="image-preview" alt="Image Preview" style="display: none; max-width: 100%; max-height: 500px; margin: auto; border-radius: 5px;"/>
+          </div>
+
+          <%= form.submit "Upload and Analyze", class: "btn btn-primary", style: "margin-top: 20px; padding: 10px 20px;" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function previewImage(event) {
+    var reader = new FileReader();
+    reader.onload = function(){
+      var output = document.getElementById('image-preview');
+      output.src = reader.result;
+      output.style.display = 'block';
+    };
+    reader.readAsDataURL(event.target.files[0]);
+  }
+</script>

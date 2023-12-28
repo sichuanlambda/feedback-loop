@@ -1,0 +1,57 @@
+<!-- app/views/architecture_explorer/show.html.erb -->
+<style>
+        .btn-primary{
+            width: 30%; /* Make buttons take full width of the container */
+            background-color: #0056b3;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: none;
+            margin-bottom: 10px; /* Add spacing between buttons */
+        }
+        .btn-primary:hover {
+            background-color: #004080; /* Darker blue on hover */
+        }
+        h1 {
+            font-size: 48px;
+            color: black;
+            margin-bottom: 20px;
+        }
+        h3 {
+            margin: 30px;
+        }
+</style>
+<h1>Building Analysis Result</h1>
+<div class="container" style="background: #FFFFFF; border-radius: 15px; box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);">
+  <div class="row justify-content-center">
+    <div class="col-md-12">
+      <div class="text-center">
+        <h1 class="mt-5" style="color: #01161e;">Building Analysis Result</h1>
+            <h2>Key Influences</h2>
+            <% @analysis["Key Influences"].each do |influence| %>
+            <% influence.each do |key, value| %>
+                <p><strong><%= key %>:</strong> <%= value %></p>
+            <% end %>
+            <% end %>
+
+            <h2>Key Characteristics</h2>
+            <% @analysis["Key Characteristics"].each do |character| %>
+            <% character.each do |key, value| %>
+                <p><strong><%= key %>:</strong> <%= value %></p>
+            <% end %>
+            <% end %>
+
+        <div>
+            <h2>Details</h2>
+            <p><%= @analysis["Paragraph about the key influences"] %></p>
+            <p><%= @analysis["Paragraph about the key characteristics"] %></p>
+            <p><%= @analysis["Those influences and characteristics in existing buildings today"] %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
