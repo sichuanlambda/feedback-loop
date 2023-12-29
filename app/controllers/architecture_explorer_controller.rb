@@ -3,6 +3,8 @@ require 'net/http'
 require 'json'
 
 class ArchitectureExplorerController < ApplicationController
+  before_action :authenticate_user!
+
   def new
     # Renders the form for uploading an image
   end

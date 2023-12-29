@@ -63,7 +63,7 @@ class GptService
           content: [
             {
               type: "text",
-              text: "Can you tell me about the architecture and design of this building? I'm particularly interested in learning about what influences it has, and the history and famous instances of those influences in existing buildings. Please generate response in HTML only, include headings, sub-headings, and bullet pts."
+              text: "Can you tell me about the architecture and design of this building? Please tell me about the different influences it has and the components of the building that relate to those influences. Then, I want learn about those different styles and influences, and instances of them in real life. Please generate response in HTML only, include headings, sub-headings, and bullet pts."
             },
             {
               type: "image_url",
