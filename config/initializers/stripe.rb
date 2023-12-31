@@ -1,1 +1,0 @@
-Stripe.api_key = ENV['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']
