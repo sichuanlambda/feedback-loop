@@ -22,7 +22,11 @@ class ArchitectureExplorerController < ApplicationController
     Rails.logger.debug "Analysis result: #{analysis_result.inspect}"
 
     if analysis_result && analysis_result[:html_content].present?
-      new_analysis = BuildingAnalysis.create(html_content: analysis_result[:html_content])
+      # Associate the new analysis with the current user
+      new_analysis = BuildingAnalysis.create(
+        html_content: analysis_result[:html_content],
+        user: current_user # Assuming you have a method to get the current user
+      )
       redirect_to architecture_explorer_show_path(id: new_analysis.id)
     else
       redirect_to root_path, alert: "Analysis failed"
