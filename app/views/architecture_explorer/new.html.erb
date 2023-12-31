@@ -23,6 +23,25 @@
     h3 {
         margin: 30px;
     }
+    .loader {
+        border: 5px solid #f3f3f3; /* Light loader ring */
+        border-radius: 50%;
+        border-top: 5px solid #0056b3; /* Blue loader top */
+        width: 50px;
+        height: 50px;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+        margin: auto;
+        display: none; /* Initially hidden */
+    }
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 
 <div class="container" style="background: #FFFFFF; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
@@ -50,18 +69,32 @@
           <p>Please <%= link_to 'sign in', new_user_session_path %> to use this feature.</p>
         <% end %>
       </div>
+      <div class="loader"></div> 
     </div>
   </div>
 </div>
 
 <script>
-  function previewImage(event) {
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.querySelector('.gpt-form-container');
+    if (form) {
+        form.addEventListener('submit', function() {
+            // Display the loader on form submission
+            var loader = document.querySelector('.loader');
+            if (loader) {
+                loader.style.display = 'block';
+            }
+        });
+    }
+});
+
+function previewImage(event) {
     var reader = new FileReader();
-    reader.onload = function(){
-      var output = document.getElementById('image-preview');
-      output.src = reader.result;
-      output.style.display = 'block';
+    reader.onload = function() {
+        var output = document.getElementById('image-preview');
+        output.src = reader.result;
+        output.style.display = 'block';
     };
     reader.readAsDataURL(event.target.files[0]);
-  }
+}
 </script>
