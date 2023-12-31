@@ -15,62 +15,123 @@
     h2 {
       font-size: 40px;
       padding: 10px;
+      text-align:center;
     }
     h3 {
-      font-size: 20px;
+      font-size: 16px;
       padding: 10px;
     }
     card {
       padding: 10px;
       display: flex;
     }
+    .btn-primary {
+      width: 100%; /* Make buttons take full width of the container */
+      background-color: #0056b3;
+      color: white;
+      border-radius: 20px;
+      padding: 20px 20px;
+      font-size: 18px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      border: none;
+      margin-bottom: 10px; /* Add spacing between buttons */
+    }
+    .btn-primary:hover {
+      background-color: #004080; /* Darker blue on hover */
+    }
+    .btn-secondary {
+      width: 60%; /* Make buttons take full width of the container */
+      background-color: #0056b3;
+      color: white;
+      border-radius: 20px;
+      padding: 20px 20px;
+      font-size: 18px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      border: none;
+      margin: 10px; /* Add spacing between buttons */
+    }
+    .btn-primary:hover {
+      background-color: #004080; /* Darker blue on hover */
+    }
   </style>
 </head>
 <body>
   <div class="row">
-
     <!-- Column for the Title, Subtitle, and Image -->
     <div class="col-lg-6 image-column">
-      <h2>Sign Up For Free</h2>
-      <h3>Get Access to Exclusive Architecture Features</h3>
-      <h3>Free Access to Other Tools</h3>
-      <%= image_tag 'screenshot_text_searcher.png', class: 'img-fluid', style: 'border: 2px solid #bababa; border-radius: 15px;' %>
+      <h2>Learn About and Generate Architecture with AI</h2>
+      <h3>Learn about real buildings in your area</h3>
+      <h3>Complimentary Access to Other Tools</h3>
+      <%= image_tag 'ArchExplorer.png', class: 'img-fluid', style: 'border: 2px solid #bababa; border-radius: 15px;' %>
     </div>
-      <div class="card">
-        <h5 class="card-header text-center" style="color: #01161e;">Sign Up</h5>
-        <div class="card-body">
-          <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-            <%= render "devise/shared/error_messages", resource: resource %>
 
-            <div class="form-group">
-              <%= f.label :email, class: 'control-label' %>
-              <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
-            </div>
+    <!-- Stripe Checkout Button -->
+  <div class="col-lg-4 d-flex flex-column justify-content-center">
+    <div class="d-flex justify-content-center">
+      <button id="stripe-checkout-button" class="btn btn-secondary">Sign Up</button>
+    </div>
+    
+    <!-- Registration Form, Initially Hidden -->
+    <div id="registration-form" style="display: none;">
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
 
-            <div class="form-group">
-              <%= f.label :password, class: 'control-label' %>
-              <% if @minimum_password_length %>
-              <em>(<%= @minimum_password_length %> characters minimum)</em>
-              <% end %>
-              <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
-            </div>
-
-            <div class="form-group">
-              <%= f.label :password_confirmation, class: 'control-label' %>
-              <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
-            </div>
-
-            <div class="actions text-center">
-              <%= f.submit "Sign up", class: "btn btn-primary btn-block" %>
-            </div>
-          <% end %>
-
-          <div class="text-center mt-3">
-            <%= render "devise/shared/links" %>
-          </div>
+        <div class="form-group">
+          <%= f.label :email, class: 'control-label' %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
         </div>
+
+        <div class="form-group">
+          <%= f.label :password, class: 'control-label' %>
+          <% if @minimum_password_length %>
+            <em>(<%= @minimum_password_length %> characters minimum)</em>
+          <% end %>
+          <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :password_confirmation, class: 'control-label' %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
+        </div>
+
+        <div class="actions text-center">
+          <%= f.submit "Confirm Registration", class: "btn btn-primary btn-block" %>
+        </div>
+      <% end %>
+
+      <div class="text-center mt-3">
+        <%= render "devise/shared/links" %>
       </div>
     </div>
-
   </div>
-</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    document.getElementById('stripe-checkout-button').addEventListener('click', function() {
+      // window.location.href = 'https://buy.stripe.com/test_9AQ3f010C55rfxS288';//TEST URL
+      window.location.href = 'https://buy.stripe.com/6oE03C2rm9I59Us3cc'; //PROD URL
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentSuccess = urlParams.get('payment_success');
+
+      const signUpButton = document.getElementById('stripe-checkout-button');
+      const registrationForm = document.getElementById('registration-form');
+
+      if (paymentSuccess === 'true') {
+        if (registrationForm) {
+          registrationForm.style.display = 'block';
+        }
+        if (signUpButton) {
+          signUpButton.style.display = 'none';
+        }
+      }
+    });
+</script>
+</body>
+</html>
