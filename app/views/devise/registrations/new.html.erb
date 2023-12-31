@@ -18,7 +18,7 @@
       text-align:center;
     }
     h3 {
-      font-size: 16px;
+      font-size: 24px;
       padding: 10px;
     }
     card {
@@ -64,15 +64,30 @@
     <!-- Column for the Title, Subtitle, and Image -->
     <div class="col-lg-6 image-column">
       <h2>Learn About and Generate Architecture with AI</h2>
-      <h3>Learn about real buildings in your area</h3>
-      <h3>Complimentary Access to Other Tools</h3>
+      <p>Learn about real buildings in your area</h3>
+      <p>Complimentary Access to Other Tools</h3>
       <%= image_tag 'ArchExplorer.png', class: 'img-fluid', style: 'border: 2px solid #bababa; border-radius: 15px;' %>
     </div>
 
-    <!-- Stripe Checkout Button -->
-  <div class="col-lg-4 d-flex flex-column justify-content-center">
-    <div class="d-flex justify-content-center">
-      <button id="stripe-checkout-button" class="btn btn-secondary">Sign Up</button>
+    <!-- Stripe Button & Plan Details -->
+    <div class="col-md-5 d-flex flex-column align-items-center">
+      <div class="plan-card p-4 m-3">
+        <div class="text-center mb-3" style="border: 2px solid green; padding: 10px; border-radius: 10px;">
+          <h3 class="m-0">Architecture Enthusiast</h3>
+          <p class="price m-0">$5/month</p>
+        </div>
+        <ul class="fa-ul">
+          <li><span class="fa-li"><i class="fas fa-check" style="color: green;"></i></span>Unlimited Building Image Analyses</li>
+          <li><span class="fa-li"><i class="fas fa-check" style="color: green;"></i></span>Unlimited Architecture Image Generations</li>
+          <li><span class="fa-li"><i class="fas fa-check" style="color: green;"></i></span>Screenshot Text Searcher Access</li>
+          <li><span class="fa-li"><i class="fas fa-check" style="color: green;"></i></span>Unlimited Screenshot Uploads</li>
+          <li><span class="fa-li"><i class="fas fa-check" style="color: green;"></i></span>Exclusive Access to Architecture Community Features (coming soon)</li>
+        </ul>
+        <div class="w-100 text-center mt-4">
+          <button id="stripe-checkout-button" class="btn btn-secondary">Start now</button>
+        </div>
+        <p class="text-center mt-2" style="color: grey; font-size: smaller;">Cancel anytime</p>
+      </div>
     </div>
     
     <!-- Registration Form, Initially Hidden -->
