@@ -1,5 +1,8 @@
 <!-- app/views/architecture_explorer/show.html.erb -->
 <style>
+    body {
+       background-color: #E8E8E8; /* Sets the entire page background to black */
+    }
     .btn-primary {
         width: 30%;
         background-color: #0056b3;
@@ -24,10 +27,41 @@
     h3 {
         margin: 30px;
     }
+    .col-md-4 img {
+        max-width: 100%; /* Ensures the image is responsive */
+        height: auto; /* Maintain aspect ratio */
+        border-radius: 10px; /* Optional: rounded corners for the image */
+    }
+
+    .badge {
+        margin: 5px; /* Spacing between pills */
+    }
 </style>
 
-<% if @html_content.present? %>
-  <%= raw @html_content %>
-<% else %>
-  <p>No analysis data available.</p>
-<% end %>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Left two-thirds for the current content -->
+    <div class="col-md-8">
+      <% if @html_content.present? %>
+        <%= raw @html_content %>
+      <% else %>
+        <p>No analysis data available.</p>
+      <% end %>
+    </div>
+
+    <!-- Right one-third for the image and pills -->
+    <div class="col-md-4">
+        <% if @image_url.present? %>
+            <img src="<%= @image_url %>" alt="Submitted Image" class="img-fluid">
+        <% else %>
+            <p>No image available.</p>
+        <% end %>
+      <!-- Example pills -->
+      <%# <div class="mt-3">
+        <span class="badge badge-primary">Pill 1</span>
+        <span class="badge badge-secondary">Pill 2</span>
+        <!-- More pills as needed -->
+      </div> %>
+    </div>
+  </div>
+</div>

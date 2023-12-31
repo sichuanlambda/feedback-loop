@@ -19,13 +19,15 @@ class ArchitectureExplorerController < ApplicationController
     end
 
     analysis_result = process_building_image(uploaded_image)
+    image_url = upload_image_to_s3(uploaded_image) # Get the image URL
+
     Rails.logger.debug "Analysis result: #{analysis_result.inspect}"
 
     if analysis_result && analysis_result[:html_content].present?
-      # Associate the new analysis with the current user
       new_analysis = BuildingAnalysis.create(
         html_content: analysis_result[:html_content],
-        user: current_user # Assuming you have a method to get the current user
+        user: current_user, # Assuming you have a method to get the current user
+        image_url: image_url # Save the image URL
       )
       redirect_to architecture_explorer_show_path(id: new_analysis.id)
     else
@@ -38,6 +40,7 @@ class ArchitectureExplorerController < ApplicationController
 
     if @building_analysis
       @html_content = @building_analysis.html_content
+      @image_url = @building_analysis.image_url # Make the image URL available in the view
     else
       redirect_to root_path, alert: "Analysis not found"
     end
