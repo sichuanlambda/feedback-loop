@@ -1,4 +1,5 @@
 require 'httparty'
+require 'open-uri'
 
 class DesignsController < ApplicationController
   before_action :set_gpt_api_options
@@ -19,7 +20,13 @@ class DesignsController < ApplicationController
 
     # Save the image URL in the ArchImageGen model
     if @image_url.present?
-      ArchImageGen.create(image_url: @image_url)
+      file = URI.open(@image_url)
+      s3 = Aws::S3::Resource.new(region: 'us-east-2')
+      obj = s3.bucket('architecture-generated').object("path/to/store/#{SecureRandom.uuid}.jpg")
+      obj.upload_file(file)  # Removed the acl:'public-read'
+
+      # Save the S3 URL instead of the GPT URL
+      ArchImageGen.create(image_url: obj.public_url)
     else
       Rails.logger.debug "No image URL to save"
     end
