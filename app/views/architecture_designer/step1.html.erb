@@ -177,34 +177,39 @@
             height: auto;
             object-fit: cover;
         }
+        .btn-secondary {
+            background-color: #E8E8E8;
+            color: #0056b3; /* Adjust the color to match your theme */
+            border: 2px solid #0056b3; /* Blue border */
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin: 10px
+        }
+
+        .btn-secondary:hover {
+            background-color: #f0f0f0; /* Light grey for hover effect, adjust as needed */
+            color: #003366; /* Darker blue for hover text */
+            border-color: #003366; /* Darker blue for hover border */
+        }
     </style>
 </head>
   <body>
     <div class="landing-section">
         <div>
-            <h1>Bring Your Architectural Vision into Reality</h1>
+            <h1>Explore & Innovate: Architecture Redefined</h1>
             <p style="color: black;">Custom design your own home, building, or entire architectural style!</p>
             <div style="display: flex; align-items: center; margin-top: 20px;">
-                <p style="margin-right: 10px; color: black;">Learn About Real Building Architecture</p>
+                <p style="margin-right: 10px; color: black;">Sign up to explore real building architecture</p>
                 <button type="button" id="navigateButton" class="btn btn-primary" data-url="<%= architecture_explorer_new_path %>">Analyze Architecture</button>
             </div>
         </div>
         <%= image_tag 'Architecture Style.png', alt: 'Architecture Style', class: 'img-fluid' %>
     </div>
-    <!-- Latest Images Section -->
-    <h2>Latest Creations</h2>
-    <div class="latest-images-row">
-        <% @latest_images.each do |image| %>
-            <% if image.image_url.present? %>
-                <div class="latest-image-container">
-                    <%= image_tag image.image_url, alt: "Latest Image", class: "latest-image" %>
-                </div>
-            <% else %>
-                <p>Image not available</p>
-            <% end %>
-        <% end %>
-    </div>
     <!--section with the initial selections-->
+    <h2>Generate Your Dream Architecture</h2>
     <div class="container">
         <%= form_with url: '/architecture_designer/step2', method: :get, id: 'options_form' do %>
             <div class="feature-card">
@@ -234,6 +239,22 @@
                 <%= submit_tag 'Next', class: 'btn btn-primary' %>
             </div>
         <% end %>
+    </div>
+      <!-- Latest Images Section -->
+    <h2>Latest Creations</h2>
+    <div class="latest-images-row">
+        <% @latest_images.each do |image| %>
+            <% if image.image_url.present? %>
+                <div class="latest-image-container">
+                    <%= image_tag image.image_url, alt: "Latest Image", class: "latest-image" %>
+                </div>
+            <% else %>
+                <p>Image not available</p>
+            <% end %>
+        <% end %>
+    </div>
+    <div class="next-button-container mt-3 text-center">
+        <%= link_to 'See More', user_creations_path, class: 'btn btn-secondary' %>
     </div>
 
     <script>

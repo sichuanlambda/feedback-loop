@@ -34,10 +34,52 @@
           text-align: center;
           margin: 10px;
         }
+        .button-container {
+            text-align: center; /* Center the buttons */
+            margin-bottom: 20px; /* Space between buttons and grid */
+        }
+        .btn-primary{
+          width: 30%; /* Make buttons take full width of the container */
+          background-color: #0056b3;
+          color: white;
+          border-radius: 20px;
+          padding: 10px 20px;
+          font-size: 18px;
+          text-align: center;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          transition: all 0.3s ease;
+          border: none;
+          margin: 10px; /* Add spacing between buttons */
+        }
+        .btn-primary:hover {
+          background-color: #004080; /* Darker blue on hover */
+        }
+        .btn-secondary {
+            background-color: #E8E8E8;
+            color: #0056b3; /* Adjust the color to match your theme */
+            border: 2px solid #0056b3; /* Blue border */
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin: 10px
+        }
+
+        .btn-secondary:hover {
+            background-color: #f0f0f0; /* Light grey for hover effect, adjust as needed */
+            color: #003366; /* Darker blue for hover text */
+            border-color: #003366; /* Darker blue for hover border */
+        }
 </style>
 <body>
     <div class="container">
         <h1>User Creations</h1>
+        <div class="button-container">
+            <%= link_to 'Learn About a Building', '#', class: 'btn btn-primary', id: 'analyze-architecture-btn', data: {href: architecture_explorer_new_path} %>
+            <%= link_to 'Generate Architecture', '#', class: 'btn btn-secondary', id: 'generate-architecture-btn', data: {href: step1_architecture_designer_index_path} %>
+        </div>
         <div class="image-grid">
             <% if @submissions.present? %>
                 <% @submissions.each do |submission| %>
@@ -46,7 +88,7 @@
                             <%= image_tag submission.image_url, alt: "User Creation", class: "submission-image" %>
                         </div>
                     <% else %>
-                        <div class="grid-item">No image available</div>
+                        <p>No image available</p>
                     <% end %>
                 <% end %>
             <% else %>
@@ -54,5 +96,17 @@
             <% end %>
         </div>
     </div>
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Event listener for 'Learn About a Building' button
+            document.getElementById('analyze-architecture-btn').addEventListener('click', function() {
+                window.location.href = this.getAttribute('data-href');
+            });
+
+            // Event listener for 'Generate Architecture' button
+            document.getElementById('generate-architecture-btn').addEventListener('click', function() {
+                window.location.href = this.getAttribute('data-href');
+            });
+        });
+    </script>
 </html>
