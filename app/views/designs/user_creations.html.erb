@@ -1,0 +1,58 @@
+<!-- app/views/User Creations/index.html.erb -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Validator - Home</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
+    <style>
+      .container{
+        padding: 40px 0;
+        width: 75%; /* Full width of the column */
+      }
+      body {
+          background-color: #E8E8E8; /* Sets the entire page background to black */
+      }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjust '150px' to change the cell size */
+            gap: 10px; /* Spacing between grid items */
+        }
+
+        .grid-item {
+            /* Styles for each grid item, if needed */
+        }
+
+        .submission-image {
+            width: 100%; /* Make image fill the cell */
+            height: auto;
+            display: block; /* Remove inline properties */
+        }
+        h1 {
+          text-align: center;
+          margin: 10px;
+        }
+</style>
+<body>
+    <div class="container">
+        <h1>User Creations</h1>
+        <div class="image-grid">
+            <% if @submissions.present? %>
+                <% @submissions.each do |submission| %>
+                    <% if submission.image_url.present? %>
+                        <div class="grid-item">
+                            <%= image_tag submission.image_url, alt: "User Creation", class: "submission-image" %>
+                        </div>
+                    <% else %>
+                        <div class="grid-item">No image available</div>
+                    <% end %>
+                <% end %>
+            <% else %>
+                <p>No submissions found.</p>
+            <% end %>
+        </div>
+    </div>
+</body>
+</html>

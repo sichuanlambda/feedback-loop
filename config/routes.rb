@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get 'custom_sign_out', to: 'feedbacks#custom_sign_out'
   get 'sign_out_confirmation', to: 'feedbacks#sign_out_confirmation'
   get 'designs/show_image', to: 'designs#show_image', as: 'show_image'
+  get 'user_creations', to: 'designs#user_creations'
 
   # Architecture Explorer routes
   get 'architecture_explorer/new', to: 'architecture_explorer#new', as: :architecture_explorer_new
@@ -28,6 +29,9 @@ Rails.application.routes.draw do
       get 'step2'
       get 'step3'
       post 'submit', to: 'designs#submit'
+
+      # Nested User Creations route
+      get 'user_creations', to: 'designs#index'
     end
   end
 
@@ -51,7 +55,6 @@ Rails.application.routes.draw do
   get 'thumbs_up', to: 'feedbacks#thumbs_up'
   get 'thumbs_down', to: 'feedbacks#thumbs_down'
   get "up" => "rails/health#show", as: :rails_health_check
-
 
   # Stripe Checkout Route
   post '/stripe_checkout', to: 'stripe#checkout'

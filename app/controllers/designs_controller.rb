@@ -46,6 +46,10 @@ class DesignsController < ApplicationController
     Rails.logger.debug "Latest Images: #{@latest_images}"
   end
 
+  def user_creations
+    @submissions = ArchImageGen.order(created_at: :desc).limit(24)
+  end
+
   private
 
   def set_gpt_api_options
