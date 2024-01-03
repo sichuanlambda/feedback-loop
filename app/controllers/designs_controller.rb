@@ -1,5 +1,6 @@
 require 'httparty'
 require 'open-uri'
+require 'aws-sdk-s3'
 
 class DesignsController < ApplicationController
   before_action :set_gpt_api_options

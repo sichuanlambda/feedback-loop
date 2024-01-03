@@ -10,7 +10,7 @@
         /* Custom styles */
         .container{
             padding: 40px 0;
-            width: 75%; /* Full width of the column */
+            width: 90%; /* Full width of the column */
         }
         .btn-primary{
             width: 30%; /* Make buttons take full width of the container */
@@ -39,11 +39,15 @@
             font-size: 1.1rem; /* Slightly larger font size */
         }
 
-        .option-btn.active {
-            background-color: #0056b3; /* Change to primary color for active state */
+        .option-btn:hover {
+            background-color: #0056b3;
             color: white;
-            transform: scale(1.05); /* Slightly increase the size */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin: 5px;
+            padding: 12px 18px; /* Increased padding */
+            border-radius: 20px;
+            text-align: center;
+            border-radius: 20px;
+            transition: all 0.3s ease;
         }
         .option-container {
             display: flex;
@@ -53,11 +57,12 @@
         }
 
         .option-image {
-            width: 125px; /* Increased width by 25% */
-            height: 125px; /* Increased height by 25% */
+            width: 175px; /* Increased width by 25% */
+            height: 175px; /* Increased height by 25% */
             object-fit: cover; /* Ensures the image covers the area without distorting */
             margin-bottom: 5px;
             border-radius: 10px; /* Optional: for rounded corners */
+            padding: 2px;
         }
 
         .options-row {
@@ -76,15 +81,15 @@
             width: 50%; /* Reduced image size by about 50% */
             border-radius: 20px;
         }
-        .feature-card {
+        .feature-card, .latest-images-container {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
+            flex-direction: column; /* Align children vertically */
+            align-items: center; /* Center-align items */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             background: white;
-            min-height: 200px;
-            margin-bottom: 30px; /* Reduced space between cards */
+            margin-bottom: 30px;
+            padding: 20px; /* Add some padding */
         }
         .feature-card .row {
             margin-left: 0; /* Reset row margin */
@@ -161,6 +166,7 @@
             margin: 30px;
         }
         .latest-images-row {
+            width: 100%; /* Take full width */
             display: flex;
             justify-content: space-around;
             flex-wrap: wrap;
@@ -190,9 +196,13 @@
         }
 
         .btn-secondary:hover {
-            background-color: #f0f0f0; /* Light grey for hover effect, adjust as needed */
-            color: #003366; /* Darker blue for hover text */
+            background-color: #0056b3;
+            color: white;
             border-color: #003366; /* Darker blue for hover border */
+        }
+        .next-button-container {
+            width: 100%; /* Take full width */
+            margin-top: 20px; /* Add space above the button */
         }
     </style>
 </head>
@@ -223,7 +233,7 @@
                                     when 'Large Building' then 'large_building.png'
                                     when 'Interior Design' then 'interior_style.png'
                                     when 'Architecture Style' then 'architecture_style.png'
-                                    else 'default.png' # default image if none of the above
+                                    else 'default.png'
                                 end %>
                                 <%= image_tag image_file, alt: "#{option} Image", class: 'option-image' %>
                                 <%= button_tag type: 'button', class: 'btn option-btn', data: { value: option } do %>
@@ -235,47 +245,42 @@
                     <%= hidden_field_tag 'selected_option', nil, id: 'selected_option' %>
                 </div>
             </div>
-            <div class="next-button-container mt-3 text-center">
-                <%= submit_tag 'Next', class: 'btn btn-primary' %>
-            </div>
         <% end %>
     </div>
       <!-- Latest Images Section -->
     <h2>Latest Creations</h2>
-    <div class="latest-images-row">
-        <% @latest_images.each do |image| %>
-            <% if image.image_url.present? %>
-                <div class="latest-image-container">
-                    <%= image_tag image.image_url, alt: "Latest Image", class: "latest-image" %>
-                </div>
-            <% else %>
-                <p>Image not available</p>
-            <% end %>
-        <% end %>
+    <div class="container">
+        <div class="latest-images-container"> <!-- Use a similar class as feature-card for consistent styling -->
+            <div class="latest-images-row">
+                <% @latest_images.each do |image| %>
+                    <% if image.image_url.present? %>
+                        <div class="latest-image-container">
+                            <%= image_tag image.image_url, alt: "Latest Image", class: "latest-image" %>
+                        </div>
+                    <% else %>
+                        <p>Image not available</p>
+                    <% end %>
+                <% end %>
+            </div>
+            <div class="next-button-container mt-3 text-center">
+                <%= link_to 'See More', user_creations_path, class: 'btn btn-secondary' %>
+            </div>
+        </div>
     </div>
-    <div class="next-button-container mt-3 text-center">
-        <%= link_to 'See More', user_creations_path, class: 'btn btn-secondary' %>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var optionButtons = document.querySelectorAll('.option-btn');
             optionButtons.forEach(function (btn) {
                 btn.addEventListener('click', function () {
-                    // Reset active state for all buttons
-                    optionButtons.forEach(function (otherBtn) {
-                        otherBtn.classList.remove('active');
-                    });
-
-                    // Activate the clicked button
-                    this.classList.add('active');
-
                     // Update the hidden field value
                     document.getElementById('selected_option').value = this.dataset.value;
+
+                    // Navigate to the next step
+                    document.getElementById('options_form').submit();
                 });
             });
 
-            // Adding listener for the navigate button
+            // Navigate button listener
             var navigateButton = document.getElementById('navigateButton');
             if (navigateButton) {
                 navigateButton.addEventListener('click', function() {
