@@ -13,10 +13,10 @@
             width: 90%; /* Full width of the column */
         }
         .btn-primary{
-            width: 30%; /* Make buttons take full width of the container */
+            width: 45%; /* Make buttons take full width of the container */
             background-color: #0056b3;
             color: white;
-            border-radius: 20px;
+            border-radius: 10px;
             padding: 10px 20px;
             font-size: 18px;
             text-align: center;
@@ -29,14 +29,14 @@
             background-color: #004080; /* Darker blue on hover */
         }
         .option-btn {
-            border: 2px solid #0056b3; /* Primary color border */
+            /* border: 2px solid #0056b3; Primary color border */
             background-color: white;
             color: grey;
             margin: 5px;
             padding: 12px 18px; /* Increased padding */
-            border-radius: 20px;
+            border-radius: 10px;
             transition: background-color 0.3s, color 0.3s;
-            font-size: 1.1rem; /* Slightly larger font size */
+            font-size: 0.9rem; /* Slightly larger font size */
         }
 
         .option-btn:hover {
@@ -50,19 +50,34 @@
             transition: all 0.3s ease;
         }
         .option-container {
+            position: relative; /* Establishes a positioning context for absolute children */
             display: flex;
             flex-direction: column;
             align-items: center;
             margin-bottom: 15px;
+            border-radius: 10px; /* Matches other elements */
+            overflow: hidden; /* Ensures that the button does not go outside the border */
         }
 
         .option-image {
-            width: 175px; /* Increased width by 25% */
-            height: 175px; /* Increased height by 25% */
-            object-fit: cover; /* Ensures the image covers the area without distorting */
-            margin-bottom: 5px;
-            border-radius: 10px; /* Optional: for rounded corners */
-            padding: 2px;
+            width: 200px;
+            height: 350px;
+            object-fit: cover;
+            margin-bottom: 5px; /* Removed since the button will overlay the image */
+            padding: 5px;
+            border-radius: 20px;
+            display: block; /* Makes the image a block-level element, if it's not already */
+        }
+
+        .btn.option-btn {
+            position: absolute; /* Absolutely position the button */
+            bottom: 22px; /* Distance from the bottom of the container */
+            left: 50%; /* Center the button */
+            transform: translateX(-50%); /* Offset by half the width of the button for perfect centering */
+            width: 90%; /* Width relative to the option container */
+            margin: 0; /* Remove margin */
+            height: 45px;
+            /* The rest of your button styles */
         }
 
         .options-row {
@@ -154,13 +169,13 @@
                 white-space: normal; /* Allow wrapping on small screens */
             }
         }
-           body {
-        background-color: #E8E8E8; /* Sets the entire page background to black */
-        }
         h1 {
             font-size: 48px;
             color: black;
-            margin-bottom: 20px;
+            background-color: white;
+            z-index: 1; /* This ensures the h1 is above the image */
+            margin-right: -10%; /* Negative margin for overlapping */
+            padding-right: 10%; /* Optional, to maintain padding inside 
         }
         h3 {
             margin: 30px;
@@ -186,7 +201,7 @@
         .btn-secondary {
             background-color: white;
             color: #0056b3; /* Adjust the color to match your theme */
-            border: 2px solid #0056b3; /* Blue border */
+            /* border: 2px solid #0056b3; */
             border-radius: 20px;
             padding: 10px 20px;
             font-size: 18px;
@@ -204,19 +219,105 @@
             width: 100%; /* Take full width */
             margin-top: 20px; /* Add space above the button */
         }
+        body {
+            background-color: #E8E8E8; /* Sets the background color */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-section {
+            display: flex;
+            justify-content: space-between; /* Ensures separation of child elements */
+            align-items: center;
+            padding: 40px;
+            background-color: #f8f9fa;
+            border-radius: 10px; /* Matching border-radius with other sections */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: if you want to match shadow as well */
+            margin-bottom: 30px;
+            position: relative; /* For positioning title */
+        }
+
+        .header-content {
+            flex-basis: 50%;
+            padding-right: -10px; /* Adjust this value to control the space between the text and the images */
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            color: #333;
+            position: relative; /* Relative to its normal position */
+            z-index: 2; /* Above the images */
+            background: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+            padding: 10px; /* Padding around the text */
+            border-radius: 10px; /* Rounded corners for the background */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for depth */
+            min-width: 0%; /* Minimum width before text wrapping occurs */
+            margin-bottom: 10px;
+        }
+
+        .image-collage-container {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-gap: 15px;
+            flex-basis: 50%; /* Takes up half of the flex container */
+            max-width: 50%; /* Maximum width is half of the container */
+            margin-left: auto; /* Pushes the grid to the right */
+        }
+
+        .header-section p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* Define how each image spans rows and columns */
+        .image-collage-large { /* Large images */
+            grid-column: span 6;
+            grid-row: span 4;
+        }
+
+        .image-collage-medium { /* Medium images */
+            grid-column: span 3;
+            grid-row: span 4;
+        }
+
+        .image-collage-small { /* Small images */
+            grid-column: span 3;
+            grid-row: span 2;
+        }
+
+        .image-collage-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* ... responsive adjustments ... */
+        @media (max-width: 992px) {
+            .main-section {
+                flex-direction: column;
+                padding: 30px;
+            }
+
+            .header-content, .image-collage-container {
+                flex-basis: 100%;
+                margin-left: 0;
+                margin-bottom: 20px;
+            }
+        }
     </style>
 </head>
-  <body>
-    <div class="landing-section">
-        <div>
-            <h1>Explore & Innovate: Architecture Redefined</h1>
-            <p style="color: black;">Custom design your own home, building, or entire architectural style!</p>
-            <div style="display: flex; align-items: center; margin-top: 20px;">
-                <p style="margin-right: 10px; color: black;">Sign up to explore real building architecture</p>
-                <button type="button" id="navigateButton" class="btn btn-primary" data-url="<%= architecture_explorer_new_path %>">Analyze Architecture</button>
-            </div>
+    <div class="main-section">
+        <div class="header-content">
+            <h1>Bring your Architectural Vision into Reality</h1>
+            <p>Custom design your own home, building, or entire architectural style.</p>
+            <button type="button" id="navigateButton" class="btn btn-primary" data-url="/architecture_explorer/new">Learn About A Building</button>
         </div>
-        <%= image_tag 'Architecture Style.png', alt: 'Architecture Style', class: 'img-fluid' %>
+        <div class="image-collage-container">
+            <%= image_tag 'curved wooden building.png', alt: 'Large Building', class: 'image-collage-large img-fluid' %>
+            <%= image_tag 'maximal grand.png', alt: 'Residential Home', class: 'image-collage-medium img-fluid' %>
+            <%= image_tag 'bohi int.png', alt: 'Architecture Style', class: 'image-collage-small img-fluid' %>
+            <%= image_tag 'cathederal int.jpg', alt: 'Interior Design', class: 'image-collage-small img-fluid' %>
+        </div>
     </div>
     <!--section with the initial selections-->
     <h2>Generate Your Dream Architecture</h2>
@@ -247,11 +348,12 @@
             </div>
         <% end %>
     </div>
+
       <!-- Latest Images Section -->
     <h2>Latest Creations</h2>
     <div class="container">
         <div class="latest-images-container"> <!-- Use a similar class as feature-card for consistent styling -->
-            <div class="latest-images-row">
+            <div class="latest-images-row" style="display: flex; flex-wrap: wrap; justify-content: space-around;">
                 <% @latest_images.each do |image| %>
                     <% if image.image_url.present? %>
                         <div class="latest-image-container">
@@ -267,24 +369,21 @@
             </div>
         </div>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var optionButtons = document.querySelectorAll('.option-btn');
             optionButtons.forEach(function (btn) {
                 btn.addEventListener('click', function () {
-                    // Update the hidden field value
                     document.getElementById('selected_option').value = this.dataset.value;
-
-                    // Navigate to the next step
                     document.getElementById('options_form').submit();
                 });
             });
 
-            // Navigate button listener
             var navigateButton = document.getElementById('navigateButton');
             if (navigateButton) {
                 navigateButton.addEventListener('click', function() {
-                    window.location.href = this.getAttribute('data-url');
+                    window.location.href = this.dataset.url;
                 });
             }
         });

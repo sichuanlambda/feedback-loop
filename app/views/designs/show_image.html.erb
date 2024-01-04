@@ -160,7 +160,7 @@
       <img src="<%= @image_url %>" alt="Generated Design" class="img-fluid">
     </div>
     <div class="button-group my-3">
-      <button class="btn btn-primary" onclick="shareImage()">🚧 Share Image 🚧</button>
+      <%# <button class="btn btn-primary" onclick="shareImage()">🚧 Share Image 🚧</button> %>
       <button class="btn btn-primary" onclick="shareTool()">Share Tool</button>
       <button class="btn btn-primary" onclick="newDesign()">New Design</button>
     </div>
@@ -182,7 +182,7 @@
       <a href="#" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
     </div>
     <div class="link-copy-area">
-      <input type="text" value="Your shareable link here" id="shareLink" readonly>
+      <input type="text" value="https://www.llmvalidator.com/architecture_designer/step1" id="shareLink" readonly>
       <button class="btn btn-primary" onclick="copyLink()">Copy</button>
     </div>
   </div>
