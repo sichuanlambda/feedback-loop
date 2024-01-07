@@ -12,6 +12,7 @@ class FeedbacksController < ApplicationController
     @gpt_interactions_count = GptInteraction.count
     @users = User.count
     @screenshots = Screenshot.count
+    @arch_image_gen_count = ArchImageGen.count
   end
 
   def about

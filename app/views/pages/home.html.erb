@@ -136,6 +136,21 @@
 
     <!-- Feature Cards Section -->
     <div class="container">
+        <!-- Architecture Designer -->
+        <div class="feature-card d-flex">
+            <div class="col-md-3">
+                <%= image_tag 'urban design.png', alt: 'Architecture Design', class: 'card-img' %>
+            </div>
+            <div class="card-content col-md-5 text-center">
+                <h3><span class="emoji-icon">🏛️</span>Architecture Designer</h3>
+                <p>Create and understand architecture with AI-powered designs.</p>
+                <a href="/architecture_designer/step1" class="btn btn-primary">Design Now</a>
+            </div>
+            <div class="stat col-md-3 text-center">
+                <div class="metric-number"><%= ArchImageGen.count %></div>
+                <div class="metric-description">Designs Created</div>
+            </div>
+        </div>
         <!-- Rate My Dog -->
         <div class="feature-card d-flex">
             <div class="col-md-3">
