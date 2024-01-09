@@ -62,6 +62,13 @@
         <span class="badge badge-secondary">Pill 2</span>
         <!-- More pills as needed -->
       </div> %>
+      <% if @h3_contents.present? %>
+        <div class="mt-3">
+          <% @h3_contents.each do |h3_content| %>
+            <span class="badge badge-primary"><%= h3_content %></span>
+          <% end %>
+        </div>
+    <% end %>
     </div>
   </div>
 </div>

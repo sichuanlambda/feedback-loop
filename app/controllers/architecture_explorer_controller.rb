@@ -1,6 +1,7 @@
 require 'aws-sdk-s3'
 require 'net/http'
 require 'json'
+require 'nokogiri'
 
 class ArchitectureExplorerController < ApplicationController
   before_action :authenticate_user!
@@ -41,9 +42,17 @@ class ArchitectureExplorerController < ApplicationController
     if @building_analysis
       @html_content = @building_analysis.html_content
       @image_url = @building_analysis.image_url # Make the image URL available in the view
+
+      # Extract H3 contents from the HTML content
+      @h3_contents = extract_h3s(@html_content)
     else
       redirect_to root_path, alert: "Analysis not found"
     end
+  end
+
+  def extract_h3s(html_content)
+    doc = Nokogiri::HTML(html_content)
+    doc.search('h3').map(&:text).uniq # .uniq ensures no duplicates
   end
 
   private
