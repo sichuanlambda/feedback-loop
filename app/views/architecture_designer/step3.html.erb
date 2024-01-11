@@ -169,10 +169,40 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .custom-progress-bar {
+            height: 20px; /* Custom height */
+            background-color: #e0e0e0; /* Light grey background */
+            position: relative;
+            radius: 20px;
+        }
+
+        .custom-progress-bar .progress-bar {
+            background-color: #0056b3; /* Custom fill color */
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 66.6%; /* Represents step 2 of 3 */
+        }
+
+        .custom-progress-bar .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 20px; /* Same as the height of the progress bar */
+            color: white; /* Custom text color */
+        }
     </style>
 </head>
 <body>
     <div class="container">
+
+        <!-- Progress Bar for Step 3 -->
+        <div class="custom-progress-bar">
+            <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-text">Step 3 of 3</div>
+        </div>
+
         <%= form_with url: '/architecture_designer/submit', method: :post, id: 'step3_form', remote: true do |form| %>
 
             <!-- Windows and Lighting Section -->
