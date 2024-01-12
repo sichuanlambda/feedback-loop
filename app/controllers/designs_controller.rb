@@ -4,6 +4,7 @@ require 'aws-sdk-s3'
 
 class DesignsController < ApplicationController
   before_action :set_gpt_api_options
+  before_action :set_custom_nav
 
   # This action handles the final submission and API call
   def submit
@@ -98,5 +99,9 @@ class DesignsController < ApplicationController
   def show_image
     @image_url = session[:image_url]
     Rails.logger.debug "Image URL retrieved from session: #{@image_url}"
+  end
+
+  def set_custom_nav
+    @custom_nav = true
   end
 end

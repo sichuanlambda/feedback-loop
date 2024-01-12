@@ -5,6 +5,7 @@ require 'nokogiri'
 
 class ArchitectureExplorerController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_custom_nav
 
   def new
     # Renders the form for uploading an image
@@ -94,4 +95,9 @@ class ArchitectureExplorerController < ApplicationController
     Rails.logger.error "S3 Upload Failed: #{e.message}"
     nil
   end
+
+  def set_custom_nav
+    @custom_nav = true
+  end
+
 end

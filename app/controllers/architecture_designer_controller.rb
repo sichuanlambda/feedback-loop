@@ -1,4 +1,6 @@
 class ArchitectureDesignerController < ApplicationController
+  before_action :set_custom_nav
+
   def step1
     @latest_images = ArchImageGen.order(created_at: :desc).limit(5)
     Rails.logger.debug "Latest Images: #{@latest_images}"
@@ -15,4 +17,11 @@ class ArchitectureDesignerController < ApplicationController
     session[:step2_selections] = params[:user_selections]
     # ... rest of the step3 action ...
   end
+
+  private
+
+  def set_custom_nav
+    @custom_nav = true
+  end
+
 end
