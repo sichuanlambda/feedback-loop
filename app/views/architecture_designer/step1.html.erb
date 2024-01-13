@@ -339,6 +339,7 @@
             flex-direction: column;
             justify-content: space-between; /* This will space out the child elements evenly */
             height: 100%; /* Set height to 100% to occupy full available vertical space */
+            height: 832px;
         }
 
 
@@ -354,7 +355,6 @@
             display: flex;
             flex-direction: row; /* Align items in a row */
             align-items: center;
-            margin-top:20px;
             margin-bottom: 15px;
             text-align: left;
         }
@@ -399,7 +399,23 @@
             margin-bottom: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }       
+        }
+        .timestamp {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%); /* Only translate along the X-axis */
+            color: white; /* or any color you prefer */
+            background-color: orange;
+            padding: 5px 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;            
+            font-size: 0.9rem; /* Adjust as needed */
+            width: 100px;
+            white-space: nowrap;
+            z-index: 2; /* Ensure it's above other elements */
+        }
     </style>
 </head>
     <div class="main-section">
@@ -487,16 +503,17 @@
       <!-- Latest Images Section -->
     <h2>Latest Creations</h2>
     <div class="container">
-        <div class="latest-images-container"> <!-- Use a similar class as feature-card for consistent styling -->
+        <div class="latest-images-container">
             <div class="latest-images-row" style="display: flex; flex-wrap: wrap; justify-content: space-around;">
                 <% @latest_images.each do |image| %>
-                    <% if image.image_url.present? %>
-                        <div class="latest-image-container">
-                            <%= image_tag image.image_url, alt: "Latest Image", class: "latest-image" %>
-                        </div>
-                    <% else %>
-                        <p>Image not available</p>
-                    <% end %>
+                <% if image.image_url.present? %>
+                    <div class="latest-image-container" style="position: relative;">
+                    <%= image_tag image.image_url, alt: "Latest Image", class: "latest-image" %>
+                    <p class="timestamp"><%= time_ago_in_words(image.created_at) %> ago</p>
+                    </div>
+                <% else %>
+                    <p>Image not available</p>
+                <% end %>
                 <% end %>
             </div>
             <div class="next-button-container mt-3 text-center">
