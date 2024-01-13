@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(resource)
     # Specify the path you want to redirect users to after sign-in
-    screenshot_searcher_path
+    '/architecture_designer/step1'
   end
 
   def after_sign_out_path_for(resource_or_scope)

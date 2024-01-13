@@ -9,8 +9,8 @@
     <style>
         /* Custom styles */
         .container{
-            padding: 40px 0;
-            width: 90%; /* Full width of the column */
+            padding: 15px 0;
+            width: 100%; /* Full width of the column */
         }
         .btn-primary{
             width: 45%; /* Make buttons take full width of the container */
@@ -23,7 +23,8 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             border: none;
-            margin-bottom: 10px; /* Add spacing between buttons */
+            margin-bottom: 0px; /* Add spacing between buttons */
+            margin-top: 15px;
         }
         .btn-primary:hover {
             background-color: #004080; /* Darker blue on hover */
@@ -170,11 +171,13 @@
             }
         }
         h1 {
-            font-size: 48px;
+            font-size: 40px;
             color: black;
             z-index: 1; /* This ensures the h1 is above the image */
             margin-right: -10%; /* Negative margin for overlapping */
-            padding-right: 10%; /* Optional, to maintain padding inside 
+            padding-right: 10%; 
+            padding-bottom: 30px;
+            white-space: nowrap;
         }
         h3 {
             margin: 30px;
@@ -187,6 +190,10 @@
         }
         h2 {
             text-align: center;
+        }
+        h4 {
+            padding-top:20px;
+            padding-left: 10px;
         }
         .latest-image-container {
             margin: 10px;
@@ -240,6 +247,23 @@
         .header-content {
             flex-basis: 50%;
             padding-right: -10px; /* Adjust this value to control the space between the text and the images */
+        }
+        .header-content p {
+            font-size: 0.9rem; /* Adjust the font size as needed */
+            margin-bottom: 0.5rem; /* Adjust bottom margin as needed */
+            padding: 0; /* Remove padding */
+            padding-left: 20px;
+            position: relative; /* Needed for pseudo-element positioning */
+        }
+
+        .header-content p::before {
+            content: '\2713'; /* Unicode checkmark */
+            color: green; /* Color of the checkmark */
+            font-weight: bold; /* Make the checkmark bold */
+            display: inline-block; /* Inline-block to keep it with the text */
+            width: 1.5em; /* Space for the checkmark */
+            margin-left: -1.5em; /* Negative margin to pull checkmark into position */
+            margin-bottom: 2px;
         }
 
         .header-section h1 {
@@ -305,19 +329,129 @@
                 margin-bottom: 20px;
             }
         }
+        .highlight {
+            color: #0056b3; /* Replace with your desired color */
+            display: inline-block; /* Explicitly set to inline */
+            font-weight: bold;
+        }
+        .architecture-identifier .col-md-6 {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* This will space out the child elements evenly */
+            height: 100%; /* Set height to 100% to occupy full available vertical space */
+        }
+
+
+        .large-architecture-image {
+            width: 100%; /* Adjust the width as necessary */
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        /* Individual small image containers */
+        .small-image-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: row; /* Align items in a row */
+            align-items: center;
+            margin-top:20px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .small-image-wrapper {
+            flex: 0 0 auto;
+            margin-right: 10px;
+        }
+
+        .small-image-title {
+            flex: 1;
+            padding-left: 10px;
+        }
+
+        .small-image-container img {
+            width: 40%; /* Adjust width as necessary */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .small-image-container {
+                flex-direction: column; /* Stack items on smaller screens */
+                align-items: center; /* Center items on smaller screens */
+                text-align: center;
+            }
+
+            .small-image-wrapper, .small-image-title {
+                width: 100%; /* Full width on smaller screens */
+            }
+
+            .small-image-wrapper {
+                margin-bottom: 5px;
+            }
+        }
+        .text-container {
+        }
+        .architecture-identifier {
+            /* Example styles */
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }       
     </style>
 </head>
     <div class="main-section">
         <div class="header-content">
-            <h1>Bring your Architectural Vision into Reality</h1>
-            <p>Leverage the Power of AI to Create & Understand Architecture!</p>
-            <button type="button" id="navigateButton" class="btn btn-primary" data-url="/architecture_explorer/new">Sign Up Today!</button>
+            <h1><span>Generate and Understand</span><br><span>Architecture </span><span class="highlight"> in seconds</span></h1>
+            <h4>Perfect for...</h4>
+            <p>Creating your dream home & finding inspiration</p>
+            <p>Mixing influences and styles</p>
+            <p>Learning about the architecture around you</p>
+            <button type="button" id="navigateButton" class="btn btn-primary" data-url="/users/sign_up">Sign Up Today!</button>
         </div>
         <div class="image-collage-container">
             <%= image_tag 'curved wooden building.png', alt: 'Large Building', class: 'image-collage-large img-fluid' %>
             <%= image_tag 'maximal grand.png', alt: 'Residential Home', class: 'image-collage-medium img-fluid' %>
             <%= image_tag 'bohi int.png', alt: 'Architecture Style', class: 'image-collage-small img-fluid' %>
             <%= image_tag 'cathederal int.jpg', alt: 'Interior Design', class: 'image-collage-small img-fluid' %>
+        </div>
+    </div>
+    <h2>AI-Powered Architecture Identifier</h2>
+        <div class="container architecture-identifier">
+        <div class="row">
+            <div class="col-md-6">
+                <%= image_tag 'CameraArch.jpg', alt: 'Large Image', class: 'img-fluid large-architecture-image' %>
+            </div>
+            <div class="col-md-6" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="small-image-container">
+                    <%= image_tag 'HouseandCamera.jpg', alt: 'Home image with camera icon', class: 'img-fluid small-architecture-image' %>
+                    <div class="text-container">
+                        <h4>Snap a picture of an interesting building</h4>
+                        <p>Submit any home, building, or structure you want to learn about</p>
+                    </div>
+                </div>
+                <div class="small-image-container">
+                    <%= image_tag 'LearnIcon.jpg', alt: 'Building image with learn icon', class: 'img-fluid small-architecture-image' %>
+                    <div class="text-container">
+                        <h4>Analyze the influences and style for learning</h4>
+                        <p>See influences and styles that the structure you submitted contains. Learn the history and explore examples of them in the world.</p>
+                    </div>
+                </div>
+                <div class="small-image-container">
+                    <%= image_tag 'CreateIcon.jpg', alt: 'Building Image with Create Icon', class: 'img-fluid small-architecture-image' %>
+                    <div class="text-container">
+                        <h4>Mix and match your favorite styles and create!</h4>
+                        <p>Generate your own architecture style, building, and more using your newfound favorite styles combined with other influences</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-center">
+                <button type="button" id="analyzeButton" class="btn btn-primary" data-url="/architecture_explorer/new">Analyze a Building!</button>
+            </div>
         </div>
     </div>
     <!--section with the initial selections-->
@@ -371,23 +505,31 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var optionButtons = document.querySelectorAll('.option-btn');
-            optionButtons.forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    document.getElementById('selected_option').value = this.dataset.value;
-                    document.getElementById('options_form').submit();
-                });
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var optionButtons = document.querySelectorAll('.option-btn');
+        optionButtons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.getElementById('selected_option').value = this.dataset.value;
+                document.getElementById('options_form').submit();
             });
-
-            var navigateButton = document.getElementById('navigateButton');
-            if (navigateButton) {
-                navigateButton.addEventListener('click', function() {
-                    window.location.href = this.dataset.url;
-                });
-            }
         });
-    </script>
+
+        var navigateButton = document.getElementById('navigateButton');
+        if (navigateButton) {
+            navigateButton.addEventListener('click', function() {
+                window.location.href = this.dataset.url;
+            });
+        }
+
+        // Add similar event listener for analyzeButton
+        var analyzeButton = document.getElementById('analyzeButton');
+        if (analyzeButton) {
+            analyzeButton.addEventListener('click', function() {
+                window.location.href = this.dataset.url;
+            });
+        }
+    });
+</script>
 </body>
 </html>
