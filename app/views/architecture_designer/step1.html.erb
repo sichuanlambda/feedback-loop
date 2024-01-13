@@ -106,6 +106,7 @@
             background: white;
             margin-bottom: 30px;
             padding: 20px; /* Add some padding */
+            padding-bottom: 10px;
         }
         .feature-card .row {
             margin-left: 0; /* Reset row margin */
@@ -509,7 +510,7 @@
                 <% if image.image_url.present? %>
                     <div class="latest-image-container" style="position: relative;">
                     <%= image_tag image.image_url, alt: "Latest Image", class: "latest-image" %>
-                    <p class="timestamp"><%= time_ago_in_words(image.created_at) %> ago</p>
+                    <p class="timestamp"><%= precise_time_ago_in_words(image.created_at) %> ago</p>
                     </div>
                 <% else %>
                     <p>Image not available</p>
