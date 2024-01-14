@@ -32,7 +32,8 @@ class ArchitectureExplorerController < ApplicationController
         html_content: analysis_result[:html_content],
         user: current_user, # Assuming you have a method to get the current user
         image_url: image_url, # Save the image URL
-        h3_contents: h3_contents # Save the extracted H3 contents
+        h3_contents: h3_contents, # Save the extracted H3 contents
+        visible_in_library: true # Set default visibility in library to true
       )
       redirect_to architecture_explorer_show_path(id: new_analysis.id)
     else
