@@ -26,10 +26,13 @@ class ArchitectureExplorerController < ApplicationController
     Rails.logger.debug "Analysis result: #{analysis_result.inspect}"
 
     if analysis_result && analysis_result[:html_content].present?
+      h3_contents = extract_h3s(analysis_result[:html_content]) # Extract H3 contents here
+
       new_analysis = BuildingAnalysis.create(
         html_content: analysis_result[:html_content],
         user: current_user, # Assuming you have a method to get the current user
-        image_url: image_url # Save the image URL
+        image_url: image_url, # Save the image URL
+        h3_contents: h3_contents # Save the extracted H3 contents
       )
       redirect_to architecture_explorer_show_path(id: new_analysis.id)
     else
