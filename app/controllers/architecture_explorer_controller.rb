@@ -59,6 +59,18 @@ class ArchitectureExplorerController < ApplicationController
     doc.search('h3').map(&:text).uniq # .uniq ensures no duplicates
   end
 
+  def building_library
+    if params[:search].present?
+      search_term = params[:search].downcase
+      @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ?", "%#{search_term}%")
+    else
+      @analyzed_buildings = BuildingAnalysis.all
+    end
+
+    @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
+    render 'architecture_explorer/building_library'
+  end
+
   private
 
   def process_building_image(uploaded_image)
