@@ -16,6 +16,8 @@ Rails.application.routes.draw do
   get 'designs/show_image', to: 'designs#show_image', as: 'show_image'
   get 'user_creations', to: 'designs#user_creations'
   get 'building_library', to: 'architecture_explorer#building_library'
+  post 'add_to_library/:id', to: 'architecture_explorer#add_to_library', as: 'add_to_library'
+  post 'remove_from_library/:id', to: 'architecture_explorer#remove_from_library', as: 'remove_from_library'
 
   # Architecture Explorer routes
   get 'architecture_explorer/new', to: 'architecture_explorer#new', as: :architecture_explorer_new

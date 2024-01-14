@@ -42,6 +42,7 @@ class ArchitectureExplorerController < ApplicationController
 
   def show
     @building_analysis = BuildingAnalysis.find_by(id: params[:id])
+    @is_shared = @building_analysis.visible_in_library
 
     if @building_analysis
       @html_content = @building_analysis.html_content
@@ -62,13 +63,35 @@ class ArchitectureExplorerController < ApplicationController
   def building_library
     if params[:search].present?
       search_term = params[:search].downcase
-      @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ?", "%#{search_term}%")
+      # Fetches records that contain the search term in `h3_contents` and are visible in the library
+      @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ? AND visible_in_library = ?", "%#{search_term}%", true)
     else
-      @analyzed_buildings = BuildingAnalysis.all
+      # Fetches all records that are visible in the library when there is no search term
+      @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
     end
 
+    # Orders the results by creation date in descending order
     @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
+
+    # Renders the 'architecture_explorer/building_library' view
     render 'architecture_explorer/building_library'
+  end
+  def remove_from_library
+    building_analysis = BuildingAnalysis.find(params[:id])
+    if building_analysis.update(visible_in_library: false)
+      redirect_to architecture_explorer_show_path(id: building_analysis.id), notice: 'Removed from library successfully.'
+    else
+      redirect_to architecture_explorer_show_path(id: building_analysis.id), alert: 'Failed to remove from library.'
+    end
+  end
+  def add_to_library
+    @building_analysis = BuildingAnalysis.find(params[:id])
+
+    if @building_analysis.update(visible_in_library: true)
+      redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: 'Building successfully shared in library.'
+    else
+      redirect_to architecture_explorer_show_path(id: @building_analysis.id), alert: 'Unable to share building in library.'
+    end
   end
 
   private
