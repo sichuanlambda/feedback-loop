@@ -22,13 +22,21 @@
         }
 
         .grid-item {
-            /* Styles for each grid item, if needed */
+            display: flex; /* Use flexbox */
+            flex-direction: column; /* Stack children vertically */
+            align-items: center; /* Center children horizontally */
+            justify-content: flex-start; /* Align children to the start of the flex container */
+            text-align: center; /* Center text */
+            overflow: hidden; /* Hide parts of the image that exceed the container size */
+            margin-bottom: 20px; /* Space below each grid item */
+            height: auto; /* Adjust height automatically */
         }
 
         .submission-image {
-            width: 100%; /* Make image fill the cell */
-            height: auto;
-            display: block; /* Remove inline properties */
+            width: 150px; /* Set a fixed width */
+            height: 150px; /* Set a fixed height, equal to the width for a square */
+            object-fit: cover; /* This will ensure the image covers the area, keeping its aspect ratio */
+            margin-bottom: 0px; /* Space between image and button */
         }
         h1 {
           text-align: center;
@@ -72,8 +80,27 @@
             color: #003366; /* Darker blue for hover text */
             border-color: #003366; /* Darker blue for hover border */
         }
+        .grid-btn {
+            width: 150px; /* Set a fixed width */
+            background-color: #E8E8E8;
+            color: #0056b3;
+            border: 1px solid #0056b3;
+            border-top: none; /* Remove top border */
+            padding: 10px 10px;
+            font-size: 16px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            display: inline-block;
+            text-decoration: none;
+            margin: 0; /* Remove margin */
+            border-radius: 0 0 10px 10px; /* Rounded corners at the bottom only */
+            white-space: nowrap; /* Prevents the text from wrapping */
+            overflow: hidden; /* Hides text that overflows the button's width */
+            text-overflow: ellipsis; /* Adds an ellipsis to text that overflows */
+            max-width: 100%;
+        }
         .search-bar {
-            width: 500px; /* Adjust as needed */
+            width: 80; /* Adjust as needed */
         }
 
         /* Responsive adjustments */
@@ -101,7 +128,7 @@
         <!-- Search Form -->
         <div class="row justify-content-center mb-4">
             <%= form_with(url: building_library_path, method: :get, local: true, class: "form-inline") do |form| %>
-                <%= text_field_tag :search, params[:search], placeholder: "Search by style, e.g., Gothic Revival", class: 'form-control form-control-sm mr-2 search-bar' %>
+                <%= text_field_tag :search, params[:search], placeholder: "Search by style, e.g., Gothic Revival", class: 'form-control form-control-md mr-4 search-bar' %>
                 <%= form.submit 'Search', class: 'btn btn-secondary btn-sm' %>
             <% end %>
         </div>
@@ -113,6 +140,9 @@
                     <% if building.image_url.present? %>
                         <div class="grid-item">
                             <%= image_tag building.image_url, alt: "Analyzed Building", class: "submission-image" %>
+                            <% if building.address.present? && building.address != "N/A" %>
+                                <%= link_to building.address, architecture_explorer_show_path(id: building.id), class: 'grid-btn' %>
+                            <% end %>
                         </div>
                     <% else %>
                         <p>No image available</p>
@@ -122,7 +152,6 @@
                 <p>No analyzed buildings found.</p>
             <% end %>
         </div>
-    </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Event listener for 'Learn About a Building' button
