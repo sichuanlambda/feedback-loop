@@ -33,7 +33,8 @@ class ArchitectureExplorerController < ApplicationController
         user: current_user, # Assuming you have a method to get the current user
         image_url: image_url, # Save the image URL
         h3_contents: h3_contents, # Save the extracted H3 contents
-        visible_in_library: true # Set default visibility in library to true
+        visible_in_library: true, # Set default visibility in library to true
+        address: params[:address].presence || "N/A" # Set default to "N/A" if address is not provided
       )
       redirect_to architecture_explorer_show_path(id: new_analysis.id)
     else
@@ -94,8 +95,19 @@ class ArchitectureExplorerController < ApplicationController
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), alert: 'Unable to share building in library.'
     end
   end
-
+  def update
+    @building_analysis = BuildingAnalysis.find(params[:id])
+    if @building_analysis.update(building_analysis_params)
+      redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: 'Address updated successfully.'
+    else
+      render :show, alert: 'Failed to update address.'
+    end
+  end
   private
+
+  def building_analysis_params
+    params.require(:building_analysis).permit(:address)
+  end
 
   def process_building_image(uploaded_image)
     # Upload the image to S3 and get the URL

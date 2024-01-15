@@ -50,6 +50,7 @@
         max-width: 100%;
         height: auto;
         border-radius: 10px 10px 0 0; /* Rounded corners at the top only */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         margin-bottom: 0; /* Remove bottom margin */
     }
     .col-md-8 {
@@ -57,7 +58,7 @@
     }
     .badge {
         margin: 5px; /* Spacing between pills */
-        font-size: 12px;
+        font-size: 16px;
         background-color: #0056b3;
     }
     .button-container {
@@ -75,7 +76,7 @@
         padding: 10px 10px;
         font-size: 16px;
         text-align: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         display: inline-block;
         text-decoration: none;
         margin: 0; /* Remove margin */
@@ -91,6 +92,38 @@
         padding-left: 0;
         margin-right: 0;
         margin-left: 0;
+    }
+    .address-container {
+        margin-top: 30px; /* Add top margin */
+        margin-bottom: 20px; /* Add bottom margin */
+        background-color: #f8f9fa; /* Light background color for the container */
+        border-radius: 10px; /* Rounded corners */
+        padding: 15px; /* Padding inside the container */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* Add shadow for dep th */
+    }
+
+    .address-title {
+        font-size: 20px; /* Font size for title */
+        color: #0056b3; /* Font color for title */
+        margin-bottom: 10px; /* Space below the title */
+    }
+
+    .btn-address-update {
+        background-color: #28a745; /* Green background color */
+        color: white; /* White text color */
+        padding: 10px 20px; /* Padding inside the button */
+        border-radius: 5px; /* Rounded corners for the button */
+        border: none; /* Remove border */
+        font-size: 16px; /* Font size for the button */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Shadow for the button */
+        display: block; /* Make the button a block-level element */
+        margin-left: auto; /* Automatically adjust left margin */
+        margin-right: auto; /* Automatically adjust right margin */
+        margin-top: 10px; /* Add some space above the button */
+    }
+
+    .btn-address-update:hover {
+        background-color: #218838; /* Darker green on hover */
     }
 </style>
 
@@ -129,10 +162,22 @@
                 <% end %>
             </div>
         <% end %>
+          <div class="address-container">
+                <div class="address-title">Add Building to Map</div>
+                <%= form_with model: @building_analysis, url: architecture_explorer_update_path(@building_analysis), method: :patch do |form| %>
+                    <div>
+                        <%= form.label :address, "Address or City" %>
+                        <%= form.text_field :address %>
+                        <%= form.submit "Add Location", class: 'btn-address-update' %>
+                    </div>
+                <% end %>
+            </div>
+
         <!-- Button Container -->
-        <div class="container text-center mb-4">
+        <%# <div class="container text-center mb-4">
             <%= link_to 'Generate Architecture', step1_architecture_designer_index_path, class: 'btn btn-primary', id: 'generate-architecture-btn' %>
-        </div>
+        <%# </div> %>
+
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
