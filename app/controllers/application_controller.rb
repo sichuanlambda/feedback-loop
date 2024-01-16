@@ -1,4 +1,9 @@
 class ApplicationController < ActionController::Base
+
+  def account
+    # Any specific logic for the account page (likely none for a static page)
+  end
+
   private
 
   def after_sign_in_path_for(resource)
@@ -11,3 +16,4 @@ class ApplicationController < ActionController::Base
     root_path
   end
 end
+#
