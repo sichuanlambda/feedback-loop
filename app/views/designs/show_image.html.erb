@@ -143,20 +143,41 @@
       justify-content: space-between;
       align-items: center;
     }
+        @media (max-width: 768px) {
+      .btn-primary, .btn-secondary {
+        width: 80%; /* Larger buttons for smaller screens */
+        padding: 15px 20px; /* Bigger touch targets */
+        font-size: 16px; /* Adjust font size */
+      }
+
+      .modal-content {
+        width: 90%; /* Adjust modal width for smaller screens */
+      }
+
+      .img-fluid {
+        max-width: 100%;
+        height: auto;
+      }
+      .container{
+        padding: 20px 0;
+        width: 90%;
+        margin: auto;
+    }
+    }
   </style>
 </head>
 <body>
 <div class="container">
     <div style="text-align: center; margin-bottom: 5px;">
         <span style="font-size: 20px; margin-right: 10px;">Did you enjoy this free tool?</span>
-        <a href="https://www.buymeacoffee.com/nathanrobinson" target="_blank">
-            <%= image_tag 'bmc-button.png', alt: 'buy me a coffee button', style: 'vertical-align: middle; width: 200px' %>
+        <a href="/architecture_explorer/new" target="_blank">
+            <button class="btn btn-primary">Analyze a Real Building's Architectural Style</button>
         </a>
     </div>
 </div>
 <div class="container text-center">
   <% if @image_url.present? %>
-    <div class="image-container my-4">
+    <div class="image-container my-8">
       <img src="<%= @image_url %>" alt="Generated Design" class="img-fluid">
     </div>
     <div class="button-group my-3">
