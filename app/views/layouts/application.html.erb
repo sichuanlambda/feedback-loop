@@ -30,16 +30,14 @@
       </div>
 
       <div class="navbar-nav ml-auto">
-        <% if user_signed_in? %>
-          <span class="navbar-text">Welcome, <%= current_user.email %></span>
-          <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
-          <!-- New Link -->
-          <%= link_to 'Account', 'https://billing.stripe.com/p/login/5kAaFi0ow63x9I4aEE', class: 'nav-item nav-link' %>
-        <% else %>
-          <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
-          <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
-        <% end %>
-    </div>
+          <% if user_signed_in? %>
+            <span class="navbar-text">Welcome, <%= current_user.email %></span>
+            <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
+            <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
+          <% else %>
+            <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
+            <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
+          <% end %>
   </div>
 </nav>
 
@@ -73,7 +71,8 @@
       <div class="navbar-nav ml-auto">
         <% if user_signed_in? %>
           <span class="navbar-text">Welcome, <%= current_user.email %></span>
-          <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
+            <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
+            <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
         <% else %>
           <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
           <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
