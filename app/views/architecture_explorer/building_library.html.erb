@@ -8,7 +8,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
     <style>
       .container{
-        padding: 40px 0;
+        padding: 30px 0;
         width: 90%; /* Full width of the column */
       }
       body {
@@ -32,8 +32,8 @@
         }
 
         .submission-image {
-            width: 150px; /* Set a fixed width */
-            height: 150px; /* Set a fixed height, equal to the width for a square */
+            width: 160px; /* Set a fixed width */
+            height: 160px; /* Set a fixed height, equal to the width for a square */
             object-fit: cover; /* This will ensure the image covers the area, keeping its aspect ratio */
             margin-bottom: 0px; /* Space between image and button */
         }
@@ -80,7 +80,7 @@
             border-color: #003366; /* Darker blue for hover border */
         }
         .grid-btn {
-            width: 150px; /* Set a fixed width */
+            width: 160px; /* Set a fixed width */
             background-color: #E8E8E8;
             color: #0056b3;
             border: 1px solid #0056b3;
@@ -116,7 +116,25 @@
 </style>
 <body>
     <div class="container">
-        <h1>Building Library</h1>
+        <h1>Your Building Library</h1>
+        <div class="image-grid">
+            <% if @user_analyzed_images.present? %>
+               <% @user_analyzed_images.each do |analysis| %>
+                <div class="grid-item">
+                    <%= link_to architecture_explorer_show_path(id: analysis.id) do %>
+                    <%= image_tag analysis.image_url, alt: "Analyzed Image", class: "submission-image" %>
+                    <% if analysis.address.present? && analysis.address != "N/A" %>
+                        <span class="grid-btn"><%= analysis.address %></span>
+                    <% end %>
+                    <% end %>
+                </div>
+                <% end %>
+            <% else %>
+                <p>You haven't analyzed any images yet.</p>
+            <% end %>
+        </div>
+
+        <h1>Community Building Library</h1>
         
         <!-- Button Container -->
         <div class="button-container text-center mb-4">
@@ -132,25 +150,23 @@
             <% end %>
         </div>
 
-        <!-- Image Grid -->
-        <div class="image-grid">
-            <% if @analyzed_buildings.present? %>
-                <% @analyzed_buildings.each do |building| %>
-                    <% if building.image_url.present? %>
-                        <div class="grid-item">
-                            <%= image_tag building.image_url, alt: "Analyzed Building", class: "submission-image" %>
-                            <% if building.address.present? && building.address != "N/A" %>
-                                <%= link_to building.address, architecture_explorer_show_path(id: building.id), class: 'grid-btn' %>
-                            <% end %>
-                        </div>
-                    <% else %>
-                        <p>No image available</p>
+    <!-- Image Grid -->
+    <div class="image-grid">
+        <% if @analyzed_buildings.present? %>
+            <% @analyzed_buildings.each do |building| %>
+                <div class="grid-item">
+                    <%= link_to architecture_explorer_show_path(id: building.id) do %>
+                        <%= image_tag building.image_url, alt: "Building Image", class: "submission-image" %>
+                        <% if building.address.present? && building.address != "N/A" %>
+                            <span class="grid-btn"><%= building.address %></span>
+                        <% end %>
                     <% end %>
-                <% end %>
-            <% else %>
-                <p>No analyzed buildings found.</p>
+                </div>
             <% end %>
-        </div>
+        <% else %>
+            <p>No analyzed buildings found.</p>
+        <% end %>
+    </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Event listener for 'Learn About a Building' button
