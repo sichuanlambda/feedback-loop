@@ -63,6 +63,9 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def building_library
+    # Fetch images analyzed by the current user
+    @user_analyzed_images = BuildingAnalysis.where(user: current_user).order(created_at: :desc)
+
     if params[:search].present?
       search_term = params[:search].downcase
       # Fetches records that contain the search term in `h3_contents` and are visible in the library
@@ -78,6 +81,7 @@ class ArchitectureExplorerController < ApplicationController
     # Renders the 'architecture_explorer/building_library' view
     render 'architecture_explorer/building_library'
   end
+
   def remove_from_library
     building_analysis = BuildingAnalysis.find(params[:id])
     if building_analysis.update(visible_in_library: false)
