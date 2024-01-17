@@ -116,21 +116,25 @@
 </style>
 <body>
     <div class="container">
-        <h1>Your Building Library</h1>
+    <h1>Your Building Library</h1>
         <div class="image-grid">
             <% if @user_analyzed_images.present? %>
-               <% @user_analyzed_images.each do |analysis| %>
-                <div class="grid-item">
-                    <%= link_to architecture_explorer_show_path(id: analysis.id) do %>
-                    <%= image_tag analysis.image_url, alt: "Analyzed Image", class: "submission-image" %>
-                    <% if analysis.address.present? && analysis.address != "N/A" %>
-                        <span class="grid-btn"><%= analysis.address %></span>
-                    <% end %>
-                    <% end %>
-                </div>
+                <% @user_analyzed_images.each do |analysis| %>
+                    <div class="grid-item">
+                        <% if analysis.image_url.present? %>
+                            <%= link_to architecture_explorer_show_path(id: analysis.id) do %>
+                                <%= image_tag analysis.image_url, alt: "Analyzed Image", class: "submission-image" %>
+                                <% if analysis.address.present? && analysis.address != "N/A" %>
+                                    <span class="grid-btn"><%= analysis.address %></span>
+                                <% end %>
+                            <% end %>
+                        <% else %>
+                            <p>No image available</p>
+                        <% end %>
+                    </div>
                 <% end %>
             <% else %>
-                <p>You haven't analyzed any images yet.</p>
+                <p>No analyzed buildings found.</p>
             <% end %>
         </div>
 
