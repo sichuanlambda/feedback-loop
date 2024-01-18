@@ -130,26 +130,41 @@
         }
 
         .modal-footer {
-            justify-content: center; /* Centers the button in the modal footer */
+            justify-content: ce
+            nter; /* Centers the button in the modal footer */
+        }
+        #modalTags {
+            display: flex; /* Use flexbox for layout */
+            flex-wrap: wrap; /* Allow tags to wrap to the next line */
+            justify-content: center; /* Center tags horizontally */
+            margin-top: 10px; /* Add some space above the tags */
+            margin-bottom: 10px; /* Add some space above the tags */
+        }
+
+        #modalTags .badge {
+            margin: 2px; /* Add a little space around each tag */
         }
 </style>
 <body>
-    <!-- Modal Structure -->
-    <div id="imagePreviewModal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Building Preview</h5>
+<!-- Modal Structure -->
+<div id="imagePreviewModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Building Preview</h5>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" class="img-fluid" alt="Preview"/>
+            </div>
+                <!-- Container for tags -->
+                <div id="modalTags" class="mt-6">
                 </div>
-                <div class="modal-body">
-                    <img id="modalImage" src="" class="img-fluid" alt="Preview"/>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <a href="#" id="viewFullAnalysis" class="btn btn-primary">View Full Analysis</a>
-                </div>
+            <div class="modal-footer justify-content-center">
+                <a href="#" id="viewFullAnalysis" class="btn btn-primary">View Full Analysis</a>
             </div>
         </div>
     </div>
+</div>
 <div class="container">
     <h1>My Buildings</h1>
     <div class="image-grid">
@@ -189,9 +204,10 @@
         <div class="image-grid">
             <% if @analyzed_buildings.present? %>
                 <% @analyzed_buildings.each do |building| %>
-                    <div class="grid-item" data-toggle="modal" data-target="#imagePreviewModal"
-                         data-image="<%= building.image_url %>"
-                         data-link="<%= architecture_explorer_show_path(id: building.id) %>">
+                  <div class="grid-item" data-toggle="modal" data-target="#imagePreviewModal"
+                        data-image="<%= building.image_url %>"
+                        data-tags="<%= JSON.parse(building.h3_contents).join(', ') %>"
+                        data-link="<%= architecture_explorer_show_path(id: building.id) %>">
                         <%= image_tag building.image_url, alt: "Building Image", class: "submission-image" %>
                         <% if building.address.present? && building.address != "N/A" %>
                             <span class="grid-btn"><%= building.address %></span>
@@ -221,17 +237,25 @@
                 });
             }
         });
-
         $(document).ready(function() {
             $('#imagePreviewModal').on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget); // Button that triggered the modal
-                var imageUrl = button.data('image'); // Extract info from data-* attributes
-                var analysisLink = button.data('link');
+                var imageUrl = button.data('image'); // Extract image URL
+                var tagsString = button.data('tags'); // Extract tags
 
                 // Update the modal's content
                 var modal = $(this);
                 modal.find('#modalImage').attr('src', imageUrl); // Set the image URL
-                modal.find('#viewFullAnalysis').attr('href', analysisLink); // Set the link URL
+
+                // Handle tags
+                var tagsContainer = modal.find('#modalTags');
+                tagsContainer.empty(); // Clear previous tags
+                if (tagsString) {
+                    var tagsArray = tagsString.split(','); // Split tags into an array
+                    tagsArray.forEach(function(tag) {
+                        tagsContainer.append('<span class="badge badge-primary">' + tag.trim() + '</span>');
+                    });
+                }
             });
         });
     </script>
