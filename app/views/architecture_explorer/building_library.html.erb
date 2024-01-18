@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LLM Validator - Home</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
     <script defer data-domain="llmvalidator.com" src="https://plausible.io/js/script.js"></script>
     <style>
@@ -114,30 +116,58 @@
                 width: 100%; /* Full width for button on smaller screens */
             }
         }
+        .modal-body {
+            display: flex; /* Enable flexbox */
+            justify-content: center; /* Center content horizontally */
+            align-items: center; /* Center content vertically */
+            text-align: center; /* Ensure text is centered, if any */
+            height: 100%; /* Optional: Set a specific height if needed */
+        }
+        #modalImage {
+            max-width: 100%; /* Ensures image is not larger than the container */
+            max-height: 600px; /* Set a maximum height for the image */
+            margin: auto; /* Add automatic margins to center the image */
+        }
+
+        .modal-footer {
+            justify-content: center; /* Centers the button in the modal footer */
+        }
 </style>
 <body>
-    <div class="container">
-    <h1>Your Building Library</h1>
-        <div class="image-grid">
-            <% if @user_analyzed_images.present? %>
-                <% @user_analyzed_images.each do |analysis| %>
-                    <div class="grid-item">
-                        <% if analysis.image_url.present? %>
-                            <%= link_to architecture_explorer_show_path(id: analysis.id) do %>
-                                <%= image_tag analysis.image_url, alt: "Analyzed Image", class: "submission-image" %>
-                                <% if analysis.address.present? && analysis.address != "N/A" %>
-                                    <span class="grid-btn"><%= analysis.address %></span>
-                                <% end %>
-                            <% end %>
-                        <% else %>
-                            <p>No image available</p>
-                        <% end %>
-                    </div>
-                <% end %>
-            <% else %>
-                <p>No analyzed buildings found.</p>
-            <% end %>
+    <!-- Modal Structure -->
+    <div id="imagePreviewModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Building Preview</h5>
+                </div>
+                <div class="modal-body">
+                    <img id="modalImage" src="" class="img-fluid" alt="Preview"/>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <a href="#" id="viewFullAnalysis" class="btn btn-primary">View Full Analysis</a>
+                </div>
+            </div>
         </div>
+    </div>
+<div class="container">
+    <h1>My Buildings</h1>
+    <div class="image-grid">
+        <% if @user_analyzed_images.present? %>
+            <% @user_analyzed_images.each do |analysis| %>
+                    <div class="grid-item" data-toggle="modal" data-target="#imagePreviewModal"
+                        data-image="<%= analysis.image_url %>"
+                        data-link="<%= architecture_explorer_show_path(id: analysis.id) %>">
+                        <%= image_tag analysis.image_url, alt: "Building Image", class: "submission-image" %>
+                    <% if analysis.address.present? && analysis.address != "N/A" %>
+                        <span class="grid-btn"><%= analysis.address %></span>
+                    <% end %>
+                </div>
+            <% end %>
+        <% else %>
+            <p>No analyzed buildings found.</p>
+        <% end %>
+    </div>
 
         <h1>Community Building Library</h1>
         
@@ -155,33 +185,53 @@
             <% end %>
         </div>
 
-    <!-- Image Grid -->
-    <div class="image-grid">
-        <% if @analyzed_buildings.present? %>
-            <% @analyzed_buildings.each do |building| %>
-                <div class="grid-item">
-                    <%= link_to architecture_explorer_show_path(id: building.id) do %>
+    <!-- Image Grid for Community Building Library -->
+        <div class="image-grid">
+            <% if @analyzed_buildings.present? %>
+                <% @analyzed_buildings.each do |building| %>
+                    <div class="grid-item" data-toggle="modal" data-target="#imagePreviewModal"
+                         data-image="<%= building.image_url %>"
+                         data-link="<%= architecture_explorer_show_path(id: building.id) %>">
                         <%= image_tag building.image_url, alt: "Building Image", class: "submission-image" %>
                         <% if building.address.present? && building.address != "N/A" %>
                             <span class="grid-btn"><%= building.address %></span>
                         <% end %>
-                    <% end %>
-                </div>
+                    </div>
+                <% end %>
+            <% else %>
+                <p>No analyzed buildings found in the community library.</p>
             <% end %>
-        <% else %>
-            <p>No analyzed buildings found.</p>
-        <% end %>
+        </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Event listener for 'Learn About a Building' button
-            document.getElementById('analyze-architecture-btn').addEventListener('click', function() {
-                window.location.href = this.getAttribute('data-href');
-            });
+            var analyzeBtn = document.getElementById('analyze-architecture-btn');
+            if (analyzeBtn) {
+                analyzeBtn.addEventListener('click', function() {
+                    window.location.href = this.getAttribute('data-href');
+                });
+            }
 
             // Event listener for 'Generate Architecture' button
-            document.getElementById('generate-architecture-btn').addEventListener('click', function() {
-                window.location.href = this.getAttribute('data-href');
+            var generateBtn = document.getElementById('generate-architecture-btn');
+            if (generateBtn) {
+                generateBtn.addEventListener('click', function() {
+                    window.location.href = this.getAttribute('data-href');
+                });
+            }
+        });
+
+        $(document).ready(function() {
+            $('#imagePreviewModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var imageUrl = button.data('image'); // Extract info from data-* attributes
+                var analysisLink = button.data('link');
+
+                // Update the modal's content
+                var modal = $(this);
+                modal.find('#modalImage').attr('src', imageUrl); // Set the image URL
+                modal.find('#viewFullAnalysis').attr('href', analysisLink); // Set the link URL
             });
         });
     </script>
