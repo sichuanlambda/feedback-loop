@@ -165,24 +165,7 @@
         </div>
     </div>
 </div>
-<div class="container">
-    <h1>My Buildings</h1>
-    <div class="image-grid">
-        <% if @user_analyzed_images.present? %>
-            <% @user_analyzed_images.each do |analysis| %>
-                    <div class="grid-item" data-toggle="modal" data-target="#imagePreviewModal"
-                        data-image="<%= analysis.image_url %>"
-                        data-link="<%= architecture_explorer_show_path(id: analysis.id) %>">
-                        <%= image_tag analysis.image_url, alt: "Building Image", class: "submission-image" %>
-                    <% if analysis.address.present? && analysis.address != "N/A" %>
-                        <span class="grid-btn"><%= analysis.address %></span>
-                    <% end %>
-                </div>
-            <% end %>
-        <% else %>
-            <p>No analyzed buildings found.</p>
-        <% end %>
-    </div>
+
 
         <h1>Community Building Library</h1>
         
