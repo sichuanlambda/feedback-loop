@@ -180,7 +180,6 @@
             margin-right: -10%; /* Negative margin for overlapping */
             padding-right: 10%; 
             padding-bottom: 30px;
-            white-space: nowrap;
         }
         h3 {
             margin: 30px;
@@ -397,7 +396,6 @@
 
             .landing-section, .main-section, .feature-card, .latest-images-container {
                 flex-direction: column;
-                width: 80%;
             }
 
             .landing-section img, .feature-card .card-img, .latest-image {
@@ -422,6 +420,22 @@
             .small-image-container {
                 margin-top: 5px; /* Reduced top margin for mobile */
                 /* Adjust padding if necessary */
+            }
+            .container {
+                text-align: center; /* Center text and inline elements */
+            }
+
+            .latest-images-row, .row {
+                display: flex;
+                justify-content: center; /* Center flex items horizontally */
+                align-items: center; /* Center flex items vertically */
+                flex-direction: column; /* Stack flex items vertically */
+            }
+
+            /* Center images and buttons */
+            .option-image, .btn, .latest-image, .small-architecture-image {
+                margin-left: auto;
+                margin-right: auto;
             }
             .row {
                 width: 80%;
