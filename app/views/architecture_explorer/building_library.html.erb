@@ -225,6 +225,7 @@
                 var button = $(event.relatedTarget); // Button that triggered the modal
                 var imageUrl = button.data('image'); // Extract image URL
                 var tagsString = button.data('tags'); // Extract tags
+                var analysisLink = button.data('link'); // Extract link to the full analysis page
 
                 // Update the modal's content
                 var modal = $(this);
@@ -239,6 +240,9 @@
                         tagsContainer.append('<span class="badge badge-primary">' + tag.trim() + '</span>');
                     });
                 }
+
+                // Update the 'View Full Analysis' button's href attribute
+                modal.find('#viewFullAnalysis').attr('href', analysisLink);
             });
         });
     </script>
