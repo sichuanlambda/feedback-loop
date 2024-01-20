@@ -102,7 +102,8 @@
           <p class="checkmark">Exclusive Access to Architecture Community Features (coming soon)</p>
         </ul>
         <div class="w-100 text-center mt-4">
-          <button id="stripe-checkout-button" class="btn btn-secondary">Start now</button>
+          <button id="stripe-checkout-button" class="btn btn-secondary">$5/mo</button>
+          <button id="annual-plan-button" class="btn btn-secondary">$47/yr</button>
         </div>
         <p class="text-center mt-2" style="color: grey; font-size: smaller;">Cancel anytime</p>
       </div>
@@ -147,6 +148,9 @@
     document.getElementById('stripe-checkout-button').addEventListener('click', function() {
       // window.location.href = 'https://buy.stripe.com/test_9AQ3f010C55rfxS288';//TEST URL
       window.location.href = 'https://buy.stripe.com/6oE03C2rm9I59Us3cc'; //PROD URL
+    });
+    document.getElementById('annual-plan-button').addEventListener('click', function() {
+      window.location.href = 'https://buy.stripe.com/14kaIgfe8bQd3w4bIJ';
     });
 
     document.addEventListener('DOMContentLoaded', function() {
