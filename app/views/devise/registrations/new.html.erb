@@ -145,19 +145,12 @@
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    document.getElementById('stripe-checkout-button').addEventListener('click', function() {
-      // window.location.href = 'https://buy.stripe.com/test_9AQ3f010C55rfxS288';//TEST URL
-      window.location.href = 'https://buy.stripe.com/6oE03C2rm9I59Us3cc'; //PROD URL
-    });
-    document.getElementById('annual-plan-button').addEventListener('click', function() {
-      window.location.href = 'https://buy.stripe.com/14kaIgfe8bQd3w4bIJ';
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);
       const paymentSuccess = urlParams.get('payment_success');
 
       const signUpButton = document.getElementById('stripe-checkout-button');
+      const annualPlanButton = document.getElementById('annual-plan-button'); // Reference to the new button
       const registrationForm = document.getElementById('registration-form');
 
       if (paymentSuccess === 'true') {
@@ -167,7 +160,18 @@
         if (signUpButton) {
           signUpButton.style.display = 'none';
         }
+        if (annualPlanButton) {
+          annualPlanButton.style.display = 'none'; // Hide the annual plan button
+        }
       }
+    });
+
+    document.getElementById('stripe-checkout-button').addEventListener('click', function() {
+      window.location.href = 'https://buy.stripe.com/6oE03C2rm9I59Us3cc'; // Existing URL
+    });
+
+    document.getElementById('annual-plan-button').addEventListener('click', function() {
+      window.location.href = 'https://buy.stripe.com/14kaIgfe8bQd3w4bIJ'; // URL for the annual plan
     });
 </script>
 </body>
