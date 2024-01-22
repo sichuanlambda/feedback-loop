@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   devise_for :users
-  root 'pages#home'
+  root 'architecture_designer#step1'
 
   # Feedbacks Routes
   get "feedbacks/new", to: "feedbacks#new"
@@ -19,6 +19,8 @@ Rails.application.routes.draw do
   post 'add_to_library/:id', to: 'architecture_explorer#add_to_library', as: 'add_to_library'
   post 'remove_from_library/:id', to: 'architecture_explorer#remove_from_library', as: 'remove_from_library'
   get '/account', to: 'pages#account'
+  get '/home', to: 'pages#home'
+
 
   # Architecture Explorer routes
   get 'architecture_explorer/new', to: 'architecture_explorer#new', as: :architecture_explorer_new
