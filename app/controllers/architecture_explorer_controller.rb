@@ -74,9 +74,11 @@ class ArchitectureExplorerController < ApplicationController
       # Fetches all records that are visible in the library when there is no search term
       @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
     end
-
-    # Orders the results by creation date in descending order
+    # Orders the results by creation date in descending order for both cases
     @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
+
+    # Get the frequency of each style for the current user
+    @style_frequency = BuildingAnalysis.style_frequency(current_user.id)
 
     # Renders the 'architecture_explorer/building_library' view
     render 'architecture_explorer/building_library'
