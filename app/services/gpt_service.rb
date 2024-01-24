@@ -63,7 +63,113 @@ class GptService
           content: [
             {
               type: "text",
-              text: "Can you tell me about the architecture and design of this building? Please tell me about the different influences it has and the components of the building that relate to those influences. Then, I want learn about those different styles and influences, and instances of them in real life. Please generate response in HTML only, feel free to use headings, sub-headings, and bullet pts. Don't include extra intro or outtro information, and please make the styles and influences H3s. Please include the 'confidence score' associated with each style as a 0-100% along with it's title. Can you also make all of the %s a cooler styling with css? It should be bolded and some shade of blue."
+              text: "Can you tell me about the architecture and design of this building? Please tell me about the different influences it has and the components of the building that relate to those influences. Then, I want learn about those different styles and influences, and instances of them in real life. Please generate response in HTML only, feel free to use headings, sub-headings, and bullet pts. Don't include extra intro or outtro information, and please make the styles and influences H3s. Please include the 'confidence score' associated with each style as a 0-100% along with it's title. Can you also make all of the %s a cooler styling with css? It should be bolded and this shade of blue 0056b3. For the styles and influences, please only choose from the following list: Ancient Egyptian
+              Classical Greek
+              Classical Roman
+              Byzantine
+              Romanesque
+              Gothic
+              Renaissance
+              Baroque
+              Rococo
+              Neoclassical
+              Gothic Revival
+              Romanticism
+              Beaux-Arts
+              Victorian
+              Edwardian
+              Art Nouveau
+              Art Deco
+              Bauhaus
+              International Style
+              Streamline Moderne
+              Brutalism
+              Postmodernism
+              Deconstructivism
+              High-Tech
+              Sustainable Architecture
+              Parametricism
+              Minimalism
+              Expressionism
+              Futurism
+              Constructivism
+              Organic Architecture
+              Critical Regionalism
+              Metabolism
+              Neo-Futurism
+              Post-Structuralism
+              New Classical
+              Neo-vernacular
+              Neo-Byzantine
+              Neo-Gothic
+              Art & Crafts
+              Prairie Style
+              Usonian
+              Colonial Revival
+              Tudor Revival
+              Mediterranean Revival
+              Mission Revival
+              Spanish Colonial Revival
+              Pueblo Revival
+              Federal Style
+              American Foursquare
+              Chicago School
+              Italianate
+              Second Empire
+              Queen Anne
+              Shingle Style
+              Richardsonian Romanesque
+              Carpenter Gothic
+              Dutch Colonial Revival
+              Georgian Revival
+              Chateauesque
+              City Beautiful Movement
+              Modern Movement
+              Scandinavian Modern
+              Mid-Century Modern
+              Structuralism
+              Post-Industrial
+              High-tech
+              Blobitecture
+              De Stijl
+              Expressionist
+              Fascist
+              Nazi Architecture
+              Stalinist
+              Suprematism
+              Vorticism
+              Futurist
+              Metaphoric
+              New Objectivity
+              Rationalism
+              Rayonnant
+              Regionalism
+              Russian Revival
+              Saracen
+              Scottish Baronial
+              Sicilian Baroque
+              Stripped Classicism
+              Territorial Revival
+              Traditionalist School
+              Tropical Modernism
+              Vernacular
+              Vienna Secession
+              Zigzag Moderne
+              Anglo-Saxon
+              Ottonian
+              Carolingian
+              Merovingian
+              Norman
+              Salon Style
+              Jacobean
+              Elizabethan
+              Palladian
+              Adam Style
+              Regency
+              Japonism
+              Egyptian Revival
+              Mayan Revival
+              Indo-Saracenic"
             },
             {
               type: "image_url",

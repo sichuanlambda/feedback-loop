@@ -144,6 +144,23 @@
         #modalTags .badge {
             margin: 2px; /* Add a little space around each tag */
         }
+        .style-name {
+        font-size: 16px;
+        }
+
+        .frequency-number {
+        font-weight: normal;
+        color: initial;
+        }
+
+        .frequency-number.primary-color {
+        font-weight: bold;
+        font-size:16px;
+        color: #0056b3; /* Match this with the color of your primary buttons */
+        }
+        .hidden-style {
+        display: none;
+        }
 </style>
 <body>
 <!-- Modal Structure -->
@@ -165,15 +182,19 @@
         </div>
     </div>
 </div>
-<!-- section for styles you've analyzed
+<!-- section for styles you've analyzed  REMOVE THIS--> 
 <div class="style-frequency-container">
-  <h2>Architectural Style Frequency</h2>
-  <ul>
-    <% @style_frequency.each do |style, frequency| %>
-      <li><%= style %>: <%= frequency %> times</li>
+  <h3>Style & Influence Frequency</h2>
+  <ul id="styleList">
+    <% @style_frequency.each_with_index do |(style, frequency), index| %>
+      <li class="<%= 'hidden-style' if index >= 6 %>"><span class="style-name"><%= style %>:</span> <span class="frequency-number primary-color"><%= frequency %></span></li>
     <% end %>
   </ul>
-</div> REMOVE THIS--> 
+  <% if @style_frequency.count > 6 %>
+    <a href="javascript:void(0)" id="showMore" onclick="showMoreStyles()">Show More</a>
+    <a href="javascript:void(0)" id="showLess" onclick="showLessStyles()" style="display: none;">Show Less</a>
+  <% end %>
+</div>
 
         <h1>Community Building Library</h1>
         
@@ -210,49 +231,72 @@
             <% end %>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Event listener for 'Learn About a Building' button
-            var analyzeBtn = document.getElementById('analyze-architecture-btn');
-            if (analyzeBtn) {
-                analyzeBtn.addEventListener('click', function() {
-                    window.location.href = this.getAttribute('data-href');
-                });
-            }
+<script>
+    function showMoreStyles() {
+        var hiddenStyles = document.getElementsByClassName('hidden-style');
+        for (var i = 0; i < hiddenStyles.length; i++) {
+            hiddenStyles[i].style.display = 'list-item';
+        }
+        document.getElementById('showMore').style.display = 'none';
+        document.getElementById('showLess').style.display = 'inline';
+    }
 
-            // Event listener for 'Generate Architecture' button
-            var generateBtn = document.getElementById('generate-architecture-btn');
-            if (generateBtn) {
-                generateBtn.addEventListener('click', function() {
-                    window.location.href = this.getAttribute('data-href');
-                });
-            }
-        });
-        $(document).ready(function() {
-            $('#imagePreviewModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget); // Button that triggered the modal
-                var imageUrl = button.data('image'); // Extract image URL
-                var tagsString = button.data('tags'); // Extract tags
-                var analysisLink = button.data('link'); // Extract link to the full analysis page
+    // Function to show less styles
+    function showLessStyles() {
+        var hiddenStyles = document.getElementsByClassName('hidden-style');
+        for (var i = 0; i < hiddenStyles.length; i++) {
+            hiddenStyles[i].style.display = 'none';
+        }
+        document.getElementById('showMore').style.display = 'inline';
+        document.getElementById('showLess').style.display = 'none';
+    }
 
-                // Update the modal's content
-                var modal = $(this);
-                modal.find('#modalImage').attr('src', imageUrl); // Set the image URL
 
-                // Handle tags
-                var tagsContainer = modal.find('#modalTags');
-                tagsContainer.empty(); // Clear previous tags
-                if (tagsString) {
-                    var tagsArray = tagsString.split(','); // Split tags into an array
-                    tagsArray.forEach(function(tag) {
-                        tagsContainer.append('<span class="badge badge-primary">' + tag.trim() + '</span>');
-                    });
-                }
-
-                // Update the 'View Full Analysis' button's href attribute
-                modal.find('#viewFullAnalysis').attr('href', analysisLink);
+    // DOMContentLoaded event listener
+    document.addEventListener('DOMContentLoaded', function () {
+        // Event listener for 'Learn About a Building' button
+        var analyzeBtn = document.getElementById('analyze-architecture-btn');
+        if (analyzeBtn) {
+            analyzeBtn.addEventListener('click', function() {
+                window.location.href = this.getAttribute('data-href');
             });
+        }
+
+        // Event listener for 'Generate Architecture' button
+        var generateBtn = document.getElementById('generate-architecture-btn');
+        if (generateBtn) {
+            generateBtn.addEventListener('click', function() {
+                window.location.href = this.getAttribute('data-href');
+            });
+        }
+    });
+
+    // jQuery ready function
+    $(document).ready(function() {
+        $('#imagePreviewModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var imageUrl = button.data('image'); // Extract image URL
+            var tagsString = button.data('tags'); // Extract tags
+            var analysisLink = button.data('link'); // Extract link to the full analysis page
+
+            // Update the modal's content
+            var modal = $(this);
+            modal.find('#modalImage').attr('src', imageUrl); // Set the image URL
+
+            // Handle tags
+            var tagsContainer = modal.find('#modalTags');
+            tagsContainer.empty(); // Clear previous tags
+            if (tagsString) {
+                var tagsArray = tagsString.split(','); // Split tags into an array
+                tagsArray.forEach(function(tag) {
+                    tagsContainer.append('<span class="badge badge-primary">' + tag.trim() + '</span>');
+                });
+            }
+
+            // Update the 'View Full Analysis' button's href attribute
+            modal.find('#viewFullAnalysis').attr('href', analysisLink);
         });
-    </script>
+    });
+</script>
 </body>
 </html>

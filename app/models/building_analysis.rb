@@ -12,9 +12,11 @@ class BuildingAnalysis < ApplicationRecord
     h3_contents.each do |content|
       next if content.blank? # Skip if content is nil or empty
       styles_with_percentages = JSON.parse(content)
+
       styles = styles_with_percentages.map do |style_with_percentage|
-        style_with_percentage.split(' Confidence Score:').first.strip
-      end
+        match = style_with_percentage.match(/^(.*?)\s*\d+%$/)
+        match ? match[1].strip : nil
+      end.compact
 
       all_styles.concat(styles)
     end
