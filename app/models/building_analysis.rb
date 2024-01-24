@@ -6,9 +6,19 @@ class BuildingAnalysis < ApplicationRecord
   end
 
   def self.style_frequency(user_id)
-    styles = BuildingAnalysis.where(user_id: user_id).pluck(:h3_contents).map do |h3_content|
-      JSON.parse(h3_content)
-    end.flatten
-    styles.tally
+    h3_contents = BuildingAnalysis.where(user_id: user_id).pluck(:h3_contents)
+    all_styles = []
+
+    h3_contents.each do |content|
+      next if content.blank? # Skip if content is nil or empty
+      styles_with_percentages = JSON.parse(content)
+      styles = styles_with_percentages.map do |style_with_percentage|
+        style_with_percentage.split(' Confidence Score:').first.strip
+      end
+
+      all_styles.concat(styles)
+    end
+
+    all_styles.tally
   end
 end
