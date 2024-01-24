@@ -80,6 +80,9 @@ class ArchitectureExplorerController < ApplicationController
     # Get the frequency of each style for the current user
     style_frequency = BuildingAnalysis.style_frequency(current_user.id)
     @style_frequency = style_frequency.sort_by { |style, frequency| -frequency }
+    @unique_style_count = @style_frequency.length
+
+    @buildings_submitted_count = BuildingAnalysis.where(user: current_user).count
 
     # Renders the 'architecture_explorer/building_library' view
     render 'architecture_explorer/building_library'

@@ -155,11 +155,47 @@
 
         .frequency-number.primary-color {
         font-weight: bold;
-        font-size:16px;
+        font-size:18px;
         color: #0056b3; /* Match this with the color of your primary buttons */
         }
         .hidden-style {
         display: none;
+        }
+        .unique-style-statistic h3 {
+        /* Styling for the heading */
+        }
+
+        .unique-style-statistic p {
+        /* Styling for the number */
+        }
+        .heading-container {
+        text-align: center; /* Center align the content */
+        }
+
+        .parent-container {
+        margin: 20px;
+        display: flex;
+        }
+
+        .left-section {
+        flex: 1; /* Adjust as needed */
+        /* Additional styling */
+        }
+
+        .right-sections {
+        flex: 2; /* Adjust as needed */
+        display: flex;
+        }
+
+        .style-frequency-container, .buildings-submitted-statistic {
+        flex: 1; /* Each takes half of the right-sections space */
+        /* Additional styling */
+        }
+        .unique-number, .analyzed-number {
+        font-size: 60px; /* Example size */
+        font-weight: bold; /* Example weight */
+        color: #0056b3; /* Example color, adjust as needed */
+        /* Add more styling as needed */
         }
 </style>
 <body>
@@ -182,18 +218,40 @@
         </div>
     </div>
 </div>
-<!-- section for styles you've analyzed  REMOVE THIS--> 
-<div class="style-frequency-container">
-  <h3>Style & Influence Frequency</h2>
-  <ul id="styleList">
-    <% @style_frequency.each_with_index do |(style, frequency), index| %>
-      <li class="<%= 'hidden-style' if index >= 6 %>"><span class="style-name"><%= style %>:</span> <span class="frequency-number primary-color"><%= frequency %></span></li>
-    <% end %>
-  </ul>
-  <% if @style_frequency.count > 6 %>
-    <a href="javascript:void(0)" id="showMore" onclick="showMoreStyles()">Show More</a>
-    <a href="javascript:void(0)" id="showLess" onclick="showLessStyles()" style="display: none;">Show Less</a>
-  <% end %>
+<div class="heading-container">
+  <h2>Your Building Stats</h2>
+</div>
+
+<!-- Parent container for the three sections -->
+<div class="parent-container">
+  <!-- Left section (currently empty) -->
+  <div class="left-section">
+      <h3>Unique Influences & Styles</h3>
+      <p class="unique-number"><%= @unique_style_count %></p>
+    </div> 
+
+  <!-- Right section containing Frequency and Unique stats -->
+  <div class="right-sections">
+    <div class="style-frequency-container">
+      <h3>Frequent Styles</h3>
+      <ul id="styleList">
+        <% @style_frequency.each_with_index do |(style, frequency), index| %>
+          <li class="<%= 'hidden-style' if index >= 6 %>">
+            <span class="style-name"><%= style %>:</span>
+            <span class="frequency-number primary-color"><%= frequency %></span>
+          </li>
+        <% end %>
+      </ul>
+      <% if @style_frequency.count > 6 %>
+        <a href="javascript:void(0)" id="showMore" onclick="showMoreStyles()">Show More</a>
+        <a href="javascript:void(0)" id="showLess" onclick="showLessStyles()" style="display: none;">Show Less</a>
+      <% end %>
+    </div>
+    <div class="buildings-submitted-statistic">
+        <h3>Buildings Analyzed</h3>
+         <p class="analyzed-number"><%= @buildings_submitted_count %></p>
+    </div>
+  </div>
 </div>
 
         <h1>Community Building Library</h1>
