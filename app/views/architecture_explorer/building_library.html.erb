@@ -11,9 +11,13 @@
     <script defer data-domain="architecturehelper.com" src="https://plausible.io/js/script.js"></script>
     <style>
       .container{
-        padding: 30px 0;
-        width: 90%; /* Full width of the column */
-      }
+        background: #FFFFFF; /* White container background */
+        border-radius: 15px;
+        padding: 10px;
+        box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
       body {
           background-color: #E8E8E8; /* Sets the entire page background to black */
       }
@@ -218,41 +222,44 @@
         </div>
     </div>
 </div>
-<div class="heading-container">
-  <h2>Your Building Stats</h2>
-</div>
+<div class="container">
+    <div class="heading-container">
+    <h2>Your Building Stats</h2>
+    </div>
 
-<!-- Parent container for the three sections -->
-<div class="parent-container">
-  <!-- Left section (currently empty) -->
-  <div class="left-section">
-      <h3>Unique Influences & Styles</h3>
-      <p class="unique-number"><%= @unique_style_count %></p>
-    </div> 
+    <!-- Parent container for the three sections -->
+    <div class="parent-container">
+    <!-- Left section (currently empty) -->
+    <div class="left-section">
+        <h3>Unique Influences & Styles</h3>
+        <p class="unique-number"><%= @unique_style_count %></p>
+        </div> 
 
-  <!-- Right section containing Frequency and Unique stats -->
-  <div class="right-sections">
-    <div class="style-frequency-container">
-      <h3>Frequent Styles</h3>
-      <ul id="styleList">
-        <% @style_frequency.each_with_index do |(style, frequency), index| %>
-          <li class="<%= 'hidden-style' if index >= 6 %>">
-            <span class="style-name"><%= style %>:</span>
-            <span class="frequency-number primary-color"><%= frequency %></span>
-          </li>
+    <!-- Right section containing Frequency and Unique stats -->
+    <div class="right-sections">
+        <div class="style-frequency-container">
+        <h3>Frequent Styles</h3>
+        <ul id="styleList">
+            <% @style_frequency.each_with_index do |(style, frequency), index| %>
+            <li class="<%= 'hidden-style' if index >= 6 %>">
+                <span class="style-name"><%= style %>:</span>
+                <span class="frequency-number primary-color"><%= frequency %></span>
+            </li>
+            <% end %>
+        </ul>
+        <% if @style_frequency.count > 6 %>
+            <a href="javascript:void(0)" id="showMore" onclick="showMoreStyles()">Show More</a>
+            <a href="javascript:void(0)" id="showLess" onclick="showLessStyles()" style="display: none;">Show Less</a>
         <% end %>
-      </ul>
-      <% if @style_frequency.count > 6 %>
-        <a href="javascript:void(0)" id="showMore" onclick="showMoreStyles()">Show More</a>
-        <a href="javascript:void(0)" id="showLess" onclick="showLessStyles()" style="display: none;">Show Less</a>
-      <% end %>
+        </div>
+        <div class="buildings-submitted-statistic">
+            <h3>Buildings Analyzed</h3>
+            <p class="analyzed-number"><%= @buildings_submitted_count %></p>
+        </div>
     </div>
-    <div class="buildings-submitted-statistic">
-        <h3>Buildings Analyzed</h3>
-         <p class="analyzed-number"><%= @buildings_submitted_count %></p>
     </div>
-  </div>
 </div>
+    <div class="container">
 
         <h1>Community Building Library</h1>
         
@@ -288,6 +295,7 @@
                 <p>No analyzed buildings found in the community library.</p>
             <% end %>
         </div>
+    </div>
     </div>
 <script>
     function showMoreStyles() {
