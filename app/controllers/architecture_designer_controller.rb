@@ -3,7 +3,8 @@ class ArchitectureDesignerController < ApplicationController
 
   def step1
     @latest_images = ArchImageGen.order(created_at: :desc).limit(5)
-    Rails.logger.debug "Latest Images: #{@latest_images}"
+    @building_library = BuildingAnalysis.where(visible_in_library: true).order(created_at: :desc).limit(5)
+      Rails.logger.debug "Latest Images: #{@latest_images}"
     # other code...
   end
   def step2

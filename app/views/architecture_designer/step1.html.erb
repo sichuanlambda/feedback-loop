@@ -219,14 +219,17 @@
             padding-left: 10px;
         }
         .latest-image-container {
+            position: relative; /* Add this to create a positioning context */
+            width: 150px; /* Set a fixed width */
+            height: 150px;
             margin: 10px;
             padding: 5px;
         }
 
         .latest-image {
             width: 150px; /* Adjust as needed */
+            height: 150px;
             border-radius: 5px;
-            height: auto;
             object-fit: cover;
         }
         .btn-secondary {
@@ -238,7 +241,7 @@
             font-size: 18px;
             text-align: center;
             transition: all 0.3s ease;
-            margin: 10px
+            margin: 20px
         }
 
         .btn-secondary:hover {
@@ -600,7 +603,26 @@
             </div>
         </div>
     </div>
-
+    <h2>Building Library</h2>
+    <div class="container">
+        <div class="latest-images-container">
+            <div class="latest-images-row" style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+                <% @building_library.each do |building| %>
+                    <% if building.image_url.present? %>
+                        <div class="latest-image-container" style="position: relative;">
+                            <%= image_tag building.image_url, alt: "Building Image", class: "latest-image" %>
+                            <span class="timestamp"><%= time_ago_in_words(building.created_at) %> ago</span>
+                        </div>
+                    <% else %>
+                        <p>Image not available</p>
+                    <% end %>
+                <% end %>
+            </div>
+            <div class="next-button-container mt-3 text-center">
+                <%= link_to 'View More Buildings', building_library_path, class: 'btn btn-secondary' %>
+            </div>
+        </div>
+    </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var optionButtons = document.querySelectorAll('.option-btn');
