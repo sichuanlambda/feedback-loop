@@ -9,14 +9,25 @@ class DesignsController < ApplicationController
   # This action handles the final submission and API call
   def submit
     Rails.logger.debug "Params: #{params.inspect}"
+
+    # Retrieve selections from sessions and parameters
     step1_selection = session[:architecture_type] || 'default architecture type'
     step2_selections = session[:step2_selections] || []
     step3_selections = params[:user_selections] || []
 
+    # Combine selections from step 2 and step 3
     all_selections = step2_selections + step3_selections
-    prompt = generate_prompt(step1_selection, all_selections)
+
+    # Extract the image style from the parameters
+    image_style = params[:image_style] || 'photo-realistic style'
+
+    # Generate the prompt including the image style
+    prompt = generate_prompt(step1_selection, all_selections, image_style)
+
+    # Send the request to the image generation API
     gpt_response = send_image_generation_request(prompt)
 
+    # Extract the image URL from the response
     @image_url = extract_image_url_from_gpt_response(gpt_response)
     Rails.logger.debug "Image URL: #{@image_url}"
 
@@ -67,8 +78,10 @@ class DesignsController < ApplicationController
   end
 
   # This method generates the prompt for the DALL-E API
-  def generate_prompt(step1_selection, all_selections)
-    "Generate an image of a #{step1_selection} with style and inspiration drawing from #{all_selections.join(", ")}."
+  def generate_prompt(step1_selection, all_selections, image_style)
+    prompt = "Generate an image of a #{step1_selection} with style and inspiration drawing from #{all_selections.join(", ")}."
+    prompt += " Please generate the image as a #{image_style}." unless image_style.blank?
+    prompt
   end
 
   def send_image_generation_request(prompt)

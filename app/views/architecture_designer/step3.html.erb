@@ -228,7 +228,7 @@
                     'Bay and Bow Windows', 'Sliding and Folding Windows', 'Picture and Fixed Windows', 'Tinted and Reflective Glass', 
                     'Louvered and Shuttered', 'Clerestory and High Windows'].each do |option| %>
                         <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
-                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
+                        <button type="button" class="btn option-btn" data-value="<%= option.parameterize %>" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -242,7 +242,7 @@
                     'Natural Landscaping and Xeriscaping', 'Decking and Pergolas', 'Outdoor Kitchens and Fire Pits', 'Walkways and Pathways', 
                     'Conservatories and Sunrooms'].each do |option| %>
                         <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
-                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
+                        <button type="button" class="btn option-btn" data-value="<%= option.parameterize %>" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -256,7 +256,7 @@
                     'Bohemian and Colorful', 'Traditional and Classic', 'Contemporary and Trendy', 'Artistic and Gallery-Like', 
                     'Tech-Integrated and Smart Homes'].each do |option| %>
                         <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
-                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
+                        <button type="button" class="btn option-btn" data-value="<%= option.parameterize %>" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -270,7 +270,21 @@
                     'Mediterranean', 'Eastern European', 'African', 
                     'Southeast Asian'].each do |option| %>
                         <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", disabled: true %>
-                        <button type="button" class="btn option-btn" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
+                        <button type="button" class="btn option-btn" data-value="<%= option.parameterize %>" onclick="toggleSelection('<%= option.parameterize %>')"><%= option %></button>
+                    <% end %>
+                </div>
+            </div>
+
+            <!-- Image Style Section -->
+            <div class="feature-card">
+                <div class="card-content text-center">
+                    <h3>Image Style</h3>
+                    <% ['Photo Realistic', 'Architectural Style', 'Animated', 
+                    'Cartoon', 'Detailed', 'Cityscape', 
+                    'Flat', '3D', 'Isometric', 
+                    'Graphite Sketch'].each do |option| %>
+                        <%= hidden_field_tag 'user_selections[]', option, id: "input_#{option.parameterize}", class: 'image-style-input', disabled: true %>
+                        <button type="button" class="btn option-btn" data-value="<%= option.parameterize %>" onclick="selectImageStyle('<%= option.parameterize %>')"><%= option %></button>
                     <% end %>
                 </div>
             </div>
@@ -287,30 +301,49 @@
     </div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Reference to the form and loader elements
-        const form = document.getElementById('step3_form');
-        const loader = document.querySelector('.loader');
-
-        // When the form is submitted, show the loader
-        form.addEventListener('submit', function(event) {
-            loader.style.display = 'block';
-        });
-
-        // Logic for handling the toggling of option buttons
+        // Event listener for all option buttons
         const optionButtons = document.querySelectorAll('.option-btn');
         optionButtons.forEach(function (btn) {
             btn.addEventListener('click', function () {
-                this.classList.toggle('active');
-                var optionId = this.getAttribute('data-value').split('_').pop();
-                toggleSelection(optionId);
+                if (this.classList.contains('image-style-btn')) {
+                    // Special handling for image style buttons
+                    selectImageStyle(this.getAttribute('data-value'));
+                } else {
+                    // Regular option buttons
+                    this.classList.toggle('active');
+                    toggleSelection(this.getAttribute('data-value'));
+                }
             });
         });
 
-        // Function to toggle the disabled state of the hidden inputs
-        window.toggleSelection = function(optionId) {
+        // Toggle selection for regular options
+        function toggleSelection(optionId) {
             var input = document.getElementById('input_' + optionId);
-            input.disabled = !input.disabled;
+            if (input) {
+                input.disabled = !input.disabled;
+            }
         };
+
+        // Special handling for image style selections
+        function selectImageStyle(optionId) {
+            document.querySelectorAll('.image-style-btn').forEach(btn => {
+                btn.classList.remove('active');
+                var input = document.getElementById('input_' + btn.getAttribute('data-value'));
+                input.disabled = true;
+            });
+            const activeBtn = document.querySelector('.image-style-btn[data-value="' + optionId + '"]');
+            activeBtn.classList.add('active');
+            document.getElementById('input_' + optionId).disabled = false;
+        };
+
+        // Logic for showing loader on form submission
+        const form = document.getElementById('step3_form');
+        const loader = document.querySelector('.loader');
+        if (form && loader) {
+            form.addEventListener('submit', function() {
+                loader.style.display = 'block';
+            });
+        }
     });
 </script>
 </body>
