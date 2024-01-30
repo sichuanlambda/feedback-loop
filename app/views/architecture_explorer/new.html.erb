@@ -76,7 +76,7 @@
     <div class="col-md-12">
       <div class="text-center">
         <h1 class="mt-5" style="color: #01161e;">Architecture Explorer 🏛️</h1>
-        <p style="color: #01161e;">Upload a building image, and we'll analyze it...</p>
+        <p style="color: #01161e;">Upload a building image to learn about it and add it to your library.</p>
 
         <% if user_signed_in? %>
           <%= form_with url: architecture_explorer_path, local: true, multipart: true, html: { class: "gpt-form-container" } do |form| %>
