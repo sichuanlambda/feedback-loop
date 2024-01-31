@@ -1,38 +1,86 @@
-<!-- app/views/users/show.html.erb -->
-<div style="padding: 20px; max-width: 600px; margin: auto;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Head content, similar to existing page -->
+    <title>User Profile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script defer data-domain="architecturehelper.com" src="https://plausible.io/js/script.js"></script>
+    <style>
+        body {
+            background-color: #E8E8E8;
+            font-family: 'Arial', sans-serif;
+        }
+        .profile-container {
+            background: #FFFFFF;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+        }
+        .profile-picture {
+            max-width: 200px;
+            border-radius: 50%;
+            margin: 10px auto;
+            display: block;
+        }
+        .profile-info {
+            margin-top: 20px;
+        }
+        .profile-info strong {
+            color: #0056b3;
+        }
+        .edit-btn {
+            display: block;
+            width: 30%;
+            background-color: #0056b3;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: none;
+            margin: 20px auto;
+            text-decoration: none;
+        }
+        .edit-btn:hover {
+            background-color: #004080;
+        }
+    </style>
+</head>
+<body>
+<div class="profile-container">
     <h1 style="text-align: center;"><%= @user.public_name %>'s Profile</h1>
 
     <% if @user.profile_picture.present? %>
-        <div style="text-align: center;">
-            <img src="<%= @user.profile_picture %>" alt="<%= @user.public_name %>'s profile picture" style="max-width: 200px; border-radius: 50%;">
-        </div>
+        <img src="<%= @user.profile_picture %>" alt="<%= @user.public_name %>'s profile picture" class="profile-picture">
     <% end %>
 
-    <div style="margin-top: 20px;">
+    <div class="profile-info">
         <strong>Handle:</strong>
         <p><%= @user.handle %></p>
     </div>
 
     <% if @user.bio.present? %>
-        <div style="margin-top: 20px;">
+        <div class="profile-info">
             <strong>Bio:</strong>
             <p><%= @user.bio %></p>
         </div>
     <% end %>
 
     <% if @user.display_stats %>
-        <div style="margin-top: 20px;">
-            <!-- Display user stats here -->
+        <div class="profile-info">
             <strong>Stats:</strong>
             <p>...user stats...</p>
         </div>
     <% end %>
 
-    <%# Add more fields and information as required %>
-
     <% if user_signed_in? && current_user == @user %>
-        <div style="text-align: center; margin-top: 30px;">
-            <%= link_to 'Edit Profile', edit_user_registration_path, class: 'btn btn-primary' %>
-        </div>
+        <%= link_to 'Edit Profile', edit_user_registration_path, class: 'edit-btn' %>
     <% end %>
 </div>
+</body>
+</html>
