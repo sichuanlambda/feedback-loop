@@ -1,0 +1,38 @@
+<!-- app/views/users/show.html.erb -->
+<div style="padding: 20px; max-width: 600px; margin: auto;">
+    <h1 style="text-align: center;"><%= @user.public_name %>'s Profile</h1>
+
+    <% if @user.profile_picture.present? %>
+        <div style="text-align: center;">
+            <img src="<%= @user.profile_picture %>" alt="<%= @user.public_name %>'s profile picture" style="max-width: 200px; border-radius: 50%;">
+        </div>
+    <% end %>
+
+    <div style="margin-top: 20px;">
+        <strong>Handle:</strong>
+        <p><%= @user.handle %></p>
+    </div>
+
+    <% if @user.bio.present? %>
+        <div style="margin-top: 20px;">
+            <strong>Bio:</strong>
+            <p><%= @user.bio %></p>
+        </div>
+    <% end %>
+
+    <% if @user.display_stats %>
+        <div style="margin-top: 20px;">
+            <!-- Display user stats here -->
+            <strong>Stats:</strong>
+            <p>...user stats...</p>
+        </div>
+    <% end %>
+
+    <%# Add more fields and information as required %>
+
+    <% if user_signed_in? && current_user == @user %>
+        <div style="text-align: center; margin-top: 30px;">
+            <%= link_to 'Edit Profile', edit_user_registration_path, class: 'btn btn-primary' %>
+        </div>
+    <% end %>
+</div>

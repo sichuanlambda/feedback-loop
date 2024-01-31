@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: {
+    registrations: 'users/registrations'
+  }
+
   root 'architecture_designer#step1'
 
   # Feedbacks Routes
@@ -21,6 +24,8 @@ Rails.application.routes.draw do
   get '/account', to: 'pages#account'
   get '/home', to: 'pages#home'
 
+  # Route for public user profiles
+  get '/users/:handle', to: 'users#show', as: 'user_profile'
 
   # Architecture Explorer routes
   get 'architecture_explorer/new', to: 'architecture_explorer#new', as: :architecture_explorer_new

@@ -5,5 +5,6 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
   has_many :screenshot_analyses
   has_many :building_analyses
-
+  validates :handle, presence: true, uniqueness: true
+  validates :public_name, presence: true
 end
