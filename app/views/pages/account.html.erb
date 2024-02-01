@@ -6,7 +6,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
     <script defer data-domain="architecturehelper.com" src="https://plausible.io/js/script.js"></script>
 
-    <style>
+      <style>
         .container {
             padding: 20px;
             width: 80%;
@@ -52,14 +52,25 @@
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+
+        /* Additional styles for new buttons, if needed */
     </style>
 </head>
 <body>
+    <div class="container">
+        <h2>Manage Your Public Profile</h2>
+        <!-- Dynamically link to the user's public profile page -->
+        <a href="/users/<%= @user.handle %>" class="btn btn-primary">View Public Profile</a>
+        <!-- Static link to the user's profile editing page -->
+        <a href="/users/edit" class="btn btn-secondary">Edit Profile Details</a>
+    </div>
+    
     <div class="container">
         <h2>Manage Your Account</h2>
         <a href="https://billing.stripe.com/p/login/5kAaFi0ow63x9I4aEE" class="btn btn-danger" target="_blank">Cancel Account</a>
         <a href="https://architectureenthusiast.canny.io/" class="btn btn-primary" target="_blank">Feature Requests</a>
         <a href="https://www.buymeacoffee.com/nathanrobinson" target="_blank" class="btn btn-secondary">Buy Me a Coffee</a>
+        <a href="/users/edit" class="btn btn-secondary">Update Password</a>
     </div>
 </body>
 </html>
