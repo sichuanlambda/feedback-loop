@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Validator - Home</title>
+    <title>Building Library</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
-    <script defer data-domain="architecturehelper.com" src="https://plausible.io/js/script.js"></script>
+    <script defer data-domain="app.architecturehelper.com" src="https://plausible.io/js/script.js"></script>
     <style>
       .container{
         background: #FFFFFF; /* White container background */
@@ -283,47 +283,54 @@
     </div>
 </div>
 
-    <div class="heading-container">
-        <h2>Your Building Stats</h2>
-    </div>
-
-    <!-- Parent container for the sections -->
-    <div class="parent-container d-flex justify-content-around">
-        <!-- Unique Influences & Styles Card -->
-        <div class="stat-card">
-            <div class="stat-icon">🏛️</div>
-            <div class="stat-title">Unique Influences & Styles</div>
-            <div class="stat-number"><%= @unique_style_count %></div>
+    <!-- Conditional rendering based on user login status -->
+        <% if user_signed_in? %>
+        <div class="heading-container">
+            <h2>Your Building Stats</h2>
         </div>
+        <!-- Parent container for the sections -->
+        <div class="parent-container d-flex justify-content-around">
+            <!-- Unique Influences & Styles Card -->
+            <div class="stat-card">
+                <div class="stat-icon">🏛️</div>
+                <div class="stat-title">Unique Influences & Styles</div>
+                <div class="stat-number"><%= @unique_style_count %></div>
+            </div>
 
-        <!-- Frequent Styles Card -->
-        <div class="stat-card">
-            <div class="stat-icon">🌟</div>
-            <div class="stat-title">Favorite Styles</div>
-            <div class="stat-number">
-                <ul id="styleList">
-                    <% @style_frequency.each_with_index do |(style, frequency), index| %>
-                        <li class="<%= 'hidden-style' if index >= 4 %> style-list-item">
-                            <span class="style-name"><%= style %>:</span>
-                            <span class="frequency-number primary-color"><%= frequency %></span>
-                        </li>
+            <!-- Frequent Styles Card -->
+            <div class="stat-card">
+                <div class="stat-icon">🌟</div>
+                <div class="stat-title">Favorite Styles</div>
+                <div class="stat-number">
+                    <ul id="styleList">
+                        <% @style_frequency.each_with_index do |(style, frequency), index| %>
+                            <li class="<%= 'hidden-style' if index >= 4 %> style-list-item">
+                                <span class="style-name"><%= style %>:</span>
+                                <span class="frequency-number primary-color"><%= frequency %></span>
+                            </li>
+                        <% end %>
+                    </ul>
+                    <% if @style_frequency.count > 6 %>
+                        <a href="javascript:void(0)" class="show-more-less-btn" id="showMore" onclick="showMoreStyles()">Show More</a>
+                        <a href="javascript:void(0)" class="show-more-less-btn" id="showLess" onclick="showLessStyles()" style="display: none;">Show Less</a>
                     <% end %>
-                </ul>
-                <% if @style_frequency.count > 6 %>
-                    <a href="javascript:void(0)" class="show-more-less-btn" id="showMore" onclick="showMoreStyles()">Show More</a>
-                    <a href="javascript:void(0)" class="show-more-less-btn" id="showLess" onclick="showLessStyles()" style="display: none;">Show Less</a>
-                <% end %>
+                </div>
+            </div>
+
+            <!-- Buildings Analyzed Card -->
+            <div class="stat-card">
+                <div class="stat-icon">🏢</div>
+                <div class="stat-title">Buildings Analyzed</div>
+                <div class="stat-number"><%= @buildings_submitted_count %></div>
             </div>
         </div>
-
-        <!-- Buildings Analyzed Card -->
-        <div class="stat-card">
-            <div class="stat-icon">🏢</div>
-            <div class="stat-title">Buildings Analyzed</div>
-            <div class="stat-number"><%= @buildings_submitted_count %></div>
+    <% else %>
+        <!-- Alternative content for non-logged-in users -->
+        <div class="container mt-4">
+            <h2>Welcome to the Community Building Library</h2>
+            <p>Explore buildings from around the world and learn about different architectural styles. Sign up or log in to track your own building submissions and see detailed statistics.</p>
         </div>
-    </div>
-</div>
+    <% end %>
     <div class="container">
 
         <h1>Community Building Library</h1>

@@ -4,7 +4,7 @@ require 'json'
 require 'nokogiri'
 
 class ArchitectureExplorerController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:building_library]
   before_action :set_custom_nav
 
   def new
@@ -62,9 +62,24 @@ class ArchitectureExplorerController < ApplicationController
     doc.search('h3').map(&:text).uniq # .uniq ensures no duplicates
   end
 
+
   def building_library
-    # Fetch images analyzed by the current user
-    @user_analyzed_images = BuildingAnalysis.where(user: current_user).order(created_at: :desc)
+    # Adjust the method to fetch images for all users or a generic set if no user is logged in
+    if user_signed_in?
+      # Fetch images analyzed by the current user
+      @user_analyzed_images = BuildingAnalysis.where(user: current_user).order(created_at: :desc)
+      # Get the frequency of each style for the current user
+      style_frequency = BuildingAnalysis.style_frequency(current_user.id)
+      @style_frequency = style_frequency.sort_by { |style, frequency| -frequency }
+      @unique_style_count = @style_frequency.length
+      @buildings_submitted_count = BuildingAnalysis.where(user: current_user).count
+    else
+      # Set variables to nil or default values since no user is logged in
+      @user_analyzed_images = nil
+      @style_frequency = nil
+      @unique_style_count = nil
+      @buildings_submitted_count = nil
+    end
 
     if params[:search].present?
       search_term = params[:search].downcase
@@ -76,13 +91,6 @@ class ArchitectureExplorerController < ApplicationController
     end
     # Orders the results by creation date in descending order for both cases
     @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
-
-    # Get the frequency of each style for the current user
-    style_frequency = BuildingAnalysis.style_frequency(current_user.id)
-    @style_frequency = style_frequency.sort_by { |style, frequency| -frequency }
-    @unique_style_count = @style_frequency.length
-
-    @buildings_submitted_count = BuildingAnalysis.where(user: current_user).count
 
     # Renders the 'architecture_explorer/building_library' view
     render 'architecture_explorer/building_library'
