@@ -1,6 +1,17 @@
 class BuildingAnalysis < ApplicationRecord
   belongs_to :user
 
+  # Use the 'address' attribute for geocoding
+  geocoded_by :address
+  # Auto-fetch coordinates after validation, if address changed
+  after_validation :geocode, if: ->(obj){ obj.address.present? and obj.address_changed? }
+
+  # Method to generate Google Street View URL
+  def street_view_url(size: "600x400")
+    api_key = Rails.application.credentials.google_maps[:api_key]
+    "https://maps.googleapis.com/maps/api/streetview?size=#{size}&location=#{latitude},#{longitude}&key=#{api_key}"
+  end
+
   def self.total_count
     BuildingAnalysis.count
   end
