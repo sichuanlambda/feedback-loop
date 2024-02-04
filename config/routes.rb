@@ -27,7 +27,10 @@ Rails.application.routes.draw do
   # Route for public user profiles
   get '/users/:handle', to: 'users#show', as: 'user_profile'
 
+  get 'proxy/fetch_street_view', to: 'proxy#fetch_street_view'
+
   # Architecture Explorer routes
+  get 'architecture_explorer/address_search', to: 'architecture_explorer#address_search'
   get 'architecture_explorer/new', to: 'architecture_explorer#new', as: :architecture_explorer_new
   post 'architecture_explorer', to: 'architecture_explorer#create', as: :architecture_explorer
   get 'architecture_explorer/:id', to: 'architecture_explorer#show', as: :architecture_explorer_show

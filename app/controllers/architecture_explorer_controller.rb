@@ -42,11 +42,17 @@ class ArchitectureExplorerController < ApplicationController
     end
   end
 
+  def address_search
+    # Any setup needed for the view can be added here
+  end
+
+
   def show
     @building_analysis = BuildingAnalysis.find_by(id: params[:id])
-    @is_shared = @building_analysis.visible_in_library
 
     if @building_analysis
+      # Move the @is_shared assignment here, after confirming @building_analysis is not nil
+      @is_shared = @building_analysis.visible_in_library
       @html_content = @building_analysis.html_content
       @image_url = @building_analysis.image_url # Make the image URL available in the view
 

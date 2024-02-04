@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Architecture Helper Explore</title>
+    <title>Architecture Helper Address Search</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
     <script defer data-domain="app.architecturehelper.com" src="https://plausible.io/js/script.js"></script>
@@ -70,7 +70,11 @@
       }
     }
 </style>
-
+<div class="form-group">
+  <label for="address" style="color: #01161e;">Enter Address:</label>
+  <input type="text" id="address" name="address" class="form-control" placeholder="Enter address to search">
+  <button id="fetch-street-view" class="btn btn-primary" style="margin-top: 10px;">Fetch Street View</button>
+</div>
 <div class="container" style="background: #fff; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
   <div class="row justify-content-center">
     <div class="col-md-12">
@@ -106,6 +110,31 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('fetch-street-view').addEventListener('click', function(e) {
+        e.preventDefault();
+        var address = document.getElementById('address').value;
+        if (address) {
+            // Use your server-side proxy to fetch the Street View image
+            var proxyUrl = `/proxy/fetch_street_view?location=${encodeURIComponent(address)}`;
+
+            // Display the Street View image in the image preview
+            var output = document.getElementById('image-preview');
+            output.src = proxyUrl;
+            output.style.display = 'block';
+
+            // Optionally, set the proxy URL in a hidden input to be submitted with the form
+            // This step might need to be adjusted based on how you want to handle the image server-side
+            var hiddenInput = document.querySelector('input[name="street_view_url"]');
+            if (!hiddenInput) {
+                hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'street_view_url';
+                document.querySelector('.gpt-form-container').appendChild(hiddenInput);
+            }
+            hiddenInput.value = proxyUrl;
+        }
+    });
+
     var form = document.querySelector('.gpt-form-container');
     if (form) {
         form.addEventListener('submit', function() {
@@ -118,15 +147,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-});
 
-function previewImage(event) {
-    var reader = new FileReader();
-    reader.onload = function() {
-        var output = document.getElementById('image-preview');
-        output.src = reader.result;
-        output.style.display = 'block';
-    };
-    reader.readAsDataURL(event.target.files[0]);
-}
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('image-preview');
+            output.src = reader.result;
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+    // Attach the previewImage function to file input change event
+    document.querySelector('.custom-file-input').addEventListener('change', previewImage);
+});
 </script>
