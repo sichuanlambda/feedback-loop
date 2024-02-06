@@ -500,6 +500,8 @@
         }
     </style>
 </head>
+    <body>
+    <% unless user_signed_in? %>
     <div class="main-section">
         <div class="header-content">
             <h1><span>Generate and Understand</span><br><span>Architecture </span><span class="highlight"> in seconds</span></h1>
@@ -507,7 +509,7 @@
             <p>Creating your dream home & finding inspiration</p>
             <p>Mixing influences and styles</p>
             <p>Learning about the architecture around you</p>
-            <button type="button" id="navigateButton" class="btn btn-primary" data-url="/users/sign_up">Sign Up Today!</button>
+            <button type="button" id="navigateButton" class="btn btn-primary" data-url="/users/sign_up">Not a User? Try for Free!</buttonr>
         </div>
         <div class="image-collage-container">
             <%= image_tag 'curved wooden building.png', alt: 'Large Building', class: 'image-collage-large img-fluid' %>
@@ -516,6 +518,7 @@
             <%= image_tag 'cathederal int.jpg', alt: 'Interior Design', class: 'image-collage-small img-fluid' %>
         </div>
     </div>
+    <% end %>
     <h2>AI-Powered Architecture Identifier</h2>
         <div class="container architecture-identifier">
         <div class="row">
