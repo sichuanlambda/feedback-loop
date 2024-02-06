@@ -74,43 +74,17 @@
       width: 1.5em; /* Space for the checkmark */
       margin-left: -1.5em; /* Negative margin to pull checkmark into position */
     }
+    .custom-registration-form {
+      max-width: 500px; /* Adjust this value to suit your design */
+      margin: auto; /* Centers the form in the available space */
+    }
   </style>
 </head>
 <body>
-  <div class="row">
-    <!-- Column for the Title, Subtitle, and Image -->
-    <div class="col-lg-6 image-column">
-      <h2>Learn About and Generate Architecture with AI</h2>
-      <h3>Upload & Learn<h3>
-      <%= image_tag 'ArchExplorer.png', class: 'img-fluid', style: 'border: 2px solid #bababa; border-radius: 15px;' %>
-      <h3>Dream & Generate<h3>
-      <%= image_tag 'ArchGen.png', class: 'img-fluid', style: 'border: 2px solid #bababa; border-radius: 15px;' %>
-    </div>
-
-    <!-- Stripe Button & Plan Details -->
-    <div class="col-md-5 d-flex flex-column align-items-center">
-      <div class="plan-card p-4 m-3">
-        <div class="text-center mb-3" style="border: 2px solid green; padding: 10px; border-radius: 10px;">
-          <h3 class="m-0">Architecture Enthusiast</h3>
-          <p class="price m-0">$5/month</p>
-        </div>
-        <ul class="fa-ul">
-          <p class="checkmark">Unlimited Building Image Analyses</p>
-          <p class="checkmark">Unlimited Architecture Image Generations</p>
-          <p class="checkmark">Screenshot Text Searcher Access</p>
-          <p class="checkmark">Unlimited Screenshot Uploads</p>
-          <p class="checkmark">Exclusive Access to Architecture Community Features (coming soon)</p>
-        </ul>
-        <div class="w-100 text-center mt-4">
-          <button id="stripe-checkout-button" class="btn btn-secondary">$5/mo</button>
-          <button id="annual-plan-button" class="btn btn-secondary">$47/yr</button>
-        </div>
-        <p class="text-center mt-2" style="color: grey; font-size: smaller;">Cancel anytime</p>
-      </div>
-    </div>
-    
-    <!-- Registration Form, Initially Hidden -->
-    <div id="registration-form" style="display: none;">
+  <div class="container">
+    <!-- Registration Form -->
+  <div id="registration-form" class="custom-registration-form" style="display: none;">
+      <h1>Enter Your Information to Complete Your Registration</h1>
       <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
 
@@ -148,43 +122,82 @@
           <%= f.submit "Confirm Registration", class: "btn btn-primary btn-block" %>
         </div>
       <% end %>
-
       <div class="text-center mt-3">
         <%= render "devise/shared/links" %>
+      </div>
+    </div>
+
+    <!-- Below Registration Form, the rest of the content -->
+    <div class="row">
+      <!-- Column for the Title, Subtitle, and Image -->
+      <div class="col-lg-6 image-column">
+        <h2>Learn About and Generate Architecture with AI</h2>
+        <h3>Upload & Learn</h3>
+        <%= image_tag 'ArchExplorer.png', class: 'img-fluid', style: 'border: 2px solid #bababa; border-radius: 15px;' %>
+        <h3>Dream & Generate</h3>
+        <%= image_tag 'ArchGen.png', class: 'img-fluid', style: 'border: 2px solid #bababa; border-radius: 15px;' %>
+      </div>
+
+      <!-- Stripe Button & Plan Details -->
+      <div class="col-md-5 d-flex flex-column align-items-center">
+        <div class="plan-card p-4 m-3">
+          <div class="text-center mb-3" style="border: 2px solid green; padding: 10px; border-radius: 10px;">
+            <h3 class="m-0">Architecture Enthusiast</h3>
+            <p class="price m-0">$5/month</p>
+          </div>
+          <ul class="fa-ul">
+            <p class="checkmark">Unlimited Building Image Analyses</p>
+            <p class="checkmark">Unlimited Architecture Image Generations</p>
+            <p class="checkmark">Screenshot Text Searcher Access</p>
+            <p class="checkmark">Unlimited Screenshot Uploads</p>
+            <p class="checkmark">Exclusive Access to Architecture Community Features (coming soon)</p>
+          </ul>
+          <div class="w-100 text-center mt-4">
+            <button id="stripe-checkout-button" class="btn btn-secondary">$5/mo</button>
+            <button id="annual-plan-button" class="btn btn-secondary">$47/yr</button>
+          </div>
+          <p class="text-center mt-2" style="color: grey; font-size: smaller;">Cancel anytime</p>
+        </div>
       </div>
     </div>
   </div>
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const paymentSuccess = urlParams.get('payment_success');
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentSuccess = urlParams.get('payment_success');
 
-      const signUpButton = document.getElementById('stripe-checkout-button');
-      const annualPlanButton = document.getElementById('annual-plan-button'); // Reference to the new button
-      const registrationForm = document.getElementById('registration-form');
+    const signUpButton = document.getElementById('stripe-checkout-button');
+    const annualPlanButton = document.getElementById('annual-plan-button');
+    const registrationForm = document.getElementById('registration-form');
+    // Select other sections you want to hide. Adjust the selector based on your page structure.
+    const otherSections = document.querySelectorAll('.image-column, .plan-card');
 
-      if (paymentSuccess === 'true') {
-        if (registrationForm) {
-          registrationForm.style.display = 'block';
-        }
-        if (signUpButton) {
-          signUpButton.style.display = 'none';
-        }
-        if (annualPlanButton) {
-          annualPlanButton.style.display = 'none'; // Hide the annual plan button
-        }
+    if (paymentSuccess === 'true') {
+      if (registrationForm) {
+        registrationForm.style.display = 'block';
       }
-    });
+      if (signUpButton) {
+        signUpButton.style.display = 'none';
+      }
+      if (annualPlanButton) {
+        annualPlanButton.style.display = 'none';
+      }
+      // Hide other sections when payment_success=true
+      otherSections.forEach(section => {
+        section.style.display = 'none';
+      });
+    }
+});
 
-    document.getElementById('stripe-checkout-button').addEventListener('click', function() {
-      window.location.href = 'https://buy.stripe.com/6oE03C2rm9I59Us3cc'; // Existing URL
-    });
+document.getElementById('stripe-checkout-button').addEventListener('click', function() {
+  window.location.href = 'https://buy.stripe.com/6oE03C2rm9I59Us3cc';
+});
 
-    document.getElementById('annual-plan-button').addEventListener('click', function() {
-      window.location.href = 'https://buy.stripe.com/14kaIgfe8bQd3w4bIJ'; // URL for the annual plan
-    });
+document.getElementById('annual-plan-button').addEventListener('click', function() {
+  window.location.href = 'https://buy.stripe.com/14kaIgfe8bQd3w4bIJ';
+});
 </script>
 </body>
 </html>
