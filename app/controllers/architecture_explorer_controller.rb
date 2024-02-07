@@ -243,7 +243,7 @@ class ArchitectureExplorerController < ApplicationController
                 end
 
     obj = s3.bucket('architecture-explorer').object("uploads/#{file_name}")
-    obj.upload_file(uploaded_file.respond_to?(:path) ? uploaded_file.path : uploaded_file, acl: 'public-read')
+    obj.upload_file(uploaded_file.respond_to?(:path) ? uploaded_file.path : uploaded_file)
 
     obj.public_url
   rescue => e
