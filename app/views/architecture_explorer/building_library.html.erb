@@ -26,6 +26,8 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust '150px' to change the cell size */
             gap: 10px; /* Spacing between grid items */
+            justify-items: center; /* Center align grid items */
+            width: 100%; /* Ensure the grid takes up full container width */    
         }
 
         .grid-item {
@@ -35,6 +37,8 @@
             justify-content: flex-start; /* Align children to the start of the flex container */
             text-align: center; /* Center text */
             overflow: hidden; /* Hide parts of the image that exceed the container size */
+            position: relative; /* Needed for absolute positioning of children */
+            width: 200px; /* Adjust based on your design */
             margin-bottom: 20px; /* Space below each grid item */
             height: auto; /* Adjust height automatically */
         }
@@ -54,7 +58,7 @@
             margin-bottom: 20px; /* Space between buttons and grid */
         }
         .btn-primary{
-          width: 30%; /* Make buttons take full width of the container */
+          width: 50%; /* Make buttons take full width of the container */
           background-color: #0056b3;
           color: white;
           border-radius: 20px;
@@ -127,6 +131,13 @@
                 width: 300px; /* Set a fixed width */
                 height: 300px;
         }
+            .grid-item, .submission-image {
+                width: 300px; /* Make images wider on mobile */
+                height: 300px; /* Adjust height accordingly to maintain aspect ratio */
+            }
+            .image-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjust for wider images */
+            }
         }
         .modal-body {
             display: flex; /* Enable flexbox */
@@ -292,6 +303,41 @@
         .middle-section-card #styleList li {
             margin-bottom: 5px; /* Adjust spacing between list items */
         }
+        .architecture-styles-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0; /* Ensures the container stretches fully across the bottom of the .grid-item */
+            display: flex;
+            flex-wrap: nowrap; /* Ensures items are laid out in a single line */
+            overflow-x: auto; /* Allows horizontal scrolling */
+            overflow-y: hidden; /* Prevents vertical overflow */
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            padding: 5px; /* Adds some padding inside the container */
+        }
+
+        .style-pill {
+            flex: 0 0 auto; /* Prevents flex items from growing or shrinking */
+            margin-right: 5px; /* Spacing between pills */
+            font-size: 12px;
+            padding: 5px 10px;
+            background-color: #0056b3;
+            color: white;
+            border-radius: 20px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Handles overflow text */
+        }
+
+        /* Ensures there's no horizontal scrollbar */
+        .architecture-styles-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .architecture-styles-container {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
 </style>
 <body>
 <!-- Modal Structure -->
@@ -389,9 +435,15 @@
                         data-tags="<%= JSON.parse(building.h3_contents).join(', ') %>"
                         data-link="<%= architecture_explorer_show_path(id: building.id) %>">
                         <%= image_tag building.image_url, alt: "Building Image", class: "submission-image" %>
-                        <% if building.address.present? && building.address != "N/A" %>
-                            <span class="grid-btn"><%= building.address %></span>
-                        <% end %>
+                        <!-- Architecture styles container -->
+                        <div class="architecture-styles-container">
+                            <% JSON.parse(building.h3_contents).each do |style| %>
+                                <span class="badge badge-primary style-pill"><%= style %></span>
+                            <% end %>
+                        </div>
+                        <%# <% if building.address.present? && building.address != "N/A" %>
+                            <%# <span class="grid-btn"><%= building.address %>
+                        <%# <% end %>
                     </div>
                 <% end %>
             <% else %>
