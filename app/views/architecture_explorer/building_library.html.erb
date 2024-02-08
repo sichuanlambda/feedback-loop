@@ -240,6 +240,9 @@
                 width: 80%;
                 margin-bottom: 20px;
             }
+            .stat-number {
+                font-size: 40px; /* Slightly smaller font size on smaller screens */
+            }
         }
         .show-more-less-btn {
             font-size: 18px; /* Adjust the font size as needed */
@@ -261,6 +264,26 @@
         .stat-number li {
             font-size: 16px; /* or your preferred size */
             margin: 4px;
+        }
+        .middle-section-card .stat-number {
+            font-size: 20px; /* Adjust the font size for the middle card independently */
+        }
+
+        /* You might want to adjust padding or margins specifically for the middle section */
+        .middle-section-card {
+            padding: 8px; /* Example: Adjust padding specifically for the middle section */
+        }
+
+        /* Optionally, adjust the list presentation in the middle card */
+        .middle-section-card #styleList {
+            padding: 0; /* Remove default padding */
+            list-style-type: none; /* Remove bullet points */
+            max-height: 200px; /* Limit height to make the section less tall */
+            overflow-y: auto; /* Enable scroll if content exceeds max height */
+        }
+
+        .middle-section-card #styleList li {
+            margin-bottom: 5px; /* Adjust spacing between list items */
         }
 </style>
 <body>
@@ -299,7 +322,7 @@
             </div>
 
             <!-- Frequent Styles Card -->
-            <div class="stat-card">
+                <div class="stat-card middle-section-card">
                 <div class="stat-icon">🌟</div>
                 <div class="stat-title">Favorite Styles</div>
                 <div class="stat-number">
