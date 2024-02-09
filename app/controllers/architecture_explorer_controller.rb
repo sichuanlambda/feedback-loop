@@ -185,6 +185,35 @@ class ArchitectureExplorerController < ApplicationController
       render :show, alert: 'Failed to update address.'
     end
   end
+
+  def by_style
+    @style_name = params[:style_name]
+    @buildings = Building.where('styles @> ?', "{#{@style_name}}") # Assuming styles are stored in an array column
+    render :index
+  end
+
+  def by_location
+    @location_name = params[:location_name]
+    @building_analyses = BuildingAnalysis.where("address ILIKE ?", "%#{@location_name}%")
+
+    # Calculate style frequency here or ensure it's available for the view
+    @style_frequency = calculate_style_frequency(@building_analyses)
+
+    if @location_name.downcase == 'denver'
+      render 'denver'
+    else
+      # Handle other locations
+    end
+  end
+
+  private
+
+  def calculate_style_frequency(building_analyses)
+    # Your logic to calculate style frequency based on the provided analyses
+    # This is a placeholder; you'll need to implement the actual calculation based on your application's needs
+    {}
+  end
+
   private
 
   def building_analysis_params

@@ -23,6 +23,8 @@ Rails.application.routes.draw do
   post 'remove_from_library/:id', to: 'architecture_explorer#remove_from_library', as: 'remove_from_library'
   get '/account', to: 'pages#account'
   get '/home', to: 'pages#home'
+  get 'building_library/styles/:style_name', to: 'architecture_explorer#by_style', as: 'buildings_by_style'
+  get 'building_library/locations/:location_name', to: 'architecture_explorer#by_location', as: 'buildings_by_location'
 
   # Route for public user profiles
   get '/users/:handle', to: 'users#show', as: 'user_profile'
