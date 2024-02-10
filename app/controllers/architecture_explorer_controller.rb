@@ -193,8 +193,8 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def by_location
-    @location_name = params[:location_name]
-    @analyzed_buildings = BuildingAnalysis.where("address LIKE ?", "%#{@location_name}%")
+    @location_name = params[:location_name].downcase
+    @analyzed_buildings = BuildingAnalysis.where("LOWER(address) LIKE ?", "%#{@location_name}%")
 
     # Extracting styles from h3_contents
     all_styles = []
