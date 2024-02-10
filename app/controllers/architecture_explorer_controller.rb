@@ -156,7 +156,21 @@ class ArchitectureExplorerController < ApplicationController
     # Orders the results by creation date in descending order for both cases
     @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
 
-    # Renders the 'architecture_explorer/building_library' view
+    # Extract all styles from h3_contents, clean them, and assign to @architecture_styles
+    all_styles = BuildingAnalysis.pluck(:h3_contents).map do |h3_content|
+      JSON.parse(h3_content).map { |style| style.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
+    end.flatten.uniq.sort.first(15)
+    @architecture_styles = all_styles
+
+    # Handling the search functionality
+    if params[:search].present?
+      search_term = params[:search].downcase
+      @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ? AND visible_in_library = ?", "%#{search_term}%", true)
+    else
+      @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
+    end
+    @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
+
     render 'architecture_explorer/building_library'
   end
 
@@ -193,28 +207,29 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def by_location
-    @location_name = params[:location_name].downcase
-    @analyzed_buildings = BuildingAnalysis.where("LOWER(address) LIKE ? AND visible_in_library = ?", "%#{@location_name}%", true)
+    # Check if a location name is provided and downcase it if present
+    @location_name = params[:location_name]&.downcase
 
-    # Initialize an empty hash to store style frequencies
-    style_frequency = Hash.new(0)
-
-    # Iterate over each building analysis, parse its h3_contents for styles, and increment their frequencies
-    @analyzed_buildings.each do |building|
-      styles = JSON.parse(building.h3_contents || '[]')
-      styles.each do |style|
-        style_frequency[style] += 1
-      end
+    # Adjust the query based on the provided parameters
+    if @location_name.present?
+      # Query for buildings by location
+      @analyzed_buildings = BuildingAnalysis.where("LOWER(address) LIKE ? AND visible_in_library = ?", "%#{@location_name}%", true)
+    elsif params[:search].present?
+      # Query for buildings by style if 'search' parameter is used instead
+      search_term = params[:search].downcase
+      @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ? AND visible_in_library = ?", "%#{search_term}%", true)
+    else
+      # Default case if no specific filter is applied
+      @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
     end
 
-    # Sort the style_frequency hash by frequency in descending order and convert it to a hash again (for Ruby versions < 2.4, to_h is not needed)
-    @style_frequency = style_frequency.sort_by { |_style, count| -count }.to_h
+    # Extract and clean styles for display and filtering
+    all_styles = @analyzed_buildings.pluck(:h3_contents).map do |h3_content|
+      JSON.parse(h3_content || '[]').map { |style| style.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
+    end.flatten.uniq.sort
+    @architecture_styles = all_styles
 
-    # Count unique styles and total buildings for displaying
-    @unique_style_count = style_frequency.keys.length
-    @buildings_submitted_count = @analyzed_buildings.count
-
-    render 'denver'
+  render 'denver'
   end
 
   private

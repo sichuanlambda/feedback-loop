@@ -338,6 +338,9 @@
             -ms-overflow-style: none; /* IE and Edge */
             scrollbar-width: none; /* Firefox */
         }
+        .style-pill {
+            margin: 5px; /* Adjust the margin value as needed */
+        }
 </style>
 <body>
 <!-- Modal Structure -->
@@ -426,7 +429,14 @@
             <% end %>
         </div>
 
-    <!-- Image Grid for Community Building Library -->
+        <!-- Pill-style options for architecture styles -->
+        <div class="row justify-content-center mb-4">
+        <% @architecture_styles.each do |style| %>
+            <%= link_to style, building_library_path(search: style), class: 'badge badge-pill badge-primary style-pill', remote: true %>
+        <% end %>
+        </div>
+
+        <!-- Image Grid for Community Building Library -->
         <div class="image-grid">
             <% if @analyzed_buildings.present? %>
                 <% @analyzed_buildings.each do |building| %>
