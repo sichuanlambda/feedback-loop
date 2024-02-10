@@ -194,16 +194,27 @@ class ArchitectureExplorerController < ApplicationController
 
   def by_location
     @location_name = params[:location_name]
-    @building_analyses = BuildingAnalysis.where("address ILIKE ?", "%#{@location_name}%")
+    @analyzed_buildings = BuildingAnalysis.where("address LIKE ?", "%#{@location_name}%")
 
-    # Calculate style frequency here or ensure it's available for the view
-    @style_frequency = calculate_style_frequency(@building_analyses)
-
-    if @location_name.downcase == 'denver'
-      render 'denver'
-    else
-      # Handle other locations
+    # Extracting styles from h3_contents
+    all_styles = []
+    @analyzed_buildings.each do |building|
+      styles = JSON.parse(building.h3_contents || '[]')
+      all_styles.concat(styles)
     end
+
+    # Calculating the frequency of each style
+    @style_frequency = all_styles.each_with_object(Hash.new(0)) do |style, counts|
+      counts[style] += 1
+    end
+
+    # Counting unique styles
+    @unique_style_count = @style_frequency.keys.length
+
+    # Counting the total number of buildings analyzed for Denver
+    @buildings_submitted_count = @analyzed_buildings.count
+
+    render 'denver'
   end
 
   private

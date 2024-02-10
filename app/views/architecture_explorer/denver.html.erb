@@ -363,7 +363,7 @@
     <!-- Conditional rendering based on user login status -->
         <% if user_signed_in? %>
         <div class="heading-container">
-            <h2>Your Building Stats</h2>
+            <h2>Denver Building Stats</h2>
         </div>
         <!-- Parent container for the sections -->
         <div class="parent-container d-flex justify-content-around">
@@ -377,7 +377,7 @@
             <!-- Frequent Styles Card -->
                 <div class="stat-card middle-section-card">
                 <div class="stat-icon">🌟</div>
-                <div class="stat-title">Favorite Styles</div>
+                <div class="stat-title">Frequent Styles</div>
                 <div class="stat-number">
                     <ul id="styleList">
                         <% @style_frequency.each_with_index do |(style, frequency), index| %>
@@ -410,7 +410,7 @@
     <% end %>
     <div class="container">
 
-        <h1>Community Building Library</h1>
+        <h1>Denver Building Library</h1>
         
         <!-- Button Container -->
         <%# <div class="button-container text-center mb-4">
