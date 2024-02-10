@@ -194,24 +194,24 @@ class ArchitectureExplorerController < ApplicationController
 
   def by_location
     @location_name = params[:location_name].downcase
-    @analyzed_buildings = BuildingAnalysis.where("LOWER(address) LIKE ?", "%#{@location_name}%")
+    @analyzed_buildings = BuildingAnalysis.where("LOWER(address) LIKE ? AND visible_in_library = ?", "%#{@location_name}%", true)
 
-    # Extracting styles from h3_contents
-    all_styles = []
+    # Initialize an empty hash to store style frequencies
+    style_frequency = Hash.new(0)
+
+    # Iterate over each building analysis, parse its h3_contents for styles, and increment their frequencies
     @analyzed_buildings.each do |building|
       styles = JSON.parse(building.h3_contents || '[]')
-      all_styles.concat(styles)
+      styles.each do |style|
+        style_frequency[style] += 1
+      end
     end
 
-    # Calculating the frequency of each style
-    @style_frequency = all_styles.each_with_object(Hash.new(0)) do |style, counts|
-      counts[style] += 1
-    end
+    # Sort the style_frequency hash by frequency in descending order and convert it to a hash again (for Ruby versions < 2.4, to_h is not needed)
+    @style_frequency = style_frequency.sort_by { |_style, count| -count }.to_h
 
-    # Counting unique styles
-    @unique_style_count = @style_frequency.keys.length
-
-    # Counting the total number of buildings analyzed for Denver
+    # Count unique styles and total buildings for displaying
+    @unique_style_count = style_frequency.keys.length
     @buildings_submitted_count = @analyzed_buildings.count
 
     render 'denver'
