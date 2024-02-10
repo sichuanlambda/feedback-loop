@@ -157,8 +157,13 @@ class ArchitectureExplorerController < ApplicationController
     @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
 
     # Extract all styles from h3_contents, clean them, and assign to @architecture_styles
-    all_styles = BuildingAnalysis.pluck(:h3_contents).map do |h3_content|
-      JSON.parse(h3_content).map { |style| style.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
+    all_styles = BuildingAnalysis.pluck(:h3_contents).compact.map do |h3_content|
+      begin
+        JSON.parse(h3_content || '[]').map { |style| style.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
+      rescue JSON::ParserError => e
+        Rails.logger.error "Failed to parse JSON from h3_contents: #{e.message}"
+        []
+      end
     end.flatten.uniq.sort.first(15)
     @architecture_styles = all_styles
 
