@@ -375,7 +375,7 @@
             </div>
 
             <!-- Frequent Styles Card -->
-                <div class="stat-card middle-section-card">
+            <div class="stat-card middle-section-card">
                 <div class="stat-icon">🌟</div>
                 <div class="stat-title">Frequent Styles</div>
                 <div class="stat-number">
@@ -387,7 +387,7 @@
                             </li>
                         <% end %>
                     </ul>
-                    <% if @style_frequency.count > 6 %>
+                    <% if @style_frequency.length > 4 %>
                         <a href="javascript:void(0)" class="show-more-less-btn" id="showMore" onclick="showMoreStyles()">Show More</a>
                         <a href="javascript:void(0)" class="show-more-less-btn" id="showLess" onclick="showLessStyles()" style="display: none;">Show Less</a>
                     <% end %>

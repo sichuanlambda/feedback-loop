@@ -222,31 +222,37 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def by_location
-    # Check if a location name is provided and downcase it if present
     @location_name = params[:location_name]&.downcase
-    @style_frequency = [] # Initialize as an empty array to prevent nil errors in the view
+    @style_frequency = []
+    @unique_style_count = 0
+    @buildings_submitted_count = 0
 
     # Adjust the query based on the provided parameters
     if @location_name.present?
-      # Query for buildings by location
       @analyzed_buildings = BuildingAnalysis.where("LOWER(address) LIKE ? AND visible_in_library = ?", "%#{@location_name}%", true)
     elsif params[:search].present?
-      # Query for buildings by style if 'search' parameter is used instead
       search_term = params[:search].downcase
       @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ? AND visible_in_library = ?", "%#{search_term}%", true)
     else
-      # Default case if no specific filter is applied
       @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
     end
 
-    # Extract and clean styles for display and filtering
-    all_styles = @analyzed_buildings.pluck(:h3_contents).map do |h3_content|
-      JSON.parse(h3_content || '[]').map { |style| style.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
-    end.flatten.uniq.sort
-    @architecture_styles = all_styles
-    @style_frequency ||= {}
+    # Calculate style frequencies
+    style_counts = Hash.new(0)
+    @analyzed_buildings.each do |building|
+      styles = JSON.parse(building.h3_contents || '[]').map { |style| style.gsub(/\s*\d+%$/, '') }
+      styles.each { |style| style_counts[style] += 1 }
+    end
+    @style_frequency = style_counts.sort_by { |_style, count| -count }
 
-  render 'denver'
+    # Count unique styles and total buildings analyzed
+    @unique_style_count = style_counts.keys.count
+    @buildings_submitted_count = @analyzed_buildings.count
+
+    # Extract and clean styles for the sidebar or filter
+    @architecture_styles = style_counts.keys.sort
+
+    render 'denver'
   end
 
   private
