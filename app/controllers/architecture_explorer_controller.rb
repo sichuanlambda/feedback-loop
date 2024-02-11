@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'image_optim'
 
 class ArchitectureExplorerController < ApplicationController
-  before_action :authenticate_user!, except: [:building_library]
+  before_action :authenticate_user!, except: [:building_library, :by_location]
   before_action :set_custom_nav
 
   def new
