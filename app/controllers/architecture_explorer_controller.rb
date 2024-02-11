@@ -2,6 +2,7 @@ require 'aws-sdk-s3'
 require 'net/http'
 require 'json'
 require 'nokogiri'
+require 'image_optim'
 
 class ArchitectureExplorerController < ApplicationController
   before_action :authenticate_user!, except: [:building_library]
@@ -16,50 +17,59 @@ class ArchitectureExplorerController < ApplicationController
     Rails.logger.debug "Processing the uploaded image..."
     Rails.logger.debug "Form submission received with params: #{params.inspect}"
 
-    # Existing logic for handling directly uploaded images
     uploaded_image = params[:image]
-    image_url = nil
+    image_url = nil  # Initialize variable to capture the image URL
 
+    # Handle directly uploaded images
     if uploaded_image.present?
-      # Logic to handle directly uploaded image remains unchanged
       image_url = upload_image_to_s3(uploaded_image)
+    # Handle images fetched from a street view URL
     elsif params[:street_view_url].present?
-      # If there's no direct upload but a street view URL is present, fetch and process the street view image
       uploaded_image = fetch_street_view_image(params[:street_view_url])
       image_url = upload_image_to_s3(uploaded_image) if uploaded_image
     end
 
-    if uploaded_image.blank?
+    # Redirect if no image was processed
+    if uploaded_image.blank? || image_url.blank?
       redirect_to root_path, alert: "No image uploaded or address provided"
       return
     end
 
-    # Assuming process_building_image can handle both direct uploads and fetched images
+    # Process the building image (assuming this method exists and works correctly)
     analysis_result = process_building_image(uploaded_image)
 
-    # The rest of the method remains the same, using image_url which is now set for both direct and fetched images
+    # Proceed only if analysis is successful
     if analysis_result && analysis_result[:html_content].present?
-      h3_contents = extract_h3s(analysis_result[:html_content]) # Extract H3 contents here
+      # Extract H3 contents from the analysis result
+      h3_contents = extract_h3s(analysis_result[:html_content])
 
+      # Create a new BuildingAnalysis record with all necessary data
       new_analysis = BuildingAnalysis.create(
         html_content: analysis_result[:html_content],
-        user: current_user, # Assuming you have a method to get the current user
-        image_url: image_url, # This is now set for both direct uploads and fetched images
-        h3_contents: h3_contents.to_json, # Save the extracted H3 contents
-        visible_in_library: true, # Set default visibility in library to true
-        address: params[:address].presence || "N/A" # Set address if provided
+        user: current_user, # Assuming you have a method or devise helper to get the current user
+        image_url: image_url, # Use the S3 URL obtained from the image upload
+        h3_contents: h3_contents.to_json,
+        visible_in_library: true,
+        address: params[:address].presence || "N/A"
       )
 
+      # Redirect to the show page of the analysis if creation is successful
       if new_analysis.persisted?
         Rails.logger.debug "New analysis created successfully with ID: #{new_analysis.id}"
         redirect_to architecture_explorer_show_path(id: new_analysis.id)
       else
+        # Handle case where saving the analysis fails
         Rails.logger.debug "Failed to save new analysis. Errors: #{new_analysis.errors.full_messages.join(", ")}"
         redirect_to root_path, alert: "Analysis failed: #{new_analysis.errors.full_messages.join(", ")}"
       end
     else
+      # Handle case where analysis does not produce expected results
       redirect_to root_path, alert: "Analysis failed"
     end
+  rescue => e
+    # General rescue for unexpected exceptions, logging the error for debugging
+    Rails.logger.error "Exception in create action: #{e.message}"
+    redirect_to root_path, alert: "Unexpected error occurred."
   end
 
   def fetch_street_view_image(address)
@@ -208,12 +218,13 @@ class ArchitectureExplorerController < ApplicationController
   def by_style
     @style_name = params[:style_name]
     @buildings = Building.where('styles @> ?', "{#{@style_name}}") # Assuming styles are stored in an array column
-    render :index
+    render :indexturn
   end
 
   def by_location
     # Check if a location name is provided and downcase it if present
     @location_name = params[:location_name]&.downcase
+    @style_frequency = [] # Initialize as an empty array to prevent nil errors in the view
 
     # Adjust the query based on the provided parameters
     if @location_name.present?
@@ -233,6 +244,7 @@ class ArchitectureExplorerController < ApplicationController
       JSON.parse(h3_content || '[]').map { |style| style.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
     end.flatten.uniq.sort
     @architecture_styles = all_styles
+    @style_frequency ||= {}
 
   render 'denver'
   end
@@ -293,23 +305,40 @@ class ArchitectureExplorerController < ApplicationController
     return nil if uploaded_file.blank?
 
     s3 = Aws::S3::Resource.new(region: 'us-east-2')
-
-    # Determine the file name
-    file_name = if uploaded_file.respond_to?(:original_filename)
-                  uploaded_file.original_filename
-                else
-                  # Generate a file name for the fetched image
-                  "fetched_street_view_#{Time.now.to_i}.jpg"
-                end
-
+    file_name = uploaded_file.respond_to?(:original_filename) ? uploaded_file.original_filename : "fetched_street_view_#{Time.now.to_i}.jpg"
     obj = s3.bucket('architecture-explorer').object("uploads/#{file_name}")
-    obj.upload_file(uploaded_file.respond_to?(:path) ? uploaded_file.path : uploaded_file)
 
-    obj.public_url
-  rescue => e
-    Rails.logger.error "S3 Upload Failed: #{e.message}"
+    # Initialize ImageOptim with only the desired optimizers enabled
+    image_optim = ImageOptim.new(
+      pngout: false,
+      svgo: false,
+      pngcrush: false,
+      advpng: false,
+      oxipng: false,
+      jhead: false,
+      jpegoptim: {max_quality: 20},
+      pngquant: {quality: 100..120}
+    )
+
+    # Attempt to optimize the image and capture the optimized image path
+    optimized_image_path = image_optim.optimize_image(uploaded_file.path)
+
+    # Ensure we're using a string path for the optimized image, if available
+    file_path_to_upload = optimized_image_path ? optimized_image_path.to_path : uploaded_file.path
+
+    # Upload the file to S3 and check for success
+    if obj.upload_file(file_path_to_upload)
+      Rails.logger.debug "Upload to S3 completed: #{obj.public_url}"
+      return obj.public_url
+    else
+      Rails.logger.error "Failed to upload image to S3"
+      return nil
+    end
+  rescue StandardError => e
+    Rails.logger.error "Exception occurred during image upload: #{e.message}"
     nil
   end
+
 
   def set_custom_nav
     @custom_nav = true

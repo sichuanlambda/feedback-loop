@@ -86,3 +86,5 @@ gem 'mini_magick'
 gem 'stripe'
 
 gem 'geocoder'
+
+gem 'image_optim'
