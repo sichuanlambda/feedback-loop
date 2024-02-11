@@ -361,7 +361,6 @@
 </div>
 
     <!-- Conditional rendering based on user login status -->
-        <% if user_signed_in? %>
         <div class="heading-container">
             <h2>Denver Building Stats</h2>
         </div>
@@ -401,13 +400,6 @@
                 <div class="stat-number"><%= @buildings_submitted_count %></div>
             </div>
         </div>
-    <% else %>
-        <!-- Alternative content for non-logged-in users -->
-        <div class="container mt-4">
-            <h2>Welcome to the Community Building Library</h2>
-            <p>Explore buildings from around the world and learn about different architectural styles. Sign up or log in to track your own building submissions and see detailed statistics.</p>
-        </div>
-    <% end %>
     <div class="container">
 
         <h1>Denver Building Library</h1>
