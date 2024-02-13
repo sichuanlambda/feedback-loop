@@ -322,7 +322,7 @@ class ArchitectureExplorerController < ApplicationController
       advpng: false,
       oxipng: false,
       jhead: false,
-      jpegoptim: {max_quality: 20},
+      jpegoptim: {max_quality: 70},
       pngquant: {quality: 100..120}
     )
 
