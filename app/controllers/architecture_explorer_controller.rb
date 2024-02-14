@@ -133,7 +133,10 @@ class ArchitectureExplorerController < ApplicationController
 
   def extract_h3s(html_content)
     doc = Nokogiri::HTML(html_content)
-    doc.search('h3').map(&:text).uniq # .uniq ensures no duplicates
+    doc.search('h3').map do |h3|
+      # Remove special characters and numbers from each H3 text, then strip to remove leading/trailing whitespace
+      h3.text.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip
+    end.uniq # Ensure no duplicates
   end
 
 
