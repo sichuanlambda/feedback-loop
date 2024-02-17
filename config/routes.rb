@@ -1,11 +1,14 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: {
-    registrations: 'users/registrations'
+    registrations: 'users/registrations',
+    omniauth_callbacks: 'users/omniauth_callbacks' # Add this line
   }
 
   root 'architecture_designer#step1'
 
   # Feedbacks Routes
+  get '/auth/:provider/callback', to: 'sessions#create_from_omniauth'
+  get '/auth/failure', to: 'sessions#omniauth_failure'
   get "feedbacks/new", to: "feedbacks#new"
   get "about", to: "feedbacks#about"
   post "feedbacks", to: "feedbacks#create"
@@ -25,6 +28,8 @@ Rails.application.routes.draw do
   get '/home', to: 'pages#home'
   get 'building_library/styles/:style_name', to: 'architecture_explorer#by_style', as: 'buildings_by_style'
   get 'building_library/locations/:location_name', to: 'architecture_explorer#by_location', as: 'buildings_by_location'
+  get '/auth/:provider/callback', to: 'sessions#create_from_omniauth'
+  get '/auth/failure', to: 'sessions#omniauth_failure'
 
   # Route for public user profiles
   get '/users/:handle', to: 'users#show', as: 'user_profile'
