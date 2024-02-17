@@ -75,7 +75,16 @@ Rails.application.configure do
   config.action_controller.raise_on_missing_callback_actions = true
 
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
-
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: 'smtp.brevo.com',
+    port: 587,
+    domain: 'architecturehelper.com',
+    user_name: Rails.application.credentials.smtp_settings[:user_name],
+    password: Rails.application.credentials.smtp_settings[:password],
+    authentication: 'login',
+    enable_starttls_auto: true
+  }
   # Add a reminder here to set the OPENAI_API_KEY environment variable for development.
   # This should NOT be committed to version control. Instead, use environment
   # variables or the dotenv-rails gem to manage your API keys securely.
