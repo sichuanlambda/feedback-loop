@@ -76,7 +76,7 @@ Rails.application.configure do
     address: 'smtp.brevo.com',
     port: 587,
     domain: 'architecturehelper.com',
-    user_name: Rails.application.credentials.smtp_settings[:'nathaninproduct@gmail.com'],
+    user_name: 'nathaninproduct@gmail.com', # Hardcoded email
     password: Rails.application.credentials.smtp_settings[:password],
     authentication: 'login',
     enable_starttls_auto: true
