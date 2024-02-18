@@ -70,7 +70,7 @@ Rails.application.configure do
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "feedback_app_production"
-  config.action_mailer.default_url_options = { host: 'architecturehelper.com', protocol: 'https' }
+  config.action_mailer.default_url_options = { host: 'app.architecturehelper.com', protocol: 'https' }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
     address: 'smtp-relay.brevo.com',
