@@ -62,7 +62,7 @@
             margin-bottom: 20px; /* Space between buttons and grid */
         }
         .btn-primary{
-          width: 50%; /* Make buttons take full width of the container */
+          width: 20%; /* Make buttons take full width of the container */
           background-color: #0056b3;
           color: white;
           border-radius: 20px;
@@ -141,6 +141,9 @@
             }
             .image-grid {
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjust for wider images */
+            }
+            .btn-primary{
+                width: 50%
             }
         }
         .modal-body {
@@ -410,9 +413,15 @@
         </div>
     <% else %>
         <!-- Alternative content for non-logged-in users -->
-        <div class="container mt-4">
-            <h2>Welcome to the Community Building Library</h2>
-            <p>Explore buildings from around the world and learn about different architectural styles. Sign up or log in to track your own building submissions and see detailed statistics.</p>
+        <div class="container text-center mt-5">
+            <h2>Discover and Generate Architecture</h2>
+            <p>Join the community and unlock the full potential of architectural exploration</p>
+            <ul class="list-unstyled">
+                <li>🏛 Submit images for architectural influence analysis</li>
+                <li>🌍 Explore buildings from around the world</li>
+                <li>📊 Track your submissions and view detailed analytics</li>
+            </ul>
+            <a href="/users/sign_up" class="btn btn-primary btn-lg">Sign Up Now</a>
         </div>
     <% end %>
     <div class="container">
