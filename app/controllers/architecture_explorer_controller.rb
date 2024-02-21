@@ -325,8 +325,8 @@ class ArchitectureExplorerController < ApplicationController
       advpng: false,
       oxipng: false,
       jhead: false,
-      jpegoptim: {max_quality: 70}, # This is fine for lossy JPEG compression
-      pngquant: {quality: 65..80}   # Adjusted for a valid and more typical lossy compression range
+      jpegoptim: {max_quality: 65}, # This is fine for lossy JPEG compression
+      pngquant: {quality: 60..70}   # Adjusted for a valid and more typical lossy compression range
     )
 
     # Attempt to optimize the image and capture the optimized image path
