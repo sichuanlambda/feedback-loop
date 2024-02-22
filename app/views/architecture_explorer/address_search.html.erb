@@ -89,83 +89,79 @@
     }
 </style>
 <div class="container" style="background: #fff; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
-  <div class="row justify-content-center">
-    <div class="col-md-12">
-      <div class="text-center">
-        <h1 class="mt-5" style="color: #01161e;">Architecture Explorer 🏛️</h1>
-        <p style="color: #01161e;">Add an address or upload a building image to learn about it and add it to your library.</p>
-        
-        <% if user_signed_in? %>
-          <%= form_with url: architecture_explorer_path, local: true, multipart: true, html: { class: "gpt-form-container" } do |form| %>
-            <div class="d-flex justify-content-center align-items-end mb-2">
-              <div class="form-group mr-2">
-                <input type="text" id="address" name="address" class="form-control" placeholder="Enter address">
-              </div>
-              <button id="fetch-street-view" class="btn btn-primary mr-2">Fetch Street View</button>
-              <%= form.file_field :image, direct_upload: true, onchange: "previewImage(event)", class: "d-none", id: "image-upload" %>
-              <label for="image-upload" class="btn btn-secondary mr-2">Upload Instead</label>
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="text-center">
+                <h1 class="mt-5" style="color: #01161e;">Architecture Explorer 🏛️</h1>
+                <p style="color: #01161e;">Add an address or upload a building image to learn about it and add it to your library.</p>
+                
+                <% if user_signed_in? %>
+                    <%= form_with url: architecture_explorer_path, local: true, multipart: true, html: { class: "gpt-form-container" } do |form| %>
+                        <div class="d-flex justify-content-center align-items-end mb-2">
+                            <div class="form-group mr-2">
+                                <%= form.text_field :address, class: 'form-control', placeholder: "Enter address", id: "address" %>
+                            </div>
+                            <button id="fetch-street-view" class="btn btn-primary mr-2">Fetch Street View</button>
+                            <%= form.file_field :image, direct_upload: true, onchange: "previewImage(event)", class: "d-none", id: "image-upload" %>
+                            <label for="image-upload" class="btn btn-secondary mr-2">Upload Instead</label>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div id="image-preview-container" class="text-center" style="margin-top: 20px;">
+                            <img id="image-preview" alt="Image Preview" style="display: none; max-width: 100%; max-height: 500px; margin: auto; border-radius: 5px;"/>
+                        </div>
+
+                        <!-- Hidden input for previewed image URL -->
+                        <%= hidden_field_tag :previewed_image_url, nil, id: "previewedImageUrl" %>
+
+                        <%= form.submit "Generate Style Analysis", class: "btn btn-primary", style: "margin-top: 20px;" %>
+                    <% end %>
+                <% else %>
+                    <p>Please <%= link_to 'sign in', new_user_session_path %> to use this feature.</p>
+                <% end %>
+
+                <div class="text-center" id="loading-text" style="display: none; margin-top: 10px;">
+                    Please wait, this takes a moment.
+                </div>
+                <div class="loader"></div> 
             </div>
-
-            <!-- Image Preview -->
-            <div id="image-preview-container" class="text-center" style="margin-top: 20px;">
-              <img id="image-preview" alt="Image Preview" style="display: none; max-width: 100%; max-height: 500px; margin: auto; border-radius: 5px;"/>
-            </div>
-
-            <%= form.submit "Explore Building", class: "btn btn-primary", style: "margin-top: 20px;" %>
-          <% end %>
-        <% else %>
-          <p>Please <%= link_to 'sign in', new_user_session_path %> to use this feature.</p>
-        <% end %>
-
-        <div class="text-center" id="loading-text" style="display: none; margin-top: 10px;">
-          Please wait, this takes a moment.
         </div>
-        <div class="loader"></div> 
-      </div>
     </div>
-  </div>
 </div>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    var form = document.querySelector('.gpt-form-container');
+    var loader = document.querySelector('.loader');
+    var loadingText = document.getElementById('loading-text');
+
+    // Function to show loading animation and message
+    function showLoading() {
+        if (loader && loadingText) {
+            loader.style.display = 'block';
+            loadingText.style.display = 'block';
+        }
+    }
+
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Call showLoading function on form submission
+            showLoading();
+        });
+    }
+
     document.getElementById('fetch-street-view').addEventListener('click', function(e) {
         e.preventDefault();
         var address = document.getElementById('address').value;
         if (address) {
-            // Use your server-side proxy to fetch the Street View image
             var proxyUrl = `/proxy/fetch_street_view?location=${encodeURIComponent(address)}`;
-
-            // Display the Street View image in the image preview
             var output = document.getElementById('image-preview');
             output.src = proxyUrl;
             output.style.display = 'block';
-
-            // Optionally, set the proxy URL in a hidden input to be submitted with the form
-            // This step might need to be adjusted based on how you want to handle the image server-side
-            var hiddenInput = document.querySelector('input[name="street_view_url"]');
-            if (!hiddenInput) {
-                hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'street_view_url';
-                document.querySelector('.gpt-form-container').appendChild(hiddenInput);
-            }
+            var hiddenInput = document.getElementById('previewedImageUrl');
             hiddenInput.value = proxyUrl;
         }
     });
-
-    var form = document.querySelector('.gpt-form-container');
-    if (form) {
-        form.addEventListener('submit', function() {
-            // Display the loader on form submission
-            var loader = document.querySelector('.loader');
-            var loadingText = document.getElementById('loading-text');
-            if (loader && loadingText) {
-                loader.style.display = 'block';
-                loadingText.style.display = 'block';
-            }
-        });
-    }
 
     function previewImage(event) {
         var reader = new FileReader();
@@ -176,7 +172,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
         reader.readAsDataURL(event.target.files[0]);
     }
-    // Attach the previewImage function to file input change event
-    document.querySelector('.custom-file-input').addEventListener('change', previewImage);
+    document.querySelector('#image-upload').addEventListener('change', previewImage);
 });
 </script>

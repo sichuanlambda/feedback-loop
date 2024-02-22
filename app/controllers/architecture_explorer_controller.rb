@@ -3,6 +3,7 @@ require 'net/http'
 require 'json'
 require 'nokogiri'
 require 'image_optim'
+require 'open-uri'
 
 class ArchitectureExplorerController < ApplicationController
   before_action :authenticate_user!, except: [:building_library, :by_location]
@@ -17,61 +18,53 @@ class ArchitectureExplorerController < ApplicationController
     Rails.logger.debug "Processing the uploaded image..."
     Rails.logger.debug "Form submission received with params: #{params.inspect}"
 
-    uploaded_image = params[:image]
-    image_url = nil  # Initialize variable to capture the image URL
+    image_url = nil
 
-    # Handle directly uploaded images
-    if uploaded_image.present?
+    if params[:image].present?
+      uploaded_image = params[:image]
       image_url = upload_image_to_s3(uploaded_image)
-    # Handle images fetched from a street view URL
-    elsif params[:street_view_url].present?
-      uploaded_image = fetch_street_view_image(params[:street_view_url])
-      image_url = upload_image_to_s3(uploaded_image) if uploaded_image
+    elsif params[:previewed_image_url].present?
+      address = params[:address]
+      fetched_image = fetch_street_view_image(address)
+      image_url = upload_image_to_s3(fetched_image) if fetched_image
     end
 
-    # Redirect if no image was processed
-    if uploaded_image.blank? || image_url.blank?
+    if image_url.blank?
       redirect_to root_path, alert: "No image uploaded or address provided"
       return
     end
 
-    # Process the building image (assuming this method exists and works correctly)
-    analysis_result = process_building_image(uploaded_image)
+    analysis_result = process_building_image(image_url)
 
-    # Proceed only if analysis is successful
     if analysis_result && analysis_result[:html_content].present?
-      # Extract H3 contents from the analysis result
+      # Adjust here to ensure h3_contents are extracted and saved correctly
       h3_contents = extract_h3s(analysis_result[:html_content])
-
-      # Create a new BuildingAnalysis record with all necessary data
       new_analysis = BuildingAnalysis.create(
         html_content: analysis_result[:html_content],
-        user: current_user, # Assuming you have a method or devise helper to get the current user
-        image_url: image_url, # Use the S3 URL obtained from the image upload
-        h3_contents: h3_contents.to_json,
+        user: current_user,
+        image_url: image_url,
+        h3_contents: h3_contents.to_json, # Ensure this line is correct
         visible_in_library: true,
         address: params[:address].presence || "N/A"
       )
 
-      # Redirect to the show page of the analysis if creation is successful
       if new_analysis.persisted?
-        Rails.logger.debug "New analysis created successfully with ID: #{new_analysis.id}"
         redirect_to architecture_explorer_show_path(id: new_analysis.id)
       else
-        # Handle case where saving the analysis fails
-        Rails.logger.debug "Failed to save new analysis. Errors: #{new_analysis.errors.full_messages.join(", ")}"
         redirect_to root_path, alert: "Analysis failed: #{new_analysis.errors.full_messages.join(", ")}"
       end
     else
-      # Handle case where analysis does not produce expected results
       redirect_to root_path, alert: "Analysis failed"
     end
   rescue => e
-    # General rescue for unexpected exceptions, logging the error for debugging
     Rails.logger.error "Exception in create action: #{e.message}"
     redirect_to root_path, alert: "Unexpected error occurred."
   end
 
+
+  def address_search
+    # Any setup needed for the view can be added here
+  end
   def fetch_street_view_image(address)
     api_key = Rails.application.credentials.google_maps[:api_key]
     url = "https://maps.googleapis.com/maps/api/streetview?size=600x400&location=#{URI.encode_www_form_component(address)}&key=#{api_key}"
@@ -82,36 +75,11 @@ class ArchitectureExplorerController < ApplicationController
       temp_image.binmode
       temp_image.write(image_data)
       temp_image.rewind
-      temp_image
+
+      return temp_image
     rescue => e
       Rails.logger.error "Failed to fetch street view image: #{e.message}"
       nil
-    end
-  end
-
-
-  def address_search
-    # Any setup needed for the view can be added here
-  end
-  def fetch_street_view_image(address)
-    # Construct the URL for the Google Street View API. Replace YOUR_API_KEY with your actual Google API key.
-    # Note: Ensure you handle URL encoding for the address to ensure it's a valid URL.
-    api_key = Rails.application.credentials.google_maps[:api_key] # Assuming your API key is stored in Rails credentials.
-    url = "https://maps.googleapis.com/maps/api/streetview?size=600x400&location=#{URI.encode_www_form_component(address)}&key=#{api_key}"
-
-    # Fetch the image using open-uri
-    begin
-      image_data = URI.open(url).read
-      # Create a Tempfile to hold the image data. Tempfile automatically deletes the file when the object is garbage collected.
-      temp_image = Tempfile.new(['street_view', '.jpg'])
-      temp_image.binmode # Ensure binary mode for non-text data
-      temp_image.write(image_data)
-      temp_image.rewind # Move file pointer back to the beginning of the file
-
-      return temp_image
-    rescue OpenURI::HTTPError => e
-      Rails.logger.error "Failed to fetch street view image: #{e.message}"
-      return nil
     end
   end
 
@@ -304,39 +272,38 @@ class ArchitectureExplorerController < ApplicationController
       visible_in_library: true,
       address: params[:address].presence || "N/A"
     )
+    if params[:previewed_image_url].present?
+      # Logic to handle the image from the submitted URL
+      image_url = params[:previewed_image_url]
+      # You might need to download the image from this URL before uploading to S3
+    end
   end
 
   def remove_code_block_markers(html_content)
     html_content.gsub(/^```html\n/, "").gsub(/\n```$/, "")
   end
 
-  def upload_image_to_s3(uploaded_file)
-    return nil if uploaded_file.blank?
-
+  def upload_image_to_s3(input)
     s3 = Aws::S3::Resource.new(region: 'us-east-2')
-    file_name = uploaded_file.respond_to?(:original_filename) ? uploaded_file.original_filename : "fetched_street_view_#{Time.now.to_i}.jpg"
-    obj = s3.bucket('architecture-explorer').object("uploads/#{file_name}")
 
-    # Initialize ImageOptim with only the desired optimizers enabled
-    image_optim = ImageOptim.new(
-      pngout: false,
-      svgo: false,
-      pngcrush: false,
-      advpng: false,
-      oxipng: false,
-      jhead: false,
-      jpegoptim: {max_quality: 65}, # This is fine for lossy JPEG compression
-      pngquant: {quality: 60..70}   # Adjusted for a valid and more typical lossy compression range
-    )
+    if input.is_a?(String) && input.start_with?('http')
+      # Input is a URL, download the image first
+      image_data = URI.open(input)
+      file_name = "downloaded_image_#{Time.now.to_i}.jpg"
+      obj = s3.bucket('architecture-explorer').object("uploads/#{file_name}")
+      success = obj.upload_file(image_data.path)
+      image_data.close if image_data.respond_to?(:close) # Close the file if it's a Tempfile
+    elsif input.respond_to?(:path)
+      # Input is a file or a Tempfile, proceed as before
+      file_name = input.respond_to?(:original_filename) ? input.original_filename : File.basename(input.path)
+      obj = s3.bucket('architecture-explorer').object("uploads/#{file_name}")
+      success = obj.upload_file(input.path)
+    else
+      Rails.logger.error "Invalid input for upload_image_to_s3"
+      return nil
+    end
 
-    # Attempt to optimize the image and capture the optimized image path
-    optimized_image_path = image_optim.optimize_image(uploaded_file.path)
-
-    # Ensure we're using a string path for the optimized image, if available
-    file_path_to_upload = optimized_image_path ? optimized_image_path.to_path : uploaded_file.path
-
-    # Upload the file to S3 and check for success
-    if obj.upload_file(file_path_to_upload)
+    if success
       Rails.logger.debug "Upload to S3 completed: #{obj.public_url}"
       return obj.public_url
     else
@@ -344,8 +311,8 @@ class ArchitectureExplorerController < ApplicationController
       return nil
     end
   rescue StandardError => e
-    Rails.logger.error "Exception occurred during image upload: #{e.message}"
-    nil
+    Rails.logger.error "Exception during upload to S3: #{e.message}"
+    return nil
   end
 
 
