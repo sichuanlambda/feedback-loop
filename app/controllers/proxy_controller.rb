@@ -7,7 +7,7 @@ class ProxyController < ApplicationController
     base_url = "https://maps.googleapis.com/maps/api/streetview"
     size = "600x400"
     location = params[:location] # Get the location parameter from the client request
-    key = Rails.application.credentials.google_maps[:api_key] # Securely use your API key
+    key = ENV['GOOGLE_MAPS_API_KEY']
 
     # Correctly encode the location parameter
     encoded_location = CGI.escape(location)
