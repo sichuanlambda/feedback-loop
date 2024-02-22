@@ -286,22 +286,43 @@ class ArchitectureExplorerController < ApplicationController
   def upload_image_to_s3(input)
     s3 = Aws::S3::Resource.new(region: 'us-east-2')
 
+    # Initialize ImageOptim with explicit lossy compression settings
+    image_optim = ImageOptim.new(
+      pngout: false,
+      svgo: false,
+      pngcrush: false,
+      advpng: false,
+      oxipng: false,
+      jhead: false,
+      jpegoptim: {max_quality: 55},
+      pngquant: {quality: 55..65}
+    )
+
     if input.is_a?(String) && input.start_with?('http')
       # Input is a URL, download the image first
       image_data = URI.open(input)
       file_name = "downloaded_image_#{Time.now.to_i}.jpg"
-      obj = s3.bucket('architecture-explorer').object("uploads/#{file_name}")
-      success = obj.upload_file(image_data.path)
-      image_data.close if image_data.respond_to?(:close) # Close the file if it's a Tempfile
+      temp_file_path = image_data.path
     elsif input.respond_to?(:path)
-      # Input is a file or a Tempfile, proceed as before
-      file_name = input.respond_to?(:original_filename) ? input.original_filename : File.basename(input.path)
-      obj = s3.bucket('architecture-explorer').object("uploads/#{file_name}")
-      success = obj.upload_file(input.path)
+      # Input is a file or a Tempfile, directly use it
+      file_name = input.original_filename if input.respond_to?(:original_filename)
+      temp_file_path = input.path
     else
       Rails.logger.error "Invalid input for upload_image_to_s3"
       return nil
     end
+
+    # Optimize the image and determine the path to upload
+    optimized_image_path = image_optim.optimize_image!(temp_file_path)
+    file_path_to_upload = optimized_image_path ? optimized_image_path.to_path : temp_file_path
+
+    # Create the object key for S3 and upload the file
+    object_key = "uploads/#{file_name}"
+    obj = s3.bucket('architecture-explorer').object(object_key)
+    success = obj.upload_file(file_path_to_upload)
+
+    # Close the image_data if it's opened from a URL
+    image_data.close if image_data && image_data.respond_to?(:close)
 
     if success
       Rails.logger.debug "Upload to S3 completed: #{obj.public_url}"
@@ -314,7 +335,6 @@ class ArchitectureExplorerController < ApplicationController
     Rails.logger.error "Exception during upload to S3: #{e.message}"
     return nil
   end
-
 
   def set_custom_nav
     @custom_nav = true
