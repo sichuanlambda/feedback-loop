@@ -74,6 +74,10 @@
         margin-top: 10px;
         display: none; /* Initially hidden */
     }
+    #generate-style-analysis {
+        display: none; /* Initially hide the button */
+        text-align: center;
+    }
     @-webkit-keyframes spin {
         0% { -webkit-transform: rotate(0deg); }
         100% { -webkit-transform: rotate(360deg); }
@@ -114,7 +118,9 @@
                         <!-- Hidden input for previewed image URL -->
                         <%= hidden_field_tag :previewed_image_url, nil, id: "previewedImageUrl" %>
 
-                        <%= form.submit "Generate Style Analysis", class: "btn btn-primary", style: "margin-top: 20px;" %>
+                        <div style="display: flex; justify-content: center; width: 100%;">
+                            <%= form.submit "Generate Style Analysis", class: "btn btn-primary", id: "generate-style-analysis", style: "margin-top: 20px;" %>
+                        </div>
                     <% end %>
                 <% else %>
                     <p>Please <%= link_to 'sign in', new_user_session_path %> to use this feature.</p>
@@ -134,20 +140,37 @@ document.addEventListener('DOMContentLoaded', function () {
     var form = document.querySelector('.gpt-form-container');
     var loader = document.querySelector('.loader');
     var loadingText = document.getElementById('loading-text');
+    var generateStyleAnalysisButton = document.getElementById('generate-style-analysis');
 
     // Function to show loading animation and message
     function showLoading() {
-        if (loader && loadingText) {
-            loader.style.display = 'block';
-            loadingText.style.display = 'block';
-        }
+        loader.style.display = 'block';
+        loadingText.style.display = 'block';
     }
 
     if (form) {
         form.addEventListener('submit', function(e) {
+            // Prevent form submission if there is no image
+            var imagePreview = document.getElementById('image-preview');
+            if (imagePreview.style.display === 'none' || !imagePreview.src) {
+                e.preventDefault();
+                alert('Please upload an image or fetch a street view before generating style analysis.');
+                return false;
+            }
+
             // Call showLoading function on form submission
             showLoading();
         });
+    }
+
+    // Function to toggle the visibility of the 'Generate Style Analysis' button
+    function toggleGenerateButtonVisibility() {
+        var imagePreview = document.getElementById('image-preview');
+        if (imagePreview.style.display === 'block' && imagePreview.src) {
+            generateStyleAnalysisButton.style.display = 'block';
+        } else {
+            generateStyleAnalysisButton.style.display = 'none';
+        }
     }
 
     document.getElementById('fetch-street-view').addEventListener('click', function(e) {
@@ -160,6 +183,9 @@ document.addEventListener('DOMContentLoaded', function () {
             output.style.display = 'block';
             var hiddenInput = document.getElementById('previewedImageUrl');
             hiddenInput.value = proxyUrl;
+
+            // Show the 'Generate Style Analysis' button
+            toggleGenerateButtonVisibility();
         }
     });
 
@@ -169,9 +195,12 @@ document.addEventListener('DOMContentLoaded', function () {
             var output = document.getElementById('image-preview');
             output.src = reader.result;
             output.style.display = 'block';
+
+            // Show the 'Generate Style Analysis' button
+            toggleGenerateButtonVisibility();
         };
         reader.readAsDataURL(event.target.files[0]);
     }
-    document.querySelector('#image-upload').addEventListener('change', previewImage);
+    document.getElementById('image-upload').addEventListener('change', previewImage);
 });
 </script>
