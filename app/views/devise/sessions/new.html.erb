@@ -99,14 +99,15 @@
                             </div>
                         <% end %>
 
-                        <!-- Google Sign-In Button -->
-                        <%# <div class="mt-3 text-center">
-                            <% if devise_mapping.omniauthable? %>
-                                <%# <% resource_class.omniauth_providers.each do |provider| %>
-                                    <%# <%= button_to 'Login with Google', user_google_oauth2_omniauth_authorize_path, method: :post, data: { turbo: 'false' }, class: "btn btn-primary btn-block" %>
-                                <%# <% end %>
-                            <%# <% end %>
-                        <%# </div> %>
+                            <!-- Google Sign-In Button -->
+                            <div class="mt-3 text-center">
+                                <% if devise_mapping.omniauthable? %>
+                                    <% resource_class.omniauth_providers.each do |provider| %>
+                                        <%= button_to 'Login with Google', user_google_oauth2_omniauth_authorize_path, method: :post, data: { turbo: 'false' }, class: "btn btn-primary btn-block" %>
+                                    <% end %>
+                                <% end %>
+                            </div>
+                        </div>
                         <div class="text-center mt-3">
                             <%= render "devise/shared/links" %>
                         </div>
