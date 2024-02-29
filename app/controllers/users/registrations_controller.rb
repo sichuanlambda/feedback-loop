@@ -1,6 +1,19 @@
 class Users::RegistrationsController < Devise::RegistrationsController
   before_action :configure_account_update_params, only: [:update]
 
+  # Override the update resource method to allow users to update their profile
+  # without providing a password
+  def update_resource(resource, params)
+    if params[:password].blank? && params[:password_confirmation].blank?
+      params.delete(:password)
+      params.delete(:password_confirmation)
+      params.delete(:current_password)
+      resource.update_without_password(params)
+    else
+      super
+    end
+  end
+
   protected
 
   # Permit the new parameters for account update
