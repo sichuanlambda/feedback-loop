@@ -1,5 +1,7 @@
 class ArchitectureDesignerController < ApplicationController
   before_action :set_custom_nav
+  before_action :authenticate_user!, only: [:step2]
+
 
   def step1
     @latest_images = ArchImageGen.order(created_at: :desc).limit(5)
