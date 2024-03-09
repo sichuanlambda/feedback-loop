@@ -23,12 +23,22 @@
         .card {
         margin-top: 20px;
         }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Make sure it covers the full viewport height */
+            width: 100vw; /* Cover full viewport width */
+        }
         .login-container {
-            position: fixed; /* Fixed position */
-            top: 20%; /* Center vertically */
-            width: 400px; /* Set a specific width for the form */
-            z-index: 1000; /* Ensure it's above other elements */
-            background: white;
+            width: 100%; /* Adjust based on desired width, e.g., 600px or 50% */
+            max-width: 600px; /* Maximum width */
+            margin: 0 auto; /* Centering horizontally */
+            padding: 20px; /* Adds some padding inside the border */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for depth */
+            background: white; /* Ensures the background is white */
+            border: 2px solid #dee2e6; /* Keeps the border as defined */
+            border-radius: 5px; /* Optional: adds rounded corners */
         }
         .landing-section {
             padding: 40px 0;
@@ -83,16 +93,17 @@
             overflow: hidden;
             padding: 0 12px;
             position: relative;
-                    align-items: center;
+            align-items: center;
             text-align: center;
             -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
             transition: background-color .218s, border-color .218s, box-shadow .218s;
             vertical-align: middle;
             white-space: nowrap;
-            width: 360px;
+            width: 100%; /* Ensure it takes full width */
             max-width: 600px;
             min-width: min-content;
             margin-top: 12px;
+            margin-bottom: 12px;
             }
 
         .gsi-material-button .gsi-material-button-icon {
@@ -166,57 +177,70 @@
             background-color: #303030;
             opacity: 8%;
             }
+        .border-container {
+            border: 2px solid #dee2e6; /* Example border style */
+            border-radius: 5px; /* Optional: adds rounded corners */
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Updated for logo and text alignment */
+            gap: 10px; /* Space between logo and text */
+        }
+
+        .login-logo {
+            height: 50px; /* Adjust based on your preference */
+            width: auto; /* Maintain aspect ratio */
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6">
-                <!-- Image and updates section -->
-            </div>
-            <div class="col-md-6">
-                <div class="login-container">
-                    <h5 class="card-header text-center">Log in</h5>
-                    <div class="card-body">
-                        <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-                            <%= render "devise/shared/error_messages", resource: resource %>
-                            <div class="form-group">
-                                <%= f.label :email, class: 'control-label' %>
-                                <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
-                            </div>
-                            <div class="form-group">
-                                <%= f.label :password, class: 'control-label' %>
-                                <%= f.password_field :password, autocomplete: "current-password", class: "form-control" %>
-                            </div>
-                            <% if devise_mapping.rememberable? %>
-                                <div class="form-group form-check">
-                                    <%= f.check_box :remember_me, class: 'form-check-input' %>
-                                    <%= f.label :remember_me, class: 'form-check-label' %>
+            <div class="login-container border-container">
+                <div class="card-header text-center logo-header">
+                    <img src="<%= asset_path('archilogo.png') %>" alt="Architecture Helper Logo" class="login-logo">
+                    <h5>Log Into Your Architecture Helper Account</h5>
+                </div>
+                <div class="card-body">
+                    <% if devise_mapping.omniauthable? %>
+                        <% resource_class.omniauth_providers.each do |provider| %>
+                            <%= button_to user_google_oauth2_omniauth_authorize_path, method: :post, data: { turbo: 'false' }, class: "gsi-material-button" do %>
+                                <div class="gsi-material-button-content-wrapper">
+                                    <img src="<%= asset_path('googlelogo.png') %>" alt="Google" class="gsi-material-button-icon">
+                                    <span class="gsi-material-button-contents">Continue with Google</span>
                                 </div>
                             <% end %>
-                            <div class="actions text-center">
-                                <%= f.submit "Log in", class: "btn btn-primary btn-block" %>
+                        <% end %>
+                    <% end %>
+                    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+                        <%= render "devise/shared/error_messages", resource: resource %>
+                        <div class="form-group">
+                            <%= f.label :email, class: 'control-label' %>
+                            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+                        </div>
+                        <div class="form-group">
+                            <%= f.label :password, class: 'control-label' %>
+                            <%= f.password_field :password, autocomplete: "current-password", class: "form-control" %>
+                        </div>
+                        <% if devise_mapping.rememberable? %>
+                            <div class="form-group form-check">
+                                <%= f.check_box :remember_me, class: 'form-check-input' %>
+                                <%= f.label :remember_me, class: 'form-check-label' %>
                             </div>
                         <% end %>
-                        <!-- Consolidated Google Sign-In Button -->
-                       <% if devise_mapping.omniauthable? %>
-                            <% resource_class.omniauth_providers.each do |provider| %>
-                                <%= button_to user_google_oauth2_omniauth_authorize_path, method: :post, data: { turbo: 'false' }, class: "gsi-material-button" do %>
-                                    <div class="gsi-material-button-content-wrapper">
-                                        <img src="<%= asset_path('googlelogo.png') %>" alt="Google" class="gsi-material-button-icon">
-                                        <span class="gsi-material-button-contents">Continue with Google</span>
-                                    </div>
-                                <% end %>
-                            <% end %>
-                            <% end %>
-                    </div>
+                        <div class="actions text-center">
+                            <%= f.submit "Log in", class: "btn btn-primary btn-block" %>
+                        </div>
+                    <% end %>
                     <div class="text-center mt-3">
                         <%= render "devise/shared/links" %>
-                    </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </body>
+
 </html>
