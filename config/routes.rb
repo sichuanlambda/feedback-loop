@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   get 'building_library/locations/:location_name', to: 'architecture_explorer#by_location', as: 'buildings_by_location'
   get '/auth/:provider/callback', to: 'sessions#create_from_omniauth'
   get '/auth/failure', to: 'sessions#omniauth_failure'
+  post '/stripe_events', to: 'stripe_events#create'
 
   # Route for public user profiles
   get '/users/:handle', to: 'users#show', as: 'user_profile'
