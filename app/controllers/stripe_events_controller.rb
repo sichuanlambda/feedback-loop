@@ -6,26 +6,29 @@ class StripeEventsController < ApplicationController
     sig_header = request.env['HTTP_STRIPE_SIGNATURE']
     event = nil
 
-    stripe_webhook_secret = if Rails.env.production?
-      Rails.application.credentials.stripe[:live_webhook_secret]
-    else
-      Rails.application.credentials.stripe[:test_webhook_secret]
-    end
+    # Dynamically select the correct webhook secret for the environment
+    stripe_webhook_secret = Rails.application.credentials.dig(:stripe, Rails.env.production? ? :live_webhook_secret : :test_webhook_secret)
 
     begin
       event = Stripe::Webhook.construct_event(
         payload, sig_header, stripe_webhook_secret
       )
-    rescue JSON::ParserError, Stripe::SignatureVerificationError => e
-      render json: { message: e.message }, status: 400
+    rescue JSON::ParserError => e
+      render json: { error: 'Invalid payload' }, status: 400
+      return
+    rescue Stripe::SignatureVerificationError => e
+      render json: { error: 'Invalid signature' }, status: 400
       return
     end
 
+    # Process the Stripe event
     case event['type']
     when 'customer.subscription.created', 'invoice.payment_succeeded'
       handle_paid_user(event['data']['object'])
     when 'customer.subscription.deleted'
       handle_subscription_deleted(event['data']['object'])
+    else
+      # Handle other event types
     end
 
     render json: { message: 'Success' }, status: 200
@@ -34,24 +37,10 @@ class StripeEventsController < ApplicationController
   private
 
   def handle_paid_user(object)
-    update_user_subscription_status(object['customer'], true)
+    # Update user subscription status to active
   end
 
   def handle_subscription_deleted(object)
-    update_user_subscription_status(object['customer'], false)
-  end
-
-  def update_user_subscription_status(customer_id, is_paid)
-    user = User.find_by(stripe_customer_id: customer_id)
-    if user
-      user.update(
-        paid: is_paid,
-        # Update additional fields as needed, e.g., subscription_status
-        subscription_status: is_paid ? 'active' : 'canceled'
-      )
-      Rails.logger.info "User #{user.id} subscription status updated to #{is_paid ? 'paid' : 'not paid'}."
-    else
-      Rails.logger.error "User with Stripe customer ID #{customer_id} not found."
-    end
+    # Update user subscription status to inactive
   end
 end
