@@ -8,6 +8,9 @@ class User < ApplicationRecord
   validates :handle, presence: true, uniqueness: true
   validates :public_name, presence: true
 
+  # Callback to set default credits for free users
+  before_save :set_default_credits
+
   # Updates to from_omniauth method
   def self.from_omniauth(auth)
     # First, attempt to find an existing user by provider and UID
@@ -47,4 +50,12 @@ class User < ApplicationRecord
   def self.generate_unique_public_name
     "User #{SecureRandom.hex(4)}"
   end
+
+  private
+
+  # Sets default credits for users without an active subscription
+  def set_default_credits
+    self.credits ||= 5 if subscription_status != 'active'
+  end
+
 end
