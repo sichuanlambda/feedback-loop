@@ -93,7 +93,7 @@
     }
 </style>
 <div class="container" style="background: #fff; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
-    <div class="row justify-content-center">
+      <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="text-center">
                 <h1 class="mt-5" style="color: #01161e;">Architecture Explorer 🏛️</h1>
@@ -119,17 +119,16 @@
                         <%= hidden_field_tag :previewed_image_url, nil, id: "previewedImageUrl" %>
 
                         <div style="display: flex; justify-content: center; width: 100%;">
-                            <%= form.submit "Generate Style Analysis", class: "btn btn-primary", id: "generate-style-analysis", style: "margin-top: 20px;" %>
+                            <% if current_user.subscription_status != 'active' && current_user.credits <= 0 %>
+                                <%= link_to "0 Remaining Credits, Subscribe to Continue", account_path, class: "btn btn-primary", id: "subscribe-to-continue", style: "margin-top: 20px;" %>
+                            <% else %>
+                                <%= form.submit "Generate Style Analysis", class: "btn btn-primary", id: "generate-style-analysis", style: "margin-top: 20px;" %>
+                            <% end %>
                         </div>
                     <% end %>
                 <% else %>
                     <p>Please <%= link_to 'sign in', new_user_session_path %> to use this feature.</p>
                 <% end %>
-
-                <div class="text-center" id="loading-text" style="display: none; margin-top: 10px;">
-                    Please wait, this takes a moment.
-                </div>
-                <div class="loader"></div> 
             </div>
         </div>
     </div>

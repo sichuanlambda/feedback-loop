@@ -49,6 +49,12 @@ class ArchitectureExplorerController < ApplicationController
       )
 
       if new_analysis.persisted?
+        # Deduct a credit if the user is not an active subscriber and has at least one credit
+        if current_user.subscription_status != 'active' && current_user.credits > 0
+          current_user.credits -= 1
+          current_user.save
+        end
+
         redirect_to architecture_explorer_show_path(id: new_analysis.id)
       else
         redirect_to root_path, alert: "Analysis failed: #{new_analysis.errors.full_messages.join(", ")}"
