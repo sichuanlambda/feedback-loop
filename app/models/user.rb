@@ -8,8 +8,7 @@ class User < ApplicationRecord
   validates :handle, presence: true, uniqueness: true
   validates :public_name, presence: true
 
-  # Callback to set default credits for free users
-  before_save :set_default_credits
+  before_create :set_default_credits
 
   # Updates to from_omniauth method
   def self.from_omniauth(auth)
