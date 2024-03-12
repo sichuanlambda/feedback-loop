@@ -12,12 +12,10 @@
   <%= stylesheet_link_tag 'application', 'data-turbo-track': 'reload' %>
   <%= javascript_importmap_tags %>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <%# Add any additional stylesheet or javascript pack tags if necessary %>
 </head>
 <body>
 
 <% if @custom_nav %>
-<!-- Custom Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background: #F4F7FA; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
   <div class="container-fluid">
     <a class="navbar-brand" href="/architecture_designer/step1" style="color: #01161e;">Architecture AI</a>
@@ -31,17 +29,20 @@
         <a class="nav-item nav-link" href="/user_creations">Community Creations</a>
         <a class="nav-item nav-link" href="/home">Other Tools</a>
       </div>
-
       <div class="navbar-nav ml-auto">
           <% if user_signed_in? %>
             <span class="navbar-text">Welcome, <%= current_user.email %></span>
             <% unless current_user.subscription_status == "active" %>
-              <span class="nav-item nav-link"><i class="fas fa-coins"></i> <%= current_user.credits %> Credits</span>
+              <%= link_to '/account', class: 'nav-item nav-link' do %>
+                <i class="fas fa-coins"></i> <%= current_user.credits %> Credits
+              <% end %>
             <% end %>
             <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
             <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
           <% else %>
-            <span class="nav-item nav-link">Free Credits</span>
+            <%= link_to new_user_registration_path, class: 'nav-item nav-link' do %>
+              Free Credits
+            <% end %>
             <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
             <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
           <% end %>
@@ -50,7 +51,6 @@
   </div>
 </nav>
 <% else %>
-<!-- Default Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background: #F4F7FA; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
   <div class="container-fluid">
     <a class="navbar-brand" href="/" style="color: #01161e;">Nathan's Platform</a>
@@ -61,31 +61,24 @@
       <div class="navbar-nav mr-auto">
         <a class="nav-item nav-link" href="/feedbacks/dashboard">Metrics 📊</a>
         <a class="nav-item nav-link" href="/roastery">Roastery 🔥</a>
-        <a class="nav-item nav-link" href="/screenshot_searcher">Img->Text Extractor 🔍 </a>
+        <a class="nav-item nav-link" href="/screenshot_searcher">Img->Text Extractor 🔍</a>
         <a class="nav-item nav-link" href="/rate_my_dog">Rate my 🐶</a>
         <a class="nav-item nav-link" href="/architecture_designer/step1">ArchitectYOUR 🏛️</a>
       </div>
-
-      <!-- Centered Icons -->
-      <div class="navbar-nav mx-auto">
-        <a href="https://twitter.com/NathanSRobinson" target="_blank" class="nav-item nav-link">
-          <i class="fab fa-twitter" aria-hidden="true"></i>
-        </a>
-        <a href="https://productlaunchpro.co/" target="_blank" class="nav-item nav-link">
-          <i class="fas fa-rocket" aria-hidden="true"></i>
-        </a>
-      </div>
-
       <div class="navbar-nav ml-auto">
         <% if user_signed_in? %>
           <span class="navbar-text">Welcome, <%= current_user.email %></span>
           <% unless current_user.subscription_status == "active" %>
-            <span class="nav-item nav-link"><i class="fas fa-coins"></i> <%= current_user.credits %> Credits</span>
+            <%= link_to '/account', class: 'nav-item nav-link' do %>
+              <i class="fas fa-coins"></i> <%= current_user.credits %> Credits
+            <% end %>
           <% end %>
           <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
           <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
         <% else %>
-          <span class="nav-item nav-link">Free Credits</span>
+          <%= link_to new_user_registration_path, class: 'nav-item nav-link' do %>
+            Free Credits
+          <% end %>
           <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
           <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
         <% end %>
@@ -100,25 +93,22 @@
 </div>
 <script>
   $(document).ready(function() {
-      $('.navbar-toggler').click(function(event) {
-          event.stopPropagation();
-          
-          // Toggle 'aria-expanded' attribute
-          var isExpanded = $(this).attr('aria-expanded') === 'true';
-          $(this).attr('aria-expanded', !isExpanded);
+    $('.navbar-toggler').click(function(event) {
+      event.stopPropagation();
+      
+      var isExpanded = $(this).attr('aria-expanded') === 'true';
+      $(this).attr('aria-expanded', !isExpanded);
+      
+      $('#navbarNavAltMarkup').collapse('toggle');
+    });
 
-          // Toggle the navbar collapse
-          $('#navbarNavAltMarkup').collapse('toggle');
-      });
-
-      // Optional: Close the navbar when clicking outside of it
-      $(document).click(function(event) {
-          var clickover = $(event.target);
-          var isOpen = $(".navbar-collapse").hasClass("show");
-          if (isOpen === true && !clickover.hasClass("navbar-toggler")) {
-              $(".navbar-toggler").click();
-          }
-      });
+    $(document).click(function(event) {
+      var clickover = $(event.target);
+      var isOpen = $(".navbar-collapse").hasClass("show");
+      if (isOpen === true && !clickover.hasClass("navbar-toggler")) {
+        $(".navbar-toggler").click();
+      }
+    });
   });
 </script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
