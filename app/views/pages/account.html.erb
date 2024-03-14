@@ -10,24 +10,20 @@
             background-color: #E8E8E8;
             font-family: 'Arial', sans-serif;
         }
-
         .container {
             padding: 20px;
             margin: auto;
             text-align: center;
             width: 80%;
         }
-
         .account-menu {
             list-style: none;
             padding: 0;
             margin: 20px 0;
         }
-
         .account-menu li {
             margin-bottom: 10px;
         }
-
         .btn-icon {
             display: block;
             width: 80%;
@@ -43,22 +39,18 @@
             text-decoration: none;
             margin: 10px auto;
         }
-
         .btn-icon:hover {
             background-color: #004080;
         }
-
         .btn-icon i {
             margin-right: 10px;
         }
-
         .stats-container {
             display: flex;
             flex-direction: column;
             align-items: stretch;
             width: 100%;
         }
-
         .stat-card {
             background: #f8f9fa;
             border-radius: 10px;
@@ -68,52 +60,113 @@
             text-align: center;
             width: 100%;
         }
-
         .stat-card:hover {
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
-
         .stat-icon {
             font-size: 30px;
             color: #0056b3;
             margin-bottom: 10px;
         }
-
         .stat-title, .stat-number {
             margin-bottom: 5px;
         }
-
         .stat-title {
             font-size: 18px;
             color: #333;
             font-weight: bold;
         }
-
         .stat-number {
             font-size: 48px;
             color: #0056b3;
             font-weight: bold;
         }
-
-        /* Specific styles for Favorite Styles list */
         #styleList {
-            list-style-type: none; /* Remove bullet points */
-            padding-left: 0; /* Remove default padding */
-            margin: 0; /* Remove default margins */
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
         }
-
         .frequency-number.primary-color {
             font-weight: bold;
             font-size: 18px;
             color: #0056b3;
         }
+        .credit-info {
+            background-color: #f8f9fa;
+            border: 2px solid #0056b3;
+            color: #333;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px 0 20px;
+        }
+        .credit-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        @media (max-width: 768px) {
+            .credit-bottom, .credit-info-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .btn-light {
+                margin-top: 10px;
+            }
+        }
+        .credit-info-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .progress {
+            background-color: #e9ecef;
+            border-radius: 20px;
+        }
+        .progress-bar {
+            background-color: #ffc107;
+            font-weight: bold;
+        }
+        .btn-light {
+            background-color: #0056b3;
+            color: white;
+            font-size: 22px;
+            padding: 15px 25px;
+            display: inline-block;
+            width: auto;
+            border: none;
+            border-radius: 10px; /* Rounded corners */
+        }
+        .cancel-text {
+            color: #6c757d;
+            font-size: 14px;
+            display: block;
+        }  
     </style>
 </head>
 <body>
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                <h2>Manage Your Account</h2>
+                <h2>Your Free Credits</h2>
+                <% if @user.subscription_status != 'active' %>
+                    <div class="credit-info">
+                        <div class="credit-top">
+                            <div class="stat-title">Credits Remaining</div>
+                            <div class="progress my-3" style="height: 30px;">
+                                <div class="progress-bar" role="progressbar" style="width: <%= (@user.credits.to_f / 5 * 100).to_i %>%;" aria-valuenow="<%= @user.credits %>" aria-valuemin="0" aria-valuemax="5"><%= @user.credits %> / 5</div>
+                            </div>
+                        </div>
+                        <div class="credit-bottom">
+                            <div class="subscription-info">
+                                <div class="stat-title">Get Unlimited</div>
+                                <span class="cancel-text">Cancel anytime</span>
+                            </div>
+                            <a href="/path-to-subscription" class="btn btn-light">$5.00/mo</a>
+                        </div>
+                    </div>
+                <% end %>
+            <h2>Manage Your Account</h2>
                 <ul class="account-menu">
                     <li><a href="/users/<%= @user.handle %>" class="btn-icon"><i class="fas fa-user-circle"></i> View Public Profile</a></li>
                     <li><a href="/users/edit" class="btn-icon"><i class="fas fa-edit"></i> Edit Profile Details</a></li>
