@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Users::SessionsController < Devise::SessionsController
+  before_action :set_custom_nav
   # before_action :configure_sign_in_params, only: [:create]
 
   # GET /resource/sign_in
@@ -18,8 +19,11 @@ class Users::SessionsController < Devise::SessionsController
   #   super
   # end
 
-  # protected
+  protected
 
+  def set_custom_nav
+    @custom_nav = true
+  end
   # If you have extra params to permit, append them to the sanitizer.
   # def configure_sign_in_params
   #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])

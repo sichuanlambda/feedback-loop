@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Architecture Helper Address Search</title>
+    <title>Design Analysis Generator</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
     <script defer data-domain="app.architecturehelper.com" src="https://plausible.io/js/script.js"></script>
@@ -96,8 +96,8 @@
       <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="text-center">
-                <h1 class="mt-5" style="color: #01161e;">Architecture Explorer 🏛️</h1>
-                <p style="color: #01161e;">Add an address or upload a building image to learn about it and add it to your library.</p>
+                <h1 class="mt-5" style="color: #01161e;">Generate Design Analysis</h1>
+                <p>Extract architectural styles and influences from any home, building, or interior image or by entering an address.</p>
                 
                 <% if user_signed_in? %>
                     <%= form_with url: architecture_explorer_path, local: true, multipart: true, html: { class: "gpt-form-container" } do |form| %>
