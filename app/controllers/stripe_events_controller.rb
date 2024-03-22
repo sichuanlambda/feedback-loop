@@ -43,7 +43,7 @@ class StripeEventsController < ApplicationController
       user_email = customer.email
       user = User.find_by(email: user_email)
       if user
-        user.update!(subscription_status: status)
+        user.update_columns(subscription_status: status)  # Use update_columns here
         Rails.logger.info "Updated user #{user.email} to #{status} subscription"
       else
         Rails.logger.error "User not found with email: #{user_email}"
