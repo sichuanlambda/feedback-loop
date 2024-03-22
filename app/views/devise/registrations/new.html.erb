@@ -1,210 +1,273 @@
-<!-- app/views/devise/registrations/new.html.erb -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script defer data-domain="app.architecturehelper.com" src="https://plausible.io/js/script.js"></script>
-  <script>
-      !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-      posthog.init('phc_MltKSavY2s3FENOZhvocfU5qHx4f8xsJTAku0H0jVLH',{api_host:'https://app.posthog.com'})
-  </script>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    .image-column {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      margin-right: 15px; /* Space between columns */
-    }
-    h2 {
-      font-size: 40px;
-      padding: 10px;
-      text-align:center;
-    }
-    h3 {
-      font-size: 24px;
-      padding: 10px;
-    }
-    card {
-      padding: 10px;
-      display: flex;
-    }
-    .btn-primary {
-      width: 100%; /* Make buttons take full width of the container */
-      background-color: #0056b3;
-      color: white;
-      border-radius: 20px;
-      padding: 20px 20px;
-      font-size: 18px;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-      border: none;
-      margin-bottom: 10px; /* Add spacing between buttons */
-    }
-    .btn-primary:hover {
-      background-color: #004080; /* Darker blue on hover */
-    }
-    .btn-secondary {
-      width: 60%; /* Make buttons take full width of the container */
-      background-color: #0056b3;
-      color: white;
-      border-radius: 20px;
-      padding: 20px 20px;
-      font-size: 18px;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-      border: none;
-      margin: 10px; /* Add spacing between buttons */
-    }
-    .btn-primary:hover {
-      background-color: #004080; /* Darker blue on hover */
-    }
-    p.checkmark {
-      font-size: 0.9rem; /* Adjust the font size as needed */
-      margin-bottom: 0.5rem; /* Adjust bottom margin as needed */
-      padding: 0; /* Remove padding */
-      position: relative; /* Needed for pseudo-element positioning */
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Architecture Helper</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-M4TLZ8N6CC');
+    </script>
+    <script defer data-domain="app.architecturehelper.com" src="https://plausible.io/js/script.js"></script>
+    <style>
+        /* Add styles from the sign-up page here */
+        .image-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .card {
+        margin-top: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Make sure it covers the full viewport height */
+            width: 100vw; /* Cover full viewport width */
+        }
+        .login-container {
+            width: 100%; /* Adjust based on desired width, e.g., 600px or 50% */
+            max-width: 600px; /* Maximum width */
+            margin: 0 auto; /* Centering horizontally */
+            padding: 20px; /* Adds some padding inside the border */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for depth */
+            background: white; /* Ensures the background is white */
+            border: 2px solid #dee2e6; /* Keeps the border as defined */
+            border-radius: 5px; /* Optional: adds rounded corners */
+        }
+        .landing-section {
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
-    p.checkmark::before {
-      content: '\2713'; /* Unicode checkmark */
-      color: green; /* Color of the checkmark */
-      font-weight: bold; /* Make the checkmark bold */
-      display: inline-block; /* Inline-block to keep it with the text */
-      width: 1.5em; /* Space for the checkmark */
-      margin-left: -1.5em; /* Negative margin to pull checkmark into position */
-    }
-    .custom-registration-form {
-      max-width: 500px; /* Adjust this value to suit your design */
-      margin: auto; /* Centers the form in the available space */
-    }
-  </style>
+        .btn-sign-up {
+            background-color: #0056b3;
+            color: white;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .btn-sign-up:hover {
+            background-color: #004080;
+        }
+
+        .card {
+            margin-top: 20px;
+        }
+        h3 {
+            padding: 10px;
+            font-size: 16px;
+        }
+        .gsi-material-button {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -webkit-appearance: none;
+            background-color: WHITE;
+            background-image: none;
+            border: 1px solid #747775;
+            -webkit-border-radius: 4px;
+            border-radius: 4px;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            color: #1f1f1f;
+            cursor: pointer;
+            font-family: 'Roboto', arial, sans-serif;
+            font-size: 16px;
+            height: 40px;
+            letter-spacing: 0.25px;
+            outline: none;
+            overflow: hidden;
+            padding: 0 12px;
+            position: relative;
+            align-items: center;
+            text-align: center;
+            -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
+            transition: background-color .218s, border-color .218s, box-shadow .218s;
+            vertical-align: middle;
+            white-space: nowrap;
+            width: 100%; /* Ensure it takes full width */
+            max-width: 600px;
+            min-width: min-content;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            }
+
+        .gsi-material-button .gsi-material-button-icon {
+            height: 20px;
+            margin-right: 12px;
+            min-width: 20px;
+            width: 20px;
+            }
+
+        .gsi-material-button .gsi-material-button-content-wrapper {
+            -webkit-align-items: center;
+            align-items: center;
+            display: flex;
+            -webkit-flex-direction: row;
+            flex-direction: row;
+            -webkit-flex-wrap: nowrap;
+            flex-wrap: nowrap;
+            height: 100%;
+            justify-content: space-between;
+            position: relative;
+            width: 100%;
+            }
+
+        .gsi-material-button .gsi-material-button-contents {
+            -webkit-flex-grow: 1;
+            flex-grow: 1;
+            font-family: 'Roboto', arial, sans-serif;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: top;
+            }
+
+        .gsi-material-button .gsi-material-button-state {
+            -webkit-transition: opacity .218s;
+            transition: opacity .218s;
+            bottom: 0;
+            left: 0;
+            opacity: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            }
+
+        .gsi-material-button:disabled {
+            cursor: default;
+            background-color: #ffffff61;
+            border-color: #1f1f1f1f;
+            }
+
+        .gsi-material-button:disabled .gsi-material-button-contents {
+            opacity: 38%;
+            }
+
+        .gsi-material-button:disabled .gsi-material-button-icon {
+            opacity: 38%;
+            }
+
+        .gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+        .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+            background-color: #303030;
+            opacity: 12%;
+            }
+
+        .gsi-material-button:not(:disabled):hover {
+            -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+            box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+            }
+
+        .gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+            background-color: #303030;
+            opacity: 8%;
+            }
+        .border-container {
+            border: 2px solid #dee2e6; /* Example border style */
+            border-radius: 5px; /* Optional: adds rounded corners */
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Updated for logo and text alignment */
+            gap: 10px; /* Space between logo and text */
+        }
+
+        .login-logo {
+            height: 50px; /* Adjust based on your preference */
+            width: auto; /* Maintain aspect ratio */
+        }
+        .or-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .or-divider:before,
+        .or-divider:after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .or-divider:not(:empty)::before {
+            margin-right: .25em;
+        }
+
+        .or-divider:not(:empty)::after {
+            margin-left: .25em;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Registration Form -->
-  <div id="registration-form" class="custom-registration-form" style="display: none;">
-      <h1>Enter Your Information to Complete Your Registration</h1>
-      <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-        <%= render "devise/shared/error_messages", resource: resource %>
-
-        <div class="form-group">
-          <%= f.label :email, class: 'control-label' %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="login-container">
+                <div class="card-header text-center">
+                    <!-- Adjust the header text for signing up -->
+                    <img src="<%= asset_path('archilogo.png') %>" alt="Architecture Helper Logo" style="height: 50px;">
+                    <h5>Create Your Architecture Helper Account</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Google OAuth button, directly reused from the sign-in page -->
+                    <% if devise_mapping.omniauthable? %>
+                        <% resource_class.omniauth_providers.each do |provider| %>
+                            <%= button_to user_google_oauth2_omniauth_authorize_path(provider), method: :post, class: "gsi-material-button" do %>
+                                <div class="gsi-material-button-content-wrapper">
+                                    <img src="<%= asset_path('googlelogo.png') %>" alt="Google" class="gsi-material-button-icon">
+                                    <span class="gsi-material-button-contents">Sign up with Google</span>
+                                </div>
+                            <% end %>
+                        <% end %>
+                    <% end %>
+                    
+                    <div class="or-divider">
+                        <span>or</span>
+                    </div>                    
+                    
+                    <!-- Sign-up form, adjusted from your original registration page -->
+                    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+                        <%= render "devise/shared/error_messages", resource: resource %>
+                        <div class="form-group">
+                            <%= f.label :email %>
+                            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+                        </div>
+                        <div class="form-group">
+                            <%= f.label :password %>
+                            <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
+                        </div>
+                        <div class="form-group">
+                            <%= f.label :password_confirmation %>
+                            <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
+                        </div>
+                        <div class="actions text-center">
+                            <%= f.submit "Sign up", class: "btn btn-primary btn-block" %>
+                        </div>
+                    <% end %>
+                    <div class="text-center mt-3">
+                        <%= render "devise/shared/links" %>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-          <%= f.label :password, class: 'control-label' %>
-          <% if @minimum_password_length %>
-            <em>(<%= @minimum_password_length %> characters minimum)</em>
-          <% end %>
-          <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
-        </div>
-
-        <div class="form-group">
-          <%= f.label :password_confirmation, class: 'control-label' %>
-          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
-        </div>
-
-        <!-- Field for Handle -->
-        <div class="form-group">
-          <%= f.label :handle, class: 'control-label' %>
-          <%= f.text_field :handle, autocomplete: "handle", class: "form-control" %>
-        </div>
-
-        <!-- Field for Public Name -->
-        <div class="form-group">
-          <%= f.label :public_name, class: 'control-label' %>
-          <%= f.text_field :public_name, autocomplete: "public-name", class: "form-control" %>
-        </div>
-
-        <div class="actions text-center">
-          <%= f.submit "Confirm Registration", class: "btn btn-primary btn-block" %>
-        </div>
-      <% end %>
-      <div class="text-center mt-3">
-        <%= render "devise/shared/links" %>
-      </div>
     </div>
-
-    <!-- Below Registration Form, the rest of the content -->
-    <div class="row">
-      <!-- Column for the Title, Subtitle, and Image -->
-      <div class="col-lg-6 image-column">
-        <h2>Learn About and Generate Architecture with AI</h2>
-        <h3>Upload & Learn</h3>
-        <%= image_tag 'ArchExplorer.png', class: 'img-fluid', style: 'border: 2px solid #bababa; border-radius: 15px;' %>
-        <h3>Dream & Generate</h3>
-        <%= image_tag 'ArchGen.png', class: 'img-fluid', style: 'border: 2px solid #bababa; border-radius: 15px;' %>
-      </div>
-
-      <!-- Stripe Button & Plan Details -->
-      <div class="col-md-5 d-flex flex-column align-items-center">
-        <div class="plan-card p-4 m-3">
-          <div class="text-center mb-3" style="border: 2px solid green; padding: 10px; border-radius: 10px;">
-            <h3 class="m-0">Architecture Enthusiast</h3>
-            <p class="price m-0">$5/month</p>
-          </div>
-          <ul class="fa-ul">
-            <p class="checkmark">Unlimited Building Image Analyses</p>
-            <p class="checkmark">Unlimited Architecture Image Generations</p>
-            <p class="checkmark">Screenshot Text Searcher Access</p>
-            <p class="checkmark">Unlimited Screenshot Uploads</p>
-            <p class="checkmark">Exclusive Access to Architecture Community Features (coming soon)</p>
-          </ul>
-          <!-- Highlighting the 7-day trial -->
-          <div class="text-center mt-4">
-            <p style="font-size: 24px; color: orange;"><strong>Try it free for 7 days!</strong></p>
-          </div>
-          <div class="w-100 text-center mt-4">
-            <button id="stripe-checkout-button" class="btn btn-secondary">$5 Monthly</button>
-            <button id="annual-plan-button" class="btn btn-secondary">$50 Annualy</button>
-          </div>
-          <p class="text-center mt-2" style="color: grey; font-size: smaller;">Cancel anytime</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<script src="https://js.stripe.com/v3/"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentSuccess = urlParams.get('payment_success');
-
-    const signUpButton = document.getElementById('stripe-checkout-button');
-    const annualPlanButton = document.getElementById('annual-plan-button');
-    const registrationForm = document.getElementById('registration-form');
-    // Select other sections you want to hide. Adjust the selector based on your page structure.
-    const otherSections = document.querySelectorAll('.image-column, .plan-card');
-
-    if (paymentSuccess === 'true') {
-      if (registrationForm) {
-        registrationForm.style.display = 'block';
-      }
-      if (signUpButton) {
-        signUpButton.style.display = 'none';
-      }
-      if (annualPlanButton) {
-        annualPlanButton.style.display = 'none';
-      }
-      // Hide other sections when payment_success=true
-      otherSections.forEach(section => {
-        section.style.display = 'none';
-      });
-    }
-});
-
-document.getElementById('stripe-checkout-button').addEventListener('click', function() {
-  window.location.href = 'https://buy.stripe.com/6oE03C2rm9I59Us3cc';
-});
-
-document.getElementById('annual-plan-button').addEventListener('click', function() {
-  window.location.href = 'https://buy.stripe.com/14kaIgfe8bQd3w4bIJ';
-});
-</script>
 </body>
 </html>
