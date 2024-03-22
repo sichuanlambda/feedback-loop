@@ -6,29 +6,21 @@ class StripeEventsController < ApplicationController
     sig_header = request.env['HTTP_STRIPE_SIGNATURE']
     event = nil
 
-    # Dynamically select the correct webhook secret for the environment
     stripe_webhook_secret = Rails.application.credentials.dig(:stripe, Rails.env.production? ? :live_webhook_secret : :test_webhook_secret)
 
     begin
-      event = Stripe::Webhook.construct_event(
-        payload, sig_header, stripe_webhook_secret
-      )
+      event = Stripe::Webhook.construct_event(payload, sig_header, stripe_webhook_secret)
     rescue JSON::ParserError => e
-      render json: { error: 'Invalid payload' }, status: 400
-      return
+      render json: { error: 'Invalid payload' }, status: 400 and return
     rescue Stripe::SignatureVerificationError => e
-      render json: { error: 'Invalid signature' }, status: 400
-      return
+      render json: { error: 'Invalid signature' }, status: 400 and return
     end
 
-    # Process the Stripe event
     case event['type']
     when 'customer.subscription.created', 'invoice.payment_succeeded'
       handle_paid_user(event['data']['object'])
     when 'customer.subscription.deleted'
       handle_subscription_deleted(event['data']['object'])
-    else
-      # Handle other event types
     end
 
     render json: { message: 'Success' }, status: 200
@@ -37,30 +29,27 @@ class StripeEventsController < ApplicationController
   private
 
   def handle_paid_user(object)
-    customer_id = object["customer"] # Extract the customer ID from the subscription object
-    customer = Stripe::Customer.retrieve(customer_id) # Fetch the customer object from Stripe
-    user_email = customer.email # Get the email from the customer object
-
-    user = User.find_by(email: user_email)
-    if user
-      user.update(subscription_status: 'active')
-      Rails.logger.info "Updated user #{user.email} to active subscription"
-    else
-      Rails.logger.error "User not found with email: #{user_email}"
-    end
+    update_subscription_status(object, 'active')
   end
 
   def handle_subscription_deleted(object)
-    customer_id = object["customer"]
-    customer = Stripe::Customer.retrieve(customer_id)
-    user_email = customer.email
+    update_subscription_status(object, 'inactive')
+  end
 
-    user = User.find_by(email: user_email)
-    if user
-      user.update(subscription_status: 'inactive')
-      Rails.logger.info "Updated user #{user.email} to inactive subscription"
-    else
-      Rails.logger.error "User not found with email: #{user_email}"
+  def update_subscription_status(object, status)
+    customer_id = object["customer"]
+    begin
+      customer = Stripe::Customer.retrieve(customer_id)
+      user_email = customer.email
+      user = User.find_by(email: user_email)
+      if user
+        user.update!(subscription_status: status)
+        Rails.logger.info "Updated user #{user.email} to #{status} subscription"
+      else
+        Rails.logger.error "User not found with email: #{user_email}"
+      end
+    rescue => e
+      Rails.logger.error "Failed to update subscription status for customer #{customer_id}: #{e.message}"
     end
   end
 end
