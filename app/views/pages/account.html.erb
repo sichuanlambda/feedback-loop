@@ -176,24 +176,28 @@
     </style>
 </head>
 <body>
-    <div class="container">
+      <div class="container">
+        <% if @user.subscription_status != 'active' %>
+            <div class="row justify-content-md-center">
+                <div class="col-md-8">
+                    <h1>Subscribe!</h1>
+                    <div class="stat-card">
+                        <ul class="fa-ul">
+                            <p class="checkmark">Unlimited Architecture & Design Analyses</p>
+                            <p class="checkmark">Explore Analyses by Style and Location</p>
+                            <p class="checkmark">Generate Unlimited Architecture Images</p>
+                        </ul> 
+                        <div class="w-100 text-center mt-4">
+                            <button id="stripe-checkout-button" class="btn btn-secondary">$5 Monthly</button>
+                            <button id="annual-plan-button" class="btn btn-secondary">$50 Annually</button>
+                        </div>
+                        <p class="text-center mt-2" style="color: grey; font-size: smaller;">Cancel anytime</p>
+                    </div>
+                </div>
+            </div>
+        <% end %>
         <div class="row">
             <div class="col-md-6">
-                <% if @user.subscription_status != 'active' %>
-                <h1>Subscribe!</h1>
-                    <div class="stat-card">
-                    <ul class="fa-ul">
-                        <p class="checkmark">Unlimited Architecture & Design Analyses</p>
-                        <p class="checkmark">Explore Analyses by Style and Location</p>
-                        <p class="checkmark">Generate Unlimited Architecture Images</p>
-                    </ul> 
-                    <div class="w-100 text-center mt-4">
-                        <button id="stripe-checkout-button" class="btn btn-secondary">$5 Monthly</button>
-                        <button id="annual-plan-button" class="btn btn-secondary">$50 Annualy</button>
-                    </div>
-                    <p class="text-center mt-2" style="color: grey; font-size: smaller;">Cancel anytime</p>
-                <% end %>
-            </div>
             <h2>Manage Your Account</h2>
                 <ul class="account-menu">
                     <li><a href="/users/<%= @user.handle %>" class="btn-icon"><i class="fas fa-user-circle"></i> View Public Profile</a></li>

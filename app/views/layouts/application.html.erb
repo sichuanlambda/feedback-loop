@@ -57,12 +57,6 @@
       </div>
       <div class="navbar-nav ml-auto">
         <% if user_signed_in? %>
-          <span class="navbar-text">Welcome, <%= current_user.email %></span>
-          <% unless current_user.subscription_status == "active" %>
-            <%= link_to '/account', class: 'nav-item nav-link' do %>
-              <i class="fas fa-coins"></i> <%= current_user.credits %> Credits
-            <% end %>
-          <% end %>
           <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
           <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
         <% else %>
