@@ -30,17 +30,9 @@
       </div>
       <div class="navbar-nav ml-auto">
           <% if user_signed_in? %>
-            <% unless current_user.subscription_status == "active" %>
-              <%= link_to '/account', class: 'nav-item nav-link' do %>
-                <i class="fas fa-coins"></i> <%= current_user.credits %> Credits
-              <% end %>
-            <% end %>
             <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
             <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
           <% else %>
-            <%= link_to new_user_registration_path, class: 'nav-item nav-link' do %>
-              ✨ Free Credits ✨
-            <% end %>
             <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
             <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
           <% end %>
@@ -74,9 +66,6 @@
           <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
           <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
         <% else %>
-          <%= link_to new_user_registration_path, class: 'nav-item nav-link' do %>
-            Free Credits
-          <% end %>
           <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
           <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
         <% end %>
