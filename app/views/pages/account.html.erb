@@ -142,30 +142,58 @@
             font-size: 14px;
             display: block;
         }  
+        p.checkmark {
+            font-size: 1rem; /* Adjust the font size as needed */
+            margin-bottom: 0.5rem; /* Adjust bottom margin as needed */
+            padding: 0; /* Remove padding */
+            position: relative; /* Needed for pseudo-element positioning */
+        }
+
+        p.checkmark::before {
+            content: '\2713'; /* Unicode checkmark */
+            color: green; /* Color of the checkmark */
+            font-weight: bold; /* Make the checkmark bold */
+            display: inline-block; /* Inline-block to keep it with the text */
+            width: 1.5em; /* Space for the checkmark */
+            margin-left: -1.5em; /* Negative margin to pull checkmark into position */
+        }
+        .btn-primary:hover {
+            background-color: #004080; /* Darker blue on hover */
+        }
+        .btn-secondary {
+            width: 40%; /* Make buttons take full width of the container */
+            background-color: #0056b3;
+            color: white;
+            border-radius: 20px;
+            padding: 15px 15px;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: none;
+            margin: 5px; /* Add spacing between buttons */
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                <h2>Your Free Credits</h2>
                 <% if @user.subscription_status != 'active' %>
-                    <div class="credit-info">
-                        <div class="credit-top">
-                            <div class="stat-title">Credits Remaining</div>
-                            <div class="progress my-3" style="height: 30px;">
-                                <div class="progress-bar" role="progressbar" style="width: <%= (@user.credits.to_f / 5 * 100).to_i %>%;" aria-valuenow="<%= @user.credits %>" aria-valuemin="0" aria-valuemax="5"><%= @user.credits %> / 5</div>
-                            </div>
-                        </div>
-                        <div class="credit-bottom">
-                            <div class="subscription-info">
-                                <div class="stat-title">Get Unlimited</div>
-                                <span class="cancel-text">Cancel anytime</span>
-                            </div>
-                            <a href="https://buy.stripe.com/6oEeYwea4g6t0jS147" class="btn btn-light">$5.00/mo</a>
-                        </div>
+                <h1>Subscribe!</h1>
+                    <div class="stat-card">
+                    <ul class="fa-ul">
+                        <p class="checkmark">Unlimited Architecture & Design Analyses</p>
+                        <p class="checkmark">Explore Analyses by Style and Location</p>
+                        <p class="checkmark">Generate Unlimited Architecture Images</p>
+                    </ul> 
+                    <div class="w-100 text-center mt-4">
+                        <button id="stripe-checkout-button" class="btn btn-secondary">$5 Monthly</button>
+                        <button id="annual-plan-button" class="btn btn-secondary">$50 Annualy</button>
                     </div>
+                    <p class="text-center mt-2" style="color: grey; font-size: smaller;">Cancel anytime</p>
                 <% end %>
+            </div>
             <h2>Manage Your Account</h2>
                 <ul class="account-menu">
                     <li><a href="/users/<%= @user.handle %>" class="btn-icon"><i class="fas fa-user-circle"></i> View Public Profile</a></li>
