@@ -37,12 +37,12 @@ class StripeEventsController < ApplicationController
   private
 
   def handle_paid_user(object)
-    Rails.logger.info "Handling paid user for object: #{object.inspect}"
-    user_email = object["email"] # Extract the email from the event object
-    user = User.find_by(email: user_email)
+    customer_id = object["customer"] # Extract the customer ID from the subscription object
+    customer = Stripe::Customer.retrieve(customer_id) # Fetch the customer object from Stripe
+    user_email = customer.email # Get the email from the customer object
 
+    user = User.find_by(email: user_email)
     if user
-      # Assuming 'active' is the status for a paid subscription
       user.update(subscription_status: 'active')
       Rails.logger.info "Updated user #{user.email} to active subscription"
     else
@@ -51,7 +51,16 @@ class StripeEventsController < ApplicationController
   end
 
   def handle_subscription_deleted(object)
-    Rails.logger.info "Handling paid user for object: #{object.inspect}"
-    # Update user subscription status to inactive
+    customer_id = object["customer"]
+    customer = Stripe::Customer.retrieve(customer_id)
+    user_email = customer.email
+
+    user = User.find_by(email: user_email)
+    if user
+      user.update(subscription_status: 'inactive')
+      Rails.logger.info "Updated user #{user.email} to inactive subscription"
+    else
+      Rails.logger.error "User not found with email: #{user_email}"
+    end
   end
 end
