@@ -45,6 +45,7 @@ Rails.application.routes.draw do
   get 'architecture_explorer/:id', to: 'architecture_explorer#show', as: :architecture_explorer_show
   post '/process_building_image', to: 'architecture_explorer#process_building_image', as: 'analyze_building'
   patch 'architecture_explorer/:id', to: 'architecture_explorer#update', as: :architecture_explorer_update
+  get 'architecture_explorer/:id/status', to: 'architecture_explorer#status', as: :architecture_explorer_status
 
   # Architecture Designer Routes
   resources :architecture_designer, only: [] do

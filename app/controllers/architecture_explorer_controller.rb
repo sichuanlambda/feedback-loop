@@ -8,6 +8,7 @@ require 'open-uri'
 class ArchitectureExplorerController < ApplicationController
   before_action :authenticate_user!, except: [:building_library, :by_location]
   before_action :set_custom_nav
+  include BuildingAnalysisProcessor
 
   def new
     # Renders the form for uploading an image
@@ -18,55 +19,47 @@ class ArchitectureExplorerController < ApplicationController
     Rails.logger.debug "Processing the uploaded image..."
     Rails.logger.debug "Form submission received with params: #{params.inspect}"
 
-    image_url = nil
-
-    if params[:image].present?
-      uploaded_image = params[:image]
-      image_url = upload_image_to_s3(uploaded_image)
-    elsif params[:previewed_image_url].present?
-      address = params[:address]
-      fetched_image = fetch_street_view_image(address)
-      image_url = upload_image_to_s3(fetched_image) if fetched_image
-    end
+    # Directly uploaded image or fetched image from an address
+    image_url = if params[:image].present?
+                  upload_image_to_s3(params[:image])
+                elsif params[:previewed_image_url].present?
+                  params[:previewed_image_url]
+                end
 
     if image_url.blank?
       redirect_to root_path, alert: "No image uploaded or address provided"
       return
     end
 
-    analysis_result = process_building_image(image_url)
+    # Create a placeholder BuildingAnalysis record immediately
+    new_analysis = BuildingAnalysis.create(
+      user: current_user,
+      address: params[:address].presence || "N/A",
+      image_url: image_url,
+      visible_in_library: true
+    )
 
-    if analysis_result && analysis_result[:html_content].present?
-      # Adjust here to ensure h3_contents are extracted and saved correctly
-      h3_contents = extract_h3s(analysis_result[:html_content])
-      new_analysis = BuildingAnalysis.create(
-        html_content: analysis_result[:html_content],
-        user: current_user,
-        image_url: image_url,
-        h3_contents: h3_contents.to_json, # Ensure this line is correct
-        visible_in_library: true,
-        address: params[:address].presence || "N/A"
-      )
-
-      if new_analysis.persisted?
-        # Deduct a credit if the user is not an active subscriber and has at least one credit
-        if current_user.subscription_status != 'active' && current_user.credits > 0
-          current_user.credits -= 1
-          current_user.save
-        end
-
-        redirect_to architecture_explorer_show_path(id: new_analysis.id)
-      else
-        redirect_to root_path, alert: "Analysis failed: #{new_analysis.errors.full_messages.join(", ")}"
-      end
+    if new_analysis.persisted?
+      # Enqueue the job with the necessary parameters
+      ProcessBuildingAnalysisJob.perform_later(new_analysis.id, image_url, params[:address])
+      redirect_to architecture_explorer_show_path(id: new_analysis.id), notice: "Your building analysis is underway. Please wait for the results to be processed."
     else
-      redirect_to root_path, alert: "Analysis failed"
+      redirect_to root_path, alert: "Failed to initiate analysis."
     end
   rescue => e
     Rails.logger.error "Exception in create action: #{e.message}"
     redirect_to root_path, alert: "Unexpected error occurred."
   end
 
+  def status
+    building_analysis = BuildingAnalysis.find_by(id: params[:id])
+
+    if building_analysis&.html_content.present?
+      render json: { status: 'completed', html_content: building_analysis.html_content, h3_contents: building_analysis.h3_contents }
+    else
+      render json: { status: 'processing' }
+    end
+  end
 
   def address_search
     # Any setup needed for the view can be added here

@@ -449,33 +449,32 @@
         <% end %>
         </div>
 
-        <!-- Image Grid for Community Building Library -->
-        <div class="image-grid">
-            <% if @analyzed_buildings.present? %>
-                <% @analyzed_buildings.each do |building| %>
-                <div class="grid-item" data-toggle="modal" data-target="#imagePreviewModal"
-                    data-image="<%= building.image_url %>"
-                    data-tags="<%= JSON.parse(building.h3_contents).join(', ') %>"
-                    data-link="<%= architecture_explorer_show_path(id: building.id) %>">
-                    <% if building.image_url.present? %>
-                    <%= image_tag building.image_url, alt: "Building Image", class: "submission-image" %>
-                    <% else %>
-                    <!-- Display a placeholder image or message if the image_url is missing -->
-                    <!-- Or simply display a message -->
-                    <p>No image available</p>
-                    <% end %>
-                    <!-- Architecture styles container -->
-                    <div class="architecture-styles-container">
-                        <% JSON.parse(building.h3_contents).each do |style| %>
-                            <span class="badge badge-primary style-pill"><%= style %></span>
-                        <% end %>
-                    </div>
-                </div>
+    <!-- Image Grid for Community Building Library -->
+    <div class="image-grid">
+        <% if @analyzed_buildings.present? %>
+            <% @analyzed_buildings.each do |building| %>
+            <div class="grid-item" data-toggle="modal" data-target="#imagePreviewModal"
+                data-image="<%= building.image_url %>"
+                data-tags="<%= JSON.parse(building.h3_contents || '[]').join(', ') rescue [] %>"
+                data-link="<%= architecture_explorer_show_path(id: building.id) %>"> <!-- Ensure this is correctly placed -->
+                <% if building.image_url.present? %>
+                <%= image_tag building.image_url, alt: "Building Image", class: "submission-image" %>
+                <% else %>
+                <!-- Display a placeholder image or message if the image_url is missing -->
+                <p>No image available</p>
                 <% end %>
-            <% else %>
-                <p>No analyzed buildings found in the community library.</p>
+                <!-- Architecture styles container -->
+                <div class="architecture-styles-container">
+                    <% JSON.parse(building.h3_contents || '[]').each do |style| %>
+                        <span class="badge badge-primary style-pill"><%= style %></span>
+                    <% end %>
+                </div>
+            </div>
             <% end %>
-        </div>
+        <% else %>
+            <p>No analyzed buildings found in the community library.</p>
+        <% end %>
+    </div>
     </div>
     </div>
 <script>
