@@ -91,6 +91,13 @@
         width: 60%; /* Make buttons take full width of the container */
       }
     }
+    .container-for-loader-and-text {
+        display: flex;
+        flex-direction: column; /* Stack children vertically */
+        align-items: center; /* Center children horizontally */
+        justify-content: center; /* Center children vertically */
+        height: 100px; /* Adjust based on your needs */
+    }
 </style>
 <div class="container" style="background: #fff; border-radius: 15px; box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.1);">
       <div class="row justify-content-center">
@@ -129,6 +136,10 @@
                 <% else %>
                     <p>Please <%= link_to 'sign in', new_user_session_path %> to use this feature.</p>
                 <% end %>
+            </div>
+            <div class="container-for-loader-and-text">
+                <div id="loading-text" style="display: none;">Please wait, this takes a moment.</div>
+                <div class="loader"></div>
             </div>
         </div>
     </div>
