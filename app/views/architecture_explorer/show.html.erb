@@ -137,6 +137,23 @@
     .btn-address-update:hover {
         background-color: #218838; /* Darker green on hover */
     }
+    .loading-text {
+        text-align: center;
+        margin-bottom: 20px;
+        }
+
+        #loader {
+        /* Ensures the loader is centered in its parent */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        }
+
+        /* If you need to remove a border that's still appearing for some reason */
+        #loading-animation {
+        border: none;
+        }
 </style>
 
 <div class="container-fluid">
@@ -145,9 +162,18 @@
     <div class="col-md-8">
       <% if @html_content.present? %>
         <%= raw @html_content %>
-      <% else %>
-        <p>No analysis data available.</p>
-      <% end %>
+    <% else %>
+        <!-- Loading Animation Container -->
+        <div id="loader" class="text-center">
+            <h2 class="loading-text">Hang tight, we're working on your analysis</h2>
+            <%= image_tag 'buildinganimation.gif', alt: 'Loading...', id: 'loading-animation', class: 'mx-auto d-block' %>
+        </div>
+
+        <!-- Results Container -->
+        <div id="results" style="display:none;">
+        <!-- Your results will be shown here after the data is ready -->
+        </div>      
+    <% end %>
     </div>
 
     <!-- Right one-third for the image and pills -->
@@ -193,7 +219,19 @@
     </div>
 <script>
   let checkCount = 0;
-  const maxChecks = 15; // Adjust based on desired number of tries
+  const maxChecks = 12; // Adjust based on desired number of tries
+
+  function updateBadgeContainer(h3Contents) {
+    const badgeContainer = document.querySelector('.mt-3');
+    badgeContainer.innerHTML = ''; // Clear existing badges
+
+    h3Contents.forEach(style => {
+      const badge = document.createElement('span');
+      badge.className = 'badge badge-primary';
+      badge.textContent = style;
+      badgeContainer.appendChild(badge);
+    });
+  }
 
   function checkAnalysisStatus() {
     if (checkCount >= maxChecks) {
@@ -206,10 +244,20 @@
       .then(response => response.json())
       .then(data => {
         if (data.status === 'completed') {
+          // Hide the loader
+          document.getElementById('loader').style.display = 'none';
+
           // Update the page content with the analysis results
-          document.querySelector('.col-md-8').innerHTML = data.html_content;
-          // Additional updates as before...
+          document.getElementById('results').innerHTML = data.html_content;
+          document.getElementById('results').style.display = 'block';
+
+          // Update the badge container with new styles
+          const h3Contents = JSON.parse(data.h3_contents || '[]');
+          updateBadgeContainer(h3Contents);
         } else {
+          // Show the loader
+          document.getElementById('loader').style.display = 'block';
+
           // Increment checkCount and re-check the status after a delay
           checkCount++;
           setTimeout(checkAnalysisStatus, 5000);
