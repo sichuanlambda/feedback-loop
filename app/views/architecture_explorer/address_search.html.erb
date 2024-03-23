@@ -120,7 +120,7 @@
 
                         <div style="display: flex; justify-content: center; width: 100%;">
                             <% if current_user.subscription_status != 'active' && current_user.credits <= 0 %>
-                                <%= link_to "0 Remaining Credits, Subscribe to Continue", account_path, class: "btn btn-primary", id: "subscribe-to-continue", style: "margin-top: 20px;" %>
+                                <%= link_to "Subscribe to Generate Analysis", account_path, class: "btn btn-primary", id: "subscribe-to-continue", style: "margin-top: 20px;" %>
                             <% else %>
                                 <%= form.submit "Generate Style Analysis", class: "btn btn-primary", id: "generate-style-analysis", style: "margin-top: 20px;" %>
                             <% end %>

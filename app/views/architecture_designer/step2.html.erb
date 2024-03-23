@@ -255,45 +255,57 @@
     </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const optionButtons = document.querySelectorAll('.option-btn');
+document.addEventListener('DOMContentLoaded', function () {
+    // Assuming 'current_user.subscription_status' holds the subscription status
+    // Replace this with the actual logic you use to determine the subscription status
+    var userSubscriptionStatus = '<%= current_user.subscription_status %>';
 
-        // Initialize or update the state based on localStorage
-        optionButtons.forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                this.classList.toggle('active');
-                var optionId = this.getAttribute('data-value').split('_').pop();
-                toggleSelection(optionId);
-                updateLocalStorage();
-            });
+    if (userSubscriptionStatus !== 'active') {
+        window.location.href = '/account';
+    }
+
+    const optionButtons = document.querySelectorAll('.option-btn');
+
+    // Toggle selection state of options
+    optionButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            this.classList.toggle('active');
+            var optionId = this.dataset.value; // Assuming the use of 'data-value' attribute
+            toggleSelection(optionId);
         });
-
-        window.toggleSelection = function(optionId) {
-            var input = document.getElementById('input_' + optionId);
-            input.disabled = !input.disabled;  // Toggle the disabled attribute
-        };
-
-        function updateLocalStorage() {
-            let selectedOptions = Array.from(document.querySelectorAll('.option-btn.active'))
-                .map(btn => btn.getAttribute('data-value'));
-            localStorage.setItem('selectedOptions', JSON.stringify(selectedOptions));
-        }
-        function restoreState() {
-            let savedOptions = JSON.parse(localStorage.getItem('selectedOptions'));
-            if (savedOptions) {
-                savedOptions.forEach(function(savedOption) {
-                    let btn = document.querySelector('.option-btn[data-value="' + savedOption + '"]');
-                    if (btn) {
-                        btn.classList.add('active');
-                        let optionId = btn.getAttribute('data-value').split('_').pop();
-                        toggleSelection(optionId);
-                    }
-                });
-            }
-        }
-
-        restoreState(); // Call this function to restore the state when the page loads
     });
+
+    window.toggleSelection = function(optionId) {
+        var input = document.getElementById('input_' + optionId);
+        input.disabled = !input.disabled;  // Toggle the disabled attribute
+    };
+
+    // Update and restore selection state based on local storage or initial load
+    function updateLocalStorage() {
+        let selectedOptions = Array.from(document.querySelectorAll('.option-btn.active'))
+                                   .map(btn => btn.dataset.value);
+        localStorage.setItem('selectedOptions', JSON.stringify(selectedOptions));
+    }
+
+    function restoreState() {
+        let savedOptions = JSON.parse(localStorage.getItem('selectedOptions'));
+        if (savedOptions) {
+            savedOptions.forEach(function(savedOption) {
+                let btn = document.querySelector('.option-btn[data-value="' + savedOption + '"]');
+                if (btn) {
+                    btn.classList.add('active');
+                    let optionId = savedOption;
+                    toggleSelection(optionId);
+                }
+            });
+        }
+    }
+
+    restoreState(); // Restore the state on page load
+
+    // Call this function to initially set or reset the selections based on user's actions
+    updateLocalStorage();
+});
 </script>
 </body>
 </html>
