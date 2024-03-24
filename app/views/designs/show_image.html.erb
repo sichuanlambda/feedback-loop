@@ -11,7 +11,7 @@
   </script>
   <style>
     .container{
-        padding: 40px 0;
+        padding: 10px 0;
         width: 75%;
         margin: auto;
     }
@@ -171,21 +171,12 @@
   </style>
 </head>
 <body>
-<div class="container">
-    <div style="text-align: center; margin-bottom: 5px;">
-        <span style="font-size: 20px; margin-right: 10px;">Did you enjoy this free tool?</span>
-        <a href="/architecture_explorer/new" target="_blank">
-            <button class="btn btn-primary">Analyze a Real Building's Architectural Style</button>
-        </a>
-    </div>
-</div>
 <div class="container text-center">
   <% if @image_url.present? %>
     <div class="image-container my-8">
       <img src="<%= @image_url %>" alt="Generated Design" class="img-fluid">
     </div>
     <div class="button-group my-3">
-      <%# <button class="btn btn-primary" onclick="shareImage()">🚧 Share Image 🚧</button> %>
       <button class="btn btn-primary" onclick="shareTool()">Share Tool</button>
       <button class="btn btn-primary" onclick="newDesign()">New Design</button>
     </div>
@@ -198,32 +189,19 @@
 <div class="modal" id="shareModal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">&times;</span>
-    <p>Share the gift of a free tool for your architectural imagination!</p>
     <div class="share-icons">
-      <!-- Add your sharing links here -->
-      <a href="#" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="#" target="_blank" title="Pinterest"><i class="fab fa-pinterest-p"></i></a>
-      <a href="#" target="_blank" title="Reddit"><i class="fab fa-reddit-alien"></i></a>
-      <a href="#" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fapp.architecturehelper.com&quote=Check%20out%20this%20awesome%20Architecture%20tool%20for%20analyzing%20real%20buildings%20and%20generating%20new%20ones%20with%20AI!" target="_blank" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://pinterest.com/pin/create/button/?url=https%3A%2F%2Fapp.architecturehelper.com&description=Check%20out%20this%20awesome%20Architecture%20tool%20for%20analyzing%20real%20buildings%20and%20generating%20new%20ones%20with%20AI!" target="_blank" title="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+      <a href="https://reddit.com/submit?url=https%3A%2F%2Fapp.architecturehelper.com&title=Check%20out%20this%20awesome%20Architecture%20tool%20for%20analyzing%20real%20buildings%20and%20generating%20new%20ones%20with%20AI!" target="_blank" title="Reddit"><i class="fab fa-reddit-alien"></i></a>
+      <a href="https://twitter.com/intent/tweet?text=Check%20out%20this%20awesome%20Architecture%20tool%20for%20analyzing%20real%20buildings%20and%20generating%20new%20ones%20with%20AI!&url=https%3A%2F%2Fapp.architecturehelper.com" target="_blank" title="Twitter"><i class="fab fa-twitter"></i></a>
     </div>
     <div class="link-copy-area">
-      <input type="text" value="https://www.architecturehelper.com/architecture_designer/step1" id="shareLink" readonly>
+      <input type="text" value="app.architecturehelper.com" id="shareLink" readonly>
       <button class="btn btn-primary" onclick="copyLink()">Copy</button>
     </div>
   </div>
 </div>
 
-<!-- New Design Modal -->
-<div class="modal" id="newDesignModal">
-  <div class="modal-content">
-    <span class="close" onclick="closeNewDesignModal()">&times;</span>
-    <p>Please consider supporting this tool to help keep it free. Unfortunately, GPT image generation is a tad expensive.</p>
-    <div class="button-group">
-      <a href="https://page.famewall.io/architecture" target="_blank" class="btn btn-primary">Leave Review</a>
-      <button class="btn btn-secondary" onclick="continueWithoutSupporting()">Nah</button>
-    </div>
-  </div>
-</div>
 
 <script>
   function shareTool() {
@@ -236,28 +214,19 @@
     modal.style.display = "none";
   }
 
-  function newDesign() {
-    var newDesignModal = document.getElementById("newDesignModal");
-    newDesignModal.style.display = "block";
-  }
-
-  function closeNewDesignModal() {
-    var newDesignModal = document.getElementById("newDesignModal");
-    newDesignModal.style.display = "none";
-  }
-
-  function continueWithoutSupporting() {
-    window.location.href = 'https://www.architecturehelper.com/architecture_designer/step1';
+  function copyLink() {
+    var link = document.getElementById("shareLink").value;
+    navigator.clipboard.writeText(link).then(() => {
+      alert("Link copied to clipboard!");
+    }).catch(err => {
+      console.error('Error copying text: ', err);
+    });
   }
 
   window.onclick = function(event) {
-    var shareModal = document.getElementById("shareModal");
-    var newDesignModal = document.getElementById("newDesignModal");
-
-    if (event.target == shareModal) {
-      shareModal.style.display = "none";
-    } else if (event.target == newDesignModal) {
-      newDesignModal.style.display = "none";
+    var modal = document.getElementById("shareModal");
+    if (event.target == modal) {
+      modal.style.display = "none";
     }
   }
 </script>
