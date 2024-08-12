@@ -11,8 +11,18 @@ class User < ApplicationRecord
   validates :public_name, presence: true, if: :enforce_profile_completion?
 
   before_create :set_default_credits
-  # Assuming you keep the callback for assigning handle and public name at creation
   before_validation :assign_handle_and_public_name, on: :create
+
+  def self.from_omniauth(auth)
+    where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
+      user.email = auth.info.email
+      user.password = Devise.friendly_token[0, 20]
+      user.name = auth.info.name # assuming the user model has a name
+      user.image = auth.info.image # assuming the user model has an image
+      user.handle = generate_unique_handle if user.handle.blank?
+      user.public_name = generate_unique_public_name if user.public_name.blank?
+    end
+  end
 
   def self.generate_unique_handle
     loop do
@@ -42,8 +52,4 @@ class User < ApplicationRecord
   def set_default_credits
     self.credits ||= 5 if subscription_status != 'active'
   end
-
-  # Optionally, track when a user has completed their profile
-  # This could be an attribute of the User model: completed_profile_at:datetime
-  # Update this attribute when the user completes their profile
 end
