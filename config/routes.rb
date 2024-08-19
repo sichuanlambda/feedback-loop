@@ -39,7 +39,7 @@ Rails.application.routes.draw do
   get 'proxy/fetch_street_view', to: 'proxy#fetch_street_view'
 
   # Routes for SearchesController
-  resources :searches, only: [:new, :create, :index]
+  resources :searches, only: [:new, :create]
 
   # Architecture Explorer routes
   get 'architecture_explorer/address_search', to: 'architecture_explorer#address_search'

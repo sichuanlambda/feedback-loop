@@ -1,7 +1,4 @@
 class SearchesController < ApplicationController
-  def index
-    render plain: "Searches index page"
-  end
 
   def create
     @query = params[:query]
