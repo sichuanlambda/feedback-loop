@@ -1,4 +1,7 @@
 class SearchesController < ApplicationController
+  def index
+  end
+
   def create
     @query = params[:query]
     service = AutoGenService.new
