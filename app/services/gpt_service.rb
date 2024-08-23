@@ -33,7 +33,7 @@ class GptService
     Rails.logger.debug "GptService: Received image_url: #{image_url}"
     max_tokens = 1000
     body = {
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o-mini",
       max_tokens: max_tokens,
       messages: [
         {
@@ -55,7 +55,7 @@ class GptService
     Rails.logger.debug "GptService: Received image_url for building analysis: #{image_url}"
 
     body = {
-      model: "gpt-4-vision-preview",
+      model: "gpt-4o-mini",
       max_tokens: 1000,
       messages: [
         {
