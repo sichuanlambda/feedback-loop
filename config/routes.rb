@@ -39,7 +39,8 @@ Rails.application.routes.draw do
   get 'proxy/fetch_street_view', to: 'proxy#fetch_street_view'
 
   # Routes for SearchesController
-  resources :searches, only: [:new, :create]
+  get '/searches/new', to: 'searches#new'
+  post '/searches', to: 'searches#create'
 
   # Architecture Explorer routes
   get 'architecture_explorer/address_search', to: 'architecture_explorer#address_search'
@@ -49,6 +50,9 @@ Rails.application.routes.draw do
   post '/process_building_image', to: 'architecture_explorer#process_building_image', as: 'analyze_building'
   patch 'architecture_explorer/:id', to: 'architecture_explorer#update', as: :architecture_explorer_update
   get 'architecture_explorer/:id/status', to: 'architecture_explorer#status', as: :architecture_explorer_status
+  get 'style-finder', to: 'architecture_explorer#style_finder', as: :style_finder
+  post 'architecture_explorer/analyze_style_preferences', to: 'architecture_explorer#analyze_style_preferences'
+  post '/generate_image', to: 'architecture_explorer#generate_image'
 
   # Architecture Designer Routes
   resources :architecture_designer, only: [] do
