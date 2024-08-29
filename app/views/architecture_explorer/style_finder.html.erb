@@ -1,7 +1,6 @@
 <div class="container">
   <h1 class="text-center mb-4">Architecture Style Finder</h1>
   
-
   <div class="row">
     <div class="col-md-8">
       <div id="image-gallery" class="row">
@@ -54,14 +53,14 @@
           <h5 class="card-title">Your Style Preferences</h5>
           <div id="selected-styles"></div>
           <button id="analyze-button" class="btn btn-primary btn-block mt-3">Analyze My Style</button>
-          <%# <div id="loading-spinner" class="text-center mt-3" style="display: none;">
+          <div id="generated-image" class="mt-3"></div>
+          <button id="generate-new-image" class="btn btn-secondary btn-block mt-3" style="display: none;">Generate New Image</button>
+          <div id="loading-spinner" class="text-center mt-3" style="display: none;">
             <div class="spinner-border text-primary" role="status">
               <span class="sr-only">Loading...</span>
             </div>
             <p class="mt-2">Generating your custom building...</p>
           </div>
-          <div id="generated-image" class="mt-3"></div>
-          <button id="generate-new-image" class="btn btn-secondary btn-block mt-3" style="display: none;">Generate New Image</button> %>
         </div>
       </div>
     </div>
@@ -258,7 +257,6 @@ function analyzeMyStyle() {
   console.log('Preferred styles:', preferredStyles);
   window.preferredStyles = preferredStyles;
   displayPreferredStyles(preferredStyles);
-  generateImage(preferredStyles);
   generateNewImageButton.style.display = 'block';
 }
 
@@ -290,46 +288,43 @@ function displayPreferredStyles(styles) {
 function generateImage(styles) {
   console.log('Generating image based on styles:', styles);
   
-  // Show loading spinner
   document.getElementById('loading-spinner').style.display = 'block';
   
-  // Prepare the prompt for image generation
   const prompt = styles.slice(0, 3).map(style => style.name).join(', ');
   
-  // Make an AJAX call to the ArchitectureDesignerController to generate the image
-  fetch('/architecture_designer/submit', {
+  fetch('/designs/submit', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
     },
     body: JSON.stringify({ 
-      architecture_type: prompt,
-      step2_selections: window.preferredStyles
+      architecture_type: 'custom building',
+      user_selections: styles.map(style => `${style.name}: ${style.percentage}%`),
+      image_style: 'photo-realistic style'
     })
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
-  .then(data => {
-    // Hide loading spinner
+  .then(response => response.text())
+  .then(html => {
     document.getElementById('loading-spinner').style.display = 'none';
     
-    if (data.image_url) {
-      displayGeneratedImage(data.image_url);
+    // Parse the HTML response
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Try to find the image URL
+    const imgElement = doc.querySelector('img');
+    if (imgElement && imgElement.src) {
+      displayGeneratedImage(imgElement.src);
     } else {
-      console.error('Failed to generate image:', data);
-      alert('Failed to generate image. Please try again.');
+      console.error('Failed to find image URL in HTML response');
+      alert('Failed to generate image. Unable to find image URL in response.');
     }
   })
   .catch(error => {
     console.error('Error generating image:', error);
-    // Hide loading spinner
     document.getElementById('loading-spinner').style.display = 'none';
-    alert('An error occurred while generating the image. Please try again.');
+    alert(`An error occurred while generating the image: ${error.message}`);
   });
 }
 
