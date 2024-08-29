@@ -34,6 +34,8 @@ Rails.application.routes.draw do
   post '/stripe_events', to: 'stripe_events#create'
   post 'designs/submit', to: 'designs#submit'
 
+
+
   # Route for public user profiles
   get '/users/:handle', to: 'users#show', as: 'user_profile'
 

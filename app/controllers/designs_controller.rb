@@ -3,9 +3,14 @@ require 'open-uri'
 require 'aws-sdk-s3'
 
 class DesignsController < ApplicationController
+  before_action :authenticate_user!, except: [:style_finder, :submit]
   before_action :set_gpt_api_options
   before_action :set_custom_nav
 
+
+  def style_finder
+    # Your existing style finder logic (if any)
+  end
   # This action handles the final submission and API call
   def submit
     Rails.logger.debug "Params: #{params.inspect}"
