@@ -36,12 +36,6 @@
                 </div>
                 <div class="modal-body">
                   <img src="<%= building.image_url %>" class="img-fluid mb-3" alt="Building Image">
-                  <h6>Architectural Styles:</h6>
-                  <ul>
-                    <% JSON.parse(building.h3_contents || '[]').each do |style| %>
-                      <li><%= style %></li>
-                    <% end %>
-                  </ul>
                 </div>
               </div>
             </div>
