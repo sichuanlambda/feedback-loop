@@ -32,6 +32,7 @@ Rails.application.routes.draw do
   get '/auth/:provider/callback', to: 'sessions#create_from_omniauth'
   get '/auth/failure', to: 'sessions#omniauth_failure'
   post '/stripe_events', to: 'stripe_events#create'
+  post 'designs/submit', to: 'designs#submit'
 
   # Route for public user profiles
   get '/users/:handle', to: 'users#show', as: 'user_profile'
