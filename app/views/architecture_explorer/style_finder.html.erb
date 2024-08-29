@@ -56,12 +56,14 @@
                   data-user-has-active-subscription="<%= user_has_active_subscription %>">
             Generate New Image
           </button>
+          <button id="re-analyze-button" class="btn btn-outline-primary btn-block mt-3" style="display: none;">Re-analyze</button>
           <div id="loading-spinner" class="text-center mt-3" style="display: none;">
             <div class="spinner-border text-primary" role="status">
               <span class="sr-only">Loading...</span>
             </div>
             <p class="mt-2">Generating your custom building...</p>
           </div>
+          <a href="/architecture_explorer/address_search" class="btn btn-outline-primary btn-block mt-3">New Design Analysis</a>
         </div>
       </div>
     </div>
@@ -107,6 +109,7 @@
     const selectedBuildings = new Map();
     const selectButtons = document.querySelectorAll('.select-image');
     const analyzeButton = document.getElementById('analyze-button');
+    const reAnalyzeButton = document.getElementById('re-analyze-button');
     const selectedStylesDiv = document.getElementById('selected-styles');
     const generatedImageDiv = document.getElementById('generated-image');
     const generateNewImageButton = document.getElementById('generate-new-image');
@@ -123,9 +126,21 @@
           return;
         }
         analyzeMyStyle();
+        // Hide the analyze button and show the re-analyze button
+        analyzeButton.style.display = 'none';
+        reAnalyzeButton.style.display = 'block';
       });
     } else {
       console.error('Analyze button not found!');
+    }
+
+    if (reAnalyzeButton) {
+      reAnalyzeButton.addEventListener('click', function() {
+        console.log('Re-analyze button clicked');
+        analyzeMyStyle();
+      });
+    } else {
+      console.error('Re-analyze button not found!');
     }
 
     if (generateNewImageButton) {
@@ -307,11 +322,11 @@ function displayPreferredStyles(styles) {
       generateNewImageButton.classList.add('btn-secondary');
       generateNewImageButton.classList.remove('btn-primary');
     } else if (userSignedIn) {
-      generateNewImageButton.textContent = 'Subscribe to Generate Image';
+      generateNewImageButton.textContent = 'Generate Image with Style';
       generateNewImageButton.classList.add('btn-primary');
       generateNewImageButton.classList.remove('btn-secondary');
     } else {
-      generateNewImageButton.textContent = 'Login to Generate Image';
+      generateNewImageButton.textContent = 'Login to Generate Image with Style  ';
       generateNewImageButton.classList.add('btn-primary');
       generateNewImageButton.classList.remove('btn-secondary');
     }
