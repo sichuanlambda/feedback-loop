@@ -234,7 +234,7 @@
                     <!-- Google OAuth button, directly reused from the sign-in page -->
                     <% if devise_mapping.omniauthable? %>
                         <% resource_class.omniauth_providers.each do |provider| %>
-                            <%= button_to user_google_oauth2_omniauth_authorize_path(provider), method: :post, class: "gsi-material-button" do %>
+                            <%= button_to user_google_oauth2_omniauth_authorize_path, method: :post, data: { turbo: false }, class: "gsi-material-button" do %>
                                 <div class="gsi-material-button-content-wrapper">
                                     <img src="<%= asset_path('googlelogo.png') %>" alt="Google" class="gsi-material-button-icon">
                                     <span class="gsi-material-button-contents">Sign up with Google</span>
