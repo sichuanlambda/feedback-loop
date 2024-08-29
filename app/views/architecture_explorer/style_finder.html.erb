@@ -1,6 +1,9 @@
 <div class="container">
   <h1 class="text-center mb-4">Architecture Style Finder</h1>
   
+  <% user_signed_in = user_signed_in? %>
+  <% user_has_active_subscription = user_signed_in && current_user.subscription_status == 'active' %>
+  
   <div class="row">
     <div class="col-md-8">
       <div id="image-gallery" class="row">
@@ -54,7 +57,11 @@
           <div id="selected-styles"></div>
           <button id="analyze-button" class="btn btn-primary btn-block mt-3">Analyze My Style</button>
           <div id="generated-image" class="mt-3"></div>
-          <button id="generate-new-image" class="btn btn-secondary btn-block mt-3" style="display: none;">Generate New Image</button>
+          <button id="generate-new-image" class="btn btn-secondary btn-block mt-3" style="display: none;" 
+                  data-user-signed-in="<%= user_signed_in %>"
+                  data-user-has-active-subscription="<%= user_has_active_subscription %>">
+            Generate New Image
+          </button>
           <div id="loading-spinner" class="text-center mt-3" style="display: none;">
             <div class="spinner-border text-primary" role="status">
               <span class="sr-only">Loading...</span>
@@ -130,7 +137,18 @@
     if (generateNewImageButton) {
       generateNewImageButton.addEventListener('click', function() {
         console.log('Generate New Image button clicked');
-        generateImage(window.preferredStyles);
+        const userSignedIn = this.getAttribute('data-user-signed-in') === 'true';
+        const userHasActiveSubscription = this.getAttribute('data-user-has-active-subscription') === 'true';
+        
+        if (userHasActiveSubscription) {
+          generateImage(window.preferredStyles);
+        } else if (userSignedIn) {
+          // Redirect to account page for subscription
+          window.location.href = '/account';
+        } else {
+          // Redirect to login page
+          window.location.href = '/users/sign_in';
+        }
       });
     } else {
       console.error('Generate New Image button not found!');
@@ -283,6 +301,27 @@ function displayPreferredStyles(styles) {
   });
 
   console.log('UI updated with preferred styles');
+
+  // Show the "Generate New Image" button
+  if (generateNewImageButton) {
+    generateNewImageButton.style.display = 'block';
+    const userSignedIn = generateNewImageButton.getAttribute('data-user-signed-in') === 'true';
+    const userHasActiveSubscription = generateNewImageButton.getAttribute('data-user-has-active-subscription') === 'true';
+    
+    if (userHasActiveSubscription) {
+      generateNewImageButton.textContent = 'Generate New Image';
+      generateNewImageButton.classList.add('btn-secondary');
+      generateNewImageButton.classList.remove('btn-primary');
+    } else if (userSignedIn) {
+      generateNewImageButton.textContent = 'Subscribe to Generate Image';
+      generateNewImageButton.classList.add('btn-primary');
+      generateNewImageButton.classList.remove('btn-secondary');
+    } else {
+      generateNewImageButton.textContent = 'Login to Generate Image';
+      generateNewImageButton.classList.add('btn-primary');
+      generateNewImageButton.classList.remove('btn-secondary');
+    }
+  }
 }
 
 function generateImage(styles) {
