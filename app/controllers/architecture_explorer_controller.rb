@@ -10,6 +10,11 @@ class ArchitectureExplorerController < ApplicationController
   before_action :set_custom_nav
   include BuildingAnalysisProcessor
 
+  def map
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @building_analyses = BuildingAnalysis.all # Or some other query to get the building analyses you want to display
+  end
+
   def new
     # Renders the form for uploading an image
   end

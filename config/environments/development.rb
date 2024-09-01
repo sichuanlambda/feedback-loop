@@ -90,4 +90,6 @@ Rails.application.configure do
   # variables or the dotenv-rails gem to manage your API keys securely.
   # Example:
   # export OPENAI_API_KEY=your_api_key_here
+
+  config.require_master_key = true
 end

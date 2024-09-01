@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>Architecture Explorer Map</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css">
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="loading" style="position: absolute; top: 10px; left: 10px; background: white; padding: 5px;">Loading...</div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM Content Loaded");
+        
+        try {
+          const mapboxAccessToken = '<%= @mapbox_access_token %>';
+          console.log("Mapbox Access Token:", mapboxAccessToken);
+          
+          if (!mapboxAccessToken) {
+            throw new Error("Mapbox Access Token is not set");
+          }
+
+          mapboxgl.accessToken = mapboxAccessToken;
+
+          console.log("Creating map");
+          const map = new mapboxgl.Map({
+              container: 'map',
+              style: 'mapbox://styles/mapbox/streets-v9',
+              center: [0, 0],
+              zoom: 2
+          });
+
+          console.log("Map created");
+
+          // Rest of your code...
+
+        } catch (error) {
+          console.error("An error occurred:", error);
+          document.getElementById('loading').innerHTML = "Error loading map: " + error.message;
+        }
+      });
+    </script>
+</body>
+</html>

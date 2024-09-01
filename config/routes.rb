@@ -33,6 +33,8 @@ Rails.application.routes.draw do
   get '/auth/failure', to: 'sessions#omniauth_failure'
   post '/stripe_events', to: 'stripe_events#create'
   post 'designs/submit', to: 'designs#submit'
+  get 'architecture_explorer/map', to: 'architecture_explorer#map'
+
 
 
 
