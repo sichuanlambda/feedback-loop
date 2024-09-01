@@ -12,7 +12,16 @@ class ArchitectureExplorerController < ApplicationController
 
   def map
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
-    @building_analyses = BuildingAnalysis.all # Or some other query to get the building analyses you want to display
+    @building_analyses = BuildingAnalysis.all.map do |analysis|
+      {
+        id: analysis.id,
+        latitude: analysis.latitude,
+        longitude: analysis.longitude,
+        address: analysis.address,
+        h3_contents: JSON.parse(analysis.h3_contents || '[]'),
+        street_view_url: analysis.street_view_url
+      }
+    end
   end
 
   def new
