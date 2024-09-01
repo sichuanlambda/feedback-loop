@@ -44,6 +44,53 @@
 
           console.log("Map created");
 
+          // Add this code to load and display buildings
+          map.on('load', function () {
+            console.log("Map loaded, fetching building data...");
+            fetch('/api/building_analyses')
+              .then(response => response.json())
+              .then(buildings => {
+                console.log(`Fetched ${buildings.length} buildings`);
+                let validBuildingsCount = 0;
+                buildings.forEach((building, index) => {
+                  if (building.latitude && building.longitude) {
+                    validBuildingsCount++;
+                    console.log(`Adding marker ${index + 1}: [${building.latitude}, ${building.longitude}]`);
+                    try {
+                      new mapboxgl.Marker()
+                        .setLngLat([building.longitude, building.latitude])
+                        .setPopup(new mapboxgl.Popup().setHTML(`
+                          <h3>${building.address || 'No address'}</h3>
+                          <p>Latitude: ${building.latitude}</p>
+                          <p>Longitude: ${building.longitude}</p>
+                          <img src="${building.street_view_url}" alt="Street View" width="200">
+                        `))
+                        .addTo(map);
+                    } catch (error) {
+                      console.error(`Error adding marker ${index + 1}:`, error);
+                    }
+                  } else {
+                    console.log(`Building ${index + 1} missing coordinates`);
+                  }
+                });
+                console.log(`Added ${validBuildingsCount} markers to the map`);
+                document.getElementById('loading').style.display = 'none';
+
+                // Center the map on the first valid building
+                const firstValidBuilding = buildings.find(b => b.latitude && b.longitude);
+                if (firstValidBuilding) {
+                  map.flyTo({
+                    center: [firstValidBuilding.longitude, firstValidBuilding.latitude],
+                    zoom: 10
+                  });
+                }
+              })
+              .catch(error => {
+                console.error("Error loading buildings:", error);
+                document.getElementById('loading').innerHTML = "Error loading buildings: " + error.message;
+              });
+          });
+
           // Rest of your code...
 
         } catch (error) {
