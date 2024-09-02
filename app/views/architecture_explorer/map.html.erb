@@ -11,6 +11,7 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css">
+    <script src="https://unpkg.com/supercluster@7.1.2/dist/supercluster.min.js"></script>
     <style>
         body { margin: 0; padding: 0; }
         #map { position: absolute; top: 0; bottom: 0; left: 0; right: 400px; width: calc(100% - 400px); }
@@ -46,7 +47,7 @@
         .mapboxgl-popup-content {
             padding: 20px;
             max-width: 600px;
-            width: 100%;
+            width: 300px;
         }
         .popup-content h3 {
             margin-top: 0;
@@ -92,6 +93,17 @@
         .view-details-btn:hover {
             background-color: #0056b3;
             transform: translateY(-2px);
+            color: white;
+        }
+        .cluster-marker {
+            background-color: #007bff;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -131,6 +143,82 @@
           const markers = [];
           const buildingList = document.getElementById('building-list');
 
+          // Create a new supercluster instance
+          const supercluster = new Supercluster({
+              radius: 40,
+              maxZoom: 16
+          });
+
+          // Prepare the GeoJSON features for the supercluster
+          const points = buildings.map(building => ({
+              type: 'Feature',
+              properties: { id: building.id, ...building },
+              geometry: {
+                  type: 'Point',
+                  coordinates: [building.longitude, building.latitude]
+              }
+          })).filter(point => point.geometry.coordinates[0] && point.geometry.coordinates[1]);
+
+          // Load the points into the supercluster
+          supercluster.load(points);
+
+          function updateMarkers() {
+              const newMarkers = [];
+              const bounds = map.getBounds();
+              const zoom = map.getZoom();
+              const clusters = supercluster.getClusters(
+                  [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
+                  Math.floor(zoom)
+              );
+
+              // Remove existing markers
+              markers.forEach(marker => marker.remove());
+              markers.length = 0;
+
+              clusters.forEach(cluster => {
+                  const [longitude, latitude] = cluster.geometry.coordinates;
+
+                  if (cluster.properties.cluster) {
+                      // Create a cluster marker
+                      const el = document.createElement('div');
+                      el.className = 'cluster-marker';
+                      el.style.width = el.style.height = `${30 + (cluster.properties.point_count / points.length) * 20}px`;
+                      el.innerText = cluster.properties.point_count;
+
+                      const marker = new mapboxgl.Marker(el)
+                          .setLngLat([longitude, latitude])
+                          .addTo(map);
+
+                      newMarkers.push(marker);
+                  } else {
+                      // Create a single building marker
+                      const building = cluster.properties;
+                      const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
+
+                      const marker = new mapboxgl.Marker()
+                          .setLngLat([longitude, latitude])
+                          .setPopup(new mapboxgl.Popup().setHTML(`
+                              <div class="popup-content">
+                                  <h3>${building.address || 'No address'}</h3>
+                                  <img src="${building.street_view_url}" alt="Street View" width="100%">
+                                  <div class="styles-container">
+                                      <strong>Architectural Styles:</strong><br>
+                                      ${stylesHtml || '<span>Unknown</span>'}
+                                  </div>
+                                  <div class="button-container">
+                                      <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
+                                  </div>
+                              </div>
+                          `))
+                          .addTo(map);
+
+                      newMarkers.push(marker);
+                  }
+              });
+
+              markers.push(...newMarkers);
+          }
+
           function updateBuildingList() {
             const bounds = map.getBounds();
             buildingList.innerHTML = '';
@@ -160,36 +248,8 @@
             console.log("Map loaded, adding building markers...");
             console.log(`Processing ${buildings.length} buildings`);
             
-            buildings.forEach((building, index) => {
-              if (building.latitude && building.longitude) {
-                console.log(`Adding marker ${index + 1}: [${building.latitude}, ${building.longitude}]`);
-                try {
-                  const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
-
-                  const marker = new mapboxgl.Marker()
-                    .setLngLat([building.longitude, building.latitude])
-                    .setPopup(new mapboxgl.Popup().setHTML(`
-                      <div class="popup-content">
-                        <h3>${building.address || 'No address'}</h3>
-                        <img src="${building.street_view_url}" alt="Street View" width="100%">
-                        <div class="styles-container">
-                          <strong>Architectural Styles:</strong><br>
-                          ${stylesHtml || '<span>Unknown</span>'}
-                        </div>
-                        <div class="button-container">
-                          <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
-                        </div>
-                      </div>
-                    `))
-                    .addTo(map);
-                  markers.push(marker);
-                } catch (error) {
-                  console.error(`Error adding marker ${index + 1}:`, error);
-                }
-              } else {
-                console.log(`Building ${index + 1} missing coordinates`);
-              }
-            });
+            updateMarkers();
+            updateBuildingList();
 
             document.getElementById('loading').style.display = 'none';
 
@@ -202,8 +262,10 @@
               });
             }
 
-            updateBuildingList();
-            map.on('moveend', updateBuildingList);
+            map.on('moveend', () => {
+                updateMarkers();
+                updateBuildingList();
+            });
           });
 
         } catch (error) {
