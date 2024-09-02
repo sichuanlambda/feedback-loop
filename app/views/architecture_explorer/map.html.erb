@@ -133,8 +133,8 @@
           const map = new mapboxgl.Map({
               container: 'map',
               style: 'mapbox://styles/mapbox/streets-v9',
-              center: [0, 0],
-              zoom: 2
+              center: [-104.9903, 39.7392], // Denver coordinates
+              zoom: 12 // A good initial zoom level for a city view
           });
 
           console.log("Map created");
@@ -246,21 +246,21 @@
 
           map.on('load', function () {
             console.log("Map loaded, adding building markers...");
-            console.log(`Processing ${buildings.length} buildings`);
             
             updateMarkers();
             updateBuildingList();
 
             document.getElementById('loading').style.display = 'none';
 
-            // Center the map on the first valid building
-            const firstValidBuilding = buildings.find(b => b.latitude && b.longitude);
-            if (firstValidBuilding) {
-              map.flyTo({
-                center: [firstValidBuilding.longitude, firstValidBuilding.latitude],
-                zoom: 10
-              });
-            }
+            // Focus on Denver
+            const denverCenter = [-104.9903, 39.7392];
+            const denverZoom = 12;
+
+            map.flyTo({
+              center: denverCenter,
+              zoom: denverZoom,
+              essential: true
+            });
 
             map.on('moveend', () => {
                 updateMarkers();
