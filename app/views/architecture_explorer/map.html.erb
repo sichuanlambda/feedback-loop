@@ -14,10 +14,10 @@
     <script src="https://unpkg.com/supercluster@7.1.2/dist/supercluster.min.js"></script>
     <style>
         body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 0; bottom: 0; left: 0; right: 400px; width: calc(100% - 400px); }
+        #map { position: absolute; top: 60px; bottom: 0; left: 0; right: 400px; width: calc(100% - 400px); height: calc(100% - 60px); }
         #sidebar {
             position: absolute;
-            top: 0;
+            top: 60px;
             right: 0;
             bottom: 0;
             width: 400px;
@@ -25,6 +25,7 @@
             overflow-y: auto;
             padding: 20px;
             box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            height: calc(100% - 60px);
         }
         #building-list {
             list-style-type: none;
@@ -105,6 +106,55 @@
             font-weight: bold;
             font-size: 14px;
         }
+        #filter-container {
+            position: absolute;
+            top: 70px;
+            left: 10px;
+            z-index: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 280px;
+        }
+        #style-filter {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        .filter-title {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .filter-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .filter-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        #apply-filter {
+            background-color: #007bff;
+            color: white;
+        }
+        #apply-filter:hover {
+            background-color: #0056b3;
+        }
+        #reset-filter {
+            background-color: #6c757d;
+            color: white;
+        }
+        #reset-filter:hover {
+            background-color: #5a6268;
+        }
     </style>
 </head>
 <body>
@@ -113,7 +163,17 @@
         <h2>Buildings in View</h2>
         <ul id="building-list"></ul>
     </div>
-    <div id="loading" style="position: absolute; top: 10px; left: 10px; background: white; padding: 5px;">Loading...</div>
+    <div id="filter-container">
+        <h3 class="filter-title">Filter by Architectural Style</h3>
+        <select id="style-filter" multiple>
+            <!-- Options will be dynamically populated -->
+        </select>
+        <div class="filter-buttons">
+            <button id="apply-filter" class="filter-btn">Apply Filter</button>
+            <button id="reset-filter" class="filter-btn">Reset Filters</button>
+        </div>
+    </div>
+    <div id="loading" style="position: absolute; top: 70px; left: 10px; background: white; padding: 5px;">Loading...</div>
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
@@ -142,6 +202,19 @@
           const buildings = <%= raw @building_analyses.to_json %>;
           const markers = [];
           const buildingList = document.getElementById('building-list');
+          const styleFilter = document.getElementById('style-filter');
+
+          // Populate style filter options
+          const allStyles = new Set();
+          buildings.forEach(building => {
+              building.h3_contents.forEach(style => allStyles.add(style));
+          });
+          allStyles.forEach(style => {
+              const option = document.createElement('option');
+              option.value = style;
+              option.textContent = style;
+              styleFilter.appendChild(option);
+          });
 
           // Create a new supercluster instance
           const supercluster = new Supercluster({
@@ -175,6 +248,8 @@
               markers.forEach(marker => marker.remove());
               markers.length = 0;
 
+              const selectedStyles = Array.from(styleFilter.selectedOptions).map(option => option.value);
+
               clusters.forEach(cluster => {
                   const [longitude, latitude] = cluster.geometry.coordinates;
 
@@ -193,26 +268,28 @@
                   } else {
                       // Create a single building marker
                       const building = cluster.properties;
-                      const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
+                      if (selectedStyles.length === 0 || building.h3_contents.some(style => selectedStyles.includes(style))) {
+                          const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
 
-                      const marker = new mapboxgl.Marker()
-                          .setLngLat([longitude, latitude])
-                          .setPopup(new mapboxgl.Popup().setHTML(`
-                              <div class="popup-content">
-                                  <h3>${building.address || 'No address'}</h3>
-                                  <img src="${building.street_view_url}" alt="Street View" width="100%">
-                                  <div class="styles-container">
-                                      <strong>Architectural Styles:</strong><br>
-                                      ${stylesHtml || '<span>Unknown</span>'}
+                          const marker = new mapboxgl.Marker()
+                              .setLngLat([longitude, latitude])
+                              .setPopup(new mapboxgl.Popup().setHTML(`
+                                  <div class="popup-content">
+                                      <h3>${building.address || 'No address'}</h3>
+                                      <img src="${building.street_view_url}" alt="Street View" width="100%">
+                                      <div class="styles-container">
+                                          <strong>Architectural Styles:</strong><br>
+                                          ${stylesHtml || '<span>Unknown</span>'}
+                                      </div>
+                                      <div class="button-container">
+                                          <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
+                                      </div>
                                   </div>
-                                  <div class="button-container">
-                                      <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
-                                  </div>
-                              </div>
-                          `))
-                          .addTo(map);
+                              `))
+                              .addTo(map);
 
-                      newMarkers.push(marker);
+                          newMarkers.push(marker);
+                      }
                   }
               });
 
@@ -222,9 +299,11 @@
           function updateBuildingList() {
             const bounds = map.getBounds();
             buildingList.innerHTML = '';
+            const selectedStyles = Array.from(styleFilter.selectedOptions).map(option => option.value);
             buildings.forEach((building) => {
               if (building.latitude && building.longitude &&
-                  bounds.contains([building.longitude, building.latitude])) {
+                  bounds.contains([building.longitude, building.latitude]) &&
+                  (selectedStyles.length === 0 || building.h3_contents.some(style => selectedStyles.includes(style)))) {
                 const li = document.createElement('li');
                 li.className = 'building-item';
                 const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
@@ -263,6 +342,20 @@
             });
 
             map.on('moveend', () => {
+                updateMarkers();
+                updateBuildingList();
+            });
+
+            const applyFilterBtn = document.getElementById('apply-filter');
+            const resetFilterBtn = document.getElementById('reset-filter');
+
+            applyFilterBtn.addEventListener('click', () => {
+                updateMarkers();
+                updateBuildingList();
+            });
+
+            resetFilterBtn.addEventListener('click', () => {
+                styleFilter.selectedIndex = -1; // Deselect all options
                 updateMarkers();
                 updateBuildingList();
             });
