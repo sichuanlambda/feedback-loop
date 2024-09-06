@@ -40,6 +40,6 @@ class BuildingAnalysis < ApplicationRecord
   private
 
   def normalize_styles
-    self.h3_contents = h3_contents.map { |style| StyleNormalizer.normalize(style) }.compact.uniq
+    self.h3_contents = StyleNormalizer.normalize_array(h3_contents)
   end
 end

@@ -100,8 +100,9 @@ module StyleNormalizer
 
   def self.normalize(style)
     return nil if style.nil?
+    return style if style.is_a?(Array)
 
-    normalized = style.strip.downcase
+    normalized = style.to_s.strip.downcase
     normalized = remove_percentage(normalized)
 
     # Check for exact matches first
@@ -120,5 +121,9 @@ module StyleNormalizer
 
   def self.remove_percentage(style)
     style.gsub(/\s*\d+%/, '').strip
+  end
+
+  def self.normalize_array(styles)
+    Array(styles).map { |style| normalize(style) }.compact.uniq
   end
 end
