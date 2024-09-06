@@ -6,120 +6,20 @@ require 'image_optim'
 require 'open-uri'
 
 class ArchitectureExplorerController < ApplicationController
-  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder]
+  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show]
   before_action :set_custom_nav
   include BuildingAnalysisProcessor
 
-  def map
-    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
-    @building_analyses = BuildingAnalysis.all.map do |analysis|
-      {
-        id: analysis.id,
-        latitude: analysis.latitude,
-        longitude: analysis.longitude,
-        address: analysis.address,
-        h3_contents: JSON.parse(analysis.h3_contents || '[]'),
-        street_view_url: analysis.street_view_url
-      }
-    end
-  end
+  # Use the default layout for most actions
+  layout 'application'
 
-  def new
-    # Renders the form for uploading an image
-  end
+  # Use the custom layout only for the new map-based views
+  layout :determine_layout
 
-
-  def create
-    Rails.logger.debug "Processing the uploaded image..."
-    Rails.logger.debug "Form submission received with params: #{params.inspect}"
-
-    # Directly uploaded image or fetched image from an address
-    image_url = if params[:image].present?
-                  upload_image_to_s3(params[:image])
-                elsif params[:previewed_image_url].present?
-                  params[:previewed_image_url]
-                end
-
-    if image_url.blank?
-      redirect_to root_path, alert: "No image uploaded or address provided"
-      return
-    end
-
-    # Create a placeholder BuildingAnalysis record immediately
-    new_analysis = BuildingAnalysis.create(
-      user: current_user,
-      address: params[:address].presence || "N/A",
-      image_url: image_url,
-      visible_in_library: true
-    )
-
-    if new_analysis.persisted?
-      # Enqueue the job with the necessary parameters
-      ProcessBuildingAnalysisJob.perform_later(new_analysis.id, image_url, params[:address])
-      redirect_to architecture_explorer_show_path(id: new_analysis.id), notice: "Your building analysis is underway. Please wait for the results to be processed."
-    else
-      redirect_to root_path, alert: "Failed to initiate analysis."
-    end
-  rescue => e
-    Rails.logger.error "Exception in create action: #{e.message}"
-    redirect_to root_path, alert: "Unexpected error occurred."
-  end
-
-  def status
-    building_analysis = BuildingAnalysis.find_by(id: params[:id])
-
-    if building_analysis&.html_content.present?
-      render json: { status: 'completed', html_content: building_analysis.html_content, h3_contents: building_analysis.h3_contents }
-    else
-      render json: { status: 'processing' }
-    end
-  end
-
+  # Existing actions
   def address_search
     # Any setup needed for the view can be added here
   end
-  def fetch_street_view_image(address)
-    api_key = Rails.application.credentials.google_maps[:api_key]
-    url = "https://maps.googleapis.com/maps/api/streetview?size=600x400&location=#{URI.encode_www_form_component(address)}&key=#{api_key}"
-
-    begin
-      image_data = URI.open(url).read
-      temp_image = Tempfile.new(["street_view", ".jpg"])
-      temp_image.binmode
-      temp_image.write(image_data)
-      temp_image.rewind
-
-      return temp_image
-    rescue => e
-      Rails.logger.error "Failed to fetch street view image: #{e.message}"
-      nil
-    end
-  end
-
-  def show
-    @building_analysis = BuildingAnalysis.find_by(id: params[:id])
-
-    if @building_analysis
-      # Move the @is_shared assignment here, after confirming @building_analysis is not nil
-      @is_shared = @building_analysis.visible_in_library
-      @html_content = @building_analysis.html_content
-      @image_url = @building_analysis.image_url # Make the image URL available in the view
-
-      # Extract H3 contents from the HTML content
-      @h3_contents = extract_h3s(@html_content)
-    else
-      redirect_to root_path, alert: "Analysis not found"
-    end
-  end
-
-  def extract_h3s(html_content)
-    doc = Nokogiri::HTML(html_content)
-    doc.search('h3').map do |h3|
-      # Remove special characters and numbers from each H3 text, then strip to remove leading/trailing whitespace
-      h3.text.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip
-    end.uniq # Ensure no duplicates
-  end
-
 
   def building_library
     # Adjust the method to fetch images for all users or a generic set if no user is logged in
@@ -170,7 +70,7 @@ class ArchitectureExplorerController < ApplicationController
     end
     @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
 
-    render 'architecture_explorer/building_library'
+    render 'architecture_explorer/building_library', layout: 'application'
   end
 
   def remove_from_library
@@ -181,6 +81,7 @@ class ArchitectureExplorerController < ApplicationController
       redirect_to architecture_explorer_show_path(id: building_analysis.id), alert: 'Failed to remove from library.'
     end
   end
+
   def add_to_library
     @building_analysis = BuildingAnalysis.find(params[:id])
 
@@ -190,6 +91,7 @@ class ArchitectureExplorerController < ApplicationController
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), alert: 'Unable to share building in library.'
     end
   end
+
   def update
     @building_analysis = BuildingAnalysis.find(params[:id])
     if @building_analysis.update(building_analysis_params)
@@ -237,6 +139,173 @@ class ArchitectureExplorerController < ApplicationController
     @architecture_styles = style_counts.keys.sort
 
     render 'denver'
+  end
+
+  def show
+    @building_analysis = BuildingAnalysis.find_by(id: params[:id])
+
+    if @building_analysis
+      # Move the @is_shared assignment here, after confirming @building_analysis is not nil
+      @is_shared = @building_analysis.visible_in_library
+      @html_content = @building_analysis.html_content
+      @image_url = @building_analysis.image_url # Make the image URL available in the view
+
+      # Extract H3 contents from the HTML content
+      @h3_contents = extract_h3s(@html_content)
+    else
+      redirect_to root_path, alert: "Analysis not found"
+    end
+  end
+
+  def extract_h3s(html_content)
+    doc = Nokogiri::HTML(html_content)
+    doc.search('h3').map do |h3|
+      # Remove special characters and numbers from each H3 text, then strip to remove leading/trailing whitespace
+      h3.text.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip
+    end.uniq # Ensure no duplicates
+  end
+
+  def fetch_street_view_image(address)
+    api_key = Rails.application.credentials.google_maps[:api_key]
+    url = "https://maps.googleapis.com/maps/api/streetview?size=600x400&location=#{URI.encode_www_form_component(address)}&key=#{api_key}"
+
+    begin
+      image_data = URI.open(url).read
+      temp_image = Tempfile.new(["street_view", ".jpg"])
+      temp_image.binmode
+      temp_image.write(image_data)
+      temp_image.rewind
+
+      return temp_image
+    rescue => e
+      Rails.logger.error "Failed to fetch street view image: #{e.message}"
+      nil
+    end
+  end
+
+  def new
+    # Renders the form for uploading an image
+  end
+
+  def create
+    Rails.logger.debug "Create action called with params: #{params.inspect}"
+
+    image_url = if params[:image].present?
+                  upload_image_to_s3(params[:image])
+                elsif params[:previewed_image_url].present?
+                  params[:previewed_image_url]
+                end
+
+    if image_url.blank?
+      redirect_to root_path, alert: "No image uploaded or address provided"
+      return
+    end
+
+    begin
+      # Change this line from process_image_and_analyze to process_building_image
+      result = process_building_image(params[:image])
+      Rails.logger.debug "Analysis result: #{result.inspect}"
+
+      # Handle potential nil values
+      h3_contents = result&.fetch(:h3_contents, [])
+      normalized_styles = StyleNormalizer.normalize_array(h3_contents)
+
+      @building_analysis = BuildingAnalysis.create!(
+        user: current_user,
+        image_url: image_url,
+        h3_contents: normalized_styles,
+        html_content: result&.fetch(:html_content, ''),
+        visible_in_library: true,  # Set this to true by default
+        address: params[:address].presence || "N/A"  # Include address if provided
+      )
+
+      redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: "Analysis complete!"
+    rescue => e
+      Rails.logger.error "Error in create action: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      redirect_to root_path, alert: "An error occurred while processing your request."
+    end
+  end
+
+  def status
+    building_analysis = BuildingAnalysis.find_by(id: params[:id])
+
+    if building_analysis&.html_content.present?
+      render json: { status: 'completed', html_content: building_analysis.html_content, h3_contents: building_analysis.h3_contents }
+    else
+      render json: { status: 'processing' }
+    end
+  end
+
+  # New map-based view actions
+  def map
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @building_analyses = BuildingAnalysis.all.map do |analysis|
+      {
+        id: analysis.id,
+        latitude: analysis.latitude,
+        longitude: analysis.longitude,
+        address: analysis.address,
+        h3_contents: JSON.parse(analysis.h3_contents || '[]'),
+        street_view_url: analysis.street_view_url
+      }
+    end
+  end
+
+  def dutch_architecture
+    @initial_center = [4.9041, 52.3676]  # Amsterdam coordinates
+    @initial_zoom = 7  # Zoom level to show most of the Netherlands
+    @preset_styles = ['Dutch Renaissance', 'Dutch Baroque', 'Amsterdam School']
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @building_analyses = BuildingAnalysis.where(style: @preset_styles)
+  end
+
+  def netherlands
+    @initial_center = [5.2913, 52.1326]  # Center of the Netherlands
+    @initial_zoom = 7
+    @preset_styles = []  # No style filter, show all styles in the Netherlands
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @building_analyses = BuildingAnalysis.where(country: 'Netherlands')
+  end
+
+  def denver
+    @initial_center = [-104.9903, 39.7392]  # Denver coordinates
+    @initial_zoom = 12
+    @preset_styles = []  # No style filter, show all styles in Denver
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @building_analyses = BuildingAnalysis.where(city: 'Denver')
+  end
+
+  def new_york_city
+    @initial_center = [-74.0060, 40.7128]  # NYC coordinates
+    @initial_zoom = 12
+    @preset_styles = []  # No style filter, show all styles in NYC
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @building_analyses = BuildingAnalysis.where(city: 'New York City')
+  end
+
+  def washington_dc
+    @initial_center = [-77.0369, 38.9072]  # DC coordinates
+    @initial_zoom = 12
+    @preset_styles = []  # No style filter, show all styles in DC
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @building_analyses = BuildingAnalysis.where(city: 'Washington')
+  end
+
+  def boston
+    @initial_center = [-71.0589, 42.3601]  # Boston coordinates
+    @initial_zoom = 12
+    @preset_styles = []  # No style filter, show all styles in Boston
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @building_analyses = BuildingAnalysis.where(city: 'Boston')
+  end
+
+  def brutalist_architecture
+    @initial_center = [-3.4359, 55.3781]  # Roughly centered on Europe
+    @initial_zoom = 4  # Zoomed out to show a large area
+    @preset_styles = ['Brutalist']
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @building_analyses = BuildingAnalysis.where(style: 'Brutalist')
   end
 
   private
@@ -353,4 +422,11 @@ class ArchitectureExplorerController < ApplicationController
     @custom_nav = true
   end
 
+  def determine_layout
+    if action_name.in?(%w[map dutch_architecture netherlands denver new_york_city washington_dc boston brutalist_architecture])
+      'architecture_explorer'
+    else
+      'application'
+    end
+  end
 end
