@@ -1,0 +1,74 @@
+[]: 14
+["Tudor Revival","Gothic Revival"]: 2
+["Indo-Saracenic Revival Architecture", "Mughal Architecture", "Victorian Architecture"]: 1
+["Modern Architecture", "Minimalist Design", "Contemporary Style"]: 1
+["Modernism", "Tropical Architecture", "Brutalism", "Japanese Minimalism", "Biophilic Design"]: 1
+["Spanish Colonial Revival Style (80%)", "Beaux-Arts Influence (70%)", "Art Deco Elements (65%)"]: 1
+["Art Deco 90%", "Streamline Moderne 75%", "Modernism 60%"]: 1
+["Art Deco 80%", "Modernism 70%", "Beaux-Arts 50%", "Art Deco", "Modernism", "Beaux-Arts"]: 1
+["Baroque Confidence: 80%", "Renaissance Confidence: 60%", "Neoclassical Confidence: 70%", "Baroque", "Renaissance", "Neoclassical"]: 1
+["Art Deco Confidence Score: 70%", "Gothic Revival Confidence Score: 40%", "Chicago School Confidence Score: 60%", "Art Deco", "Gothic Revival", "Chicago School"]: 1
+["\n  Tudor Revival 85%\n", "\n  Colonial Revival 60%\n", "\n  Craftsman 40%\n"]: 1
+["Art Deco Confidence Score: 85%", "Neo-Byzantine Confidence Score: 60%", "Expressionism Confidence Score: 70%", "Futurism Confidence Score: 50%"]: 1
+["Queen Anne Influence 85%", "Richardsonian Romanesque Influence 60%", "Victorian Influence 75%"]: 1
+["Neoclassical 95%", "Renaissance 80%", "Baroque 75%", "Byzantine 60%", "Neoclassical", "Renaissance", "Baroque", "Byzantine"]: 1
+["Richardsonian Romanesque 80%", "Chicago School 70%", "Prairie Style 65%", "Richardsonian Romanesque", "Chicago School", "Prairie Style"]: 1
+["Neoclassical: 75%", "Renaissance: 65%", "Mediterranean Revival: 80%", "Neoclassical", "Renaissance", "Mediterranean Revival"]: 1
+["Art Deco: 95%", "Neo-Byzantine: 65%", "Futurism: 75%", "Neo-Gothic: 55%", "High-Tech: 50%"]: 1
+["Victorian: 75%", "Richardsonian Romanesque: 90%", "Romanesque: 80%"]: 1
+["Tudor Revival: 75%", "Colonial Revival: 65%"]: 1
+["Georgian Revival: 90%","Colonial Revival: 75%","Georgian Revival:","Colonial Revival:"]: 1
+["Art Deco: 60%","Modern Movement: 70%","Streamline Moderne: 50%"]: 1
+["Industrial Influence: 65%","Minimalism: 70%","Modern Influence: 75%","Rustic Influence: 60%"]: 1
+["Victorian: 80%","American Foursquare: 75%","Colonial Revival: 60%"]: 1
+["Gothic Revival: 92%","Romanesque: 65%","Neoclassical: 50%"]: 1
+["Gothic Revival: 93%","Gothic Revival Details","Neoclassical: 65%","Neoclassical Details"]: 1
+["Organic Architecture: 92%","Modern Movement: 75%","Sustainable Architecture: 89%","Organic Architecture Examples","Modern Movement Examples","Sustainable Architecture Examples"]: 1
+["Victorian Style: 65%","Colonial Revival: 60%","Arts \u0026 Crafts: 75%"]: 1
+["Organic Architecture: 92%","Modern Movement: 70%","Sustainable Architecture: 85%","Japanese Influence: 65%"]: 1
+["Prairie Style: 92%","Arts \u0026 Crafts: 75%","Colonial Revival: 60%","Prairie Style","Arts \u0026 Crafts","Colonial Revival"]: 1
+["Tudor Revival: 75%","Gothic Revival: 65%","Arts \u0026 Crafts: 60%"]: 1
+["Tudor Revival: 75%","Colonial Revival: 60%","Craftsman: 50%","Tudor Revival 75%","Colonial Revival 60%","Craftsman 50%"]: 1
+["Tudor Revival: 75%","Colonial Revival: 65%","Tudor Revival","Colonial Revival"]: 1
+["Queen Anne Style","Victorian Style","Colonial Revival Style"]: 1
+["Queen Anne Style","Richardsonian Romanesque","Colonial Revival"]: 1
+["Art Deco","Modern Movement","Streamline Moderne"]: 1
+["Art Deco","Modern Movement","International Style"]: 1
+["Postmodernism","International Style","Art Deco"]: 1
+["Tudor Revival"]: 1
+["Prairie Style","Tudor Revival","Colonial Revival","Craftsman"]: 1
+["Modern Movement","Minimalism","International Style","Contemporary"]: 1
+["Modern Movement","Minimalism","HighTech"]: 1
+["Prairie Style","Arts and Crafts"]: 1
+["Victorian","Queen Anne","Gothic Revival"]: 1
+["Prairie Style","Queen Anne","Arts  Crafts"]: 1
+["Queen Anne","Richardsonian Romanesque"]: 1
+["Tudor Revival","Colonial Revival"]: 1
+["Tudor Revival","Art  Crafts","Colonial Revival"]: 1
+["Tudor Revival","Tudor Revival in Real Life Instances","Art  Crafts","Art  Crafts in Real Life Instances"]: 1
+["Mediterranean Revival","Spanish Colonial Revival","Italianate"]: 1
+["Gothic Revival","Richardsonian Romanesque","Industrial","Postmodernism"]: 1
+["Colonial Revival","Georgian Revival"]: 1
+["Processed Image h3_contents"]: 1
+["Gothic","Tudor Revival","Queen Anne","Neoclassical"]: 1
+["Gothic Revival","Queen Anne","Tudor Revival"]: 1
+["Prairie Style","Arts  Crafts","Colonial Revival"]: 1
+["Gothic Revival","NeoGothic","Modern Movement"]: 1
+["Tudor Revival","Gothic Revival","Neoclassical"]: 1
+["Tudor Revival","Colonial Revival","Georgian Revival"]: 1
+["Tudor Revival","Reallife Instances","Gothic Revival"]: 1
+["Queen Anne Influence","Colonial Revival Influence","Richardsonian Romanesque Influence"]: 1
+["Gothic Revival","Richardsonian Romanesque"]: 1
+["Gothic Revival","Victorian","Renaissance"]: 1
+["Gothic Revival","Colonial Revival","Richardsonian Romanesque"]: 1
+["Victorian","Arts  Crafts","Neoclassical"]: 1
+["Modern Movement","Art Deco","Sustainable Architecture"]: 1
+["Deconstructivism","HighTech","Organic Architecture","Modern Movement","Futurism"]: 1
+["Victorian","Colonial Revival","BeauxArts","Art Nouveau"]: 1
+["Art  Crafts","Mission Revival","Victorian"]: 1
+["Victorian","Colonial Revival","Queen Anne","BeauxArts","Art Nouveau"]: 1
+["Victorian Style","BeauxArts","Art Nouveau","Colonial Revival","Romanesque"]: 1
+["Victorian","Queen Anne","Colonial Revival","Gothic Revival"]: 1
+["Victorian","Colonial Revival","BeauxArts"]: 1
+["Victorian","BeauxArts","Colonial Revival","Victorian Architecture","BeauxArts Architecture","Colonial Revival Architecture"]: 1
+["Contemporary Architecture", "Modernist Influences", "Contemporary Architecture Examples", "Modernist Architecture Examples"]: 1

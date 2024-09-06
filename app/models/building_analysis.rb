@@ -34,4 +34,12 @@ class BuildingAnalysis < ApplicationRecord
 
     all_styles.tally
   end
+
+  before_save :normalize_styles
+
+  private
+
+  def normalize_styles
+    self.h3_contents = h3_contents.map { |style| StyleNormalizer.normalize(style) }.compact.uniq
+  end
 end
