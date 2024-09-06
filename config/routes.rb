@@ -58,6 +58,7 @@ Rails.application.routes.draw do
   get 'style-finder', to: 'architecture_explorer#style_finder', as: :style_finder
   post 'architecture_explorer/analyze_style_preferences', to: 'architecture_explorer#analyze_style_preferences'
   post '/generate_image', to: 'architecture_explorer#generate_image'
+  patch 'architecture_explorer/update/:id', to: 'architecture_explorer#update', as: 'architecture_explorer_update'
 
   # Architecture Designer Routes
   resources :architecture_designer, only: [] do
