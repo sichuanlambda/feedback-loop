@@ -308,6 +308,11 @@ class ArchitectureExplorerController < ApplicationController
     @building_analyses = BuildingAnalysis.where(style: 'Brutalist')
   end
 
+  def denver_architecture
+    @places = []  # Temporary empty array
+    render 'architecture_explorer/map_places_and_styles/denver_architecture'
+  end
+
   private
 
   def calculate_style_frequency(building_analyses)

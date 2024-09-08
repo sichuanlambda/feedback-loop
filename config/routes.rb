@@ -35,9 +35,6 @@ Rails.application.routes.draw do
   post 'designs/submit', to: 'designs#submit'
   get 'architecture_explorer/map', to: 'architecture_explorer#map'
 
-
-
-
   # Route for public user profiles
   get '/users/:handle', to: 'users#show', as: 'user_profile'
 
@@ -100,4 +97,8 @@ Rails.application.routes.draw do
   namespace :api do
     resources :building_analyses, only: [:index]
   end
+
+  get '/architecture_explorer/map_places_and_styles/denver_architecture', to: 'architecture_explorer#denver_architecture'
+
+  get '/architecture_explorer/map_places_and_styles/:city', to: 'architecture_explorer#map_places_and_styles'
 end

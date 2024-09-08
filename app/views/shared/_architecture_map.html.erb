@@ -1,0 +1,53 @@
+<div id="map"></div>
+<div id="sidebar">
+    <h2>Buildings in View</h2>
+    <ul id="building-list"></ul>
+</div>
+<div id="filter-container">
+    <h3 class="filter-title">Filter by Architectural Style</h3>
+    <select id="style-filter" multiple>
+        <!-- Options will be dynamically populated -->
+    </select>
+    <div class="filter-buttons">
+        <button id="apply-filter" class="filter-btn">Apply Filter</button>
+        <button id="reset-filter" class="filter-btn">Reset Filters</button>
+    </div>
+</div>
+<div id="loading" style="position: absolute; top: 70px; left: 10px; background: white; padding: 5px;">Loading...</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const mapboxAccessToken = '<%= Rails.application.credentials.mapbox[:access_token] %>';
+    const initialCenter = <%= raw @initial_center.to_json %>;
+    const initialZoom = <%= @initial_zoom %>;
+    const presetStyles = <%= raw @preset_styles.to_json %>;
+    const buildingAnalyses = <%= raw @building_analyses.to_json %>;
+
+    mapboxgl.accessToken = mapboxAccessToken;
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: initialCenter,
+      zoom: initialZoom
+    });
+
+    // Add map controls, markers, and other functionality here
+    // ...
+
+    // Apply preset styles
+    const styleFilter = document.getElementById('style-filter');
+    if (presetStyles.length > 0) {
+      presetStyles.forEach(style => {
+        const option = document.createElement('option');
+        option.value = style;
+        option.textContent = style;
+        option.selected = true;
+        styleFilter.appendChild(option);
+      });
+      updateMarkers();
+      updateBuildingList();
+    }
+
+    // ... (rest of your existing code)
+  });
+</script>
