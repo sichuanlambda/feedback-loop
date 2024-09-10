@@ -98,7 +98,7 @@ Rails.application.routes.draw do
     resources :building_analyses, only: [:index]
   end
 
-  get '/architecture_explorer/map_places_and_styles/denver_architecture', to: 'architecture_explorer#denver_architecture'
+  get '/architecture_explorer/map_places_and_styles/denver_architecture', to: 'architecture_explorer#by_location', defaults: { location_name: 'denver' }
 
   get '/architecture_explorer/map_places_and_styles/:city', to: 'architecture_explorer#map_places_and_styles'
 end
