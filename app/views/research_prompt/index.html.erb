@@ -1,0 +1,16 @@
+<h1>Research Prompt</h1>
+
+<%= form_with url: research_prompt_path, method: :post, local: true do |form| %>
+  <div>
+    <%= form.label :input, "Enter your research prompt:" %>
+    <%= form.text_area :research_prompt, rows: 5, cols: 50, placeholder: "Type your prompt here..." %>
+  </div>
+  <div>
+    <%= form.submit "Submit" %>
+  </div>
+<% end %>
+
+<% if defined?(result) %>
+  <h2>Result:</h2>
+  <p><%= result %></p>
+<% end %>

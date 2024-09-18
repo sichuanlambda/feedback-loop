@@ -101,4 +101,8 @@ Rails.application.routes.draw do
   get '/architecture_explorer/map_places_and_styles/denver_architecture', to: 'architecture_explorer#by_location', defaults: { location_name: 'denver' }
 
   get '/architecture_explorer/map_places_and_styles/:city', to: 'architecture_explorer#map_places_and_styles'
+
+  # New Research Prompt Route
+  get 'research_prompt', to: 'research_prompt#index', as: 'research_prompt'
+  post 'research_prompt', to: 'research_prompt#create'
 end
