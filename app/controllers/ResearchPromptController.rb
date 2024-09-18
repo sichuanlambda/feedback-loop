@@ -8,15 +8,15 @@ class ResearchPromptController < ApplicationController
     Rails.logger.debug "Params: #{params.inspect}"
 
     # Store the research prompt input
-    research_prompt = params[:research_prompt] # This should be a hash
-    Rails.logger.debug "Research Prompt: #{research_prompt.inspect}" # Log the research prompt
-
-    input = research_prompt[:input] # Access the input field
+    input = params[:research_prompt] # This should now be a string
 
     # Utilize LangChain to process the input
     begin
       langchain_client = LangChain::Client.new(api_key: Rails.application.credentials.langchain_api_key)
       result = langchain_client.process(input) # Adjust method as per LangChain's API
+
+      # Debugging line to check the result
+      Rails.logger.debug "LangChain Result: #{result.inspect}"
 
       # Display the result to the user
       render :index, locals: { result: result }
