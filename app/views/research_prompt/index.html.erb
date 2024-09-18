@@ -13,4 +13,6 @@
 <% if defined?(result) && result.present? %>
   <h2>Result:</h2>
   <p><%= result %></p>
+<% else %>
+  <p>No result to display.</p> <!-- This line helps in debugging -->
 <% end %>

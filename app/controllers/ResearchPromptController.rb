@@ -1,28 +1,27 @@
 class ResearchPromptController < ApplicationController
+  require 'langchain' # Require the langchainrb gem
+
   def index
     # Render the form for the research prompt
   end
 
   def create
-    # Debugging line to check params
-    Rails.logger.debug "Params: #{params.inspect}"
-
     # Store the research prompt input
-    input = params[:research_prompt] # This should now be a string
+    input = params[:input]
 
-    # Utilize LangChain to process the input
-    begin
-      langchain_client = LangChain::Client.new(api_key: Rails.application.credentials.langchain_api_key)
-      result = langchain_client.process(input) # Adjust method as per LangChain's API
+    # Initialize the language model
+    api_key = Rails.application.credentials.openai[:api_key]
+    llm = Langchain::LLM::OpenAI.new(api_key: api_key)
+    llm.chat(messages: [{role: "user", content: "What is the meaning of life?"}]).completion
 
-      # Debugging line to check the result
-      Rails.logger.debug "LangChain Result: #{result.inspect}"
+    # Generate a response
+    response = llm.chat(messages: [{ role: "user", content: input }])
+    Rails.logger.info("OpenAI Response: #{response}")
 
-      # Display the result to the user
-      render :index, locals: { result: result }
-    rescue StandardError => e
-      flash[:error] = "An error occurred: #{e.message}"
-      render :index
-    end
+    # Render the result
+    render :index, locals: { result: response.completion }
+  rescue StandardError => e
+    flash[:error] = "An error occurred: #{e.message}"
+    render :index
   end
 end

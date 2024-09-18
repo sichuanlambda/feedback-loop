@@ -95,6 +95,10 @@ gem 'omniauth-rails_csrf_protection'
 
 gem 'sidekiq'
 
-gem 'langchain'
-
 gem 'dotenv-rails', groups: [:development, :test]
+
+gem 'langchainrb'
+
+gem "langchainrb_rails", "~> 0.1.10"
+
+gem 'ruby-openai', '~> 6.3.0'

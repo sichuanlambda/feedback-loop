@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_09_023912) do
+ActiveRecord::Schema[7.1].define(version: 2024_09_18_051251) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -86,6 +86,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_09_023912) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+# Could not dump table "products" because of following StandardError
+#   Unknown type 'vector' for column 'embedding'
 
   create_table "screenshot_analyses", force: :cascade do |t|
     t.text "extracted_text"
