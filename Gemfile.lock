@@ -212,7 +212,6 @@ GEM
       kaminari (>= 0.13.0)
       rails
     kaminari-core (1.2.2)
-    langchain (0.1.0)
     langchainrb (0.10.0)
       activesupport (>= 7.0.8)
       baran (~> 0.1.9)
@@ -428,7 +427,6 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   kaminari-bootstrap
-  langchain
   langchainrb
   langchainrb_rails (~> 0.1.10)
   mini_magick
