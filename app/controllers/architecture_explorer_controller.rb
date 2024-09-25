@@ -8,7 +8,7 @@ require 'open-uri'
 class ArchitectureExplorerController < ApplicationController
   before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show]
   before_action :set_custom_nav
-  include BuildingAnalysisProcessor
+  # include BuildingAnalysisProcessor
 
   # Use the default layout for most actions
   layout 'application'
@@ -150,8 +150,10 @@ class ArchitectureExplorerController < ApplicationController
       @html_content = @building_analysis.html_content
       @image_url = @building_analysis.image_url # Make the image URL available in the view
 
-      # Extract H3 contents from the HTML content
-      @h3_contents = extract_h3s(@html_content)
+      # Extract and clean H3 contents from the HTML content
+      h3_contents = extract_h3s(@html_content)
+      @h3_contents = clean_h3_contents(h3_contents)
+      Rails.logger.debug "Cleaned H3 contents for show: #{@h3_contents.inspect}"
     else
       redirect_to root_path, alert: "Analysis not found"
     end
@@ -159,10 +161,16 @@ class ArchitectureExplorerController < ApplicationController
 
   def extract_h3s(html_content)
     doc = Nokogiri::HTML(html_content)
-    doc.search('h3').map do |h3|
-      # Remove special characters and numbers from each H3 text, then strip to remove leading/trailing whitespace
-      h3.text.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip
-    end.uniq # Ensure no duplicates
+    h3s = doc.css('h3').map(&:text).map(&:strip).uniq # Extract H3 text, strip whitespace, and remove duplicates
+
+    # Log the extracted H3 contents for debugging
+    Rails.logger.debug "Extracted H3 contents: #{h3s.inspect}"
+
+    h3s # Return the array of H3 contents
+  end
+
+  def clean_h3_contents(h3_contents)
+    h3_contents.map { |content| content.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
   end
 
   def fetch_street_view_image(address)
@@ -202,21 +210,25 @@ class ArchitectureExplorerController < ApplicationController
     end
 
     begin
-      # Change this line from process_image_and_analyze to process_building_image
       result = process_building_image(params[:image])
       Rails.logger.debug "Analysis result: #{result.inspect}"
 
-      # Handle potential nil values
-      h3_contents = result&.fetch(:h3_contents, [])
-      normalized_styles = StyleNormalizer.normalize_array(h3_contents)
+      # Extract H3 contents from the HTML content
+      html_content = result&.fetch(:html_content, '')
+      h3_contents = extract_h3s(html_content)
+      Rails.logger.debug "H3 Contents before normalization: #{h3_contents.inspect}"
+
+      # Normalize the H3 contents
+      normalized_h3_contents = normalize_h3_contents(h3_contents)
+      Rails.logger.debug "Normalized styles after normalization: #{normalized_h3_contents.inspect}"
 
       @building_analysis = BuildingAnalysis.create!(
         user: current_user,
         image_url: image_url,
-        h3_contents: normalized_styles,
-        html_content: result&.fetch(:html_content, ''),
-        visible_in_library: true,  # Set this to true by default
-        address: params[:address].presence || "N/A"  # Include address if provided
+        h3_contents: normalized_h3_contents.to_json,
+        html_content: html_content,
+        visible_in_library: true,
+        address: params[:address].presence || "N/A"
       )
 
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: "Analysis complete!"
@@ -433,5 +445,14 @@ class ArchitectureExplorerController < ApplicationController
     else
       'application'
     end
+  end
+
+  def normalize_h3_contents(h3_contents)
+    # Strip special characters and numbers, and ensure no duplicates
+    normalized_contents = h3_contents.map do |content|
+      content.gsub(/[^a-zA-Z\s]/, '').strip # Remove special characters and numbers
+    end.uniq # Remove duplicates
+
+    normalized_contents
   end
 end
