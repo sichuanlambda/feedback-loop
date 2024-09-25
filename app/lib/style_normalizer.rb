@@ -95,7 +95,32 @@ module StyleNormalizer
     /\bmodern[\s-]*industrial\b/i => "Modern Industrial",
     /\btraditional[\s-]*contemporary\b/i => "Traditional Contemporary",
     /\beclectic[\s-]*bohemian\b/i => "Eclectic Bohemian",
-    /\bminimalist[\s-]*scandinavian\b/i => "Minimalist Scandinavian"
+    /\bminimalist[\s-]*scandinavian\b/i => "Minimalist Scandinavian",
+    # Additional styles
+    /\bitalianate\b/i => "Italianate",
+    /\bbyzantine\b/i => "Byzantine",
+    /\bromanesque\b/i => "Romanesque",
+    /\bcarpenter[\s-]*gothic\b/i => "Carpenter Gothic",
+    /\bchateauesque\b/i => "Chateauesque",
+    /\bexotic[\s-]*revival\b/i => "Exotic Revival",
+    /\bfolk[\s-]*victorian\b/i => "Folk Victorian",
+    /\bitalian[\s-]*renaissance\b/i => "Italian Renaissance",
+    /\bjacobean\b/i => "Jacobean",
+    /\bmission\b/i => "Mission",
+    /\bneogothic\b/i => "Neo-Gothic",
+    /\bneorenaissance\b/i => "Neo-Renaissance",
+    /\bneoromanesque\b/i => "Neo-Romanesque",
+    /\bneovernacular\b/i => "Neo-Vernacular",
+    /\bpalladian\b/i => "Palladian",
+    /\bpicturesque\b/i => "Picturesque",
+    /\bpueblo\b/i => "Pueblo",
+    /\bregency\b/i => "Regency",
+    /\bromantic\b/i => "Romantic",
+    /\bsecond[\s-]*empire\b/i => "Second Empire",
+    /\bspanish[\s-]*revival\b/i => "Spanish Revival",
+    /\bstreamline[\s-]*moderne\b/i => "Streamline Moderne",
+    /\bvernacular\b/i => "Vernacular",
+    /\bwest[\s-]*indian\b/i => "West Indian"
   }
 
   def self.normalize(style)
