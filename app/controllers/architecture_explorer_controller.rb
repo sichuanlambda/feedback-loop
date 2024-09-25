@@ -385,17 +385,8 @@ class ArchitectureExplorerController < ApplicationController
   def upload_image_to_s3(input)
     s3 = Aws::S3::Resource.new(region: 'us-east-2')
 
-    # Initialize ImageOptim with explicit lossy compression settings
-    image_optim = ImageOptim.new(
-      pngout: false,
-      svgo: false,
-      pngcrush: false,
-      advpng: false,
-      oxipng: false,
-      jhead: false,
-      jpegoptim: {max_quality: 55},
-      pngquant: {quality: 55..65}
-    )
+    # Use the globally configured ImageOptim instance
+    image_optim = ImageOptim.new
 
     if input.is_a?(String) && input.start_with?('http')
       # Input is a URL, download the image first
