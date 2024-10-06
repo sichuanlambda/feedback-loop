@@ -2,7 +2,6 @@ require 'aws-sdk-s3'
 require 'net/http'
 require 'json'
 require 'nokogiri'
-require 'image_optim'
 require 'open-uri'
 
 class ArchitectureExplorerController < ApplicationController
@@ -385,8 +384,8 @@ class ArchitectureExplorerController < ApplicationController
   def upload_image_to_s3(input)
     s3 = Aws::S3::Resource.new(region: 'us-east-2')
 
-    # Use the globally configured ImageOptim instance
-    image_optim = ImageOptim.new
+    # # Use the globally configured ImageOptim instance
+    # image_optim = ImageOptim.new
 
     if input.is_a?(String) && input.start_with?('http')
       # Input is a URL, download the image first
@@ -403,8 +402,11 @@ class ArchitectureExplorerController < ApplicationController
     end
 
     # Optimize the image and determine the path to upload
-    optimized_image_path = image_optim.optimize_image!(temp_file_path)
-    file_path_to_upload = optimized_image_path ? optimized_image_path.to_path : temp_file_path
+    # optimized_image_path = image_optim.optimize_image!(temp_file_path)
+    # file_path_to_upload = optimized_image_path ? optimized_image_path.to_path : temp_file_path
+
+    # Use temp_file_path directly
+    file_path_to_upload = temp_file_path
 
     # Create the object key for S3 and upload the file
     object_key = "uploads/#{file_name}"
