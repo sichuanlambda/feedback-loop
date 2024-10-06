@@ -66,7 +66,7 @@
         }
 
         .option-image {
-            width: 250px;
+            width: 300px;
             height: 350px;
             object-fit: cover;
             margin-bottom: 5px; /* Removed since the button will overlay the image */
@@ -90,7 +90,29 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: 20px; /* Add space between rows */
         }
+
+        .option-container {
+            flex: 0 0 auto;
+            margin: 0 10px 20px; /* Adjust horizontal and vertical margins */
+            width: calc(33.33% - 20px); /* Adjust width to fit 3 items per row, accounting for margins */
+            max-width: 300px; /* Maximum width for larger screens */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .option-container {
+                width: calc(50% - 20px); /* 2 items per row on smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .option-container {
+                width: 100%; /* 1 item per row on very small screens */
+            }
+        }
+
         .landing-section {
             padding: 40px 0;
             display: flex;
@@ -542,13 +564,32 @@
                 <div class="card-content text-center">
                     <h3>What Would You Like to Bring to Life?</h3>
                     <div class="options-row">
-                        <% ['Residential Home', 'Large Building', 'Interior Design', 'Architecture Style'].each do |option| %>
+                        <% ['Residential Home', 'Large Building', 'Interior Design'].each do |option| %>
                             <div class="option-container">
                                 <% image_file = case option
                                     when 'Residential Home' then 'residential_home.png'
                                     when 'Large Building' then 'large_building.png'
                                     when 'Interior Design' then 'interior_style.png'
                                     when 'Architecture Style' then 'architecture_style.png'
+                                    when 'Courtyard Cottages' then 'courtyard_cottages.png'
+                                    else 'default.png'
+                                end %>
+                                <%= image_tag image_file, alt: "#{option} Image", class: 'option-image' %>
+                                <%= button_tag type: 'button', class: 'btn option-btn', data: { value: option } do %>
+                                    <%= option %>
+                                <% end %>
+                            </div>
+                        <% end %>
+                    </div>
+                    <div class="options-row">
+                        <% ['Architecture Style', 'Courtyard Cottages'].each do |option| %>
+                            <div class="option-container">
+                                <% image_file = case option
+                                    when 'Residential Home' then 'residential_home.png'
+                                    when 'Large Building' then 'large_building.png'
+                                    when 'Interior Design' then 'interior_style.png'
+                                    when 'Architecture Style' then 'architecture_style.png'
+                                    when 'Courtyard Cottages' then 'courtyard_cottages.png'
                                     else 'default.png'
                                 end %>
                                 <%= image_tag image_file, alt: "#{option} Image", class: 'option-image' %>
