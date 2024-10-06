@@ -178,7 +178,7 @@
     </div>
     <div class="button-group my-3">
       <button class="btn btn-primary" onclick="shareTool()">Share Tool</button>
-      <button class="btn btn-primary" onclick="newDesign()">New Design</button>
+      <a href="<%= root_path %>" class="btn btn-primary">New Design</a>
     </div>
   <% else %>
     <p class="no-design-message">No design was generated. <button class="btn btn-primary" onclick="newDesign()">Try Again</button></p>
