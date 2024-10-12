@@ -168,6 +168,78 @@
         .style-btn:hover {
             background-color: #0056b3;
         }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-right: 10px; /* Add some space between the switch and the label */
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        #style-label {
+            vertical-align: middle; /* Adjust vertical alignment */
+            line-height: 34px; /* Match the height of the switch */
+        }
+        #style-switcher {
+            position: absolute;
+            top: 70px;
+            right: 450px; /* Adjust this value to position it horizontally */
+            z-index: 1;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center; /* This will vertically center the contents */
+        }
     </style>
 </head>
 <body>
@@ -185,13 +257,15 @@
             <button id="apply-filter" class="filter-btn">Apply Filter</button>
             <button id="reset-filter" class="filter-btn">Reset Filters</button>
         </div>
-        <div id="style-switcher" style="margin-top: 15px;">
-            <button id="streets-style" class="style-btn">Streets</button>
-            <button id="satellite-style" class="style-btn">Satellite</button>
-        </div>
     </div>
-    <div id="loading" style="position: absolute; top: 70px; left: 10px; background: white; padding: 5px;">Loading...
+    <div id="style-switcher">
+        <label class="switch">
+            <input type="checkbox" id="style-toggle">
+            <span class="slider round"></span>
+        </label>
+        <span id="style-label">Streets</span>
     </div>
+    <div id="loading" style="position: absolute; top: 70px; left: 10px; background: white; padding: 5px;">Loading...</div>
 
     <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -222,17 +296,17 @@
       const buildingList = document.getElementById('building-list');
       const styleFilter = document.getElementById('style-filter');
 
-      // Add buttons for switching between street and satellite views
-      const streetsBtn = document.getElementById('streets-style');
-      const satelliteBtn = document.getElementById('satellite-style');
+      const styleToggle = document.getElementById('style-toggle');
+      const styleLabel = document.getElementById('style-label');
 
-      // Event listeners for switching styles
-      streetsBtn.addEventListener('click', function () {
-        map.setStyle('mapbox://styles/mapbox/streets-v9');
-      });
-
-      satelliteBtn.addEventListener('click', function () {
-        map.setStyle('mapbox://styles/mapbox/satellite-v9');
+      styleToggle.addEventListener('change', function() {
+          if (this.checked) {
+              map.setStyle('mapbox://styles/mapbox/satellite-v9');
+              styleLabel.textContent = 'Satellite';
+          } else {
+              map.setStyle('mapbox://styles/mapbox/streets-v9');
+              styleLabel.textContent = 'Streets';
+          }
       });
 
       // Populate style filter options
