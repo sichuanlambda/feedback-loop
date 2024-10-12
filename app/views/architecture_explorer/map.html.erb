@@ -155,6 +155,19 @@
         #reset-filter:hover {
             background-color: #5a6268;
         }
+        .style-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin-right: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .style-btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -172,200 +185,219 @@
             <button id="apply-filter" class="filter-btn">Apply Filter</button>
             <button id="reset-filter" class="filter-btn">Reset Filters</button>
         </div>
+        <div id="style-switcher" style="margin-top: 15px;">
+            <button id="streets-style" class="style-btn">Streets</button>
+            <button id="satellite-style" class="style-btn">Satellite</button>
+        </div>
     </div>
-    <div id="loading" style="position: absolute; top: 70px; left: 10px; background: white; padding: 5px;">Loading...</div>
+    <div id="loading" style="position: absolute; top: 70px; left: 10px; background: white; padding: 5px;">Loading...
+    </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        console.log("DOM Content Loaded");
-        
-        try {
-          const mapboxAccessToken = '<%= @mapbox_access_token %>';
-          console.log("Mapbox Access Token:", mapboxAccessToken);
-          
-          if (!mapboxAccessToken) {
-            throw new Error("Mapbox Access Token is not set");
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("DOM Content Loaded");
+
+    try {
+      const mapboxAccessToken = '<%= @mapbox_access_token %>';
+      console.log("Mapbox Access Token:", mapboxAccessToken);
+
+      if (!mapboxAccessToken) {
+        throw new Error("Mapbox Access Token is not set");
+      }
+
+      mapboxgl.accessToken = mapboxAccessToken;
+
+      console.log("Creating map");
+      const map = new mapboxgl.Map({
+          container: 'map',
+          style: 'mapbox://styles/mapbox/streets-v9', // Initial style: streets view
+          center: [-104.9903, 39.7392], // Denver coordinates
+          zoom: 12 // A good initial zoom level for a city view
+      });
+
+      console.log("Map created");
+
+      const buildings = <%= raw @building_analyses.to_json %>;
+      const markers = [];
+      const buildingList = document.getElementById('building-list');
+      const styleFilter = document.getElementById('style-filter');
+
+      // Add buttons for switching between street and satellite views
+      const streetsBtn = document.getElementById('streets-style');
+      const satelliteBtn = document.getElementById('satellite-style');
+
+      // Event listeners for switching styles
+      streetsBtn.addEventListener('click', function () {
+        map.setStyle('mapbox://styles/mapbox/streets-v9');
+      });
+
+      satelliteBtn.addEventListener('click', function () {
+        map.setStyle('mapbox://styles/mapbox/satellite-v9');
+      });
+
+      // Populate style filter options
+      const allStyles = new Set();
+      buildings.forEach(building => {
+          building.h3_contents.forEach(style => allStyles.add(style));
+      });
+      allStyles.forEach(style => {
+          const option = document.createElement('option');
+          option.value = style;
+          option.textContent = style;
+          styleFilter.appendChild(option);
+      });
+
+      // Create a new supercluster instance
+      const supercluster = new Supercluster({
+          radius: 40,
+          maxZoom: 16
+      });
+
+      // Prepare the GeoJSON features for the supercluster
+      const points = buildings.map(building => ({
+          type: 'Feature',
+          properties: { id: building.id, ...building },
+          geometry: {
+              type: 'Point',
+              coordinates: [building.longitude, building.latitude]
           }
+      })).filter(point => point.geometry.coordinates[0] && point.geometry.coordinates[1]);
 
-          mapboxgl.accessToken = mapboxAccessToken;
+      // Load the points into the supercluster
+      supercluster.load(points);
 
-          console.log("Creating map");
-          const map = new mapboxgl.Map({
-              container: 'map',
-              style: 'mapbox://styles/mapbox/streets-v9',
-              center: [-104.9903, 39.7392], // Denver coordinates
-              zoom: 12 // A good initial zoom level for a city view
-          });
+      function updateMarkers() {
+          const newMarkers = [];
+          const bounds = map.getBounds();
+          const zoom = map.getZoom();
+          const clusters = supercluster.getClusters(
+              [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
+              Math.floor(zoom)
+          );
 
-          console.log("Map created");
+          // Remove existing markers
+          markers.forEach(marker => marker.remove());
+          markers.length = 0;
 
-          const buildings = <%= raw @building_analyses.to_json %>;
-          const markers = [];
-          const buildingList = document.getElementById('building-list');
-          const styleFilter = document.getElementById('style-filter');
+          const selectedStyles = Array.from(styleFilter.selectedOptions).map(option => option.value);
 
-          // Populate style filter options
-          const allStyles = new Set();
-          buildings.forEach(building => {
-              building.h3_contents.forEach(style => allStyles.add(style));
-          });
-          allStyles.forEach(style => {
-              const option = document.createElement('option');
-              option.value = style;
-              option.textContent = style;
-              styleFilter.appendChild(option);
-          });
+          clusters.forEach(cluster => {
+              const [longitude, latitude] = cluster.geometry.coordinates;
 
-          // Create a new supercluster instance
-          const supercluster = new Supercluster({
-              radius: 40,
-              maxZoom: 16
-          });
+              if (cluster.properties.cluster) {
+                  // Create a cluster marker
+                  const el = document.createElement('div');
+                  el.className = 'cluster-marker';
+                  el.style.width = el.style.height = `${30 + (cluster.properties.point_count / points.length) * 20}px`;
+                  el.innerText = cluster.properties.point_count;
 
-          // Prepare the GeoJSON features for the supercluster
-          const points = buildings.map(building => ({
-              type: 'Feature',
-              properties: { id: building.id, ...building },
-              geometry: {
-                  type: 'Point',
-                  coordinates: [building.longitude, building.latitude]
-              }
-          })).filter(point => point.geometry.coordinates[0] && point.geometry.coordinates[1]);
+                  const marker = new mapboxgl.Marker(el)
+                      .setLngLat([longitude, latitude])
+                      .addTo(map);
 
-          // Load the points into the supercluster
-          supercluster.load(points);
+                  newMarkers.push(marker);
+              } else {
+                  // Create a single building marker
+                  const building = cluster.properties;
+                  if (selectedStyles.length === 0 || building.h3_contents.some(style => selectedStyles.includes(style))) {
+                      const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
 
-          function updateMarkers() {
-              const newMarkers = [];
-              const bounds = map.getBounds();
-              const zoom = map.getZoom();
-              const clusters = supercluster.getClusters(
-                  [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
-                  Math.floor(zoom)
-              );
-
-              // Remove existing markers
-              markers.forEach(marker => marker.remove());
-              markers.length = 0;
-
-              const selectedStyles = Array.from(styleFilter.selectedOptions).map(option => option.value);
-
-              clusters.forEach(cluster => {
-                  const [longitude, latitude] = cluster.geometry.coordinates;
-
-                  if (cluster.properties.cluster) {
-                      // Create a cluster marker
-                      const el = document.createElement('div');
-                      el.className = 'cluster-marker';
-                      el.style.width = el.style.height = `${30 + (cluster.properties.point_count / points.length) * 20}px`;
-                      el.innerText = cluster.properties.point_count;
-
-                      const marker = new mapboxgl.Marker(el)
+                      const marker = new mapboxgl.Marker()
                           .setLngLat([longitude, latitude])
+                          .setPopup(new mapboxgl.Popup().setHTML(`
+                              <div class="popup-content">
+                                  <h3>${building.address || 'No address'}</h3>
+                                  <img src="${building.street_view_url}" alt="Street View" width="100%">
+                                  <div class="styles-container">
+                                      <strong>Architectural Styles:</strong><br>
+                                      ${stylesHtml || '<span>Unknown</span>'}
+                                  </div>
+                                  <div class="button-container">
+                                      <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
+                                  </div>
+                              </div>
+                          `))
                           .addTo(map);
 
                       newMarkers.push(marker);
-                  } else {
-                      // Create a single building marker
-                      const building = cluster.properties;
-                      if (selectedStyles.length === 0 || building.h3_contents.some(style => selectedStyles.includes(style))) {
-                          const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
-
-                          const marker = new mapboxgl.Marker()
-                              .setLngLat([longitude, latitude])
-                              .setPopup(new mapboxgl.Popup().setHTML(`
-                                  <div class="popup-content">
-                                      <h3>${building.address || 'No address'}</h3>
-                                      <img src="${building.street_view_url}" alt="Street View" width="100%">
-                                      <div class="styles-container">
-                                          <strong>Architectural Styles:</strong><br>
-                                          ${stylesHtml || '<span>Unknown</span>'}
-                                      </div>
-                                      <div class="button-container">
-                                          <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
-                                      </div>
-                                  </div>
-                              `))
-                              .addTo(map);
-
-                          newMarkers.push(marker);
-                      }
                   }
-              });
-
-              markers.push(...newMarkers);
-          }
-
-          function updateBuildingList() {
-            const bounds = map.getBounds();
-            buildingList.innerHTML = '';
-            const selectedStyles = Array.from(styleFilter.selectedOptions).map(option => option.value);
-            buildings.forEach((building) => {
-              if (building.latitude && building.longitude &&
-                  bounds.contains([building.longitude, building.latitude]) &&
-                  (selectedStyles.length === 0 || building.h3_contents.some(style => selectedStyles.includes(style)))) {
-                const li = document.createElement('li');
-                li.className = 'building-item';
-                const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
-                li.innerHTML = `
-                  <h4>${building.address || 'No address'}</h4>
-                  <img src="${building.street_view_url}" alt="Street View" width="100%">
-                  <div class="styles-container">
-                    <strong>Architectural Styles:</strong><br>
-                    ${stylesHtml || '<span>No styles available</span>'}
-                  </div>
-                  <div class="button-container">
-                    <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
-                  </div>
-                `;
-                buildingList.appendChild(li);
               }
-            });
-          }
-
-          map.on('load', function () {
-            console.log("Map loaded, adding building markers...");
-            
-            updateMarkers();
-            updateBuildingList();
-
-            document.getElementById('loading').style.display = 'none';
-
-            // Focus on Denver
-            const denverCenter = [-104.9903, 39.7392];
-            const denverZoom = 12;
-
-            map.flyTo({
-              center: denverCenter,
-              zoom: denverZoom,
-              essential: true
-            });
-
-            map.on('moveend', () => {
-                updateMarkers();
-                updateBuildingList();
-            });
-
-            const applyFilterBtn = document.getElementById('apply-filter');
-            const resetFilterBtn = document.getElementById('reset-filter');
-
-            applyFilterBtn.addEventListener('click', () => {
-                updateMarkers();
-                updateBuildingList();
-            });
-
-            resetFilterBtn.addEventListener('click', () => {
-                styleFilter.selectedIndex = -1; // Deselect all options
-                updateMarkers();
-                updateBuildingList();
-            });
           });
 
-        } catch (error) {
-          console.error("An error occurred:", error);
-          document.getElementById('loading').innerHTML = "Error loading map: " + error.message;
-        }
+          markers.push(...newMarkers);
+      }
+
+      function updateBuildingList() {
+        const bounds = map.getBounds();
+        buildingList.innerHTML = '';
+        const selectedStyles = Array.from(styleFilter.selectedOptions).map(option => option.value);
+        buildings.forEach((building) => {
+          if (building.latitude && building.longitude &&
+              bounds.contains([building.longitude, building.latitude]) &&
+              (selectedStyles.length === 0 || building.h3_contents.some(style => selectedStyles.includes(style)))) {
+            const li = document.createElement('li');
+            li.className = 'building-item';
+            const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
+            li.innerHTML = `
+              <h4>${building.address || 'No address'}</h4>
+              <img src="${building.street_view_url}" alt="Street View" width="100%">
+              <div class="styles-container">
+                <strong>Architectural Styles:</strong><br>
+                ${stylesHtml || '<span>No styles available</span>'}
+              </div>
+              <div class="button-container">
+                <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
+              </div>
+            `;
+            buildingList.appendChild(li);
+          }
+        });
+      }
+
+      map.on('load', function () {
+        console.log("Map loaded, adding building markers...");
+        
+        updateMarkers();
+        updateBuildingList();
+
+        document.getElementById('loading').style.display = 'none';
+
+        // Focus on Denver
+        const denverCenter = [-104.9903, 39.7392];
+        const denverZoom = 12;
+
+        map.flyTo({
+          center: denverCenter,
+          zoom: denverZoom,
+          essential: true
+        });
+
+        map.on('moveend', () => {
+            updateMarkers();
+            updateBuildingList();
+        });
+
+        const applyFilterBtn = document.getElementById('apply-filter');
+        const resetFilterBtn = document.getElementById('reset-filter');
+
+        applyFilterBtn.addEventListener('click', () => {
+            updateMarkers();
+            updateBuildingList();
+        });
+
+        resetFilterBtn.addEventListener('click', () => {
+            styleFilter.selectedIndex = -1; // Deselect all options
+            updateMarkers();
+            updateBuildingList();
+        });
       });
-    </script>
+
+    } catch (error) {
+      console.error("An error occurred:", error);
+      document.getElementById('loading').innerHTML = "Error loading map: " + error.message;
+    }
+  });
+</script>
+
 </body>
 </html>
