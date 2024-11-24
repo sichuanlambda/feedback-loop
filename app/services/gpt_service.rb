@@ -185,6 +185,56 @@ class GptService
     response.code == 200 ? parse_architecture_response(response) : nil
   end
 
+  def send_development_estimation(image_url, address)
+    Rails.logger.debug "GptService: Received image_url for development estimation: #{image_url}"
+
+    body = {
+      model: "gpt-4o-mini",
+      max_tokens: 1000,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "You are a real estate development expert. Based on this satellite image of #{address}, please provide a detailed analysis in HTML format with the following sections:
+
+              <h3>Lot Analysis</h3>
+              - Approximate dimensions and total square footage
+              - Current site coverage
+              - Topography and notable features
+
+              <h3>Development Potential</h3>
+              - Maximum buildable square footage (estimate)
+              - Potential uses based on surrounding context
+              - Development constraints and opportunities
+
+              <h3>Zoning Considerations</h3>
+              - Likely zoning classification based on context
+              - Typical setback requirements
+              - Height restrictions (if apparent from surroundings)
+
+              <h3>Market Context</h3>
+              - Surrounding property uses
+              - Notable nearby amenities
+              - Development trends in the area
+
+              Please be specific in your analysis but clearly note when you're making assumptions. Include percentages for confidence levels in key estimates."
+            },
+            {
+              type: "image_url",
+              image_url: { url: image_url }
+            }
+          ]
+        }
+      ]
+    }.to_json
+
+    response = self.class.post('/chat/completions', @options.merge(body: body))
+    Rails.logger.debug "GPT Response: #{response.inspect}"
+    response.code == 200 ? parse_development_response(response) : nil
+  end
+
   private
 
   def parse_response(response)
@@ -215,6 +265,27 @@ class GptService
       parsed_json = JSON.parse(json_content)
 
       Rails.logger.debug "Parsed GPT Architecture Content: #{parsed_json}"
+      parsed_json
+    else
+      Rails.logger.debug "GPT Response: No choices present"
+      nil
+    end
+  rescue JSON::ParserError => e
+    Rails.logger.error "JSON Parsing Error: #{e.message}"
+    nil
+  end
+
+  def parse_development_response(response)
+    Rails.logger.debug "GPT Raw Response: #{response.body}"
+
+    response_data = JSON.parse(response.body)
+    if response_data['choices'] && response_data['choices'].any?
+      content = response_data['choices'].first['message']['content']
+      cleaned_content = content.gsub(/\*\*/, '')
+      json_content = { "analysis": cleaned_content }.to_json
+      parsed_json = JSON.parse(json_content)
+
+      Rails.logger.debug "Parsed GPT Development Content: #{parsed_json}"
       parsed_json
     else
       Rails.logger.debug "GPT Response: No choices present"

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development Estimations</title>
+    <!-- ... keep existing styles ... -->
+</head>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="text-center">
+                <h1 class="mt-5" style="color: #01161e;">Development Estimations</h1>
+                <p>Analyze development potential and get estimations based on satellite imagery.</p>
+                
+                <% if user_signed_in? %>
+                    <%= form_with url: generate_development_estimation_path, local: true, html: { class: "gpt-form-container" } do |form| %>
+                        <div class="d-flex justify-content-center align-items-end mb-2">
+                            <div class="form-group mr-2">
+                                <%= form.text_field :address, class: 'form-control', placeholder: "Enter address", id: "address" %>
+                            </div>
+                            <button id="fetch-satellite-view" class="btn btn-primary mr-2">Fetch Satellite View</button>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div id="image-preview-container" class="text-center" style="margin-top: 20px;">
+                            <img id="image-preview" alt="Image Preview" style="display: none; max-width: 100%; max-height: 500px; margin: auto; border-radius: 5px;"/>
+                        </div>
+
+                        <!-- Hidden input for previewed image URL -->
+                        <%= hidden_field_tag :previewed_image_url, nil, id: "previewedImageUrl" %>
+
+                        <div style="display: flex; justify-content: center; width: 100%;">
+                            <% if current_user.subscription_status != 'active' && current_user.credits <= 0 %>
+                                <%= link_to "Subscribe to Generate Estimation", account_path, class: "btn btn-primary", id: "subscribe-to-continue", style: "margin-top: 20px;" %>
+                            <% else %>
+                                <%= form.submit "Get Development Estimation", class: "btn btn-primary", id: "generate-estimation", style: "margin-top: 20px; display: none;" %>
+                            <% end %>
+                        </div>
+                    <% end %>
+                <% else %>
+                    <p>Please <%= link_to 'sign in', new_user_session_path %> to use this feature.</p>
+                <% end %>
+            </div>
+            <div class="container-for-loader-and-text">
+                <div id="loading-text" style="display: none;">Analyzing development potential...</div>
+                <div class="loader"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.querySelector('.gpt-form-container');
+    var loader = document.querySelector('.loader');
+    var loadingText = document.getElementById('loading-text');
+    var generateEstimationButton = document.getElementById('generate-estimation');
+
+    function showLoading() {
+        loader.style.display = 'block';
+        loadingText.style.display = 'block';
+    }
+
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default submission
+            
+            // Get the image data
+            var imageData = document.getElementById('previewedImageUrl').value;
+            
+            // Debug log
+            console.log('Image data present:', !!imageData);
+            
+            if (!imageData) {
+                alert('Please fetch a satellite view before generating estimation.');
+                return false;
+            }
+            
+            // If we have image data, proceed with submission
+            showLoading();
+            this.submit();
+        });
+    }
+
+    function toggleGenerateButtonVisibility() {
+        var imagePreview = document.getElementById('image-preview');
+        if (imagePreview.style.display === 'block' && imagePreview.src) {
+            generateEstimationButton.style.display = 'block';
+        } else {
+            generateEstimationButton.style.display = 'none';
+        }
+    }
+
+document.getElementById('fetch-satellite-view').addEventListener('click', function(e) {
+    e.preventDefault();
+    var address = document.getElementById('address').value;
+    if (address) {
+        var proxyUrl = `/proxy/fetch_satellite_view?location=${encodeURIComponent(address)}`;
+        
+        // First fetch the image through our proxy
+        fetch(proxyUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                    var base64data = reader.result;
+                    
+                    // Display the image
+                    var output = document.getElementById('image-preview');
+                    output.src = base64data;
+                    output.style.display = 'block';
+                    
+                    // Store the base64 data in the hidden input
+                    var hiddenInput = document.getElementById('previewedImageUrl');
+                    hiddenInput.value = base64data;
+                    
+                    toggleGenerateButtonVisibility();
+                }
+                reader.readAsDataURL(blob);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to fetch satellite image. Please try again.');
+            });
+    }
+});
+});
+</script>
+</body>
+</html>

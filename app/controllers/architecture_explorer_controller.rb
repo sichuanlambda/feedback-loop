@@ -345,6 +345,38 @@ class ArchitectureExplorerController < ApplicationController
     render 'architecture_explorer/map_places_and_styles/denver_architecture'
   end
 
+  def development_estimations
+    # Just renders the view
+  end
+
+  def generate_development_estimation
+    image_url = params[:previewed_image_url]
+    address = params[:address]
+
+    begin
+      gpt_service = GptService.new
+      result = gpt_service.send_development_estimation(image_url, address)
+
+      if result && result["analysis"]
+        render json: {
+          success: true,
+          estimation: result["analysis"]
+        }
+      else
+        render json: {
+          success: false,
+          error: "Failed to generate estimation"
+        }, status: :unprocessable_entity
+      end
+    rescue => e
+      Rails.logger.error "Development Estimation Error: #{e.message}"
+      render json: {
+        success: false,
+        error: "Failed to generate estimation: #{e.message}"
+      }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def calculate_style_frequency(building_analyses)
@@ -480,5 +512,10 @@ class ArchitectureExplorerController < ApplicationController
     @unique_style_count = style_counts.keys.count
     @buildings_submitted_count = @analyzed_buildings.count
     @architecture_styles = style_counts.keys.sort
+  end
+
+  def call_gpt_with_image(prompt, image_url)
+    # Implement your GPT API call here
+    # Similar to your existing GPT integration
   end
 end
