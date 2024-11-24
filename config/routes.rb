@@ -39,6 +39,7 @@ Rails.application.routes.draw do
   get '/users/:handle', to: 'users#show', as: 'user_profile'
 
   get 'proxy/fetch_street_view', to: 'proxy#fetch_street_view'
+  get 'proxy/fetch_satellite_view', to: 'proxy#fetch_satellite_view'
 
   # Routes for SearchesController
   get '/searches/new', to: 'searches#new'
