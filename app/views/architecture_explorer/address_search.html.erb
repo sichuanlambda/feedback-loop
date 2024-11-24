@@ -113,6 +113,7 @@
                                 <%= form.text_field :address, class: 'form-control', placeholder: "Enter address", id: "address" %>
                             </div>
                             <button id="fetch-street-view" class="btn btn-primary mr-2">Fetch Street View</button>
+                            <button id="fetch-satellite-view" class="btn btn-primary mr-2">Fetch Satellite View</button>
                             <%= form.file_field :image, direct_upload: true, onchange: "previewImage(event)", class: "d-none", id: "image-upload" %>
                             <label for="image-upload" class="btn btn-secondary mr-2">Upload Instead</label>
                         </div>
@@ -188,6 +189,22 @@ document.addEventListener('DOMContentLoaded', function () {
         var address = document.getElementById('address').value;
         if (address) {
             var proxyUrl = `/proxy/fetch_street_view?location=${encodeURIComponent(address)}`;
+            var output = document.getElementById('image-preview');
+            output.src = proxyUrl;
+            output.style.display = 'block';
+            var hiddenInput = document.getElementById('previewedImageUrl');
+            hiddenInput.value = proxyUrl;
+
+            // Show the 'Generate Style Analysis' button
+            toggleGenerateButtonVisibility();
+        }
+    });
+
+    document.getElementById('fetch-satellite-view').addEventListener('click', function(e) {
+        e.preventDefault();
+        var address = document.getElementById('address').value;
+        if (address) {
+            var proxyUrl = `/proxy/fetch_satellite_view?location=${encodeURIComponent(address)}`;
             var output = document.getElementById('image-preview');
             output.src = proxyUrl;
             output.style.display = 'block';
