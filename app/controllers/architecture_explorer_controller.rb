@@ -354,28 +354,28 @@ class ArchitectureExplorerController < ApplicationController
     address = params[:address]
 
     begin
-      gpt_service = GptService.new
-      result = gpt_service.send_development_estimation(image_url, address)
+        gpt_service = GptService.new
+        result = gpt_service.send_development_estimation(image_url, address)
 
-      if result && result["analysis"]
-        render json: {
-          success: true,
-          estimation: result["analysis"]
-        }
-      else
-        render json: {
-          success: false,
-          error: "Failed to generate estimation"
-        }, status: :unprocessable_entity
-      end
+        if result && result["analysis"]
+            render json: {
+                success: true,
+                estimation: result["analysis"]
+            }
+        else
+            render json: {
+                success: false,
+                error: "Failed to generate estimation"
+            }, status: :unprocessable_entity
+        end
     rescue => e
-      Rails.logger.error "Development Estimation Error: #{e.message}"
-      render json: {
-        success: false,
-        error: "Failed to generate estimation: #{e.message}"
-      }, status: :unprocessable_entity
+        Rails.logger.error "Development Estimation Error: #{e.message}"
+        render json: {
+            success: false,
+            error: "Failed to generate estimation: #{e.message}"
+        }, status: :unprocessable_entity
     end
-  end
+end
 
   private
 
