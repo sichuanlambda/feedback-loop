@@ -112,17 +112,28 @@ class ArchitectureExplorerController < ApplicationController
     @unique_style_count = 0
     @buildings_submitted_count = 0
 
-    # Adjust the query based on the provided parameters
-    if @location_name.present?
-      @analyzed_buildings = BuildingAnalysis.where("LOWER(address) LIKE ? AND visible_in_library = ?", "%#{@location_name}%", true)
-    elsif params[:search].present?
-      search_term = params[:search].downcase
-      @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ? AND visible_in_library = ?", "%#{search_term}%", true)
-    else
+    # Special handling for Netherlands
+    if @location_name == 'the_netherlands'
+      netherlands_box = [
+        [50.75, 3.2],  # Southwest corner
+        [53.75, 7.22]  # Northeast corner
+      ]
+
       @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
+        .within_bounding_box(netherlands_box)
+
+      Rails.logger.info "Found #{@analyzed_buildings.count} buildings in the Netherlands"
+      Rails.logger.info "Sample addresses: #{@analyzed_buildings.limit(3).pluck(:address)}"
+    else
+      # Original location-based query for other locations
+      @analyzed_buildings = BuildingAnalysis.where(
+        "LOWER(address) LIKE ? AND visible_in_library = ?",
+        "%#{@location_name}%",
+        true
+      )
     end
 
-    # Calculate style frequencies
+    # Calculate Style Frequency
     style_counts = Hash.new(0)
     @analyzed_buildings.each do |building|
       styles = JSON.parse(building.h3_contents || '[]').map { |style| style.gsub(/\s*\d+%$/, '') }
@@ -136,7 +147,6 @@ class ArchitectureExplorerController < ApplicationController
 
     # Extract and clean styles for the sidebar or filter
     @architecture_styles = style_counts.keys.sort
-
     render 'denver'
   end
 
@@ -274,9 +284,20 @@ class ArchitectureExplorerController < ApplicationController
   def netherlands
     @initial_center = [5.2913, 52.1326]  # Center of the Netherlands
     @initial_zoom = 7
-    @preset_styles = []  # No style filter, show all styles in the Netherlands
+    @preset_styles = []  # Show all styles in the Netherlands
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
-    @building_analyses = BuildingAnalysis.where(country: 'Netherlands')
+
+    # Define Netherlands bounding box coordinates
+    netherlands_box = [
+      [50.75, 3.2],  # Southwest corner
+      [53.75, 7.22]  # Northeast corner
+    ]
+
+    @building_analyses = BuildingAnalysis.where(visible_in_library: true)
+      .within_bounding_box(netherlands_box)
+
+    Rails.logger.info "Found #{@building_analyses.count} buildings in the Netherlands"
+    Rails.logger.info "Sample coordinates: #{@building_analyses.limit(3).pluck(:latitude, :longitude)}"
   end
 
   def denver
@@ -447,5 +468,17 @@ class ArchitectureExplorerController < ApplicationController
     end.uniq # Remove duplicates
 
     normalized_contents
+  end
+
+  def calculate_style_metrics
+    style_counts = Hash.new(0)
+    @analyzed_buildings.each do |building|
+      styles = JSON.parse(building.h3_contents || '[]').map { |style| style.gsub(/\s*\d+%$/, '') }
+      styles.each { |style| style_counts[style] += 1 }
+    end
+    @style_frequency = style_counts.sort_by { |_style, count| -count }
+    @unique_style_count = style_counts.keys.count
+    @buildings_submitted_count = @analyzed_buildings.count
+    @architecture_styles = style_counts.keys.sort
   end
 end
