@@ -97,8 +97,8 @@ gem 'sidekiq'
 
 gem 'dotenv-rails', groups: [:development, :test]
 
-gem 'langchainrb'
+gem 'langchainrb', '~> 0.9.0'  # Use an older version
 
-gem "langchainrb_rails", "~> 0.1.10"
+gem "langchainrb_rails", "~> 0.1.9"  # Match with an older version
 
 gem 'ruby-openai', '~> 6.3.0'
