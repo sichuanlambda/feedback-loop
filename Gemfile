@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "3.0.3"
+ruby "3.3.0"
 #for javascript visibility toggle
 #gem 'webpacker', '~> 5.0'
 
