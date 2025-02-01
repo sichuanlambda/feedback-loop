@@ -17,10 +17,10 @@ class User < ApplicationRecord
     where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
       user.email = auth.info.email
       user.password = Devise.friendly_token[0, 20]
-      user.name = auth.info.name # assuming the user model has a name
-      user.image = auth.info.image # assuming the user model has an image
-      user.handle = generate_unique_handle if user.handle.blank?
-      user.public_name = generate_unique_public_name if user.public_name.blank?
+      user.public_name = auth.info.name
+      user.profile_picture = auth.info.image
+      user.handle = user.handle.blank? ? generate_unique_handle : user.handle
+      user.public_name = user.public_name.blank? ? generate_unique_public_name : user.public_name
     end
   end
 
