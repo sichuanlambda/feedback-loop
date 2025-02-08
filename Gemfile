@@ -97,8 +97,5 @@ gem 'sidekiq'
 
 gem 'dotenv-rails', groups: [:development, :test]
 
-# Comment out these lines temporarily
-# gem 'langchainrb'
-# gem "langchainrb_rails", "~> 0.1.10"
 
 gem 'ruby-openai', '~> 6.3.0'
