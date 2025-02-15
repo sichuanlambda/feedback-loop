@@ -352,30 +352,34 @@ class ArchitectureExplorerController < ApplicationController
   def generate_development_estimation
     image_url = params[:previewed_image_url]
     address = params[:address]
+    custom_prompt = params[:custom_prompt]
+
+    Rails.logger.debug "Received params: #{params.inspect}"  # Add this debug line
+    Rails.logger.debug "Custom prompt: #{custom_prompt}"     # Add this debug line
 
     begin
-        gpt_service = GptService.new
-        result = gpt_service.send_development_estimation(image_url, address)
+      gpt_service = GptService.new
+      result = gpt_service.send_development_estimation(image_url, address, custom_prompt)
 
-        if result && result["analysis"]
-            render json: {
-                success: true,
-                estimation: result["analysis"]
-            }
-        else
-            render json: {
-                success: false,
-                error: "Failed to generate estimation"
-            }, status: :unprocessable_entity
-        end
-    rescue => e
-        Rails.logger.error "Development Estimation Error: #{e.message}"
+      if result && result["analysis"]
         render json: {
-            success: false,
-            error: "Failed to generate estimation: #{e.message}"
-        }, status: :unprocessable_entity
+          success: true,
+          estimation: result["analysis"]
+        }
+      else
+        render json: {
+          success: false,
+          error: "Failed to generate estimation"
+        }
+      end
+    rescue => e
+      Rails.logger.error "Development Estimation Error: #{e.message}"
+      render json: {
+        success: false,
+        error: "Failed to generate estimation: #{e.message}"
+      }
     end
-end
+  end
 
   private
 
