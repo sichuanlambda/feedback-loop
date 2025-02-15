@@ -160,19 +160,80 @@
         background: #f8f9fa;
         padding: 20px;
         border-radius: 12px;
-        margin: 20px 0;
       }
       
-      .prompt-section h3 {
-        font-size: 1.2rem;
+      .prompt-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 15px;
-        color: #333;
       }
       
-      .prompt-section textarea {
-        font-family: monospace;
+      .mode-selection {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .output-label {
         font-size: 0.9rem;
-        line-height: 1.4;
+        color: #666;
+      }
+
+      .mode-buttons {
+        display: flex;
+        gap: 10px;
+      }
+
+      .mode-btn {
+        background: #fff;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid #dee2e6;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+      }
+
+      .mode-btn:hover {
+        background: #f8f9fa;
+      }
+
+      .mode-btn.active {
+        background: #0056b3;
+        color: white;
+        border-color: #0056b3;
+      }
+
+      .preset-prompts {
+        margin-bottom: 15px;
+      }
+
+      .preset-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .preset-btn {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .preset-btn:hover {
+        background: #e9ecef;
+        border-color: #adb5bd;
+      }
+
+      .preset-btn.active {
+        background: #0056b3;
+        color: white;
+        border-color: #0056b3;
       }
     </style>
 </head>
@@ -187,47 +248,54 @@
         <button id="fetch-satellite-view" class="btn btn-fetch">Fetch Satellite View</button>
       </div>
 
+      <!-- Combined Prompt Section -->
       <div class="prompt-section mt-4">
-        <h3>Analysis Prompt</h3>
+        <div class="prompt-header">
+          <h3>Analysis Prompt</h3>
+          <div class="mode-selection">
+            <span class="output-label">Output:</span>
+            <div class="mode-buttons">
+              <button type="button" class="mode-btn active" data-mode="report">Report</button>
+              <button type="button" class="mode-btn" data-mode="metrics">Metrics</button>
+              <input type="hidden" name="analysis_mode" id="analysis_mode" value="report">
+            </div>
+          </div>
+        </div>
+
+        <!-- Preset Prompts -->
+        <div class="preset-prompts mb-3">
+          <label class="small text-muted mb-2">Quick Analysis Options:</label>
+          <div class="preset-buttons">
+            <button type="button" class="preset-btn" data-prompt="Count the number of trees in the image.">Tree Count</button>
+            <button type="button" class="preset-btn" data-prompt="Calculate the number of parking spots and estimate the total parking coverage as a percentage of the visible area.">Parking Analysis</button>
+            <button type="button" class="preset-btn" data-prompt="Analyze the tree coverage percentage and distribution across the property.">Tree Coverage</button>
+            <button type="button" class="preset-btn" data-prompt="Identify and analyze all nearby buildings, their approximate size, and usage type.">Nearby Buildings</button>
+            <button type="button" class="preset-btn" data-prompt="Locate and assess all entry and exit points, including driveways and access routes.">Access Points</button>
+            <button type="button" class="preset-btn" data-prompt="Evaluate the development potential including zoning implications and possible improvements.">Development Potential</button>
+            <button type="button" class="preset-btn" data-prompt="Assess pedestrian infrastructure including sidewalks, crossings, and walkability factors.">Pedestrian Infrastructure</button>
+            <button type="button" class="preset-btn" data-prompt="">Custom</button>
+          </div>
+        </div>
+
         <div class="form-group">
           <%= form.text_area :custom_prompt, 
-              class: 'form-control', 
-              rows: 8,
-              value: "You are a real estate development expert. Based on this satellite image, please provide a detailed analysis in HTML format with the following sections:
-
-<h3>Lot Analysis</h3>
-- Approximate dimensions and total square footage
-- Current site coverage
-- Topography and notable features
-
-<h3>Development Potential</h3>
-- Maximum buildable square footage (estimate)
-- Potential uses based on surrounding context
-- Development constraints and opportunities
-
-<h3>Zoning Considerations</h3>
-- Likely zoning classification based on context
-- Typical setback requirements
-- Height restrictions (if apparent from surroundings)
-
-<h3>Market Context</h3>
-- Surrounding property uses
-- Notable nearby amenities
-- Development trends in the area" %>
+              class: 'form-control',
+              id: 'custom_prompt',
+              rows: 6,
+              placeholder: "Enter your analysis prompt or select from the options above..." %>
         </div>
       </div>
 
       <div class="image-preview-container">
         <img id="image-preview" alt="Image Preview" style="display: none;"/>
       </div>
-
       <%= hidden_field_tag :previewed_image_url, nil, id: "previewedImageUrl" %>
-
+      
       <div class="button-container">
         <% if current_user.subscription_status != 'active' && current_user.credits <= 0 %>
           <%= link_to "Subscribe to Generate Estimation", account_path, class: "btn btn-generate" %>
         <% else %>
-          <%= form.submit "Analyze with AI", class: "btn btn-generate", id: "generate-estimation", style: "display: none;" %>
+          <%= form.submit "Get Development Estimation", class: "btn btn-generate", id: "generate-estimation", style: "display: none;" %>
         <% end %>
       </div>
     <% end %>
@@ -246,114 +314,136 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    var form = document.querySelector('.gpt-form-container');
-    var loader = document.querySelector('.loader');
-    var loadingText = document.getElementById('loading-text');
-    var resultsContainer = document.getElementById('results-container');
+document.addEventListener('DOMContentLoaded', function() {
+  // Mode selection handling
+  const modeButtons = document.querySelectorAll('.mode-btn');
+  const modeInput = document.getElementById('analysis_mode');
 
-    // Fetch Satellite View button handler
-    document.getElementById('fetch-satellite-view').addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        var address = document.getElementById('address').value;
-        if (address) {
-            var proxyUrl = `/proxy/fetch_satellite_view?location=${encodeURIComponent(address)}`;
-            
-            fetch(proxyUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.blob();
-                })
-                .then(blob => {
-                    var reader = new FileReader();
-                    reader.onloadend = function() {
-                        var base64data = reader.result;
-                        
-                        var output = document.getElementById('image-preview');
-                        output.src = base64data;
-                        output.style.display = 'block';
-                        
-                        var hiddenInput = document.getElementById('previewedImageUrl');
-                        hiddenInput.value = base64data;
-                        
-                        // Show the generate button
-                        var generateButton = document.getElementById('generate-estimation');
-                        if (generateButton) {
-                            generateButton.style.display = 'block';
-                        }
-                    }
-                    reader.readAsDataURL(blob);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to fetch satellite image. Please try again.');
-                });
-        } else {
-            alert('Please enter an address first.');
-        }
-        
-        return false;
+  modeButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      modeButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      modeInput.value = this.dataset.mode;
+      console.log('Mode changed to:', this.dataset.mode);
     });
+  });
 
-    // Form submission handler
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
+  // Preset prompt buttons
+  const presetButtons = document.querySelectorAll('.preset-btn');
+  const promptTextarea = document.getElementById('custom_prompt');
+
+  presetButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      presetButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      promptTextarea.value = this.dataset.prompt;
+    });
+  });
+
+  // Fetch Satellite View button handler
+  document.getElementById('fetch-satellite-view').addEventListener('click', function(e) {
+    e.preventDefault();  // Prevent form submission
+    e.stopPropagation(); // Stop event bubbling
+    
+    var address = document.getElementById('address').value;
+    if (address) {
+      var proxyUrl = `/proxy/fetch_satellite_view?location=${encodeURIComponent(address)}`;
+      
+      fetch(proxyUrl)
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.blob();
+        })
+        .then(blob => {
+          var reader = new FileReader();
+          reader.onloadend = function() {
+            var base64data = reader.result;
             
-            var imageData = document.getElementById('previewedImageUrl').value;
-            if (!imageData) {
-                alert('Please fetch a satellite view before generating estimation.');
-                return false;
+            var output = document.getElementById('image-preview');
+            output.src = base64data;
+            output.style.display = 'block';
+            
+            var hiddenInput = document.getElementById('previewedImageUrl');
+            hiddenInput.value = base64data;
+            
+            // Show the generate button
+            var generateButton = document.getElementById('generate-estimation');
+            if (generateButton) {
+              generateButton.style.display = 'block';
             }
-            
-            showLoading();
-
-            // Send AJAX request instead of regular form submission
-            fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    previewed_image_url: imageData,
-                    address: document.getElementById('address').value,
-                    custom_prompt: document.getElementById('custom_prompt').value
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                hideLoading();
-                if (data.success) {
-                    showResults(data.estimation);
-                } else {
-                    alert('Error: ' + (data.error || 'Failed to generate estimation'));
-                }
-            })
-            .catch(error => {
-                hideLoading();
-                alert('Error: ' + error.message);
-            });
+          }
+          reader.readAsDataURL(blob);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Failed to fetch satellite image. Please try again.');
         });
+    } else {
+      alert('Please enter an address first.');
     }
+    
+    return false;  // Prevent default behavior
+  });
 
-    function showLoading() {
-        loader.style.display = 'block';
-        loadingText.style.display = 'block';
-    }
+  // Form submission
+  const form = document.querySelector('.gpt-form-container');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      var imageData = document.getElementById('previewedImageUrl').value;
+      if (!imageData) {
+        alert('Please fetch a satellite view before generating estimation.');
+        return false;
+      }
+      
+      showLoading();
 
-    function hideLoading() {
-        loader.style.display = 'none';
-        loadingText.style.display = 'none';
-    }
+      fetch(this.action, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          previewed_image_url: imageData,
+          address: document.getElementById('address').value,
+          custom_prompt: document.getElementById('custom_prompt').value,
+          analysis_mode: document.getElementById('analysis_mode').value
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        if (data.success) {
+          showResults(data.estimation);
+        } else {
+          alert('Error: ' + (data.error || 'Failed to generate estimation'));
+        }
+      })
+      .catch(error => {
+        hideLoading();
+        alert('Error: ' + error.message);
+      });
+    });
+  }
 
-    function showResults(html) {
-        resultsContainer.innerHTML = html;
-        resultsContainer.classList.add('show');
-        resultsContainer.scrollIntoView({ behavior: 'smooth' });
-    }
+  function showLoading() {
+    document.querySelector('.loader').style.display = 'block';
+    document.getElementById('loading-text').style.display = 'block';
+  }
+
+  function hideLoading() {
+    document.querySelector('.loader').style.display = 'none';
+    document.getElementById('loading-text').style.display = 'none';
+  }
+
+  function showResults(html) {
+    const resultsContainer = document.getElementById('results-container');
+    resultsContainer.innerHTML = html;
+    resultsContainer.classList.add('show');
+    resultsContainer.scrollIntoView({ behavior: 'smooth' });
+  }
 });
 </script>
 </body>

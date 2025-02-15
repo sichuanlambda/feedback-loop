@@ -353,13 +353,11 @@ class ArchitectureExplorerController < ApplicationController
     image_url = params[:previewed_image_url]
     address = params[:address]
     custom_prompt = params[:custom_prompt]
-
-    Rails.logger.debug "Received params: #{params.inspect}"  # Add this debug line
-    Rails.logger.debug "Custom prompt: #{custom_prompt}"     # Add this debug line
+    analysis_mode = params[:analysis_mode]
 
     begin
       gpt_service = GptService.new
-      result = gpt_service.send_development_estimation(image_url, address, custom_prompt)
+      result = gpt_service.send_development_estimation(image_url, address, custom_prompt, analysis_mode)
 
       if result && result["analysis"]
         render json: {
