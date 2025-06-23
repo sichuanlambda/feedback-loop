@@ -9,10 +9,24 @@ Rails.application.routes.draw do
 
   # Admin routes
   namespace :admin do
+    get 'users/index'
+    get 'users/show'
+    get 'users/edit'
+    get 'users/update'
+    get 'users/destroy'
     get 'dashboard', to: 'dashboard#index'
     resources :building_analyses do
       member do
         patch :toggle_visibility
+      end
+      collection do
+        post :bulk_update
+      end
+    end
+    resources :users do
+      member do
+        patch :toggle_admin
+        get :user_activity
       end
       collection do
         post :bulk_update
