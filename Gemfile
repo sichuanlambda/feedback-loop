@@ -95,6 +95,8 @@ gem 'omniauth-rails_csrf_protection'
 
 gem 'sidekiq'
 
+gem 'rails_12factor', group: :production
+
 gem 'dotenv-rails', groups: [:development, :test]
 
 
