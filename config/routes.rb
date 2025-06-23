@@ -7,6 +7,19 @@ Rails.application.routes.draw do
 
   root 'architecture_designer#step1'
 
+  # Admin routes
+  namespace :admin do
+    get 'dashboard', to: 'dashboard#index'
+    resources :building_analyses do
+      member do
+        patch :toggle_visibility
+      end
+      collection do
+        post :bulk_update
+      end
+    end
+  end
+
   # Feedbacks Routes
   get '/auth/:provider/callback', to: 'sessions#create_from_omniauth'
   get '/auth/failure', to: 'sessions#omniauth_failure'

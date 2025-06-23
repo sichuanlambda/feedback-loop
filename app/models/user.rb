@@ -13,6 +13,10 @@ class User < ApplicationRecord
   before_create :set_default_credits
   before_validation :assign_handle_and_public_name, on: :create
 
+  def admin?
+    admin == true
+  end
+
   def self.from_omniauth(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
       user.email = auth.info.email
@@ -37,7 +41,8 @@ class User < ApplicationRecord
 
   def enforce_profile_completion?
     # Logic to determine if profile completion enforcement is necessary
-    !new_record? && completed_profile_at.blank?
+    # For now, always enforce profile completion
+    true
   end
 
   private

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_18_051251) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_23_190228) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -87,8 +87,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_18_051251) do
     t.datetime "updated_at", null: false
   end
 
-# Could not dump table "products" because of following StandardError
-#   Unknown type 'vector' for column 'embedding'
+  create_table "products", force: :cascade do |t|
+    t.string "name"
+    t.decimal "price", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "screenshot_analyses", force: :cascade do |t|
     t.text "extracted_text"
@@ -116,10 +120,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_18_051251) do
     t.string "uid"
     t.string "stripe_customer_id"
     t.string "subscription_status"
-    t.integer "credits", default: 0
+    t.integer "credits", default: 3, null: false
+    t.boolean "admin"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["provider"], name: "index_users_on_provider"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["stripe_customer_id"], name: "index_users_on_stripe_customer_id"
+    t.index ["uid"], name: "index_users_on_uid"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
