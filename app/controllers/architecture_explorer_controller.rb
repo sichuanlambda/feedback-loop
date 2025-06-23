@@ -269,7 +269,9 @@ class ArchitectureExplorerController < ApplicationController
         address: analysis.address,
         h3_contents: JSON.parse(analysis.h3_contents || '[]'),
         street_view_url: analysis.street_view_url,
-        image_url: analysis.image_url
+        image_url: analysis.image_url,
+        user_id: analysis.user_id,
+        created_at: analysis.created_at
       }
     end
   end

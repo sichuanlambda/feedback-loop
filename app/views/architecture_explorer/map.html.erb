@@ -14,22 +14,90 @@
     <script src="https://unpkg.com/supercluster@7.1.2/dist/supercluster.min.js"></script>
     <style>
         body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 60px; bottom: 0; left: 0; right: 400px; width: calc(100% - 400px); height: calc(100% - 60px); }
+        #map { position: absolute; top: 60px; bottom: 0; left: 0; right: 0; width: 100%; height: calc(100% - 60px); }
         #sidebar {
             position: absolute;
             top: 60px;
-            right: 0;
+            right: -400px;
             bottom: 0;
             width: 400px;
             background: white;
             overflow-y: auto;
-            padding: 20px;
+            padding: 0;
             box-shadow: -2px 0 5px rgba(0,0,0,0.1);
             height: calc(100% - 60px);
+            transition: right 0.3s ease;
+            z-index: 10;
         }
+        
+        #sidebar.open {
+            right: 0;
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: #f8f9fa;
+        }
+        
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .sidebar-toggle {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        
+        .sidebar-toggle:hover {
+            background: #c82333;
+        }
+        
+        .sidebar-open-btn {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            z-index: 5;
+        }
+        
+        .sidebar-open-btn:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+        
+        .sidebar-open-btn.hidden {
+            display: none;
+        }
+        
         #building-list {
             list-style-type: none;
-            padding: 0;
+            padding: 20px;
+            margin: 0;
         }
         .building-item {
             border: 1px solid #e0e0e0;
@@ -112,121 +180,92 @@
             left: 10px;
             z-index: 1;
             background: white;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            width: 280px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 400px;
+            border: 1px solid #e1e5e9;
         }
-        #style-filter {
+        
+        .filter-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .filter-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .filter-section {
+            margin-bottom: 15px;
+        }
+        
+        .filter-section h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .style-option {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            white-space: nowrap;
+        }
+        
+        .style-option:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .style-option.selected {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .search-input {
             width: 100%;
             padding: 8px;
-            margin-bottom: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
         }
-        .filter-title {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 16px;
-            font-weight: bold;
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #007bff;
         }
-        .filter-buttons {
-            display: flex;
-            justify-content: space-between;
+        
+        .filter-results {
             margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
         }
-        .filter-btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        #apply-filter {
-            background-color: #007bff;
-            color: white;
-        }
-        #apply-filter:hover {
-            background-color: #0056b3;
-        }
-        #reset-filter {
-            background-color: #6c757d;
-            color: white;
-        }
-        #reset-filter:hover {
-            background-color: #5a6268;
-        }
-        .style-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            margin-right: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .style-btn:hover {
-            background-color: #0056b3;
-        }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-            margin-right: 10px; /* Add some space between the switch and the label */
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-        }
-
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-
-        input:focus + .slider {
-            box-shadow: 0 0 1px #2196F3;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .slider.round {
-            border-radius: 34px;
-        }
-
-        .slider.round:before {
-            border-radius: 50%;
-        }
-
-        #style-label {
-            vertical-align: middle; /* Adjust vertical alignment */
-            line-height: 34px; /* Match the height of the switch */
+        
+        #results-count {
+            font-size: 12px;
+            color: #6c757d;
         }
         #style-switcher {
             position: absolute;
@@ -245,17 +284,23 @@
 <body>
     <div id="map"></div>
     <div id="sidebar">
-        <h2>Buildings in View</h2>
+        <div class="sidebar-header">
+            <h2>Buildings in View</h2>
+            <button id="sidebar-toggle" class="sidebar-toggle">×</button>
+        </div>
         <ul id="building-list"></ul>
     </div>
+    <button id="sidebar-open-btn" class="sidebar-open-btn">📋</button>
     <div id="filter-container">
-        <h3 class="filter-title">Filter by Architectural Style</h3>
-        <select id="style-filter" multiple>
-            <!-- Options will be dynamically populated -->
-        </select>
-        <div class="filter-buttons">
-            <button id="apply-filter" class="filter-btn">Apply Filter</button>
-            <button id="reset-filter" class="filter-btn">Reset Filters</button>
+        <div class="filter-header">
+            <h3>Filters</h3>
+        </div>
+        
+        <div class="filter-section">
+            <h4>Architectural Styles</h4>
+            <div class="filter-options" id="style-options">
+                <!-- Style options will be dynamically populated -->
+            </div>
         </div>
     </div>
     <div id="style-switcher">
@@ -294,10 +339,57 @@
       const buildings = <%= raw @building_analyses.to_json %>;
       const markers = [];
       const buildingList = document.getElementById('building-list');
-      const styleFilter = document.getElementById('style-filter');
+      const styleOptions = document.getElementById('style-options');
+      const sidebar = document.getElementById('sidebar');
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebarOpenBtn = document.getElementById('sidebar-open-btn');
 
       const styleToggle = document.getElementById('style-toggle');
       const styleLabel = document.getElementById('style-label');
+
+      // Filter state
+      let activeFilters = {
+        styles: []
+      };
+
+      // Populate style filter options as clickable buttons
+      const allStyles = new Set();
+      buildings.forEach(building => {
+          building.h3_contents.forEach(style => allStyles.add(style));
+      });
+      
+      allStyles.forEach(style => {
+          const option = document.createElement('div');
+          option.className = 'style-option';
+          option.textContent = style;
+          option.dataset.style = style;
+          option.addEventListener('click', function() {
+              this.classList.toggle('selected');
+              updateActiveFilters();
+              updateMarkers();
+              updateBuildingList();
+          });
+          styleOptions.appendChild(option);
+      });
+
+      function updateActiveFilters() {
+          activeFilters.styles = Array.from(document.querySelectorAll('.style-option.selected'))
+              .map(option => option.dataset.style);
+      }
+
+      function filterBuildings(buildings) {
+          return buildings.filter(building => {
+              // Style filter
+              if (activeFilters.styles.length > 0) {
+                  const buildingStyles = building.h3_contents || [];
+                  if (!activeFilters.styles.some(style => buildingStyles.includes(style))) {
+                      return false;
+                  }
+              }
+
+              return true;
+          });
+      }
 
       styleToggle.addEventListener('change', function() {
           if (this.checked) {
@@ -309,41 +401,31 @@
           }
       });
 
-      // Populate style filter options
-      const allStyles = new Set();
-      buildings.forEach(building => {
-          building.h3_contents.forEach(style => allStyles.add(style));
-      });
-      allStyles.forEach(style => {
-          const option = document.createElement('option');
-          option.value = style;
-          option.textContent = style;
-          styleFilter.appendChild(option);
-      });
-
       // Create a new supercluster instance
       const supercluster = new Supercluster({
           radius: 40,
           maxZoom: 16
       });
 
-      // Prepare the GeoJSON features for the supercluster
-      const points = buildings.map(building => ({
-          type: 'Feature',
-          properties: { id: building.id, ...building },
-          geometry: {
-              type: 'Point',
-              coordinates: [building.longitude, building.latitude]
-          }
-      })).filter(point => point.geometry.coordinates[0] && point.geometry.coordinates[1]);
-
-      // Load the points into the supercluster
-      supercluster.load(points);
-
       function updateMarkers() {
           const newMarkers = [];
           const bounds = map.getBounds();
           const zoom = map.getZoom();
+          const filteredBuildings = filterBuildings(buildings);
+          
+          // Create points from filtered buildings
+          const points = filteredBuildings.map(building => ({
+              type: 'Feature',
+              properties: { id: building.id, ...building },
+              geometry: {
+                  type: 'Point',
+                  coordinates: [building.longitude, building.latitude]
+              }
+          })).filter(point => point.geometry.coordinates[0] && point.geometry.coordinates[1]);
+
+          // Load the points into the supercluster
+          supercluster.load(points);
+          
           const clusters = supercluster.getClusters(
               [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
               Math.floor(zoom)
@@ -352,8 +434,6 @@
           // Remove existing markers
           markers.forEach(marker => marker.remove());
           markers.length = 0;
-
-          const selectedStyles = Array.from(styleFilter.selectedOptions).map(option => option.value);
 
           clusters.forEach(cluster => {
               const [longitude, latitude] = cluster.geometry.coordinates;
@@ -373,28 +453,26 @@
               } else {
                   // Create a single building marker
                   const building = cluster.properties;
-                  if (selectedStyles.length === 0 || building.h3_contents.some(style => selectedStyles.includes(style))) {
-                      const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
+                  const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
 
-                      const marker = new mapboxgl.Marker()
-                          .setLngLat([longitude, latitude])
-                          .setPopup(new mapboxgl.Popup().setHTML(`
-                              <div class="popup-content">
-                                  <h3>${building.address || 'No address'}</h3>
-                                  <img src="${building.image_url}" alt="Building Analysis" width="100%">
-                                  <div class="styles-container">
-                                      <strong>Architectural Styles:</strong><br>
-                                      ${stylesHtml || '<span>Unknown</span>'}
-                                  </div>
-                                  <div class="button-container">
-                                      <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
-                                  </div>
+                  const marker = new mapboxgl.Marker()
+                      .setLngLat([longitude, latitude])
+                      .setPopup(new mapboxgl.Popup().setHTML(`
+                          <div class="popup-content">
+                              <h3>${building.address || 'No address'}</h3>
+                              <img src="${building.image_url}" alt="Building Analysis" width="100%">
+                              <div class="styles-container">
+                                  <strong>Architectural Styles:</strong><br>
+                                  ${stylesHtml || '<span>Unknown</span>'}
                               </div>
-                          `))
-                          .addTo(map);
+                              <div class="button-container">
+                                  <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
+                              </div>
+                          </div>
+                      `))
+                      .addTo(map);
 
-                      newMarkers.push(marker);
-                  }
+                  newMarkers.push(marker);
               }
           });
 
@@ -404,11 +482,11 @@
       function updateBuildingList() {
         const bounds = map.getBounds();
         buildingList.innerHTML = '';
-        const selectedStyles = Array.from(styleFilter.selectedOptions).map(option => option.value);
-        buildings.forEach((building) => {
+        const filteredBuildings = filterBuildings(buildings);
+        
+        filteredBuildings.forEach((building) => {
           if (building.latitude && building.longitude &&
-              bounds.contains([building.longitude, building.latitude]) &&
-              (selectedStyles.length === 0 || building.h3_contents.some(style => selectedStyles.includes(style)))) {
+              bounds.contains([building.longitude, building.latitude])) {
             const li = document.createElement('li');
             li.className = 'building-item';
             const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
@@ -450,21 +528,21 @@
             updateMarkers();
             updateBuildingList();
         });
-
-        const applyFilterBtn = document.getElementById('apply-filter');
-        const resetFilterBtn = document.getElementById('reset-filter');
-
-        applyFilterBtn.addEventListener('click', () => {
-            updateMarkers();
-            updateBuildingList();
-        });
-
-        resetFilterBtn.addEventListener('click', () => {
-            styleFilter.selectedIndex = -1; // Deselect all options
-            updateMarkers();
-            updateBuildingList();
-        });
       });
+
+      // Sidebar toggle functionality
+      function openSidebar() {
+          sidebar.classList.add('open');
+          sidebarOpenBtn.classList.add('hidden');
+      }
+
+      function closeSidebar() {
+          sidebar.classList.remove('open');
+          sidebarOpenBtn.classList.remove('hidden');
+      }
+
+      sidebarToggle.addEventListener('click', closeSidebar);
+      sidebarOpenBtn.addEventListener('click', openSidebar);
 
     } catch (error) {
       console.error("An error occurred:", error);
