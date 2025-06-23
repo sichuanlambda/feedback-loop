@@ -381,7 +381,7 @@
                           .setPopup(new mapboxgl.Popup().setHTML(`
                               <div class="popup-content">
                                   <h3>${building.address || 'No address'}</h3>
-                                  <img src="${building.street_view_url}" alt="Street View" width="100%">
+                                  <img src="${building.image_url}" alt="Building Analysis" width="100%">
                                   <div class="styles-container">
                                       <strong>Architectural Styles:</strong><br>
                                       ${stylesHtml || '<span>Unknown</span>'}
@@ -414,7 +414,7 @@
             const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
             li.innerHTML = `
               <h4>${building.address || 'No address'}</h4>
-              <img src="${building.street_view_url}" alt="Street View" width="100%">
+              <img src="${building.image_url}" alt="Building Analysis" width="100%">
               <div class="styles-container">
                 <strong>Architectural Styles:</strong><br>
                 ${stylesHtml || '<span>No styles available</span>'}

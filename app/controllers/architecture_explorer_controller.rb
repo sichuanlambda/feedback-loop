@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'open-uri'
 
 class ArchitectureExplorerController < ApplicationController
-  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show]
+  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map]
   before_action :set_custom_nav
   # include BuildingAnalysisProcessor
 
@@ -268,7 +268,8 @@ class ArchitectureExplorerController < ApplicationController
         longitude: analysis.longitude,
         address: analysis.address,
         h3_contents: JSON.parse(analysis.h3_contents || '[]'),
-        street_view_url: analysis.street_view_url
+        street_view_url: analysis.street_view_url,
+        image_url: analysis.image_url
       }
     end
   end
