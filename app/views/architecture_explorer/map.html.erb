@@ -18,7 +18,7 @@
         #sidebar {
             position: absolute;
             top: 60px;
-            right: -400px;
+            right: 0;
             bottom: 0;
             width: 400px;
             background: white;
@@ -30,8 +30,8 @@
             z-index: 10;
         }
         
-        #sidebar.open {
-            right: 0;
+        #sidebar.closed {
+            right: -400px;
         }
         
         .sidebar-header {
@@ -50,13 +50,13 @@
         }
         
         .sidebar-toggle {
-            background: #dc3545;
+            background: #6c757d;
             color: white;
             border: none;
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -65,14 +65,14 @@
         }
         
         .sidebar-toggle:hover {
-            background: #c82333;
+            background: #5a6268;
         }
         
         .sidebar-open-btn {
             position: absolute;
             top: 80px;
             right: 20px;
-            background: #007bff;
+            background: #6c757d;
             color: white;
             border: none;
             width: 50px;
@@ -86,7 +86,7 @@
         }
         
         .sidebar-open-btn:hover {
-            background: #0056b3;
+            background: #5a6268;
             transform: scale(1.1);
         }
         
@@ -187,19 +187,6 @@
             border: 1px solid #e1e5e9;
         }
         
-        .filter-header {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .filter-header h3 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-        
         .filter-section {
             margin-bottom: 15px;
         }
@@ -269,15 +256,78 @@
         }
         #style-switcher {
             position: absolute;
-            top: 70px;
-            right: 450px; /* Adjust this value to position it horizontally */
+            top: 200px;
+            left: 10px;
             z-index: 1;
             background: white;
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
-            align-items: center; /* This will vertically center the contents */
+            align-items: center;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-right: 10px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        
+        #style-label {
+            vertical-align: middle;
+            line-height: 34px;
+            font-size: 14px;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -290,12 +340,7 @@
         </div>
         <ul id="building-list"></ul>
     </div>
-    <button id="sidebar-open-btn" class="sidebar-open-btn">📋</button>
     <div id="filter-container">
-        <div class="filter-header">
-            <h3>Filters</h3>
-        </div>
-        
         <div class="filter-section">
             <h4>Architectural Styles</h4>
             <div class="filter-options" id="style-options">
@@ -310,6 +355,7 @@
         </label>
         <span id="style-label">Streets</span>
     </div>
+    <button id="sidebar-open-btn" class="sidebar-open-btn">☰</button>
     <div id="loading" style="position: absolute; top: 70px; left: 10px; background: white; padding: 5px;">Loading...</div>
 
     <script>
@@ -532,17 +578,21 @@
 
       // Sidebar toggle functionality
       function openSidebar() {
-          sidebar.classList.add('open');
+          sidebar.classList.remove('closed');
           sidebarOpenBtn.classList.add('hidden');
       }
 
       function closeSidebar() {
-          sidebar.classList.remove('open');
+          sidebar.classList.add('closed');
           sidebarOpenBtn.classList.remove('hidden');
       }
 
       sidebarToggle.addEventListener('click', closeSidebar);
       sidebarOpenBtn.addEventListener('click', openSidebar);
+
+      // Set sidebar to default expanded state
+      sidebar.classList.remove('closed');
+      sidebarOpenBtn.classList.add('hidden');
 
     } catch (error) {
       console.error("An error occurred:", error);
