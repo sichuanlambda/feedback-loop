@@ -1,6 +1,9 @@
 # Set the host name for URL creation
 SitemapGenerator::Sitemap.default_host = "https://app.architecturehelper.com"
 
+# Generate both compressed and uncompressed sitemaps
+SitemapGenerator::Sitemap.create_index = true
+
 SitemapGenerator::Sitemap.create do
   # Add static pages
   add root_path, :changefreq => 'daily', :priority => 1.0
