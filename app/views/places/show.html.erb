@@ -6,19 +6,42 @@
   <div class="hero-section">
     <div class="container">
       <div class="row align-items-center">
-        <div class="col-lg-8">
+        <div class="col-lg-6">
           <h1 class="place-title"><%= @place.name %></h1>
           <% if @place.description.present? %>
             <p class="place-description"><%= @place.description %></p>
           <% end %>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-6">
           <div class="hero-image-placeholder">
-            <!-- Placeholder for hero image -->
-            <div class="hero-image">
-              <i class="fas fa-building"></i>
-              <p>Architecture of <%= @place.name %></p>
-            </div>
+            <% if @place.has_hero_image? %>
+              <!-- Hero image from database -->
+              <div class="hero-image">
+                <%= image_tag @place.hero_image_url, alt: @place.hero_image_alt || "Architecture of #{@place.name}", class: "hero-image-img" %>
+                <% if @place.image_source.present? && @place.image_source != 'placeholder' %>
+                  <div class="image-credit">
+                    <small>Image: <%= @place.image_source.humanize %></small>
+                  </div>
+                <% end %>
+              </div>
+            <% elsif @place.best_representative_image.present? %>
+              <!-- Fallback to representative building image -->
+              <div class="hero-image">
+                <%= image_tag @place.best_representative_image, alt: "Representative architecture of #{@place.name}", class: "hero-image-img" %>
+                <div class="image-credit">
+                  <small>Image: Community Building Analysis</small>
+                </div>
+              </div>
+            <% else %>
+              <!-- Placeholder for hero image -->
+              <div class="hero-image">
+                <i class="fas fa-building"></i>
+                <p>Architecture of <%= @place.name %></p>
+                <% if @place.needs_image_generation? %>
+                  <small class="text-muted">Generating image...</small>
+                <% end %>
+              </div>
+            <% end %>
           </div>
         </div>
       </div>
@@ -615,20 +638,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
   });
-
-  // Close planning modal and show results
-  tourPlanningModal.hide();
-  setTimeout(() => {
-    generateTourRoute(buildingsWithAddresses);
-    tourResultsModal.show();
-    
-    // Trigger map resize after modal opens to ensure it fills the container
-    setTimeout(() => {
-      if (window.tourMapInstance) {
-        window.tourMapInstance.resize();
-      }
-    }, 200);
-  }, 300);
 });
 </script>
 
@@ -639,47 +648,82 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .hero-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 60px 0;
+  background: transparent;
+  color: #2c3e50;
+  padding: 32px 0 28px 0;
   text-align: left;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .place-title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 20px;
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: #1a252f;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .place-description {
-  font-size: 1.2rem;
-  margin-bottom: 0;
-  opacity: 0.9;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  color: #34495e;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
 .hero-image-placeholder {
   text-align: center;
+  padding: 8px 0 0 0;
 }
 
 .hero-image {
-  background: rgba(255, 255, 255, 0.1);
+  background: white;
+  border-radius: 20px;
+  padding: 15px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-image:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+.hero-image-img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
   border-radius: 15px;
-  padding: 40px 20px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
+  margin-bottom: 10px;
 }
 
 .hero-image i {
-  font-size: 4rem;
-  margin-bottom: 15px;
-  opacity: 0.8;
+  font-size: 5rem;
+  margin-bottom: 20px;
+  opacity: 0.7;
+  color: #6c757d;
 }
 
 .hero-image p {
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: 1.2rem;
+  font-weight: 600;
   margin: 0;
-  opacity: 0.9;
+  color: #495057;
+}
+
+.image-credit {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .place-stats {

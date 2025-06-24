@@ -32,7 +32,19 @@ Rails.application.routes.draw do
         post :bulk_update
       end
     end
-    resources :places
+    resources :places do
+      member do
+        post :generate_content
+      end
+      collection do
+        post :auto_generate
+        post :generate_all
+        get :preview_generation
+        post :confirm_generation
+        get :merge_duplicates
+        post :perform_merge
+      end
+    end
   end
 
   # Feedbacks Routes

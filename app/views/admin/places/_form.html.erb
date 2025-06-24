@@ -40,8 +40,13 @@
 
       <!-- Content -->
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
           <h5>Content</h5>
+          <% if @place.persisted? && @place.needs_content_generation? %>
+            <%= link_to 'Generate Content', generate_content_admin_place_path(@place), 
+                class: 'btn btn-sm btn-outline-primary', 
+                data: { confirm: 'This will generate content using AI. Continue?' } %>
+          <% end %>
         </div>
         <div class="card-body">
           <div class="form-group">
@@ -74,6 +79,53 @@
     </div>
 
     <div class="col-md-4">
+      <!-- Images -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Images</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <%= form.label :hero_image_url, 'Hero Image URL', class: 'form-label' %>
+            <%= form.text_field :hero_image_url, class: 'form-control' %>
+            <small class="form-text text-muted">URL for the main hero image (1200x800px recommended)</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :hero_image_alt, 'Hero Image Alt Text', class: 'form-label' %>
+            <%= form.text_field :hero_image_alt, class: 'form-control' %>
+            <small class="form-text text-muted">Alt text for accessibility</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :representative_image_url, 'Representative Image URL', class: 'form-label' %>
+            <%= form.text_field :representative_image_url, class: 'form-control' %>
+            <small class="form-text text-muted">Fallback image from building analyses</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :image_source, 'Image Source', class: 'form-label' %>
+            <%= form.select :image_source, 
+                options_for_select([
+                  ['Placeholder', 'placeholder'],
+                  ['Unsplash', 'unsplash'],
+                  ['Building Analysis', 'building_analysis'],
+                  ['AI Generated', 'ai_generated'],
+                  ['External', 'external']
+                ], @place.image_source), 
+                {}, class: 'form-select' %>
+            <small class="form-text text-muted">Source of the hero image</small>
+          </div>
+
+          <% if @place.persisted? && @place.has_hero_image? %>
+            <div class="mt-3">
+              <h6>Current Hero Image:</h6>
+              <%= image_tag @place.hero_image_url, class: 'img-fluid rounded', alt: @place.hero_image_alt %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
       <!-- Map Settings -->
       <div class="card mb-4">
         <div class="card-header">
@@ -123,10 +175,8 @@
       <!-- Actions -->
       <div class="card">
         <div class="card-body">
-          <div class="d-grid gap-2">
-            <%= form.submit class: 'btn btn-primary' %>
-            <%= link_to 'Cancel', admin_places_path, class: 'btn btn-secondary' %>
-          </div>
+          <%= form.submit class: 'btn btn-primary' %>
+          <%= link_to 'Cancel', admin_places_path, class: 'btn btn-secondary' %>
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_24_161046) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_24_161047) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -101,7 +101,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_24_161046) do
     t.string "meta_description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "hero_image_url"
+    t.string "hero_image_alt"
+    t.string "representative_image_url"
+    t.datetime "content_generated_at"
+    t.string "image_source", default: "placeholder"
+    t.index ["content_generated_at"], name: "index_places_on_content_generated_at"
     t.index ["featured"], name: "index_places_on_featured"
+    t.index ["image_source"], name: "index_places_on_image_source"
     t.index ["name"], name: "index_places_on_name", unique: true
     t.index ["published"], name: "index_places_on_published"
     t.index ["slug"], name: "index_places_on_slug", unique: true

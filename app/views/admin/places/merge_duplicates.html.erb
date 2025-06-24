@@ -1,0 +1,99 @@
+<div class="admin-places-merge">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Merge Duplicate Places</h1>
+    <div>
+      <%= link_to 'Back to Places', admin_places_path, class: 'btn btn-secondary' %>
+    </div>
+  </div>
+
+  <% if @duplicate_groups.any? %>
+    <% @duplicate_groups.each_with_index do |group, index| %>
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Duplicate Group <%= index + 1 %></h5>
+        </div>
+        <div class="card-body">
+          <%= form_tag perform_merge_admin_places_path, method: :post do %>
+            <div class="row">
+              <div class="col-md-6">
+                <h6>Select Target Place (will be kept):</h6>
+                <% group.each do |place| %>
+                  <div class="form-check mb-2">
+                    <%= radio_button_tag 'target_place_id', place.id, place == group.first, 
+                        class: 'form-check-input' %>
+                    <label class="form-check-label">
+                      <strong><%= place.name %></strong>
+                      <br>
+                      <small class="text-muted">
+                        Slug: <%= place.slug %> | 
+                        Buildings: <%= place.building_analyses_in_place.count %> |
+                        <%= place.published? ? 'Published' : 'Draft' %>
+                      </small>
+                    </label>
+                  </div>
+                <% end %>
+              </div>
+              <div class="col-md-6">
+                <h6>Places to Merge (will be deleted):</h6>
+                <% group.each do |place| %>
+                  <div class="form-check mb-2">
+                    <%= check_box_tag 'place_ids_to_merge[]', place.id, false, 
+                        class: 'form-check-input merge-checkbox' %>
+                    <label class="form-check-label">
+                      <%= place.name %>
+                      <br>
+                      <small class="text-muted">
+                        Buildings: <%= place.building_analyses_in_place.count %>
+                      </small>
+                    </label>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <div class="mt-3">
+              <%= submit_tag "Merge Selected Places", 
+                  class: 'btn btn-warning',
+                  data: { confirm: 'Are you sure? This will permanently delete the selected places.' } %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="alert alert-success">
+      <h5>No duplicate places found!</h5>
+      <p>All your places appear to have unique names.</p>
+    </div>
+  <% end %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Prevent selecting the target place for merging
+  const targetRadios = document.querySelectorAll('input[name="target_place_id"]');
+  const mergeCheckboxes = document.querySelectorAll('.merge-checkbox');
+  
+  targetRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      const groupCard = this.closest('.card');
+      const checkboxes = groupCard.querySelectorAll('.merge-checkbox');
+      
+      checkboxes.forEach(checkbox => {
+        if (checkbox.value === this.value) {
+          checkbox.checked = false;
+          checkbox.disabled = true;
+        } else {
+          checkbox.disabled = false;
+        }
+      });
+    });
+  });
+  
+  // Initialize on page load
+  targetRadios.forEach(radio => {
+    if (radio.checked) {
+      radio.dispatchEvent(new Event('change'));
+    }
+  });
+});
+</script> 

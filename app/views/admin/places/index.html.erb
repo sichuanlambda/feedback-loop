@@ -1,7 +1,66 @@
 <div class="admin-places">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Places Management</h1>
-    <%= link_to 'New Place', new_admin_place_path, class: 'btn btn-primary' %>
+    <div>
+      <%= link_to 'New Place', new_admin_place_path, class: 'btn btn-primary' %>
+    </div>
+  </div>
+
+  <!-- Auto Generation Section -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>Automatic Place Generation</h5>
+    </div>
+    <div class="card-body">
+      <p class="text-muted mb-3">
+        Automatically create place pages for cities/areas that have 3+ analyzed buildings.
+      </p>
+      <div class="d-flex gap-2 flex-wrap">
+        <%= link_to 'Preview Generation', preview_generation_admin_places_path, class: 'btn btn-outline-primary' %>
+        <%= button_to 'Generate Places from Buildings', auto_generate_admin_places_path, 
+            method: :post, class: 'btn btn-success', 
+            data: { confirm: 'This will create places for cities with 3+ buildings. Continue?' } %>
+        <%= button_to 'Generate All (Places + Content)', generate_all_admin_places_path, 
+            method: :post, class: 'btn btn-info', 
+            data: { confirm: 'This will generate places and content. This may take a while. Continue?' } %>
+        <%= link_to 'Merge Duplicates', merge_duplicates_admin_places_path, class: 'btn btn-warning' %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Section -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>Place Statistics</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="text-center">
+            <h3 class="text-primary"><%= Place.count %></h3>
+            <p class="text-muted">Total Places</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-center">
+            <h3 class="text-success"><%= Place.published.count %></h3>
+            <p class="text-muted">Published</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-center">
+            <h3 class="text-warning"><%= Place.with_images.count %></h3>
+            <p class="text-muted">With Images</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-center">
+            <h3 class="text-info"><%= Place.where.not(content: [nil, '']).count %></h3>
+            <p class="text-muted">With Content</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <% if @places.any? %>
@@ -49,16 +108,14 @@
                 <% end %>
               </td>
               <td>
-                <% building_count = BuildingAnalysis.where(visible_in_library: true)
-                                                   .where("LOWER(address) LIKE ? OR LOWER(city) LIKE ?", 
-                                                         "%#{place.name.downcase}%", "%#{place.name.downcase}%")
-                                                   .count %>
-                <%= building_count %>
+                <% building_count = place.building_analyses_in_place.count %>
+                <span class="badge badge-info"><%= building_count %></span>
               </td>
               <td>
                 <div class="btn-group" role="group">
                   <%= link_to 'View', place_path(place), class: 'btn btn-sm btn-outline-primary', target: '_blank' %>
                   <%= link_to 'Edit', edit_admin_place_path(place), class: 'btn btn-sm btn-outline-secondary' %>
+                  <%= link_to 'Show', admin_place_path(place), class: 'btn btn-sm btn-outline-info' %>
                   <%= link_to 'Delete', admin_place_path(place), 
                       method: :delete, 
                       class: 'btn btn-sm btn-outline-danger',
@@ -72,9 +129,8 @@
     </div>
   <% else %>
     <div class="alert alert-info">
-      <h4>No Places Created Yet</h4>
-      <p>Start by creating your first place page to showcase architecture in a specific city or region.</p>
-      <%= link_to 'Create First Place', new_admin_place_path, class: 'btn btn-primary' %>
+      <h5>No places found</h5>
+      <p>Use the automatic generation buttons above to create places from your building analyses, or manually create a new place.</p>
     </div>
   <% end %>
 </div> 
