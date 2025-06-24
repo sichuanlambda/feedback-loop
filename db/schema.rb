@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_23_190228) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_24_161046) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -85,6 +85,26 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_23_190228) do
     t.text "gpt_response"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "places", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.decimal "latitude", precision: 10, scale: 8, null: false
+    t.decimal "longitude", precision: 11, scale: 8, null: false
+    t.integer "zoom_level", default: 12
+    t.text "description"
+    t.text "content"
+    t.boolean "published", default: false
+    t.boolean "featured", default: false
+    t.string "meta_title"
+    t.string "meta_description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["featured"], name: "index_places_on_featured"
+    t.index ["name"], name: "index_places_on_name", unique: true
+    t.index ["published"], name: "index_places_on_published"
+    t.index ["slug"], name: "index_places_on_slug", unique: true
   end
 
   create_table "products", force: :cascade do |t|

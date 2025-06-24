@@ -1,0 +1,147 @@
+<div class="admin-place-show">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><%= @place.name %></h1>
+    <div>
+      <%= link_to 'View Public Page', place_path(@place), class: 'btn btn-primary', target: '_blank' %>
+      <%= link_to 'Edit', edit_admin_place_path(@place), class: 'btn btn-secondary' %>
+      <%= link_to 'Back to Places', admin_places_path, class: 'btn btn-outline-secondary' %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <!-- Basic Information -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Basic Information</h5>
+        </div>
+        <div class="card-body">
+          <dl class="row">
+            <dt class="col-sm-3">Name:</dt>
+            <dd class="col-sm-9"><%= @place.name %></dd>
+
+            <dt class="col-sm-3">Slug:</dt>
+            <dd class="col-sm-9"><code><%= @place.slug %></code></dd>
+
+            <dt class="col-sm-3">Description:</dt>
+            <dd class="col-sm-9"><%= @place.description.present? ? @place.description : 'No description provided' %></dd>
+
+            <dt class="col-sm-3">Status:</dt>
+            <dd class="col-sm-9">
+              <% if @place.published? %>
+                <span class="badge badge-success">Published</span>
+              <% else %>
+                <span class="badge badge-secondary">Draft</span>
+              <% end %>
+            </dd>
+
+            <dt class="col-sm-3">Featured:</dt>
+            <dd class="col-sm-9">
+              <% if @place.featured? %>
+                <span class="badge badge-warning">Featured</span>
+              <% else %>
+                <span class="text-muted">No</span>
+              <% end %>
+            </dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Content Preview -->
+      <% if @place.content.present? %>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5>Content Preview</h5>
+          </div>
+          <div class="card-body">
+            <div class="content-preview">
+              <%= @place.content.html_safe %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="col-md-4">
+      <!-- Map Settings -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Map Settings</h5>
+        </div>
+        <div class="card-body">
+          <dl class="row">
+            <dt class="col-sm-4">Latitude:</dt>
+            <dd class="col-sm-8"><%= @place.latitude %></dd>
+
+            <dt class="col-sm-4">Longitude:</dt>
+            <dd class="col-sm-8"><%= @place.longitude %></dd>
+
+            <dt class="col-sm-4">Zoom Level:</dt>
+            <dd class="col-sm-8"><%= @place.zoom_level || 'Default (12)' %></dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- SEO Information -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>SEO Information</h5>
+        </div>
+        <div class="card-body">
+          <dl class="row">
+            <dt class="col-sm-4">Meta Title:</dt>
+            <dd class="col-sm-8"><%= @place.meta_title.present? ? @place.meta_title : 'Auto-generated' %></dd>
+
+            <dt class="col-sm-4">Meta Description:</dt>
+            <dd class="col-sm-8"><%= @place.meta_description.present? ? @place.meta_description : 'Auto-generated' %></dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="card">
+        <div class="card-header">
+          <h5>Statistics</h5>
+        </div>
+        <div class="card-body">
+          <% building_count = BuildingAnalysis.where(visible_in_library: true)
+                                             .where("LOWER(address) LIKE ? OR LOWER(city) LIKE ?", 
+                                                   "%#{@place.name.downcase}%", "%#{@place.name.downcase}%")
+                                             .count %>
+          <dl class="row">
+            <dt class="col-sm-6">Buildings Analyzed:</dt>
+            <dd class="col-sm-6"><%= building_count %></dd>
+
+            <dt class="col-sm-6">Created:</dt>
+            <dd class="col-sm-6"><%= @place.created_at.strftime("%B %d, %Y") %></dd>
+
+            <dt class="col-sm-6">Last Updated:</dt>
+            <dd class="col-sm-6"><%= @place.updated_at.strftime("%B %d, %Y") %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.content-preview {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+}
+
+.content-preview h1, .content-preview h2, .content-preview h3 {
+  color: #333;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.content-preview p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+</style> 

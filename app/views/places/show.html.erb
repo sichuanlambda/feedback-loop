@@ -1,0 +1,1114 @@
+<% content_for :title, @place.meta_title || "#{@place.name} Architecture Guide" %>
+<% content_for :meta_description, @place.meta_description || "Explore the architecture of #{@place.name}. Discover the main architectural styles, notable buildings, and historical context." %>
+
+<div class="place-page">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="container">
+      <h1 class="place-title"><%= @place.name %> Architecture</h1>
+      <% if @place.description.present? %>
+        <p class="place-description"><%= @place.description %></p>
+      <% end %>
+      <div class="place-stats">
+        <div class="stat">
+          <span class="stat-number"><%= @buildings_submitted_count %></span>
+          <span class="stat-label">Buildings Analyzed</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number"><%= @unique_style_count %></span>
+          <span class="stat-label">Architectural Styles</span>
+        </div>
+        <% if @top_styles.any? %>
+          <div class="stat">
+            <span class="stat-label">Top Style</span>
+            <span class="stat-style"><%= @top_styles.first[0] %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content and Map Section -->
+  <div class="content-map-section">
+    <div class="container">
+      <div class="row">
+        <!-- Article Content -->
+        <div class="col-lg-8">
+          <div class="article-content">
+            <% if @place.content.present? %>
+              <%= @place.content.html_safe %>
+            <% else %>
+              <div class="placeholder-content">
+                <h2>About <%= @place.name %> Architecture</h2>
+                <p>This guide explores the architectural heritage and contemporary design of <%= @place.name %>. From historic landmarks to modern developments, discover the diverse styles that shape the city's built environment.</p>
+                
+                <% if @top_styles.any? %>
+                  <h3>Primary Architectural Styles</h3>
+                  <div class="style-breakdown">
+                    <% @top_styles.each do |style, count| %>
+                      <div class="style-item">
+                        <span class="style-name"><%= style %></span>
+                        <span class="style-count"><%= count %> buildings</span>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <h3>Notable Buildings</h3>
+                <p>Explore the map to discover analyzed buildings in <%= @place.name %>. Each building has been analyzed using AI to identify its architectural characteristics and historical context.</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Tour Planning Component -->
+        <div class="col-lg-4">
+          <% if @building_analyses.any? %>
+            <div class="compact-tour-component">
+              <div class="tour-header">
+                <h4><i class="fas fa-route"></i> Plan Your Self-Guided Tour</h4>
+                <p>Create a custom walking route to explore the analyzed buildings in <%= @place.name %>. Select the buildings you'd like to visit and we'll generate an optimized route for you.</p>
+              </div>
+              
+              <div class="tour-stats-compact">
+                <div class="stat-compact">
+                  <span class="stat-number-compact"><%= @building_analyses.count %></span>
+                  <span class="stat-label-compact">Buildings Available</span>
+                </div>
+                <div class="stat-compact">
+                  <span class="stat-number-compact"><%= @unique_style_count %></span>
+                  <span class="stat-label-compact">Architectural Styles</span>
+                </div>
+              </div>
+              
+              <button id="plan-tour-btn-compact" class="btn btn-primary btn-block">
+                <i class="fas fa-map-marked-alt"></i> Plan Your Tour
+              </button>
+            </div>
+          <% end %>
+
+          <!-- Map Section -->
+          <div class="map-container">
+            <div class="map-header">
+              <h3>Interactive Map</h3>
+              <p>Explore analyzed buildings in <%= @place.name %></p>
+            </div>
+            <div id="place-map" class="place-map"></div>
+            <div class="map-controls">
+              <button id="toggle-sidebar" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-list"></i> Show Buildings
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buildings Sidebar -->
+  <div id="buildings-sidebar" class="buildings-sidebar">
+    <div class="sidebar-header">
+      <h3>Buildings in <%= @place.name %></h3>
+      <button id="close-sidebar" class="btn-close">&times;</button>
+    </div>
+    <div class="sidebar-content">
+      <% if @building_analyses.any? %>
+        <div class="buildings-list">
+          <% @building_analyses.each do |building| %>
+            <div class="building-item" data-building-id="<%= building.id %>">
+              <% if building.image_url.present? %>
+                <img src="<%= building.image_url %>" alt="Building" class="building-image">
+              <% end %>
+              <div class="building-info">
+                <h4><%= building.address.present? ? building.address : "Building ##{building.id}" %></h4>
+                <% if building.h3_contents.present? %>
+                  <div class="building-styles">
+                    <% begin %>
+                      <% styles = JSON.parse(building.h3_contents).first(3) %>
+                      <% styles.each do |style| %>
+                        <span class="style-badge"><%= style %></span>
+                      <% end %>
+                    <% rescue JSON::ParserError %>
+                      <span class="style-badge">Style analysis available</span>
+                    <% end %>
+                  </div>
+                <% end %>
+                <%= link_to "View Details", architecture_explorer_show_path(building), class: "btn btn-sm btn-primary" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="no-buildings">
+          <p>No buildings have been analyzed in <%= @place.name %> yet.</p>
+          <p>Be the first to analyze a building in this area!</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Mapbox Scripts -->
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/supercluster@7.1.2/dist/supercluster.min.js"></script>
+
+<!-- Bootstrap JavaScript for Modals -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const mapboxAccessToken = '<%= @mapbox_access_token %>';
+  const initialCenter = <%= raw @initial_center.to_json %>;
+  const initialZoom = <%= @initial_zoom %>;
+  const buildings = <%= raw @building_analyses.to_json %>;
+
+  // Initialize map
+  mapboxgl.accessToken = mapboxAccessToken;
+  const map = new mapboxgl.Map({
+    container: 'place-map',
+    style: 'mapbox://styles/mapbox/streets-v9',
+    center: initialCenter,
+    zoom: initialZoom
+  });
+
+  // Sidebar toggle functionality
+  const sidebar = document.getElementById('buildings-sidebar');
+  const toggleBtn = document.getElementById('toggle-sidebar');
+  const closeBtn = document.getElementById('close-sidebar');
+
+  toggleBtn.addEventListener('click', function() {
+    sidebar.classList.toggle('open');
+    toggleBtn.textContent = sidebar.classList.contains('open') ? 
+      'Hide Buildings' : 'Show Buildings';
+  });
+
+  closeBtn.addEventListener('click', function() {
+    sidebar.classList.remove('open');
+    toggleBtn.textContent = 'Show Buildings';
+  });
+
+  // Tour Planning Functionality
+  const planTourBtn = document.getElementById('plan-tour-btn-compact');
+  const tourPlanningModal = new bootstrap.Modal(document.getElementById('tourPlanningModal'));
+  const tourResultsModal = new bootstrap.Modal(document.getElementById('tourResultsModal'));
+  const buildingCheckboxes = document.querySelectorAll('.building-checkbox');
+  const selectedCountSpan = document.getElementById('selected-count');
+  const generateTourBtn = document.getElementById('generate-tour-btn');
+  const styleFilter = document.getElementById('style-filter');
+  const durationFilter = document.getElementById('duration-filter');
+
+  // Open tour planning modal
+  planTourBtn.addEventListener('click', function() {
+    tourPlanningModal.show();
+  });
+
+  // Handle building selection
+  buildingCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const buildingCard = this.closest('.building-card');
+      if (this.checked) {
+        buildingCard.classList.add('selected');
+      } else {
+        buildingCard.classList.remove('selected');
+      }
+      updateSelectedCount();
+    });
+  });
+
+  // Update selected count
+  function updateSelectedCount() {
+    const selectedCount = document.querySelectorAll('.building-checkbox:checked').length;
+    selectedCountSpan.textContent = selectedCount;
+    generateTourBtn.disabled = selectedCount === 0;
+  }
+
+  // Style filter functionality
+  styleFilter.addEventListener('change', function() {
+    const selectedStyle = this.value;
+    const buildingCards = document.querySelectorAll('.building-card');
+    
+    buildingCards.forEach(card => {
+      const styles = card.dataset.styles;
+      if (selectedStyle === '' || (styles && styles.includes(selectedStyle))) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+
+  // Generate tour route
+  generateTourBtn.addEventListener('click', function() {
+    const selectedBuildings = Array.from(document.querySelectorAll('.building-checkbox:checked'))
+      .map(checkbox => {
+        const buildingId = parseInt(checkbox.value);
+        return buildings.find(b => b.id === buildingId);
+      })
+      .filter(building => building && building.latitude && building.longitude);
+
+    if (selectedBuildings.length === 0) {
+      alert('Please select at least one building for your tour.');
+      return;
+    }
+
+    // Close planning modal and show results
+    tourPlanningModal.hide();
+    setTimeout(() => {
+      generateTourRoute(selectedBuildings);
+      tourResultsModal.show();
+    }, 300);
+  });
+
+  // Generate tour route with optimized path
+  function generateTourRoute(selectedBuildings) {
+    // Simple nearest neighbor algorithm for route optimization
+    const route = optimizeRoute(selectedBuildings);
+    
+    // Initialize tour map
+    const tourMap = new mapboxgl.Map({
+      container: 'tour-map',
+      style: 'mapbox://styles/mapbox/streets-v9',
+      center: initialCenter,
+      zoom: initialZoom
+    });
+
+    // Add route to map
+    tourMap.on('load', function() {
+      // Create route coordinates
+      const coordinates = route.map(building => [building.longitude, building.latitude]);
+      
+      // Add route line
+      tourMap.addSource('route', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: coordinates
+          }
+        }
+      });
+
+      tourMap.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#007bff',
+          'line-width': 4,
+          'line-opacity': 0.8
+        }
+      });
+
+      // Add markers for each stop
+      route.forEach((building, index) => {
+        const el = document.createElement('div');
+        el.className = 'tour-marker';
+        el.style.width = '25px';
+        el.style.height = '25px';
+        el.style.borderRadius = '50%';
+        el.style.backgroundColor = '#007bff';
+        el.style.border = '3px solid white';
+        el.style.cursor = 'pointer';
+        el.style.display = 'flex';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.style.color = 'white';
+        el.style.fontWeight = 'bold';
+        el.style.fontSize = '12px';
+        el.textContent = index + 1;
+
+        new mapboxgl.Marker(el)
+          .setLngLat([building.longitude, building.latitude])
+          .setPopup(
+            new mapboxgl.Popup({ offset: 25 })
+              .setHTML(`
+                <div class="popup-content">
+                  <h6>Stop ${index + 1}: ${building.address || 'Building'}</h6>
+                  ${building.image_url ? `<img src="${building.image_url}" alt="Building" style="width: 100%; max-height: 100px; object-fit: cover; margin: 5px 0;">` : ''}
+                  <a href="/architecture_explorer/${building.id}" class="btn btn-sm btn-primary">View Details</a>
+                </div>
+              `)
+          )
+          .addTo(tourMap);
+      });
+    });
+
+    // Populate tour itinerary
+    populateTourItinerary(route);
+  }
+
+  // Simple route optimization (nearest neighbor)
+  function optimizeRoute(buildings) {
+    if (buildings.length <= 1) return buildings;
+    
+    const route = [];
+    const unvisited = [...buildings];
+    
+    // Start with the first building
+    let current = unvisited.shift();
+    route.push(current);
+    
+    // Find nearest neighbor for each remaining building
+    while (unvisited.length > 0) {
+      let nearest = unvisited[0];
+      let minDistance = calculateDistance(current, nearest);
+      
+      for (let i = 1; i < unvisited.length; i++) {
+        const distance = calculateDistance(current, unvisited[i]);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearest = unvisited[i];
+        }
+      }
+      
+      route.push(nearest);
+      unvisited.splice(unvisited.indexOf(nearest), 1);
+      current = nearest;
+    }
+    
+    return route;
+  }
+
+  // Calculate distance between two points (Haversine formula)
+  function calculateDistance(building1, building2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (building2.latitude - building1.latitude) * Math.PI / 180;
+    const dLon = (building2.longitude - building1.longitude) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(building1.latitude * Math.PI / 180) * Math.cos(building2.latitude * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  // Populate tour itinerary
+  function populateTourItinerary(route) {
+    const tourStops = document.getElementById('tour-stops');
+    const tourDuration = document.getElementById('tour-duration');
+    const tourDistance = document.getElementById('tour-distance');
+    const tourBuildingCount = document.getElementById('tour-building-count');
+    
+    // Clear existing stops
+    tourStops.innerHTML = '';
+    
+    // Add each stop
+    route.forEach((building, index) => {
+      const stopDiv = document.createElement('div');
+      stopDiv.className = 'tour-stop';
+      stopDiv.innerHTML = `
+        <h6>Stop ${index + 1}: ${building.address || 'Building'}</h6>
+        <p>${building.h3_contents ? JSON.parse(building.h3_contents).slice(0, 2).join(', ') : 'Architecture analysis available'}</p>
+      `;
+      tourStops.appendChild(stopDiv);
+    });
+    
+    // Update tour info
+    tourBuildingCount.textContent = route.length;
+    
+    // Calculate estimated duration (30 minutes per building + walking time)
+    const estimatedMinutes = route.length * 30 + Math.floor(route.length * 10);
+    const hours = Math.floor(estimatedMinutes / 60);
+    const minutes = estimatedMinutes % 60;
+    tourDuration.textContent = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    
+    // Calculate total distance
+    let totalDistance = 0;
+    for (let i = 1; i < route.length; i++) {
+      totalDistance += calculateDistance(route[i-1], route[i]);
+    }
+    tourDistance.textContent = `${totalDistance.toFixed(1)} km`;
+  }
+
+  // Download tour guide
+  document.getElementById('download-tour-btn').addEventListener('click', function() {
+    // Create a simple text-based tour guide
+    const tourStops = document.querySelectorAll('.tour-stop');
+    let tourGuide = `Self-Guided Architecture Tour - <%= @place.name %>\n`;
+    tourGuide += `Generated on ${new Date().toLocaleDateString()}\n\n`;
+    
+    tourStops.forEach((stop, index) => {
+      tourGuide += `${stop.querySelector('h6').textContent}\n`;
+      tourGuide += `${stop.querySelector('p').textContent}\n\n`;
+    });
+    
+    // Create and download file
+    const blob = new Blob([tourGuide], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `<%= @place.name.downcase.gsub(/[^a-z0-9]/, '-') %>-tour-guide.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  });
+
+  // Map functionality
+  map.on('load', function() {
+    if (buildings.length > 0) {
+      // Add building markers
+      buildings.forEach(function(building) {
+        if (building.latitude && building.longitude) {
+          const el = document.createElement('div');
+          el.className = 'building-marker';
+          el.style.width = '20px';
+          el.style.height = '20px';
+          el.style.borderRadius = '50%';
+          el.style.backgroundColor = '#007bff';
+          el.style.border = '2px solid white';
+          el.style.cursor = 'pointer';
+
+          new mapboxgl.Marker(el)
+            .setLngLat([building.longitude, building.latitude])
+            .setPopup(
+              new mapboxgl.Popup({ offset: 25 })
+                .setHTML(`
+                  <div class="popup-content">
+                    <h4>${building.address || 'Building'}</h4>
+                    ${building.image_url ? `<img src="${building.image_url}" alt="Building" style="width: 100%; max-height: 150px; object-fit: cover; margin: 10px 0;">` : ''}
+                    <a href="/architecture_explorer/${building.id}" class="btn btn-sm btn-primary">View Details</a>
+                  </div>
+                `)
+            )
+            .addTo(map);
+        }
+      });
+    }
+  });
+});
+</script>
+
+<style>
+.place-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.place-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.place-description {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+.place-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.stat-style {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.content-map-section {
+  padding: 60px 0;
+}
+
+.article-content {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+.placeholder-content h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.placeholder-content h3 {
+  color: #555;
+  margin: 30px 0 15px 0;
+}
+
+.style-breakdown {
+  margin: 20px 0;
+}
+
+.style-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.style-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.style-count {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.map-container {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.map-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.map-header h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.map-header p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.place-map {
+  height: 400px;
+  width: 100%;
+}
+
+.map-controls {
+  padding: 15px 20px;
+  text-align: center;
+}
+
+.buildings-sidebar {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.buildings-sidebar.open {
+  right: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.sidebar-content {
+  padding: 20px;
+}
+
+.building-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #f9f9f9;
+}
+
+.building-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.building-info h4 {
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.building-styles {
+  margin-bottom: 10px;
+}
+
+.style-badge {
+  display: inline-block;
+  background: #007bff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin: 2px;
+}
+
+.no-buildings {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .place-title {
+    font-size: 2rem;
+  }
+  
+  .place-stats {
+    gap: 20px;
+  }
+  
+  .buildings-sidebar {
+    width: 100%;
+    right: -100%;
+  }
+  
+  .content-map-section .col-lg-4 {
+    margin-top: 30px;
+  }
+  
+  .compact-tour-component {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .tour-stats-compact {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .stat-compact {
+    padding: 10px;
+  }
+}
+
+/* Tour Planning Styles */
+.tour-planning-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 10px;
+  padding: 30px;
+  margin-top: 40px;
+  border-left: 4px solid #007bff;
+}
+
+.tour-planning-section h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.tour-planning-section p {
+  color: #666;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.tour-options {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+#plan-tour-btn {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border: none;
+  padding: 15px 30px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+#plan-tour-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+}
+
+.tour-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-item {
+  text-align: center;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  min-width: 120px;
+}
+
+.stat-item .stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 5px;
+}
+
+.stat-item .stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Compact Tour Component Styles */
+.compact-tour-component {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  padding: 25px;
+  border-left: 4px solid #007bff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+.tour-header h4 {
+  color: #333;
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.tour-header p {
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.tour-stats-compact {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-compact {
+  text-align: center;
+  background: white;
+  padding: 12px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  flex: 1;
+}
+
+.stat-number-compact {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 3px;
+}
+
+.stat-label-compact {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
+}
+
+#plan-tour-btn-compact {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border: none;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 3px 10px rgba(0, 123, 255, 0.25);
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+#plan-tour-btn-compact:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.35);
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+}
+
+/* Tour Modal Styles */
+.buildings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.building-card {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.building-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.building-card.selected {
+  border-color: #007bff;
+  background-color: #f8f9ff;
+}
+
+.building-card-header {
+  margin-bottom: 10px;
+}
+
+.building-thumbnail {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.building-styles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.style-tag {
+  background: #e9ecef;
+  color: #495057;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.selected-count {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.tour-itinerary {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  height: 400px;
+  overflow-y: auto;
+}
+
+.tour-stop {
+  padding: 10px;
+  margin-bottom: 10px;
+  background: white;
+  border-radius: 6px;
+  border-left: 3px solid #007bff;
+}
+
+.tour-stop h6 {
+  margin: 0 0 5px 0;
+  font-size: 0.9rem;
+}
+
+.tour-stop p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.info-item {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.info-item strong {
+  color: #333;
+}
+
+/* Sidebar Map Adjustments */
+.col-lg-4 .map-container {
+  margin-top: 20px;
+}
+
+.col-lg-4 .place-map {
+  height: 350px;
+}
+
+.col-lg-4 .map-header h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.col-lg-4 .map-header p {
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+</style>
+
+<!-- Tour Planning Modal -->
+<div class="modal fade" id="tourPlanningModal" tabindex="-1" aria-labelledby="tourPlanningModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tourPlanningModalLabel">
+          <i class="fas fa-route"></i> Plan Your Self-Guided Tour
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="tour-setup">
+          <div class="tour-filters mb-4">
+            <h6>Filter Buildings</h6>
+            <div class="row">
+              <div class="col-md-6">
+                <label class="form-label">Architectural Style</label>
+                <select id="style-filter" class="form-select">
+                  <option value="">All Styles</option>
+                  <% @style_frequency.each do |style, count| %>
+                    <option value="<%= style %>"><%= style %> (<%= count %>)</option>
+                  <% end %>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Tour Duration</label>
+                <select id="duration-filter" class="form-select">
+                  <option value="short">Short (1-2 hours)</option>
+                  <option value="medium" selected>Medium (2-3 hours)</option>
+                  <option value="long">Long (3+ hours)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="buildings-selection">
+            <h6>Select Buildings for Your Tour</h6>
+            <div class="selected-count mb-2">
+              <span id="selected-count">0</span> buildings selected
+            </div>
+            <div class="buildings-grid" id="buildings-grid">
+              <% @building_analyses.each do |building| %>
+                <div class="building-card" data-building-id="<%= building.id %>" data-styles="<%= building.h3_contents %>">
+                  <div class="building-card-header">
+                    <div class="form-check">
+                      <input class="form-check-input building-checkbox" type="checkbox" value="<%= building.id %>" id="building-<%= building.id %>">
+                      <label class="form-check-label" for="building-<%= building.id %>">
+                        <%= building.address.present? ? building.address : "Building ##{building.id}" %>
+                      </label>
+                    </div>
+                  </div>
+                  <% if building.image_url.present? %>
+                    <img src="<%= building.image_url %>" alt="Building" class="building-thumbnail">
+                  <% end %>
+                  <div class="building-styles">
+                    <% begin %>
+                      <% styles = JSON.parse(building.h3_contents).first(3) %>
+                      <% styles.each do |style| %>
+                        <span class="style-tag"><%= style %></span>
+                      <% end %>
+                    <% rescue JSON::ParserError %>
+                      <span class="style-tag">Style analysis available</span>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="generate-tour-btn" disabled>
+          <i class="fas fa-map-marked-alt"></i> Generate Tour Route
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tour Results Modal -->
+<div class="modal fade" id="tourResultsModal" tabindex="-1" aria-labelledby="tourResultsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tourResultsModalLabel">
+          <i class="fas fa-map-marked-alt"></i> Your Self-Guided Tour
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="tour-results">
+          <div class="row">
+            <div class="col-md-8">
+              <div id="tour-map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+            </div>
+            <div class="col-md-4">
+              <div class="tour-itinerary">
+                <h6>Tour Itinerary</h6>
+                <div id="tour-stops"></div>
+                <div class="tour-info mt-3">
+                  <div class="info-item">
+                    <strong>Estimated Duration:</strong> <span id="tour-duration">2-3 hours</span>
+                  </div>
+                  <div class="info-item">
+                    <strong>Total Distance:</strong> <span id="tour-distance">~2.5 km</span>
+                  </div>
+                  <div class="info-item">
+                    <strong>Buildings:</strong> <span id="tour-building-count">5</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" id="download-tour-btn">
+          <i class="fas fa-download"></i> Download Tour Guide
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

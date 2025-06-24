@@ -1,0 +1,134 @@
+<%= form_with(model: [:admin, @place], local: true) do |form| %>
+  <% if @place.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(@place.errors.count, "error") %> prohibited this place from being saved:</h4>
+      <ul>
+        <% @place.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-md-8">
+      <!-- Basic Information -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Basic Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <%= form.label :name, class: 'form-label' %>
+            <%= form.text_field :name, class: 'form-control', required: true %>
+            <small class="form-text text-muted">The display name for this place (e.g., "Denver, Colorado")</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :slug, class: 'form-label' %>
+            <%= form.text_field :slug, class: 'form-control' %>
+            <small class="form-text text-muted">URL-friendly identifier (auto-generated if left blank)</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :description, class: 'form-label' %>
+            <%= form.text_area :description, class: 'form-control', rows: 3 %>
+            <small class="form-text text-muted">Brief description shown on the place page and index</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Content</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <%= form.label :content, class: 'form-label' %>
+            <%= form.text_area :content, class: 'form-control', rows: 15 %>
+            <small class="form-text text-muted">Full article content about the architecture of this place. Supports HTML.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>SEO & Meta Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <%= form.label :meta_title, class: 'form-label' %>
+            <%= form.text_field :meta_title, class: 'form-control' %>
+            <small class="form-text text-muted">Page title for search engines (optional)</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :meta_description, class: 'form-label' %>
+            <%= form.text_area :meta_description, class: 'form-control', rows: 3 %>
+            <small class="form-text text-muted">Meta description for search engines (optional)</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <!-- Map Settings -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Map Settings</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <%= form.label :latitude, class: 'form-label' %>
+            <%= form.number_field :latitude, class: 'form-control', step: 'any', required: true %>
+            <small class="form-text text-muted">Latitude coordinate (e.g., 39.7392)</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :longitude, class: 'form-label' %>
+            <%= form.number_field :longitude, class: 'form-control', step: 'any', required: true %>
+            <small class="form-text text-muted">Longitude coordinate (e.g., -104.9903)</small>
+          </div>
+
+          <div class="form-group">
+            <%= form.label :zoom_level, class: 'form-label' %>
+            <%= form.number_field :zoom_level, class: 'form-control', min: 1, max: 20 %>
+            <small class="form-text text-muted">Map zoom level (1-20, default: 12)</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Publication Settings -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>Publication Settings</h5>
+        </div>
+        <div class="card-body">
+          <div class="form-check mb-3">
+            <%= form.check_box :published, class: 'form-check-input' %>
+            <%= form.label :published, 'Published', class: 'form-check-label' %>
+            <small class="form-text text-muted d-block">Make this place visible to the public</small>
+          </div>
+
+          <div class="form-check">
+            <%= form.check_box :featured, class: 'form-check-input' %>
+            <%= form.label :featured, 'Featured', class: 'form-check-label' %>
+            <small class="form-text text-muted d-block">Highlight this place on the index page</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card">
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <%= form.submit class: 'btn btn-primary' %>
+            <%= link_to 'Cancel', admin_places_path, class: 'btn btn-secondary' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %> 

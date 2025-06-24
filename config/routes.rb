@@ -32,6 +32,7 @@ Rails.application.routes.draw do
         post :bulk_update
       end
     end
+    resources :places
   end
 
   # Feedbacks Routes
@@ -139,4 +140,7 @@ Rails.application.routes.draw do
 
   get 'development_estimations', to: 'architecture_explorer#development_estimations'
   post 'generate_development_estimation', to: 'architecture_explorer#generate_development_estimation'
+
+  # Places routes
+  resources :places, only: [:index, :show], param: :slug
 end

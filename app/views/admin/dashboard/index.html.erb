@@ -139,12 +139,18 @@
                                 <%= link_to admin_users_path, class: 'btn btn-warning btn-lg' do %>
                                     <i class="fas fa-users"></i> Manage Users
                                 <% end %>
+                                <%= link_to admin_places_path, class: 'btn btn-success btn-lg' do %>
+                                    <i class="fas fa-map-marker-alt"></i> Manage Places
+                                <% end %>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="d-grid gap-2">
                                 <%= link_to building_library_path, class: 'btn btn-info btn-lg', target: '_blank' do %>
                                     <i class="fas fa-external-link-alt"></i> View Public Library
+                                <% end %>
+                                <%= link_to places_path, class: 'btn btn-info btn-lg', target: '_blank' do %>
+                                    <i class="fas fa-globe"></i> View Places
                                 <% end %>
                                 <%= link_to admin_building_analyses_path(visibility: 'hidden'), class: 'btn btn-secondary btn-lg' do %>
                                     <i class="fas fa-eye-slash"></i> Review Hidden Buildings
