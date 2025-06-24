@@ -200,30 +200,127 @@ document.addEventListener('DOMContentLoaded', function() {
   const generateTourBtn = document.getElementById('generate-tour-btn');
   const styleFilter = document.getElementById('style-filter');
   const durationFilter = document.getElementById('duration-filter');
+  
+  // Modal state management
+  let isVirtualTourMode = false;
+  let allBuildings = [];
+  let buildingsWithAddresses = [];
+
+  // Initialize building arrays
+  function initializeBuildingArrays() {
+    allBuildings = buildings;
+    buildingsWithAddresses = buildings.filter(building => 
+      building.latitude && building.longitude && 
+      building.address && 
+      !building.address.match(/^[A-Za-z\s]+$/) // Exclude addresses that are just city names
+    );
+  }
 
   // Open tour planning modal for route planning
   planRouteBtn.addEventListener('click', function() {
+    isVirtualTourMode = false;
+    initializeBuildingArrays();
+    populateBuildingsGrid();
+    updateModalUI();
     tourPlanningModal.show();
   });
 
   // Handle virtual tour button
   virtualTourBtn.addEventListener('click', function() {
-    // For now, show an alert. This can be expanded later for virtual tour functionality
-    alert('Virtual Tour feature coming soon! This will provide an immersive 3D experience of the selected buildings.');
+    isVirtualTourMode = true;
+    initializeBuildingArrays();
+    populateBuildingsGrid();
+    updateModalUI();
+    tourPlanningModal.show();
   });
 
-  // Handle building selection
-  buildingCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      const buildingCard = this.closest('.building-card');
-      if (this.checked) {
-        buildingCard.classList.add('selected');
-      } else {
-        buildingCard.classList.remove('selected');
-      }
-      updateSelectedCount();
-    });
+  // Toggle tour mode
+  document.getElementById('toggle-tour-mode-btn').addEventListener('click', function() {
+    isVirtualTourMode = !isVirtualTourMode;
+    populateBuildingsGrid();
+    updateModalUI();
   });
+
+  // Update modal UI based on current mode
+  function updateModalUI() {
+    const modalTitle = document.getElementById('modal-title-text');
+    const buildingsTitle = document.getElementById('buildings-selection-title');
+    const toggleModeText = document.getElementById('toggle-mode-text');
+    const generateBtnText = document.getElementById('generate-btn-text');
+    const durationContainer = document.getElementById('duration-filter-container');
+
+    if (isVirtualTourMode) {
+      modalTitle.textContent = 'Virtual Tour Experience';
+      buildingsTitle.textContent = 'Select Buildings for Virtual Tour';
+      toggleModeText.textContent = 'Physical Tour';
+      generateBtnText.textContent = 'Start Virtual Tour';
+      durationContainer.style.display = 'none';
+    } else {
+      modalTitle.textContent = 'Plan Your Self-Guided Tour';
+      buildingsTitle.textContent = 'Select Buildings for Your Tour';
+      toggleModeText.textContent = 'Virtual Tour';
+      generateBtnText.textContent = 'Generate Tour Route';
+      durationContainer.style.display = 'block';
+    }
+  }
+
+  // Populate buildings grid based on current mode
+  function populateBuildingsGrid() {
+    const buildingsGrid = document.getElementById('buildings-grid');
+    const buildingsToShow = isVirtualTourMode ? allBuildings : buildingsWithAddresses;
+    
+    buildingsGrid.innerHTML = '';
+    
+    buildingsToShow.forEach(building => {
+      const buildingCard = document.createElement('div');
+      buildingCard.className = 'building-card';
+      buildingCard.dataset.buildingId = building.id;
+      buildingCard.dataset.styles = building.h3_contents || '';
+      
+      let styles = [];
+      try {
+        styles = JSON.parse(building.h3_contents || '[]').slice(0, 3);
+      } catch (e) {
+        styles = ['Style analysis available'];
+      }
+      
+      buildingCard.innerHTML = `
+        <div class="building-card-header">
+          <div class="form-check">
+            <input class="form-check-input building-checkbox" type="checkbox" value="${building.id}" id="building-${building.id}">
+            <label class="form-check-label" for="building-${building.id}">
+              ${building.address || `Building #${building.id}`}
+            </label>
+          </div>
+        </div>
+        ${building.image_url ? `<img src="${building.image_url}" alt="Building" class="building-thumbnail">` : ''}
+        <div class="building-styles">
+          ${styles.map(style => `<span class="style-tag">${style}</span>`).join('')}
+        </div>
+      `;
+      
+      buildingsGrid.appendChild(buildingCard);
+    });
+    
+    // Re-attach event listeners to new checkboxes
+    attachCheckboxListeners();
+  }
+
+  // Attach event listeners to building checkboxes
+  function attachCheckboxListeners() {
+    const newCheckboxes = document.querySelectorAll('.building-checkbox');
+    newCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        const buildingCard = this.closest('.building-card');
+        if (this.checked) {
+          buildingCard.classList.add('selected');
+        } else {
+          buildingCard.classList.remove('selected');
+        }
+        updateSelectedCount();
+      });
+    });
+  }
 
   // Update selected count
   function updateSelectedCount() {
@@ -252,19 +349,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedBuildings = Array.from(document.querySelectorAll('.building-checkbox:checked'))
       .map(checkbox => {
         const buildingId = parseInt(checkbox.value);
-        return buildings.find(b => b.id === buildingId);
+        const buildingsToSearch = isVirtualTourMode ? allBuildings : buildingsWithAddresses;
+        return buildingsToSearch.find(b => b.id === buildingId);
       })
-      .filter(building => building && building.latitude && building.longitude);
+      .filter(building => building);
 
     if (selectedBuildings.length === 0) {
       alert('Please select at least one building for your tour.');
       return;
     }
 
+    if (isVirtualTourMode) {
+      // Handle virtual tour
+      alert('Virtual Tour feature coming soon! This will provide an immersive 3D experience of the selected buildings.');
+      return;
+    }
+
+    // Filter buildings with coordinates for physical tour
+    const buildingsWithCoords = selectedBuildings.filter(building => 
+      building.latitude && building.longitude
+    );
+
+    if (buildingsWithCoords.length === 0) {
+      alert('Selected buildings do not have coordinates. Please select buildings with specific addresses for a physical tour.');
+      return;
+    }
+
     // Close planning modal and show results
     tourPlanningModal.hide();
     setTimeout(() => {
-      generateTourRoute(selectedBuildings);
+      generateTourRoute(buildingsWithCoords);
       tourResultsModal.show();
     }, 300);
   });
@@ -1031,6 +1145,26 @@ document.addEventListener('DOMContentLoaded', function() {
   padding: 8px 12px;
   flex: 1;
 }
+
+.modal-footer {
+  justify-content: center;
+  gap: 15px;
+}
+
+.modal-footer .btn {
+  min-width: 140px;
+}
+
+#toggle-tour-mode-btn {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+#toggle-tour-mode-btn:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
 </style>
 
 <!-- Tour Planning Modal -->
@@ -1039,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="tourPlanningModalLabel">
-          <i class="fas fa-route"></i> Plan Your Self-Guided Tour
+          <i class="fas fa-route"></i> <span id="modal-title-text">Plan Your Self-Guided Tour</span>
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -1057,7 +1191,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   <% end %>
                 </select>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6" id="duration-filter-container">
                 <label class="form-label">Tour Duration</label>
                 <select id="duration-filter" class="form-select">
                   <option value="short">Short (1-2 hours)</option>
@@ -1069,44 +1203,22 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
 
           <div class="buildings-selection">
-            <h6>Select Buildings for Your Tour</h6>
+            <h6 id="buildings-selection-title">Select Buildings for Your Tour</h6>
             <div class="selected-count mb-2">
               <span id="selected-count">0</span> buildings selected
             </div>
             <div class="buildings-grid" id="buildings-grid">
-              <% @building_analyses.each do |building| %>
-                <div class="building-card" data-building-id="<%= building.id %>" data-styles="<%= building.h3_contents %>">
-                  <div class="building-card-header">
-                    <div class="form-check">
-                      <input class="form-check-input building-checkbox" type="checkbox" value="<%= building.id %>" id="building-<%= building.id %>">
-                      <label class="form-check-label" for="building-<%= building.id %>">
-                        <%= building.address.present? ? building.address : "Building ##{building.id}" %>
-                      </label>
-                    </div>
-                  </div>
-                  <% if building.image_url.present? %>
-                    <img src="<%= building.image_url %>" alt="Building" class="building-thumbnail">
-                  <% end %>
-                  <div class="building-styles">
-                    <% begin %>
-                      <% styles = JSON.parse(building.h3_contents).first(3) %>
-                      <% styles.each do |style| %>
-                        <span class="style-tag"><%= style %></span>
-                      <% end %>
-                    <% rescue JSON::ParserError %>
-                      <span class="style-tag">Style analysis available</span>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
+              <!-- Buildings will be populated by JavaScript -->
             </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-outline-secondary" id="toggle-tour-mode-btn">
+          <i class="fas fa-exchange-alt"></i> Switch to <span id="toggle-mode-text">Virtual Tour</span>
+        </button>
         <button type="button" class="btn btn-primary" id="generate-tour-btn" disabled>
-          <i class="fas fa-map-marked-alt"></i> Generate Tour Route
+          <i class="fas fa-map-marked-alt"></i> <span id="generate-btn-text">Generate Tour Route</span>
         </button>
       </div>
     </div>
