@@ -5,25 +5,22 @@
   <!-- Hero Section -->
   <div class="hero-section">
     <div class="container">
-      <h1 class="place-title"><%= @place.name %> Architecture</h1>
-      <% if @place.description.present? %>
-        <p class="place-description"><%= @place.description %></p>
-      <% end %>
-      <div class="place-stats">
-        <div class="stat">
-          <span class="stat-number"><%= @buildings_submitted_count %></span>
-          <span class="stat-label">Buildings Analyzed</span>
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <h1 class="place-title"><%= @place.name %></h1>
+          <% if @place.description.present? %>
+            <p class="place-description"><%= @place.description %></p>
+          <% end %>
         </div>
-        <div class="stat">
-          <span class="stat-number"><%= @unique_style_count %></span>
-          <span class="stat-label">Architectural Styles</span>
-        </div>
-        <% if @top_styles.any? %>
-          <div class="stat">
-            <span class="stat-label">Top Style</span>
-            <span class="stat-style"><%= @top_styles.first[0] %></span>
+        <div class="col-lg-4">
+          <div class="hero-image-placeholder">
+            <!-- Placeholder for hero image -->
+            <div class="hero-image">
+              <i class="fas fa-building"></i>
+              <p>Architecture of <%= @place.name %></p>
+            </div>
           </div>
-        <% end %>
+        </div>
       </div>
     </div>
   </div>
@@ -73,7 +70,7 @@
               <div class="tour-stats-compact">
                 <div class="stat-compact">
                   <span class="stat-number-compact"><%= @building_analyses.count %></span>
-                  <span class="stat-label-compact">Buildings Available</span>
+                  <span class="stat-label-compact">Buildings</span>
                 </div>
                 <div class="stat-compact">
                   <span class="stat-number-compact"><%= @unique_style_count %></span>
@@ -81,9 +78,14 @@
                 </div>
               </div>
               
-              <button id="plan-tour-btn-compact" class="btn btn-primary btn-block">
-                <i class="fas fa-map-marked-alt"></i> Plan Your Tour
-              </button>
+              <div class="tour-actions">
+                <button id="plan-route-btn-compact" class="btn btn-primary">
+                  <i class="fas fa-map-marked-alt"></i> Plan Route
+                </button>
+                <button id="virtual-tour-btn-compact" class="btn btn-outline-primary">
+                  <i class="fas fa-vr-cardboard"></i> Virtual Tour
+                </button>
+              </div>
             </div>
           <% end %>
 
@@ -96,7 +98,7 @@
             <div id="place-map" class="place-map"></div>
             <div class="map-controls">
               <button id="toggle-sidebar" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-list"></i> Show Buildings
+                <i class="fas fa-list"></i> Explore
               </button>
             </div>
           </div>
@@ -180,16 +182,17 @@ document.addEventListener('DOMContentLoaded', function() {
   toggleBtn.addEventListener('click', function() {
     sidebar.classList.toggle('open');
     toggleBtn.textContent = sidebar.classList.contains('open') ? 
-      'Hide Buildings' : 'Show Buildings';
+      'Hide Buildings' : 'Explore';
   });
 
   closeBtn.addEventListener('click', function() {
     sidebar.classList.remove('open');
-    toggleBtn.textContent = 'Show Buildings';
+    toggleBtn.textContent = 'Explore';
   });
 
   // Tour Planning Functionality
-  const planTourBtn = document.getElementById('plan-tour-btn-compact');
+  const planRouteBtn = document.getElementById('plan-route-btn-compact');
+  const virtualTourBtn = document.getElementById('virtual-tour-btn-compact');
   const tourPlanningModal = new bootstrap.Modal(document.getElementById('tourPlanningModal'));
   const tourResultsModal = new bootstrap.Modal(document.getElementById('tourResultsModal'));
   const buildingCheckboxes = document.querySelectorAll('.building-checkbox');
@@ -198,9 +201,15 @@ document.addEventListener('DOMContentLoaded', function() {
   const styleFilter = document.getElementById('style-filter');
   const durationFilter = document.getElementById('duration-filter');
 
-  // Open tour planning modal
-  planTourBtn.addEventListener('click', function() {
+  // Open tour planning modal for route planning
+  planRouteBtn.addEventListener('click', function() {
     tourPlanningModal.show();
+  });
+
+  // Handle virtual tour button
+  virtualTourBtn.addEventListener('click', function() {
+    // For now, show an alert. This can be expanded later for virtual tour functionality
+    alert('Virtual Tour feature coming soon! This will provide an immersive 3D experience of the selected buildings.');
   });
 
   // Handle building selection
@@ -495,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function() {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 60px 0;
-  text-align: center;
+  text-align: left;
 }
 
 .place-title {
@@ -506,7 +515,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .place-description {
   font-size: 1.2rem;
-  margin-bottom: 30px;
+  margin-bottom: 0;
+  opacity: 0.9;
+}
+
+.hero-image-placeholder {
+  text-align: center;
+}
+
+.hero-image {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 40px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.hero-image i {
+  font-size: 4rem;
+  margin-bottom: 15px;
+  opacity: 0.8;
+}
+
+.hero-image p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
   opacity: 0.9;
 }
 
@@ -731,6 +765,14 @@ document.addEventListener('DOMContentLoaded', function() {
   .stat-compact {
     padding: 10px;
   }
+  
+  .hero-section {
+    text-align: center;
+  }
+  
+  .hero-image {
+    margin-top: 30px;
+  }
 }
 
 /* Tour Planning Styles */
@@ -841,37 +883,29 @@ document.addEventListener('DOMContentLoaded', function() {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   flex: 1;
+  min-width: 0;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.stat-number-compact {
-  display: block;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #007bff;
-  margin-bottom: 3px;
+.tour-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
 }
 
-.stat-label-compact {
-  font-size: 0.8rem;
-  color: #666;
-  font-weight: 500;
-}
-
-#plan-tour-btn-compact {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-  border: none;
-  padding: 12px 20px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  box-shadow: 0 3px 10px rgba(0, 123, 255, 0.25);
-  transition: all 0.3s ease;
-  width: 100%;
-}
-
-#plan-tour-btn-compact:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.35);
-  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+.tour-actions .btn {
+  font-size: 0.9rem;
+  padding: 12px 16px;
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 /* Tour Modal Styles */
@@ -984,6 +1018,18 @@ document.addEventListener('DOMContentLoaded', function() {
 .col-lg-4 .map-header p {
   font-size: 0.85rem;
   margin-bottom: 10px;
+}
+
+.tour-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+
+.tour-actions .btn {
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  flex: 1;
 }
 </style>
 
