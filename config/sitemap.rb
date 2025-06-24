@@ -1,5 +1,5 @@
 # Set the host name for URL creation
-SitemapGenerator::Sitemap.default_host = "https://yourdomain.com" # Replace with your actual domain
+SitemapGenerator::Sitemap.default_host = "https://app.architecturehelper.com"
 
 SitemapGenerator::Sitemap.create do
   # Add static pages

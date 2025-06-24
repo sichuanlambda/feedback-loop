@@ -5,4 +5,4 @@ Disallow: /api/
 Allow: /
 
 # Sitemap
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://app.architecturehelper.com/sitemap.xml
