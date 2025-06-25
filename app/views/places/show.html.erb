@@ -149,7 +149,7 @@
                 <% if building.h3_contents.present? %>
                   <div class="building-styles">
                     <% begin %>
-                      <% styles = JSON.parse(building.h3_contents).first(3) %>
+                      <% styles = JSON.parse(building.h3_contents || '[]').slice(0, 6) %>
                       <% styles.each do |style| %>
                         <span class="style-badge"><%= style %></span>
                       <% end %>
@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const selectedCountSpan = document.getElementById('selected-count');
   const generateTourBtn = document.getElementById('generate-tour-btn');
   const styleFilter = document.getElementById('style-filter');
-  const durationFilter = document.getElementById('duration-filter');
   
   // Modal state management
   let isVirtualTourMode = false;
@@ -270,20 +269,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const buildingsTitle = document.getElementById('buildings-selection-title');
     const toggleModeText = document.getElementById('toggle-mode-text');
     const generateBtnText = document.getElementById('generate-btn-text');
-    const durationContainer = document.getElementById('duration-filter-container');
 
     if (isVirtualTourMode) {
       modalTitle.textContent = 'Virtual Tour Experience';
       buildingsTitle.textContent = 'Select Buildings for Virtual Tour';
       toggleModeText.textContent = 'Physical Tour';
       generateBtnText.textContent = 'Start Virtual Tour';
-      durationContainer.style.display = 'none';
     } else {
       modalTitle.textContent = 'Plan Your Self-Guided Tour';
       buildingsTitle.textContent = 'Select Buildings for Your Tour';
       toggleModeText.textContent = 'Virtual Tour';
       generateBtnText.textContent = 'Generate Tour Route';
-      durationContainer.style.display = 'block';
     }
   }
 
@@ -299,10 +295,11 @@ document.addEventListener('DOMContentLoaded', function() {
       buildingCard.className = 'building-card';
       buildingCard.dataset.buildingId = building.id;
       buildingCard.dataset.styles = building.h3_contents || '';
+      buildingCard.style.cursor = 'pointer';
       
       let styles = [];
       try {
-        styles = JSON.parse(building.h3_contents || '[]').slice(0, 3);
+        styles = JSON.parse(building.h3_contents || '[]').slice(0, 6);
       } catch (e) {
         styles = ['Style analysis available'];
       }
@@ -325,22 +322,30 @@ document.addEventListener('DOMContentLoaded', function() {
       buildingsGrid.appendChild(buildingCard);
     });
     
-    // Re-attach event listeners to new checkboxes
-    attachCheckboxListeners();
+    // Re-attach event listeners to new cards
+    attachCardListeners();
   }
 
-  // Attach event listeners to building checkboxes
-  function attachCheckboxListeners() {
-    const newCheckboxes = document.querySelectorAll('.building-checkbox');
-    newCheckboxes.forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        const buildingCard = this.closest('.building-card');
-        if (this.checked) {
-          buildingCard.classList.add('selected');
-        } else {
-          buildingCard.classList.remove('selected');
+  // Attach event listeners to building cards
+  function attachCardListeners() {
+    const buildingCards = document.querySelectorAll('.building-card');
+    buildingCards.forEach(card => {
+      card.addEventListener('click', function(e) {
+        // Don't trigger if clicking on the checkbox itself
+        if (e.target.classList.contains('building-checkbox') || e.target.classList.contains('form-check-input')) {
+          return;
         }
-        updateSelectedCount();
+        
+        const checkbox = this.querySelector('.building-checkbox');
+        if (checkbox) {
+          checkbox.checked = !checkbox.checked;
+          if (checkbox.checked) {
+            this.classList.add('selected');
+          } else {
+            this.classList.remove('selected');
+          }
+          updateSelectedCount();
+        }
       });
     });
   }
@@ -489,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function createBuildingContentHTML(building) {
     let styles = [];
     try {
-      styles = JSON.parse(building.h3_contents || '[]');
+      styles = JSON.parse(building.h3_contents || '[]').slice(0, 6);
     } catch (e) {
       styles = ['Style analysis available'];
     }
@@ -767,7 +772,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create a formatted summary for download
     let styles = [];
     try {
-      styles = JSON.parse(currentBuilding.h3_contents || '[]');
+      styles = JSON.parse(currentBuilding.h3_contents || '[]').slice(0, 6);
     } catch (e) {
       styles = ['Style analysis available'];
     }
@@ -1305,7 +1310,10 @@ ${window.location.origin}
 }
 
 .building-styles {
-  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
 }
 
 .style-badge {
@@ -1539,15 +1547,21 @@ ${window.location.origin}
 .building-styles {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 4px;
+  margin-top: 8px;
 }
 
 .style-tag {
   background: #e9ecef;
   color: #495057;
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: 12px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .selected-count {
@@ -1559,7 +1573,7 @@ ${window.location.origin}
   background: #f8f9fa;
   padding: 15px;
   border-radius: 8px;
-  height: 600px;
+  height: 400px;
   overflow-y: auto;
 }
 
@@ -2070,21 +2084,13 @@ ${window.location.origin}
               </div>
             </div>
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-12">
                 <label class="form-label">Architectural Style</label>
                 <select id="style-filter" class="form-select modern-select">
                   <option value="">All Styles</option>
                   <% @style_frequency.each do |style, count| %>
                     <option value="<%= style %>"><%= style %> (<%= count %>)</option>
                   <% end %>
-                </select>
-              </div>
-              <div class="col-md-6" id="duration-filter-container">
-                <label class="form-label">Tour Duration</label>
-                <select id="duration-filter" class="form-select modern-select">
-                  <option value="short">Short (1-2 hours)</option>
-                  <option value="medium" selected>Medium (2-3 hours)</option>
-                  <option value="long">Long (3+ hours)</option>
                 </select>
               </div>
             </div>
@@ -2126,7 +2132,7 @@ ${window.location.origin}
         <div class="tour-results">
           <div class="row">
             <div class="col-md-8">
-              <div id="tour-map" style="height: 600px; width: 100%; border-radius: 8px;"></div>
+              <div id="tour-map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
             </div>
             <div class="col-md-4">
               <div class="tour-itinerary">
