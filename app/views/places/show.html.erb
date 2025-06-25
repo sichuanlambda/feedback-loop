@@ -516,8 +516,11 @@ document.addEventListener('DOMContentLoaded', function() {
       
       <div class="building-image-section">
         ${building.image_url ? `
-          <div class="building-image-container">
+          <div class="building-image-container" style="cursor: pointer;" onclick="openFullscreenImage('${building.image_url}')">
             <img src="${building.image_url}" alt="Building" />
+            <div class="image-overlay">
+              <i class="fas fa-expand-arrows-alt"></i>
+            </div>
           </div>
         ` : '<div class="building-image-container bg-light d-flex align-items-center justify-content-center" style="height: 300px;"><i class="fas fa-image fa-3x text-muted"></i></div>'}
         
@@ -591,16 +594,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 
-    // Download summary button
-    const downloadBtn = document.getElementById('download-tour-summary-btn');
-    console.log('Download button found:', !!downloadBtn);
-    if (downloadBtn) {
-      downloadBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        downloadTourSummary();
-      });
-    }
-
     // End Tour button (header)
     const endTourBtn = document.getElementById('end-tour-btn');
     console.log('End Tour button found:', !!endTourBtn);
@@ -608,8 +601,35 @@ document.addEventListener('DOMContentLoaded', function() {
       endTourBtn.addEventListener('click', function(e) {
         e.preventDefault();
         const virtualTourModal = document.getElementById('virtualTourModal');
-        const modal = bootstrap.Modal.getInstance(virtualTourModal);
-        if (modal) modal.hide();
+        
+        // Try multiple methods to close the modal
+        try {
+          // Method 1: Try Bootstrap modal instance
+          const modal = bootstrap.Modal.getInstance(virtualTourModal);
+          if (modal) {
+            modal.hide();
+            return;
+          }
+        } catch (error) {
+          console.log('Bootstrap modal instance method failed, trying alternative');
+        }
+        
+        // Method 2: Manual modal closing
+        virtualTourModal.classList.remove('show');
+        virtualTourModal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+        
+        // Remove backdrop
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+          backdrop.remove();
+        }
+        
+        // Remove any remaining modal-related classes
+        document.body.classList.remove('modal-open');
+        document.body.style.paddingRight = '';
+        
+        console.log('Modal closed successfully');
       });
     }
   }
@@ -656,29 +676,149 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  function downloadTourSummary() {
-    const tourData = {
-      title: `Virtual Tour Summary - ${new Date().toLocaleDateString()}`,
-      buildings: virtualTourBuildings.map((building, index) => ({
-        number: index + 1,
-        address: building.address || `Building #${building.id}`,
-        city: building.city || 'Unknown',
-        styles: JSON.parse(building.h3_contents || '[]'),
-        imageUrl: building.image_url
-      })),
-      totalBuildings: virtualTourBuildings.length,
-      tourDuration: document.getElementById('tour-timer').textContent
-    };
+  // Global function for opening fullscreen image
+  window.openFullscreenImage = function(imageUrl) {
+    console.log('Opening fullscreen image:', imageUrl);
+    
+    // Set the image source
+    const fullscreenImage = document.getElementById('fullscreen-image');
+    if (fullscreenImage) {
+      fullscreenImage.src = imageUrl;
+      fullscreenImage.onload = function() {
+        console.log('Image loaded successfully');
+      };
+      fullscreenImage.onerror = function() {
+        console.error('Failed to load image:', imageUrl);
+      };
+    }
+    
+    // Show the fullscreen modal
+    const fullscreenModalElement = document.getElementById('fullscreenImageModal');
+    if (fullscreenModalElement) {
+      const fullscreenModal = new bootstrap.Modal(fullscreenModalElement, {
+        backdrop: 'static',
+        keyboard: true
+      });
+      fullscreenModal.show();
+      
+      // Ensure the modal is properly sized
+      setTimeout(() => {
+        fullscreenModalElement.style.display = 'block';
+        fullscreenModalElement.classList.add('show');
+        document.body.classList.add('modal-open');
+      }, 100);
+      
+      // Add event listener for close button
+      const closeBtn = document.getElementById('close-fullscreen-btn');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          closeFullscreenModal();
+        });
+      }
+    } else {
+      console.error('Fullscreen modal element not found');
+    }
+  };
 
-    const blob = new Blob([JSON.stringify(tourData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+  // Function to close fullscreen modal
+  function closeFullscreenModal() {
+    const fullscreenModalElement = document.getElementById('fullscreenImageModal');
+    if (fullscreenModalElement) {
+      try {
+        // Method 1: Try Bootstrap modal instance
+        const modal = bootstrap.Modal.getInstance(fullscreenModalElement);
+        if (modal) {
+          modal.hide();
+          return;
+        }
+      } catch (error) {
+        console.log('Bootstrap modal instance method failed, trying alternative');
+      }
+      
+      // Method 2: Manual modal closing
+      fullscreenModalElement.classList.remove('show');
+      fullscreenModalElement.style.display = 'none';
+      document.body.classList.remove('modal-open');
+      
+      // Remove backdrop
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        backdrop.remove();
+      }
+      
+      // Remove any remaining modal-related classes
+      document.body.classList.remove('modal-open');
+      document.body.style.paddingRight = '';
+      
+      console.log('Fullscreen modal closed successfully');
+    }
+  }
+
+  function downloadTourSummary() {
+    const currentBuilding = virtualTourBuildings[currentBuildingIndex];
+    if (!currentBuilding) {
+      console.error('No current building to download');
+      return;
+    }
+
+    console.log('Downloading summary for building:', currentBuilding);
+
+    // Create a formatted summary for download
+    let styles = [];
+    try {
+      styles = JSON.parse(currentBuilding.h3_contents || '[]');
+    } catch (e) {
+      styles = ['Style analysis available'];
+    }
+
+    // Get HTML content and convert to plain text
+    let htmlContent = currentBuilding.html_content || '';
+    let plainTextContent = '';
+    
+    if (htmlContent) {
+      // Create a temporary div to extract text from HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlContent;
+      plainTextContent = tempDiv.textContent || tempDiv.innerText || '';
+    } else {
+      plainTextContent = 'No analysis content available for this building.';
+    }
+
+    // Create the content for the PDF
+    const content = `
+BUILDING ANALYSIS SUMMARY
+========================
+
+Address: ${currentBuilding.address || 'Address not available'}
+City: ${currentBuilding.city || 'City not available'}
+Analysis Date: ${new Date().toLocaleDateString()}
+
+ARCHITECTURAL STYLES
+===================
+${styles.join(', ')}
+
+BUILDING ANALYSIS
+================
+${plainTextContent}
+
+---
+Generated by Architecture Explorer Virtual Tour
+${window.location.origin}
+    `;
+
+    // Create and download the file
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `virtual-tour-summary-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `building-analysis-${currentBuilding.id}-${new Date().toISOString().split('T')[0]}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    window.URL.revokeObjectURL(url);
+
+    console.log('Download completed');
   }
 
   // Generate tour route with optimized path
@@ -1575,6 +1715,12 @@ document.addEventListener('DOMContentLoaded', function() {
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.building-image-container:hover {
+  transform: scale(1.02);
 }
 
 .building-image-container img {
@@ -1586,6 +1732,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .building-image-container:hover img {
   transform: scale(1.02);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.building-image-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-overlay i {
+  color: white;
+  font-size: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .building-styles-section {
@@ -1783,6 +1953,60 @@ document.addEventListener('DOMContentLoaded', function() {
   background: #f8f9fa;
   color: #495057;
 }
+
+/* Fullscreen Image Modal Styles */
+#fullscreenImageModal .modal-dialog {
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+#fullscreenImageModal .modal-content {
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+}
+
+#fullscreenImageModal .modal-body {
+  flex: 1;
+  padding: 0;
+  background: #000;
+}
+
+#fullscreen-image {
+  max-height: 100vh !important;
+  max-width: 100vw !important;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Image overlay styles */
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.building-image-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-overlay i {
+  color: white;
+  font-size: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
 </style>
 
 <!-- Tour Planning Modal -->
@@ -1922,12 +2146,26 @@ document.addEventListener('DOMContentLoaded', function() {
         <button type="button" class="btn btn-outline-secondary" id="prev-building-btn" disabled>
           <i class="fas fa-chevron-left"></i> Previous
         </button>
-        <button type="button" class="btn btn-success" id="download-tour-summary-btn">
-          <i class="fas fa-download"></i> Download Summary
-        </button>
         <button type="button" class="btn btn-outline-secondary" id="next-building-btn">
           Next <i class="fas fa-chevron-right"></i>
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen Image Modal -->
+<div class="modal fade" id="fullscreenImageModal" tabindex="-1" aria-labelledby="fullscreenImageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="fullscreenImageModalLabel">Building Image</h5>
+        <button type="button" class="btn-close" id="close-fullscreen-btn" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body d-flex align-items-center justify-content-center p-0">
+        <img id="fullscreen-image" src="" alt="Building" class="img-fluid" style="max-height: 90vh; max-width: 100%; object-fit: contain;">
       </div>
     </div>
   </div>
