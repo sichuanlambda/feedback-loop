@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const mapboxAccessToken = '<%= @mapbox_access_token %>';
   const initialCenter = <%= raw @initial_center.to_json %>;
   const initialZoom = <%= @initial_zoom %>;
-  const buildings = <%= raw @building_analyses.to_json %>;
+  const buildings = <%= raw @building_analyses.as_json(only: [:id, :address, :city, :latitude, :longitude, :image_url, :h3_contents, :html_content]).to_json %>;
 
   // Initialize map
   mapboxgl.accessToken = mapboxAccessToken;
@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (isVirtualTourMode) {
       // Handle virtual tour
-      alert('Virtual Tour feature coming soon! This will provide an immersive 3D experience of the selected buildings.');
+      startVirtualTour(selectedBuildings);
       return;
     }
 
@@ -412,6 +412,266 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 200);
     }, 300);
   });
+
+  // Virtual Tour Functionality
+  let virtualTourBuildings = [];
+  let currentBuildingIndex = 0;
+  let isAutoAdvancing = false;
+
+  function startVirtualTour(buildings) {
+    console.log('Starting virtual tour with buildings:', buildings);
+    virtualTourBuildings = buildings;
+    currentBuildingIndex = 0;
+    
+    // Close planning modal
+    tourPlanningModal.hide();
+    
+    // Show virtual tour modal
+    const virtualTourModal = new bootstrap.Modal(document.getElementById('virtualTourModal'));
+    virtualTourModal.show();
+    
+    // Setup event listeners after modal is shown
+    setTimeout(() => {
+      console.log('Setting up event listeners...');
+      setupVirtualTourEventListeners();
+      
+      // Test if buttons exist
+      const prevBtn = document.getElementById('prev-building-btn');
+      const nextBtn = document.getElementById('next-building-btn');
+      console.log('Buttons found - Prev:', !!prevBtn, 'Next:', !!nextBtn);
+    }, 200);
+    
+    // Initialize tour
+    loadBuildingContent(currentBuildingIndex);
+    updateTourCounter();
+  }
+
+  function loadBuildingContent(index) {
+    const building = virtualTourBuildings[index];
+    const container = document.getElementById('building-content-container');
+    const addressHeader = document.getElementById('current-building-address');
+    
+    // Add loading effect
+    container.classList.add('loading');
+    
+    // Update address header
+    addressHeader.textContent = building.address || `Building #${building.id}`;
+    
+    // Create building content HTML
+    const contentHTML = createBuildingContentHTML(building);
+    
+    // Small delay to show loading effect
+    setTimeout(() => {
+      container.innerHTML = contentHTML;
+      container.classList.remove('loading');
+      
+      // Update navigation buttons
+      updateNavigationButtons();
+      updateTourCounter();
+    }, 150);
+  }
+
+  function createBuildingContentHTML(building) {
+    let styles = [];
+    try {
+      styles = JSON.parse(building.h3_contents || '[]');
+    } catch (e) {
+      styles = ['Style analysis available'];
+    }
+
+    // Get full HTML content
+    let htmlContent = building.html_content || '';
+    let displayContent = '';
+    
+    console.log('HTML content available:', htmlContent ? 'Yes' : 'No', 'Length:', htmlContent.length);
+    
+    if (htmlContent) {
+      // Use the full HTML content
+      displayContent = htmlContent;
+    } else {
+      displayContent = '<p>No analysis content available for this building.</p>';
+    }
+
+    return `
+      <div class="building-analysis-section">
+        <h5>Building Analysis</h5>
+        <div class="building-analysis-content">
+          ${displayContent}
+        </div>
+      </div>
+      
+      <div class="building-image-section">
+        ${building.image_url ? `
+          <div class="building-image-container">
+            <img src="${building.image_url}" alt="Building" />
+          </div>
+        ` : '<div class="building-image-container bg-light d-flex align-items-center justify-content-center" style="height: 300px;"><i class="fas fa-image fa-3x text-muted"></i></div>'}
+        
+        <div class="building-styles-section">
+          <h5>Architectural Styles</h5>
+          <div class="building-styles-grid">
+            ${styles.slice(0, 8).map(style => 
+              `<span class="style-badge-tour">${style}</span>`
+            ).join('')}
+            ${styles.length > 8 ? `<span class="style-badge-tour">+${styles.length - 8} more</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function updateNavigationButtons() {
+    const prevBtn = document.getElementById('prev-building-btn');
+    const nextBtn = document.getElementById('next-building-btn');
+    const viewFullBtn = document.getElementById('view-full-analysis-btn');
+    
+    console.log('Updating navigation buttons - Current index:', currentBuildingIndex, 'Total:', virtualTourBuildings.length);
+    
+    prevBtn.disabled = currentBuildingIndex === 0;
+    nextBtn.disabled = currentBuildingIndex === virtualTourBuildings.length - 1;
+    
+    console.log('Button states - Prev disabled:', prevBtn.disabled, 'Next disabled:', nextBtn.disabled);
+    
+    // Update the "View Full Analysis" button href
+    const currentBuilding = virtualTourBuildings[currentBuildingIndex];
+    if (viewFullBtn) {
+      viewFullBtn.href = `/architecture_explorer/${currentBuilding.id}`;
+    }
+  }
+
+  function updateTourCounter() {
+    const counterSpan = document.getElementById('tour-counter');
+    const newText = `${currentBuildingIndex + 1} / ${virtualTourBuildings.length}`;
+    counterSpan.textContent = newText;
+    console.log('Updated counter to:', newText);
+  }
+
+  // Virtual Tour Event Listeners
+  function setupVirtualTourEventListeners() {
+    console.log('Setting up virtual tour event listeners');
+    
+    // Previous building button
+    const prevBtn = document.getElementById('prev-building-btn');
+    console.log('Previous button found:', !!prevBtn);
+    if (prevBtn) {
+      prevBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Previous button clicked, current index:', currentBuildingIndex);
+        if (currentBuildingIndex > 0) {
+          currentBuildingIndex--;
+          loadBuildingContent(currentBuildingIndex);
+          // Add visual feedback
+          this.style.transform = 'scale(0.95)';
+          setTimeout(() => this.style.transform = '', 150);
+        }
+      });
+    }
+
+    // Next building button
+    const nextBtn = document.getElementById('next-building-btn');
+    console.log('Next button found:', !!nextBtn);
+    if (nextBtn) {
+      nextBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Next button clicked, current index:', currentBuildingIndex);
+        if (currentBuildingIndex < virtualTourBuildings.length - 1) {
+          currentBuildingIndex++;
+          loadBuildingContent(currentBuildingIndex);
+          // Add visual feedback
+          this.style.transform = 'scale(0.95)';
+          setTimeout(() => this.style.transform = '', 150);
+        }
+      });
+    }
+
+    // View Full Analysis button
+    const viewFullBtn = document.getElementById('view-full-analysis-btn');
+    console.log('View Full Analysis button found:', !!viewFullBtn);
+    if (viewFullBtn) {
+      viewFullBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const currentBuilding = virtualTourBuildings[currentBuildingIndex];
+        window.open(`/architecture_explorer/${currentBuilding.id}`, '_blank');
+      });
+    }
+
+    // Download summary button
+    const downloadBtn = document.getElementById('download-tour-summary-btn');
+    console.log('Download button found:', !!downloadBtn);
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        downloadTourSummary();
+      });
+    }
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', function(e) {
+    // Only handle keyboard events when virtual tour modal is open
+    const virtualTourModal = document.getElementById('virtualTourModal');
+    if (!virtualTourModal || !virtualTourModal.classList.contains('show')) return;
+    
+    switch(e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        if (currentBuildingIndex > 0) {
+          currentBuildingIndex--;
+          loadBuildingContent(currentBuildingIndex);
+        }
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        if (currentBuildingIndex < virtualTourBuildings.length - 1) {
+          currentBuildingIndex++;
+          loadBuildingContent(currentBuildingIndex);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        const modal = bootstrap.Modal.getInstance(virtualTourModal);
+        if (modal) modal.hide();
+        break;
+    }
+  });
+
+  // Clean up when modal is closed
+  document.addEventListener('DOMContentLoaded', function() {
+    const virtualTourModal = document.getElementById('virtualTourModal');
+    if (virtualTourModal) {
+      virtualTourModal.addEventListener('hidden.bs.modal', function() {
+        // Reset tour state
+        virtualTourBuildings = [];
+        currentBuildingIndex = 0;
+        isAutoAdvancing = false;
+      });
+    }
+  });
+
+  function downloadTourSummary() {
+    const tourData = {
+      title: `Virtual Tour Summary - ${new Date().toLocaleDateString()}`,
+      buildings: virtualTourBuildings.map((building, index) => ({
+        number: index + 1,
+        address: building.address || `Building #${building.id}`,
+        city: building.city || 'Unknown',
+        styles: JSON.parse(building.h3_contents || '[]'),
+        imageUrl: building.image_url
+      })),
+      totalBuildings: virtualTourBuildings.length,
+      tourDuration: document.getElementById('tour-timer').textContent
+    };
+
+    const blob = new Blob([JSON.stringify(tourData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `virtual-tour-summary-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   // Generate tour route with optimized path
   function generateTourRoute(selectedBuildings) {
@@ -1233,6 +1493,260 @@ document.addEventListener('DOMContentLoaded', function() {
   border-color: #6c757d;
   color: white;
 }
+
+/* Virtual Tour Styles */
+.virtual-tour-container {
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+
+.building-content-container {
+  flex: 1;
+  display: flex;
+  gap: 30px;
+  min-height: 500px;
+  overflow-y: auto;
+  padding: 20px 0;
+  position: relative;
+}
+
+.building-content-container > * {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.building-content-container.loading > * {
+  opacity: 0.7;
+  transform: translateX(10px);
+}
+
+.building-analysis-section {
+  flex: 1;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 25px;
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.building-analysis-section h5 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.building-analysis-content {
+  line-height: 1.7;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.building-analysis-content h3 {
+  color: #007bff;
+  font-size: 1.1rem;
+  margin: 20px 0 10px 0;
+  font-weight: 600;
+}
+
+.building-analysis-content p {
+  margin-bottom: 15px;
+}
+
+.building-image-section {
+  flex: 0 0 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.building-image-container {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.building-image-container img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.building-image-container:hover img {
+  transform: scale(1.02);
+}
+
+.building-styles-section {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.building-styles-section h5 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.building-styles-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.style-badge-tour {
+  background: #e9ecef;
+  color: #495057;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid #dee2e6;
+}
+
+.tour-counter {
+  background: #007bff;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.building-address-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+  text-align: center;
+}
+
+.building-address-header h4 {
+  margin: 0;
+  color: #333;
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+
+.tour-navigation {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  flex-shrink: 0;
+}
+
+.tour-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.tour-controls .btn {
+  min-width: 140px;
+}
+
+/* Button interactions */
+.tour-navigation .btn {
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tour-navigation .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.tour-navigation .btn:active {
+  transform: translateY(0);
+}
+
+.tour-navigation .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tour-navigation .btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Modal adjustments */
+#virtualTourModal .modal-dialog {
+  max-width: 95vw;
+  max-height: 95vh;
+}
+
+#virtualTourModal .modal-content {
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#virtualTourModal .modal-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .building-content-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .building-image-section {
+    flex: none;
+  }
+  
+  .building-image-container img {
+    height: 250px;
+  }
+  
+  .tour-navigation {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .tour-controls {
+    order: -1;
+  }
+  
+  #virtualTourModal .modal-dialog {
+    max-width: 98vw;
+    margin: 10px;
+  }
+  
+  .building-address-header h4 {
+    font-size: 1.1rem;
+  }
+}
+
+.keyboard-hints {
+  position: absolute;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.keyboard-hints small {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .keyboard-hints {
+    display: none;
+  }
+}
 </style>
 
 <!-- Tour Planning Modal -->
@@ -1333,6 +1847,60 @@ document.addEventListener('DOMContentLoaded', function() {
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" class="btn btn-success" id="download-tour-btn">
           <i class="fas fa-download"></i> Download Tour Guide
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Virtual Tour Modal -->
+<div class="modal fade" id="virtualTourModal" tabindex="-1" aria-labelledby="virtualTourModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="virtualTourModalLabel">
+          <i class="fas fa-vr-cardboard"></i> Virtual Tour Experience
+        </h5>
+        <div class="tour-counter">
+          <span id="tour-counter">1 / 1</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <!-- Building Address Header -->
+      <div class="building-address-header" id="building-address-header">
+        <h4 id="current-building-address">Building Address</h4>
+      </div>
+      
+      <div class="modal-body">
+        <div class="virtual-tour-container">
+          <!-- Building Content Container -->
+          <div class="building-content-container" id="building-content-container">
+            <!-- Content will be populated by JavaScript -->
+          </div>
+
+          <!-- Navigation Controls -->
+          <div class="tour-navigation d-flex justify-content-between align-items-center mt-4">
+            <button type="button" class="btn btn-outline-secondary" id="prev-building-btn" disabled>
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            
+            <div class="tour-controls">
+              <button type="button" class="btn btn-primary" id="view-full-analysis-btn" target="_blank">
+                <i class="fas fa-external-link-alt"></i> View Full Analysis
+              </button>
+            </div>
+            
+            <button type="button" class="btn btn-outline-secondary" id="next-building-btn">
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">End Tour</button>
+        <button type="button" class="btn btn-success" id="download-tour-summary-btn">
+          <i class="fas fa-download"></i> Download Summary
         </button>
       </div>
     </div>
