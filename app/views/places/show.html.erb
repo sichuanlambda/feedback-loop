@@ -1501,16 +1501,16 @@ ${window.location.origin}
 /* Tour Modal Styles */
 .buildings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 15px;
-  max-height: 400px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  max-height: 500px;
   overflow-y: auto;
 }
 
 .building-card {
   border: 1px solid #dee2e6;
   border-radius: 8px;
-  padding: 15px;
+  padding: 8px;
   background: white;
   transition: all 0.2s ease;
 }
@@ -1525,15 +1525,15 @@ ${window.location.origin}
 }
 
 .building-card-header {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .building-thumbnail {
   width: 100%;
-  height: 120px;
+  height: 180px;
   object-fit: cover;
   border-radius: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .building-styles {
@@ -2007,11 +2007,52 @@ ${window.location.origin}
   font-size: 2rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
+
+/* Tour Planning Modal Improvements */
+.modern-select {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.modern-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.modern-select:hover {
+  border-color: #007bff;
+}
+
+.selected-count-badge {
+  background: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+/* Center titles vertically */
+.tour-filters h6,
+.buildings-selection h6 {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-weight: 600;
+  color: #495057;
+}
 </style>
 
 <!-- Tour Planning Modal -->
 <div class="modal fade" id="tourPlanningModal" tabindex="-1" aria-labelledby="tourPlanningModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="tourPlanningModalLabel">
@@ -2022,11 +2063,16 @@ ${window.location.origin}
       <div class="modal-body">
         <div class="tour-setup">
           <div class="tour-filters mb-4">
-            <h6>Filter Buildings</h6>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0">Filter Buildings</h6>
+              <div class="selected-count-badge">
+                <span id="selected-count">0</span> buildings selected
+              </div>
+            </div>
             <div class="row">
               <div class="col-md-6">
                 <label class="form-label">Architectural Style</label>
-                <select id="style-filter" class="form-select">
+                <select id="style-filter" class="form-select modern-select">
                   <option value="">All Styles</option>
                   <% @style_frequency.each do |style, count| %>
                     <option value="<%= style %>"><%= style %> (<%= count %>)</option>
@@ -2035,7 +2081,7 @@ ${window.location.origin}
               </div>
               <div class="col-md-6" id="duration-filter-container">
                 <label class="form-label">Tour Duration</label>
-                <select id="duration-filter" class="form-select">
+                <select id="duration-filter" class="form-select modern-select">
                   <option value="short">Short (1-2 hours)</option>
                   <option value="medium" selected>Medium (2-3 hours)</option>
                   <option value="long">Long (3+ hours)</option>
@@ -2045,9 +2091,8 @@ ${window.location.origin}
           </div>
 
           <div class="buildings-selection">
-            <h6 id="buildings-selection-title">Select Buildings for Your Tour</h6>
-            <div class="selected-count mb-2">
-              <span id="selected-count">0</span> buildings selected
+            <div class="d-flex align-items-center mb-3">
+              <h6 id="buildings-selection-title" class="mb-0 text-center w-100">Select Buildings for Your Tour</h6>
             </div>
             <div class="buildings-grid" id="buildings-grid">
               <!-- Buildings will be populated by JavaScript -->
@@ -2119,7 +2164,7 @@ ${window.location.origin}
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-header-content">
-          <h5 class="modal-title" id="virtualTourModalLabel">
+          <h5 class="modal-title text-center" id="virtualTourModalLabel">
             <i class="fas fa-vr-cardboard"></i> Virtual Tour Experience
           </h5>
           <div class="tour-counter">
