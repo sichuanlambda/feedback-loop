@@ -1,6 +1,18 @@
 <% content_for :title, @place.meta_title || "#{@place.name} Architecture Guide" %>
 <% content_for :meta_description, @place.meta_description || "Explore the architecture of #{@place.name}. Discover the main architectural styles, notable buildings, and historical context." %>
 
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-M4TLZ8N6CC');
+</script>
+
+<!-- Plausible Analytics -->
+<script defer data-domain="app.architecturehelper.com" src="https://plausible.io/js/script.js"></script>
+
 <div class="place-page">
   <!-- Hero Section -->
   <div class="hero-section">
