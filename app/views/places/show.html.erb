@@ -135,6 +135,9 @@
               <button id="toggle-sidebar" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-list"></i> Explore
               </button>
+              <button id="virtual-tour-map-btn" class="btn btn-primary btn-sm">
+                <i class="fas fa-vr-cardboard"></i> Virtual Tour
+              </button>
             </div>
           </div>
         </div>
@@ -261,6 +264,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Handle virtual tour button
   virtualTourBtn.addEventListener('click', function() {
+    isVirtualTourMode = true;
+    initializeBuildingArrays();
+    populateBuildingsGrid();
+    updateModalUI();
+    tourPlanningModal.show();
+  });
+
+  // Handle virtual tour button from map section
+  const virtualTourMapBtn = document.getElementById('virtual-tour-map-btn');
+  virtualTourMapBtn.addEventListener('click', function() {
     isVirtualTourMode = true;
     initializeBuildingArrays();
     populateBuildingsGrid();
