@@ -82,6 +82,11 @@ class Admin::DashboardController < ApplicationController
     @timeframe = params[:timeframe] || '30d'
     @view_type = params[:view_type] || 'daily'
     
+    # Validate view_type
+    unless ['daily', 'weekly', 'monthly'].include?(@view_type)
+      @view_type = 'daily'
+    end
+    
     # Set date ranges based on timeframe
     case @timeframe
     when '7d'
@@ -228,19 +233,44 @@ class Admin::DashboardController < ApplicationController
     # Determine number of data points based on timeframe and view type
     case @timeframe
     when '7d'
-      data_points = 7
+      data_points = case @view_type
+                   when 'daily' then 7
+                   when 'weekly' then 1
+                   when 'monthly' then 1
+                   else 7
+                   end
       date_format = '%m/%d'
     when '30d'
-      data_points = 30
+      data_points = case @view_type
+                   when 'daily' then 30
+                   when 'weekly' then 5
+                   when 'monthly' then 1
+                   else 30
+                   end
       date_format = '%m/%d'
     when '90d'
-      data_points = @view_type == 'weekly' ? 13 : 90
-      date_format = @view_type == 'weekly' ? '%m/%d' : '%m/%d'
+      data_points = case @view_type
+                   when 'daily' then 90
+                   when 'weekly' then 13
+                   when 'monthly' then 3
+                   else 90
+                   end
+      date_format = '%m/%d'
     when '1y'
-      data_points = @view_type == 'weekly' ? 52 : 365
-      date_format = @view_type == 'weekly' ? '%m/%d' : '%m/%d'
+      data_points = case @view_type
+                   when 'daily' then 365
+                   when 'weekly' then 52
+                   when 'monthly' then 12
+                   else 365
+                   end
+      date_format = '%m/%d'
     when 'all'
-      data_points = @view_type == 'weekly' ? 100 : 365
+      data_points = case @view_type
+                   when 'daily' then 365
+                   when 'weekly' then 100
+                   when 'monthly' then 24
+                   else 365
+                   end
       date_format = '%m/%d'
     else
       data_points = 30
@@ -249,13 +279,22 @@ class Admin::DashboardController < ApplicationController
     
     # User registrations over time
     @chart_data[:users] = []
-    if @view_type == 'weekly'
+    case @view_type
+    when 'weekly'
       # Weekly data
       data_points.times do |i|
         week_start = @start_date + (i * 7).days
         week_end = [week_start + 7.days, Date.current].min
         count = User.where('created_at >= ? AND created_at < ?', week_start, week_end).count
         @chart_data[:users] << { date: "Week #{i + 1}", count: count, period: "#{week_start.strftime('%m/%d')} - #{week_end.strftime('%m/%d')}" }
+      end
+    when 'monthly'
+      # Monthly data
+      data_points.times do |i|
+        month_start = @start_date + (i * 30).days
+        month_end = [month_start + 30.days, Date.current].min
+        count = User.where('created_at >= ? AND created_at < ?', month_start, month_end).count
+        @chart_data[:users] << { date: "Month #{i + 1}", count: count, period: "#{month_start.strftime('%m/%Y')} - #{month_end.strftime('%m/%Y')}" }
       end
     else
       # Daily data
@@ -268,13 +307,22 @@ class Admin::DashboardController < ApplicationController
     
     # Building submissions over time
     @chart_data[:buildings] = []
-    if @view_type == 'weekly'
+    case @view_type
+    when 'weekly'
       # Weekly data
       data_points.times do |i|
         week_start = @start_date + (i * 7).days
         week_end = [week_start + 7.days, Date.current].min
         count = BuildingAnalysis.where('created_at >= ? AND created_at < ?', week_start, week_end).count
         @chart_data[:buildings] << { date: "Week #{i + 1}", count: count, period: "#{week_start.strftime('%m/%d')} - #{week_end.strftime('%m/%d')}" }
+      end
+    when 'monthly'
+      # Monthly data
+      data_points.times do |i|
+        month_start = @start_date + (i * 30).days
+        month_end = [month_start + 30.days, Date.current].min
+        count = BuildingAnalysis.where('created_at >= ? AND created_at < ?', month_start, month_end).count
+        @chart_data[:buildings] << { date: "Month #{i + 1}", count: count, period: "#{month_start.strftime('%m/%Y')} - #{month_end.strftime('%m/%Y')}" }
       end
     else
       # Daily data
@@ -287,7 +335,8 @@ class Admin::DashboardController < ApplicationController
     
     # Active users over time (7-day rolling window)
     @chart_data[:active_users] = []
-    if @view_type == 'weekly'
+    case @view_type
+    when 'weekly'
       # Weekly data
       data_points.times do |i|
         week_start = @start_date + (i * 7).days
@@ -296,6 +345,16 @@ class Admin::DashboardController < ApplicationController
                     .where('building_analyses.created_at >= ? AND building_analyses.created_at < ?', week_start, week_end)
                     .distinct.count
         @chart_data[:active_users] << { date: "Week #{i + 1}", count: count, period: "#{week_start.strftime('%m/%d')} - #{week_end.strftime('%m/%d')}" }
+      end
+    when 'monthly'
+      # Monthly data
+      data_points.times do |i|
+        month_start = @start_date + (i * 30).days
+        month_end = [month_start + 30.days, Date.current].min
+        count = User.joins(:building_analyses)
+                    .where('building_analyses.created_at >= ? AND building_analyses.created_at < ?', month_start, month_end)
+                    .distinct.count
+        @chart_data[:active_users] << { date: "Month #{i + 1}", count: count, period: "#{month_start.strftime('%m/%Y')} - #{month_end.strftime('%m/%Y')}" }
       end
     else
       # Daily data
