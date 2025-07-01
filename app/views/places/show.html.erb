@@ -132,11 +132,8 @@
             </div>
             <div id="place-map" class="place-map"></div>
             <div class="map-controls">
-              <button id="toggle-sidebar" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-list"></i> Explore
-              </button>
               <button id="virtual-tour-map-btn" class="btn btn-primary btn-sm">
-                <i class="fas fa-vr-cardboard"></i> Virtual Tour
+                Explore
               </button>
             </div>
           </div>
@@ -214,18 +211,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Sidebar toggle functionality
   const sidebar = document.getElementById('buildings-sidebar');
-  const toggleBtn = document.getElementById('toggle-sidebar');
   const closeBtn = document.getElementById('close-sidebar');
-
-  toggleBtn.addEventListener('click', function() {
-    sidebar.classList.toggle('open');
-    toggleBtn.textContent = sidebar.classList.contains('open') ? 
-      'Hide Buildings' : 'Explore';
-  });
 
   closeBtn.addEventListener('click', function() {
     sidebar.classList.remove('open');
-    toggleBtn.textContent = 'Explore';
   });
 
   // Tour Planning Functionality
@@ -237,6 +226,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const selectedCountSpan = document.getElementById('selected-count');
   const generateTourBtn = document.getElementById('generate-tour-btn');
   const styleFilter = document.getElementById('style-filter');
+  
+  // Add close button functionality for tour planning modal
+  const closeTourPlanningBtn = document.getElementById('close-tour-planning-modal');
+  if (closeTourPlanningBtn) {
+    closeTourPlanningBtn.addEventListener('click', function() {
+      tourPlanningModal.hide();
+    });
+  }
   
   // Modal state management
   let isVirtualTourMode = false;
@@ -2087,6 +2084,33 @@ ${window.location.origin}
   font-weight: 600;
   color: #495057;
 }
+
+/* Close button styling */
+.close-modal-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1050;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+}
+
+.close-modal-btn:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+  transform: scale(1.1);
+}
+
+.modal-header {
+  position: relative;
+}
 </style>
 
 <!-- Tour Planning Modal -->
@@ -2098,6 +2122,9 @@ ${window.location.origin}
           <i class="fas fa-route"></i> <span id="modal-title-text">Plan Your Self-Guided Tour</span>
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn btn-sm btn-outline-secondary close-modal-btn" id="close-tour-planning-modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
       <div class="modal-body">
         <div class="tour-setup">
