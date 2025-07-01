@@ -124,17 +124,68 @@
         .metric-change.negative {
             color: #dc3545;
         }
+        
+        .timeframe-selector,
+        .view-selector {
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeframe-selector label,
+        .view-selector label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .timeframe-selector select,
+        .view-selector select {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #333;
+        }
+        
+        .timeframe-selector select:focus,
+        .view-selector select:focus {
+            background: white;
+            border-color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+        }
     </style>
 </head>
 <body>
     <div class="admin-header">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <h1><i class="fas fa-chart-line"></i> Analytics Dashboard</h1>
                     <p class="mb-0">Comprehensive metrics and trends for your platform</p>
                 </div>
-                <div class="col-md-4 text-right">
+                <div class="col-md-3">
+                    <div class="timeframe-selector">
+                        <label for="timeframe" class="text-white mb-1">Timeframe:</label>
+                        <select id="timeframe" class="form-control form-control-sm" onchange="updateTimeframe()">
+                            <option value="7d" <%= 'selected' if @timeframe == '7d' %>>Last 7 Days</option>
+                            <option value="30d" <%= 'selected' if @timeframe == '30d' %>>Last 30 Days</option>
+                            <option value="90d" <%= 'selected' if @timeframe == '90d' %>>Last 90 Days</option>
+                            <option value="1y" <%= 'selected' if @timeframe == '1y' %>>Last Year</option>
+                            <option value="all" <%= 'selected' if @timeframe == 'all' %>>All Time</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="view-selector">
+                        <label for="view_type" class="text-white mb-1">View:</label>
+                        <select id="view_type" class="form-control form-control-sm" onchange="updateViewType()">
+                            <option value="daily" <%= 'selected' if @view_type == 'daily' %>>Daily</option>
+                            <option value="weekly" <%= 'selected' if @view_type == 'weekly' %>>Weekly</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <h4 class="text-white mb-0"><%= @period_label %></h4>
+                </div>
+                <div class="col-md-6 text-right">
                     <%= link_to 'Back to Dashboard', admin_dashboard_path, class: 'btn btn-outline-light' %>
                 </div>
             </div>
@@ -145,8 +196,8 @@
         <!-- Key Metrics Overview -->
         <div class="metric-grid">
             <div class="metric-card">
-                <div class="metric-value text-primary"><%= @total_users %></div>
-                <div class="metric-label">Total Users</div>
+                <div class="metric-value text-primary"><%= @new_users_period %></div>
+                <div class="metric-label">New Users (<%= @period_label %>)</div>
                 <div class="metric-change <%= @user_growth_rate >= 0 ? 'positive' : 'negative' %>">
                     <i class="fas fa-<%= @user_growth_rate >= 0 ? 'arrow-up' : 'arrow-down' %>"></i>
                     <%= @user_growth_rate.abs %>%
@@ -154,8 +205,8 @@
             </div>
             
             <div class="metric-card">
-                <div class="metric-value text-success"><%= @total_buildings %></div>
-                <div class="metric-label">Total Buildings</div>
+                <div class="metric-value text-success"><%= @buildings_period %></div>
+                <div class="metric-label">New Buildings (<%= @period_label %>)</div>
                 <div class="metric-change <%= @building_growth_rate >= 0 ? 'positive' : 'negative' %>">
                     <i class="fas fa-<%= @building_growth_rate >= 0 ? 'arrow-up' : 'arrow-down' %>"></i>
                     <%= @building_growth_rate.abs %>%
@@ -163,20 +214,83 @@
             </div>
             
             <div class="metric-card">
-                <div class="metric-value text-warning"><%= @active_users_30_days %></div>
-                <div class="metric-label">Active Users (30d)</div>
+                <div class="metric-value text-warning"><%= @active_users_period %></div>
+                <div class="metric-label">Active Users (<%= @period_label %>)</div>
                 <div class="metric-change positive">
                     <i class="fas fa-users"></i>
-                    <%= @users_with_buildings %> contributors
+                    <%= @users_with_buildings %> total contributors
                 </div>
             </div>
             
             <div class="metric-card">
-                <div class="metric-value text-info"><%= @places_virtual_tour_ready %></div>
-                <div class="metric-label">Tour Ready Places</div>
+                <div class="metric-value text-info"><%= @total_users %></div>
+                <div class="metric-label">Total Users (All Time)</div>
                 <div class="metric-change positive">
-                    <i class="fas fa-route"></i>
-                    <%= @places_physical_tour_ready %> physical
+                    <i class="fas fa-chart-line"></i>
+                    <%= @total_buildings %> total buildings
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly and Aggregate Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-calendar-week"></i> Weekly Statistics</h3>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="stats-number text-primary"><%= @aggregate_stats[:avg_users_per_week].round(1) %></div>
+                            <small class="text-muted">Avg Users/Week</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-number text-success"><%= @aggregate_stats[:avg_buildings_per_week].round(1) %></div>
+                            <small class="text-muted">Avg Buildings/Week</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-number text-warning"><%= @aggregate_stats[:peak_week_users][:count] if @aggregate_stats[:peak_week_users] %></div>
+                            <small class="text-muted">Peak Week Users</small>
+                        </div>
+                    </div>
+                    <div class="row text-center mt-3">
+                        <div class="col-6">
+                            <div class="stats-number text-info"><%= @aggregate_stats[:total_places_with_buildings] %></div>
+                            <small class="text-muted">Places with Buildings</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-number text-secondary"><%= @aggregate_stats[:avg_buildings_per_place] %></div>
+                            <small class="text-muted">Avg Buildings/Place</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Aggregate Metrics</h3>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="stats-number text-primary"><%= @aggregate_stats[:total_users_all_time] %></div>
+                            <small class="text-muted">Total Users</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-number text-success"><%= @aggregate_stats[:total_buildings_all_time] %></div>
+                            <small class="text-muted">Total Buildings</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-number text-warning"><%= @avg_buildings_per_user %></div>
+                            <small class="text-muted">Avg Buildings/User</small>
+                        </div>
+                    </div>
+                    <div class="row text-center mt-3">
+                        <div class="col-6">
+                            <div class="stats-number text-info"><%= @places_virtual_tour_ready %></div>
+                            <small class="text-muted">Virtual Tour Ready</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-number text-secondary"><%= @places_physical_tour_ready %></div>
+                            <small class="text-muted">Physical Tour Ready</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -185,14 +299,14 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="chart-container">
-                    <h3 class="chart-title"><i class="fas fa-user-plus"></i> User Registrations (Last 30 Days)</h3>
+                    <h3 class="chart-title"><i class="fas fa-user-plus"></i> User Registrations (<%= @period_label %>)</h3>
                     <canvas id="userChart" width="400" height="200"></canvas>
                 </div>
             </div>
             
             <div class="col-md-6">
                 <div class="chart-container">
-                    <h3 class="chart-title"><i class="fas fa-building"></i> Building Submissions (Last 30 Days)</h3>
+                    <h3 class="chart-title"><i class="fas fa-building"></i> Building Submissions (<%= @period_label %>)</h3>
                     <canvas id="buildingChart" width="400" height="200"></canvas>
                 </div>
             </div>
@@ -229,8 +343,8 @@
                             <small class="text-muted">This Week</small>
                         </div>
                         <div class="col-4">
-                            <div class="stats-number text-primary"><%= @new_users_30_days %></div>
-                            <small class="text-muted">This Month</small>
+                            <div class="stats-number text-primary"><%= @new_users_period %></div>
+                            <small class="text-muted"><%= @period_label %></small>
                         </div>
                     </div>
                 </div>
@@ -249,8 +363,8 @@
                             <small class="text-muted">This Week</small>
                         </div>
                         <div class="col-4">
-                            <div class="stats-number text-success"><%= @buildings_30_days %></div>
-                            <small class="text-muted">This Month</small>
+                            <div class="stats-number text-success"><%= @buildings_period %></div>
+                            <small class="text-muted"><%= @period_label %></small>
                         </div>
                     </div>
                 </div>
@@ -292,6 +406,18 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Timeframe and view type update functions
+        function updateTimeframe() {
+            const timeframe = document.getElementById('timeframe').value;
+            const viewType = document.getElementById('view_type').value;
+            window.location.href = '<%= admin_analytics_path %>?timeframe=' + timeframe + '&view_type=' + viewType;
+        }
+        
+        function updateViewType() {
+            const timeframe = document.getElementById('timeframe').value;
+            const viewType = document.getElementById('view_type').value;
+            window.location.href = '<%= admin_analytics_path %>?timeframe=' + timeframe + '&view_type=' + viewType;
+        }
         // Chart.js configuration
         Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
         Chart.defaults.font.size = 12;
