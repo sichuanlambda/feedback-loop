@@ -149,6 +149,18 @@
             border-color: #fff;
             box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
         }
+        
+        .aggregation-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .aggregation-info strong {
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -173,10 +185,11 @@
                 </div>
                 <div class="col-md-3">
                     <div class="view-selector">
-                        <label for="view_type" class="text-white mb-1">View:</label>
+                        <label for="view_type" class="text-white mb-1">Aggregation:</label>
                         <select id="view_type" class="form-control form-control-sm" onchange="updateViewType()">
                             <option value="daily" <%= 'selected' if @view_type == 'daily' %>>Daily</option>
                             <option value="weekly" <%= 'selected' if @view_type == 'weekly' %>>Weekly</option>
+                            <option value="monthly" <%= 'selected' if @view_type == 'monthly' %>>Monthly</option>
                         </select>
                     </div>
                 </div>
@@ -184,6 +197,17 @@
             <div class="row mt-2">
                 <div class="col-md-6">
                     <h4 class="text-white mb-0"><%= @period_label %></h4>
+                    <div class="aggregation-info">
+                        <strong>Aggregation:</strong> 
+                        <% case @view_type %>
+                        <% when 'daily' %>
+                            Shows individual day data points
+                        <% when 'weekly' %>
+                            Groups data into 7-day periods
+                        <% when 'monthly' %>
+                            Groups data into 30-day periods
+                        <% end %>
+                    </div>
                 </div>
                 <div class="col-md-6 text-right">
                     <%= link_to 'Back to Dashboard', admin_dashboard_path, class: 'btn btn-outline-light' %>
