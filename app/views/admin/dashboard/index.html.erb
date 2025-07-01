@@ -14,30 +14,6 @@
             margin-bottom: 2rem;
         }
         
-        .stats-card {
-            background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
-            transition: transform 0.2s;
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-2px);
-        }
-        
-        .stats-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .stats-number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
         .quick-actions {
             background: white;
             border-radius: 8px;
@@ -77,6 +53,7 @@
                     <p class="mb-0">Welcome back, <%= current_user.email %></p>
                 </div>
                 <div class="col-md-4 text-right">
+                    <%= link_to 'Analytics', admin_analytics_path, class: 'btn btn-info mr-2' %>
                     <%= link_to 'Back to Site', root_path, class: 'btn btn-outline-light' %>
                 </div>
             </div>
@@ -84,46 +61,6 @@
     </div>
 
     <div class="container">
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stats-card text-center">
-                    <div class="stats-icon text-primary">
-                        <i class="fas fa-building"></i>
-                    </div>
-                    <div class="stats-number text-primary"><%= @total_buildings %></div>
-                    <p class="text-muted mb-0">Total Buildings</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card text-center">
-                    <div class="stats-icon text-success">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                    <div class="stats-number text-success"><%= @visible_buildings %></div>
-                    <p class="text-muted mb-0">Visible in Library</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card text-center">
-                    <div class="stats-icon text-warning">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stats-number text-warning"><%= @total_users %></div>
-                    <p class="text-muted mb-0">Total Users</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card text-center">
-                    <div class="stats-icon text-info">
-                        <i class="fas fa-image"></i>
-                    </div>
-                    <div class="stats-number text-info"><%= @total_arch_images %></div>
-                    <p class="text-muted mb-0">Generated Images</p>
-                </div>
-            </div>
-        </div>
-
         <div class="row">
             <!-- Left Column -->
             <div class="col-md-8">

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stats-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            height: 400px;
+            position: relative;
+        }
+        
+        .chart-title {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 0.5rem;
+        }
+        
+        .chart-container canvas {
+            max-height: 300px !important;
+        }
+        
+        .stats-card small {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .stats-card .stats-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+        
+        .growth-indicator {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .growth-indicator.positive {
+            color: #28a745;
+        }
+        
+        .growth-indicator.negative {
+            color: #dc3545;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .metric-change.positive {
+            color: #28a745;
+        }
+        
+        .metric-change.negative {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-chart-line"></i> Analytics Dashboard</h1>
+                    <p class="mb-0">Comprehensive metrics and trends for your platform</p>
+                </div>
+                <div class="col-md-4 text-right">
+                    <%= link_to 'Back to Dashboard', admin_dashboard_path, class: 'btn btn-outline-light' %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Key Metrics Overview -->
+        <div class="metric-grid">
+            <div class="metric-card">
+                <div class="metric-value text-primary"><%= @total_users %></div>
+                <div class="metric-label">Total Users</div>
+                <div class="metric-change <%= @user_growth_rate >= 0 ? 'positive' : 'negative' %>">
+                    <i class="fas fa-<%= @user_growth_rate >= 0 ? 'arrow-up' : 'arrow-down' %>"></i>
+                    <%= @user_growth_rate.abs %>%
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value text-success"><%= @total_buildings %></div>
+                <div class="metric-label">Total Buildings</div>
+                <div class="metric-change <%= @building_growth_rate >= 0 ? 'positive' : 'negative' %>">
+                    <i class="fas fa-<%= @building_growth_rate >= 0 ? 'arrow-up' : 'arrow-down' %>"></i>
+                    <%= @building_growth_rate.abs %>%
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value text-warning"><%= @active_users_30_days %></div>
+                <div class="metric-label">Active Users (30d)</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-users"></i>
+                    <%= @users_with_buildings %> contributors
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value text-info"><%= @places_virtual_tour_ready %></div>
+                <div class="metric-label">Tour Ready Places</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-route"></i>
+                    <%= @places_physical_tour_ready %> physical
+                </div>
+            </div>
+        </div>
+
+        <!-- Time Series Charts -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-user-plus"></i> User Registrations (Last 30 Days)</h3>
+                    <canvas id="userChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-building"></i> Building Submissions (Last 30 Days)</h3>
+                    <canvas id="buildingChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-user-check"></i> Active Users (7-Day Rolling)</h3>
+                    <canvas id="activeUserChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-palette"></i> Popular Architectural Styles</h3>
+                    <canvas id="styleChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Statistics -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-chart-pie"></i> User Growth Breakdown</h3>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="stats-number text-primary"><%= @new_users_today %></div>
+                            <small class="text-muted">Today</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-number text-primary"><%= @new_users_7_days %></div>
+                            <small class="text-muted">This Week</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-number text-primary"><%= @new_users_30_days %></div>
+                            <small class="text-muted">This Month</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Building Submission Breakdown</h3>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="stats-number text-success"><%= @buildings_today %></div>
+                            <small class="text-muted">Today</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-number text-success"><%= @buildings_7_days %></div>
+                            <small class="text-muted">This Week</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-number text-success"><%= @buildings_30_days %></div>
+                            <small class="text-muted">This Month</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tour Analytics -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-route"></i> Tour Feature Analytics</h3>
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="stats-number text-info"><%= @places_virtual_tour_ready %></div>
+                            <p class="text-muted">Virtual Tour Ready</p>
+                            <small class="text-info">3+ buildings per place</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="stats-number text-success"><%= @places_physical_tour_ready %></div>
+                            <p class="text-muted">Physical Tour Ready</p>
+                            <small class="text-success">With coordinates</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="stats-number text-warning"><%= @avg_buildings_per_user %></div>
+                            <p class="text-muted">Avg Buildings/User</p>
+                            <small class="text-warning">Active contributors</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="stats-number text-primary"><%= @total_places %></div>
+                            <p class="text-muted">Total Places</p>
+                            <small class="text-primary">Available locations</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Chart.js configuration
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.font.size = 12;
+        
+        // User Registrations Chart
+        const userCtx = document.getElementById('userChart').getContext('2d');
+        new Chart(userCtx, {
+            type: 'line',
+            data: {
+                labels: <%= raw @chart_data[:users].map { |d| d[:date] }.to_json %>,
+                datasets: [{
+                    label: 'New Users',
+                    data: <%= raw @chart_data[:users].map { |d| d[:count] }.to_json %>,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Building Submissions Chart
+        const buildingCtx = document.getElementById('buildingChart').getContext('2d');
+        new Chart(buildingCtx, {
+            type: 'line',
+            data: {
+                labels: <%= raw @chart_data[:buildings].map { |d| d[:date] }.to_json %>,
+                datasets: [{
+                    label: 'Buildings Submitted',
+                    data: <%= raw @chart_data[:buildings].map { |d| d[:count] }.to_json %>,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Active Users Chart
+        const activeUserCtx = document.getElementById('activeUserChart').getContext('2d');
+        new Chart(activeUserCtx, {
+            type: 'line',
+            data: {
+                labels: <%= raw @chart_data[:active_users].map { |d| d[:date] }.to_json %>,
+                datasets: [{
+                    label: 'Active Users',
+                    data: <%= raw @chart_data[:active_users].map { |d| d[:count] }.to_json %>,
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Style Popularity Chart
+        const styleCtx = document.getElementById('styleChart').getContext('2d');
+        new Chart(styleCtx, {
+            type: 'doughnut',
+            data: {
+                labels: <%= raw @chart_data[:styles].map { |d| d[:style] }.to_json %>,
+                datasets: [{
+                    data: <%= raw @chart_data[:styles].map { |d| d[:count] }.to_json %>,
+                    backgroundColor: [
+                        '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
+                        '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 1.5,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

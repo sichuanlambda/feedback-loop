@@ -79,6 +79,29 @@
                 justify-content: space-around;
             }
         }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            height: 400px;
+            position: relative;
+        }
+        
+        .chart-title {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 0.5rem;
+        }
+        
+        .chart-container canvas {
+            max-height: 300px !important;
+        }
+        
         body {
             background-color: #E8E8E8; /* Sets the entire page background to black */
         }
@@ -120,20 +143,32 @@
                 <div class="metric-description">Real Structures Analyzed</div>
             </div>
         </div>
+        
+        <!-- Charts Section -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-chart-line"></i> Feedback Percentage</h3>
+                    <canvas id="feedbackPercentageChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Feedback Over Time</h3>
+                    <canvas id="feedbackOverTimeChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     $(document).ready(function() {
-        // Initialize the DataTable with sorting on the "Submitted At" column in descending order.
-        $('#feedbackTable').DataTable({
-            "order": [[0, "desc"]]
-        });
-
         const now = new Date();
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
@@ -142,20 +177,22 @@
         var badFeedbackCounts = Array.from({ length: daysInMonth }, () => 0);
         var totalFeedbackCounts = Array.from({ length: daysInMonth }, () => 0);
 
-        // Process feedback data.
-        $('#feedbackTable tbody tr').each(function() {
-            const dateCell = new Date($(this).find('td:eq(0)').html());
-            const voteCell = $(this).find('td:eq(2)').html();
-
-            const dayOfMonth = dateCell.getDate() - 1;
-
-            if (voteCell.includes('fa-thumbs-up')) {
-                goodFeedbackCounts[dayOfMonth] += 1;
-            } else {
-                badFeedbackCounts[dayOfMonth] += 1;
-            }
-            totalFeedbackCounts[dayOfMonth] += 1;
-        });
+        // Process feedback data from the controller
+        <% if @feedbacks.present? %>
+            <% @feedbacks.each do |feedback| %>
+                <% if feedback.created_at.present? %>
+                    var feedbackDate = new Date('<%= feedback.created_at.iso8601 %>');
+                    var dayOfMonth = feedbackDate.getDate() - 1;
+                    
+                    <% if feedback.vote == true %>
+                        goodFeedbackCounts[dayOfMonth] += 1;
+                    <% elsif feedback.vote == false %>
+                        badFeedbackCounts[dayOfMonth] += 1;
+                    <% end %>
+                    totalFeedbackCounts[dayOfMonth] += 1;
+                <% end %>
+            <% end %>
+        <% end %>
 
         // Calculate feedback percentages.
         var goodFeedbackPercentage = goodFeedbackCounts.map((count, index) => {
@@ -204,6 +241,9 @@
             type: 'line',
             data: feedbackPercentageData,
             options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -219,6 +259,11 @@
                             text: 'Day of Month'
                         }
                     }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    }
                 }
             }
         });
@@ -229,6 +274,9 @@
             type: 'line',
             data: feedbackOverTimeData,
             options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -242,6 +290,11 @@
                             display: true,
                             text: 'Day of Month'
                         }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
                     }
                 }
             }

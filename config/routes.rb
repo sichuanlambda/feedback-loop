@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     get 'users/update'
     get 'users/destroy'
     get 'dashboard', to: 'dashboard#index'
+    get 'analytics', to: 'dashboard#analytics'
     resources :building_analyses do
       member do
         patch :toggle_visibility
