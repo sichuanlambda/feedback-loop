@@ -14,24 +14,24 @@
 <body>
 
 
-<div class="container">
-  <h1 class="text-center mb-2">Architecture Style Finder</h1>
-  <p class="text-center text-muted mb-4">Like the buildings that resonate with you to discover your architectural style profile</p>
+<div class="container-fluid px-4">
+  <div class="text-center mb-4">
+    <h1 class="mb-2">Architecture Style Finder</h1>
+    <p class="text-muted mb-0">Like the buildings that resonate with you to discover your architectural style profile</p>
+  </div>
   
   <% user_signed_in = user_signed_in? %>
   <% user_has_active_subscription = user_signed_in && current_user.subscription_status == 'active' %>
   
   <div class="row">
-    <div class="col-md-8">
+    <div class="col-lg-9">
       <div id="image-gallery" class="row">
-        <% BuildingAnalysis.where(visible_in_library: true).order("RANDOM()").limit(20).each do |building| %>
-          <div class="col-md-4 mb-3">
+        <% BuildingAnalysis.where(visible_in_library: true).order("RANDOM()").limit(30).each do |building| %>
+          <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
             <div class="card h-100 building-card">
               <div class="square-image-container">
-                <img src="<%= building.image_url %>" class="card-img-top square-image" alt="Building Image" data-toggle="modal" data-target="#imageModal<%= building.id %>">
-              </div>
-              <div class="card-body d-flex flex-column justify-content-end">
-                <button class="btn btn-outline-primary select-image w-100" 
+                <img src="<%= building.image_url %>" class="card-img-top square-image" alt="Building Image" data-building-id="<%= building.id %>" data-styles="<%= building.h3_contents.to_json %>">
+                <button class="btn btn-outline-primary select-image" 
                         data-building-id="<%= building.id %>" 
                         data-styles="<%= building.h3_contents.to_json %>"
                         title="Like this architectural style"
@@ -62,28 +62,28 @@
       </div>
     </div>
     
-    <div class="col-md-4">
+    <div class="col-lg-3">
       <div class="card sticky-top" style="top: 80px; z-index: 10;">
-        <div class="card-body">
-          <h5 class="card-title">Build Your Style Profile</h5>
-          <p class="text-muted small mb-3">Like at least 3 buildings to discover your architectural style</p>
-          <div id="selection-counter" class="mb-3 p-3 bg-light rounded text-center">
-            <h3 class="mb-1"><span id="count-number">0</span></h3>
+        <div class="card-body p-3">
+          <h6 class="card-title mb-2">Build Your Style Profile</h6>
+          <p class="text-muted small mb-3">Like at least 3 buildings to discover your style</p>
+          <div id="selection-counter" class="mb-3 p-2 bg-light rounded text-center">
+            <h4 class="mb-1"><span id="count-number">0</span></h4>
             <small class="text-muted">buildings selected</small>
           </div>
-          <button id="analyze-button" class="btn btn-primary btn-block mt-3" disabled>
+          <button id="analyze-button" class="btn btn-primary btn-block" disabled>
             <i class="fas fa-magic mr-1"></i> Analyze My Style
           </button>
-          <button id="re-analyze-button" class="btn btn-outline-primary btn-block mt-3" style="display: none;">
+          <button id="re-analyze-button" class="btn btn-outline-primary btn-block mt-2" style="display: none;">
             <i class="fas fa-redo mr-1"></i> Re-analyze
           </button>
           
-          <hr class="my-4">
+          <hr class="my-3">
           
           <div class="text-center">
-            <small class="text-muted">Want to analyze a specific building?</small>
+            <small class="text-muted">Analyze a specific building?</small>
             <a href="/architecture_explorer/address_search" class="btn btn-outline-secondary btn-sm btn-block mt-2">
-              <i class="fas fa-camera mr-1"></i> Upload Building Photo
+              <i class="fas fa-camera mr-1"></i> Upload Photo
             </a>
           </div>
         </div>
@@ -112,26 +112,40 @@
             <!-- Selected building thumbnails will be inserted here -->
           </div>
         </div>
-        <div class="text-center mt-4">
-          <button id="view-tour-btn" class="btn btn-outline-primary mr-2" style="display: none;">
-            <i class="fas fa-route mr-1"></i> View Style Tour
-          </button>
-          <div class="btn-group" role="group">
-            <button id="share-twitter-btn" class="btn btn-primary">
-              <i class="fab fa-twitter mr-1"></i> Twitter
-            </button>
-            <button id="share-facebook-btn" class="btn btn-primary">
-              <i class="fab fa-facebook-f mr-1"></i> Facebook
-            </button>
-            <button id="share-linkedin-btn" class="btn btn-primary">
-              <i class="fab fa-linkedin-in mr-1"></i> LinkedIn
-            </button>
-          </div>
-        </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button id="generate-image-modal-btn" class="btn btn-primary" style="display: none;">Generate Building</button>
+        <!-- Generate Building button - top right -->
+        <div class="position-absolute" style="top: 1.25rem; right: 1.25rem;">
+          <button id="generate-image-modal-btn" class="btn btn-primary" style="display: none;">Generate Building</button>
+        </div>
+        
+        <!-- Centered content -->
+        <div class="text-center w-100">
+          <!-- View Tour button -->
+          <div class="mb-3">
+            <button id="view-tour-btn" class="btn btn-outline-primary" style="display: none;">
+              <i class="fas fa-route mr-1"></i> View Style Tour
+            </button>
+          </div>
+          
+          <!-- Share section -->
+          <div>
+            <div class="d-flex align-items-center justify-content-center">
+              <span class="text-muted small mr-2">Share</span>
+              <div class="btn-group" role="group">
+                <button id="share-twitter-btn" class="btn btn-outline-secondary btn-sm" title="Share on Twitter">
+                  <i class="fab fa-twitter"></i>
+                </button>
+                <button id="share-facebook-btn" class="btn btn-outline-secondary btn-sm" title="Share on Facebook">
+                  <i class="fab fa-facebook-f"></i>
+                </button>
+                <button id="share-linkedin-btn" class="btn btn-outline-secondary btn-sm" title="Share on LinkedIn">
+                  <i class="fab fa-linkedin-in"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -217,9 +231,12 @@
   }
   .building-card {
     transition: box-shadow 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   }
   .building-card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
   }
   #selected-styles {
     background-color: #f0f0f0;
@@ -251,29 +268,36 @@
     font-size: 0.875rem;
   }
   .select-image {
-    font-size: 1.2rem;
-    padding: 10px;
-    border-radius: 50px;
-    transition: all 0.3s ease;
-    border-width: 2px;
+    font-size: 0.9rem;
+    padding: 6px 8px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    border-width: 1px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
   .select-image:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: scale(1.05);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
   }
   .select-image.btn-primary {
-    background-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.95);
     border-color: #dc3545;
     color: white;
   }
   .select-image.btn-outline-primary {
     color: #6c757d;
-    border-color: #dee2e6;
+    border-color: rgba(222, 226, 230, 0.8);
+    background: rgba(255, 255, 255, 0.9);
   }
   .select-image.btn-outline-primary:hover {
     color: #dc3545;
     border-color: #dc3545;
-    background-color: transparent;
+    background: rgba(255, 255, 255, 0.95);
   }
 
   /* Virtual Tour Styles */
@@ -488,7 +512,52 @@
     height: auto;
     object-fit: contain;
   }
+
+  /* Modal footer styling */
+  #styleProfileModal .modal-footer {
+    padding: 1.25rem;
+    border-top: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .container-fluid {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+    
+    .col-lg-9, .col-lg-3 {
+      margin-bottom: 2rem;
+    }
+    
+    #image-gallery .col-lg-3 {
+      margin-bottom: 1rem;
+    }
+    
+    .building-card:hover {
+      transform: none;
+    }
+    
+    .select-image {
+      font-size: 1rem;
+      padding: 8px 10px;
+    }
+    
+    /* Mobile adjustments for modal footer */
+    #styleProfileModal .modal-footer .position-absolute {
+      position: static !important;
+      margin-bottom: 1rem;
+    }
+  }
 </style>
+
+<!-- Bootstrap JavaScript for Virtual Tour -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -550,43 +619,67 @@
       console.error('Generate New Image button not found!');
     }
 
+    // Function to handle building selection
+    function handleBuildingSelection(buildingId, stylesData) {
+      console.log(`Raw styles data for building ${buildingId}:`, stylesData);
+      
+      let parsedStyles;
+      try {
+        parsedStyles = JSON.parse(stylesData || '[]');
+        if (!Array.isArray(parsedStyles)) {
+          console.warn(`Parsed styles for building ${buildingId} is not an array, converting to array.`);
+          parsedStyles = [parsedStyles].filter(Boolean);
+        }
+      } catch (error) {
+        console.error(`Error parsing styles for building ${buildingId}:`, error);
+        parsedStyles = [];
+      }
+      
+      console.log(`Parsed styles for building ${buildingId}:`, parsedStyles);
+      
+      // Find the heart button for this building
+      const heartButton = document.querySelector(`[data-building-id="${buildingId}"].select-image`);
+      
+      if (selectedBuildings.has(buildingId)) {
+        selectedBuildings.delete(buildingId);
+        if (heartButton) {
+          heartButton.classList.remove('btn-primary');
+          heartButton.classList.add('btn-outline-primary');
+          heartButton.innerHTML = '<i class="far fa-heart"></i>';
+          heartButton.title = 'Like this architectural style';
+        }
+      } else {
+        selectedBuildings.set(buildingId, parsedStyles);
+        if (heartButton) {
+          heartButton.classList.remove('btn-outline-primary');
+          heartButton.classList.add('btn-primary');
+          heartButton.innerHTML = '<i class="fas fa-heart"></i>';
+          heartButton.title = 'Liked!';
+        }
+      }
+      
+      console.log('Updated selected buildings:', Array.from(selectedBuildings.entries()));
+      updateSelectedCount();
+    }
+
+    // Add click handlers to heart buttons
     selectButtons.forEach(button => {
-      button.addEventListener('click', function() {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent event bubbling
         const buildingId = this.getAttribute('data-building-id');
         const stylesData = this.getAttribute('data-styles');
-        console.log(`Raw styles data for building ${buildingId}:`, stylesData);
-        
-        let parsedStyles;
-        try {
-          parsedStyles = JSON.parse(stylesData || '[]');
-          if (!Array.isArray(parsedStyles)) {
-            console.warn(`Parsed styles for building ${buildingId} is not an array, converting to array.`);
-            parsedStyles = [parsedStyles].filter(Boolean);
-          }
-        } catch (error) {
-          console.error(`Error parsing styles for building ${buildingId}:`, error);
-          parsedStyles = [];
-        }
-        
-        console.log(`Parsed styles for building ${buildingId}:`, parsedStyles);
-        
-        if (selectedBuildings.has(buildingId)) {
-          selectedBuildings.delete(buildingId);
-          this.classList.remove('btn-primary');
-          this.classList.add('btn-outline-primary');
-          this.innerHTML = '<i class="far fa-heart"></i>';
-          this.title = 'Like this architectural style';
-        } else {
-          selectedBuildings.set(buildingId, parsedStyles);
-          this.classList.remove('btn-outline-primary');
-          this.classList.add('btn-primary');
-          this.innerHTML = '<i class="fas fa-heart"></i>';
-          this.title = 'Liked!';
-        }
-        
-        console.log('Updated selected buildings:', Array.from(selectedBuildings.entries()));
-        
-        updateSelectedCount();
+        handleBuildingSelection(buildingId, stylesData);
+      });
+    });
+
+    // Add click handlers to images for selection
+    const buildingImages = document.querySelectorAll('.square-image');
+    buildingImages.forEach(image => {
+      image.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent any default behavior
+        const buildingId = this.getAttribute('data-building-id');
+        const stylesData = this.getAttribute('data-styles');
+        handleBuildingSelection(buildingId, stylesData);
       });
     });
     
