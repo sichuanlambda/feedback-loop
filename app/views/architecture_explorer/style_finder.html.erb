@@ -61,7 +61,7 @@
     </div>
     
     <div class="col-md-4">
-      <div class="card sticky-top" style="top: 20px;">
+      <div class="card sticky-top" style="top: 80px; z-index: 10;">
         <div class="card-body">
           <h5 class="card-title">Your Style Preferences</h5>
           <div id="selected-styles"></div>
@@ -116,6 +116,30 @@
     background-color: #f0f0f0;
     padding: 10px;
     margin-top: 10px;
+  }
+  #style-summary {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    border-left: 4px solid #0056b3;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    padding: 1rem !important;
+  }
+  #style-summary:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  #style-summary h5 {
+    margin-bottom: 0.5rem !important;
+  }
+  #style-summary p {
+    color: #495057;
+  }
+  .progress {
+    height: 22px;
+    background-color: #e9ecef;
+  }
+  .progress-bar {
+    background-color: #0056b3;
+    font-size: 0.875rem;
   }
 </style>
 
@@ -311,18 +335,48 @@ function displayPreferredStyles(styles) {
     return;
   }
   
-  selectedStylesDiv.innerHTML = '<h6 class="mb-3">Your Top Styles:</h6>';
-  styles.slice(0, 5).forEach(style => {
-    const styleElement = document.createElement('div');
-    styleElement.className = 'mb-2';
-    styleElement.innerHTML = `
-      <span>${style.name}</span>
-      <div class="progress">
-        <div class="progress-bar" role="progressbar" style="width: ${style.percentage}%;" 
-             aria-valuenow="${style.percentage}" aria-valuemin="0" aria-valuemax="100">${style.percentage}%</div>
+  selectedStylesDiv.innerHTML = '<h6 class="mb-3">Your Architectural Style Profile:</h6>';
+  
+  // Add loading spinner for summary
+  const summaryDiv = document.createElement('div');
+  summaryDiv.id = 'style-summary';
+  summaryDiv.className = 'mb-3 p-2 bg-light rounded';
+  summaryDiv.innerHTML = `
+    <div class="text-center">
+      <div class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="sr-only">Creating your profile...</span>
       </div>
-    `;
-    selectedStylesDiv.appendChild(styleElement);
+      <small class="text-muted ml-2">Creating your profile...</small>
+    </div>
+  `;
+  selectedStylesDiv.appendChild(summaryDiv);
+  
+  // Fetch the plain-language summary
+  fetch('/architecture_explorer/analyze_style_preferences', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ styles: styles })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success && data.title && data.summary) {
+      summaryDiv.innerHTML = `
+        <h5 class="mb-2 text-primary" style="font-weight: 600;">${data.title}</h5>
+        <p class="mb-0 text-secondary" style="font-size: 0.95rem;">
+          ${data.summary}
+        </p>
+      `;
+    } else {
+      console.error('Failed to get style summary:', data.error);
+      summaryDiv.style.display = 'none';
+    }
+  })
+  .catch(error => {
+    console.error('Error fetching style summary:', error);
+    summaryDiv.style.display = 'none';
   });
 
   console.log('UI updated with preferred styles');

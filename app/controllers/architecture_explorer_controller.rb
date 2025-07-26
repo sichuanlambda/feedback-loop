@@ -382,6 +382,39 @@ class ArchitectureExplorerController < ApplicationController
     end
   end
 
+  def analyze_style_preferences
+    styles = params[:styles]
+    
+    if styles.blank?
+      render json: { success: false, error: "No styles provided" }
+      return
+    end
+
+    begin
+      gpt_service = GptService.new
+      result = gpt_service.analyze_style_preferences(styles)
+      
+      if result
+        render json: {
+          success: true,
+          title: result[:title],
+          summary: result[:summary]
+        }
+      else
+        render json: {
+          success: false,
+          error: "Failed to generate style summary"
+        }
+      end
+    rescue => e
+      Rails.logger.error "Style Analysis Error: #{e.message}"
+      render json: {
+        success: false,
+        error: "Failed to analyze styles: #{e.message}"
+      }
+    end
+  end
+
   private
 
   def calculate_style_frequency(building_analyses)

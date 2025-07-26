@@ -230,6 +230,57 @@ class GptService
     end
   end
 
+  def analyze_style_preferences(styles_data)
+    Rails.logger.debug "GptService: Analyzing style preferences: #{styles_data}"
+
+    prompt = <<~PROMPT
+      You are a witty architecture critic. Based on these architectural style preferences, create a response in this EXACT format:
+      
+      TITLE: [Create a clever 2-5 word title that creatively combines or plays on the top 2-3 styles. Examples: "Gothic Minimalist", "Baroque Brutalist", "Neo-Classical Rebel", "Modern Renaissance Soul"]
+      
+      SUMMARY: [Write ONE punchy sentence (max 20 words) that captures the essence of their aesthetic sensibility, using vivid language]
+      
+      The styles are:
+      #{styles_data.map { |s| "#{s[:name]} (#{s[:percentage]}%)" }.join(", ")}
+      
+      Be creative with the title - blend the style names or create an evocative phrase. Keep it sophisticated but memorable.
+    PROMPT
+
+    body = {
+      model: "gpt-4o-mini",
+      max_tokens: 150,
+      temperature: 0.9,
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ]
+    }.to_json
+
+    response = self.class.post('/chat/completions', @options.merge(body: body))
+    Rails.logger.debug "GPT Response: #{response.inspect}"
+    
+    if response.code == 200
+      content = parse_response(response)
+      if content
+        # Parse the title and summary from the response
+        title_match = content.match(/TITLE:\s*(.+?)(?:\n|$)/)
+        summary_match = content.match(/SUMMARY:\s*(.+?)(?:\n|$)/)
+        
+        {
+          title: title_match ? title_match[1].strip : "Architecture Enthusiast",
+          summary: summary_match ? summary_match[1].strip : content
+        }
+      else
+        nil
+      end
+    else
+      Rails.logger.error "GPT Error: #{response.code} - #{response.body}"
+      nil
+    end
+  end
+
   private
 
   def parse_response(response)
