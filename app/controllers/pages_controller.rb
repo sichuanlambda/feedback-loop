@@ -7,6 +7,7 @@ class PagesController < ApplicationController
 
   def account
     @user = current_user
+    @custom_nav = true
     # Any other setup needed for the account page can be added here
   end
 

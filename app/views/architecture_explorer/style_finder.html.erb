@@ -15,7 +15,8 @@
 
 
 <div class="container">
-  <h1 class="text-center mb-4">Architecture Style Finder</h1>
+  <h1 class="text-center mb-2">Architecture Style Finder</h1>
+  <p class="text-center text-muted mb-4">Like the buildings that resonate with you to discover your architectural style profile</p>
   
   <% user_signed_in = user_signed_in? %>
   <% user_has_active_subscription = user_signed_in && current_user.subscription_status == 'active' %>
@@ -30,11 +31,12 @@
                 <img src="<%= building.image_url %>" class="card-img-top square-image" alt="Building Image" data-toggle="modal" data-target="#imageModal<%= building.id %>">
               </div>
               <div class="card-body d-flex flex-column justify-content-end">
-                <button class="btn btn-outline-primary btn-sm select-image w-100" 
+                <button class="btn btn-outline-primary select-image w-100" 
                         data-building-id="<%= building.id %>" 
                         data-styles="<%= building.h3_contents.to_json %>"
+                        title="Like this architectural style"
                         onclick="console.log('Raw h3_contents for building <%= building.id %>:', <%= raw building.h3_contents.to_json %>)">
-                  Select
+                  <i class="far fa-heart"></i>
                 </button>
               </div>
             </div>
@@ -63,24 +65,73 @@
     <div class="col-md-4">
       <div class="card sticky-top" style="top: 80px; z-index: 10;">
         <div class="card-body">
-          <h5 class="card-title">Your Style Preferences</h5>
-          <div id="selected-styles"></div>
-          <button id="analyze-button" class="btn btn-primary btn-block mt-3">Analyze My Style</button>
-          <div id="generated-image" class="mt-3"></div>
-          <button id="generate-new-image" class="btn btn-secondary btn-block mt-3" style="display: none;" 
-                  data-user-signed-in="<%= user_signed_in %>"
-                  data-user-has-active-subscription="<%= user_has_active_subscription %>">
-            Generate Image with Your Styles
-          </button>
-          <button id="re-analyze-button" class="btn btn-outline-primary btn-block mt-3" style="display: none;">Re-analyze</button>
-          <div id="loading-spinner" class="text-center mt-3" style="display: none;">
-            <div class="spinner-border text-primary" role="status">
-              <span class="sr-only">Loading...</span>
-            </div>
-            <p class="mt-2">Generating your custom building...</p>
+          <h5 class="card-title">Build Your Style Profile</h5>
+          <p class="text-muted small mb-3">Like at least 3 buildings to discover your architectural style</p>
+          <div id="selection-counter" class="mb-3 p-3 bg-light rounded text-center">
+            <h3 class="mb-1"><span id="count-number">0</span></h3>
+            <small class="text-muted">buildings selected</small>
           </div>
-          <a href="/architecture_explorer/address_search" class="btn btn-outline-primary btn-block mt-3">New Design Analysis</a>
+          <button id="analyze-button" class="btn btn-primary btn-block mt-3" disabled>
+            <i class="fas fa-magic mr-1"></i> Analyze My Style
+          </button>
+          <button id="re-analyze-button" class="btn btn-outline-primary btn-block mt-3" style="display: none;">
+            <i class="fas fa-redo mr-1"></i> Re-analyze
+          </button>
+          
+          <hr class="my-4">
+          
+          <div class="text-center">
+            <small class="text-muted">Want to analyze a specific building?</small>
+            <a href="/architecture_explorer/address_search" class="btn btn-outline-secondary btn-sm btn-block mt-2">
+              <i class="fas fa-camera mr-1"></i> Upload Building Photo
+            </a>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Style Profile Modal -->
+<div class="modal fade" id="styleProfileModal" tabindex="-1" role="dialog" aria-labelledby="styleProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="styleProfileModalLabel">Your Architectural Style Profile</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-style-summary" class="text-center mb-4">
+          <!-- Profile content will be inserted here -->
+        </div>
+        <div id="selected-buildings-preview" class="mb-4" style="display: none;">
+          <h6 class="mb-3">Your Selected Buildings:</h6>
+          <div class="row" id="selected-buildings-grid">
+            <!-- Selected building thumbnails will be inserted here -->
+          </div>
+        </div>
+        <div class="text-center mt-4">
+          <button id="view-tour-btn" class="btn btn-outline-primary mr-2" style="display: none;">
+            <i class="fas fa-route mr-1"></i> View Style Tour
+          </button>
+          <div class="btn-group" role="group">
+            <button id="share-twitter-btn" class="btn btn-primary">
+              <i class="fab fa-twitter mr-1"></i> Twitter
+            </button>
+            <button id="share-facebook-btn" class="btn btn-primary">
+              <i class="fab fa-facebook-f mr-1"></i> Facebook
+            </button>
+            <button id="share-linkedin-btn" class="btn btn-primary">
+              <i class="fab fa-linkedin-in mr-1"></i> LinkedIn
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button id="generate-image-modal-btn" class="btn btn-primary" style="display: none;">Generate Building</button>
       </div>
     </div>
   </div>
@@ -140,6 +191,31 @@
   .progress-bar {
     background-color: #0056b3;
     font-size: 0.875rem;
+  }
+  .select-image {
+    font-size: 1.2rem;
+    padding: 10px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    border-width: 2px;
+  }
+  .select-image:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .select-image.btn-primary {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+  }
+  .select-image.btn-outline-primary {
+    color: #6c757d;
+    border-color: #dee2e6;
+  }
+  .select-image.btn-outline-primary:hover {
+    color: #dc3545;
+    border-color: #dc3545;
+    background-color: transparent;
   }
 </style>
 
@@ -227,17 +303,18 @@
           selectedBuildings.delete(buildingId);
           this.classList.remove('btn-primary');
           this.classList.add('btn-outline-primary');
-          this.textContent = 'Select';
+          this.innerHTML = '<i class="far fa-heart"></i>';
+          this.title = 'Like this architectural style';
         } else {
           selectedBuildings.set(buildingId, parsedStyles);
           this.classList.remove('btn-outline-primary');
           this.classList.add('btn-primary');
-          this.textContent = 'Selected';
+          this.innerHTML = '<i class="fas fa-heart"></i>';
+          this.title = 'Liked!';
         }
         
         console.log('Updated selected buildings:', Array.from(selectedBuildings.entries()));
         
-        analyzeButton.disabled = selectedBuildings.size === 0;
         updateSelectedCount();
       });
     });
@@ -330,26 +407,41 @@ function analyzeMyStyle() {
 function displayPreferredStyles(styles) {
   console.log('displayPreferredStyles called with styles:', styles);
   
-  if (!selectedStylesDiv) {
-    console.error('selected-styles div not found');
-    return;
-  }
-  
-  selectedStylesDiv.innerHTML = '<h6 class="mb-3">Your Architectural Style Profile:</h6>';
-  
-  // Add loading spinner for summary
-  const summaryDiv = document.createElement('div');
-  summaryDiv.id = 'style-summary';
-  summaryDiv.className = 'mb-3 p-2 bg-light rounded';
-  summaryDiv.innerHTML = `
+  // Show loading in modal
+  const modalStyleSummary = document.getElementById('modal-style-summary');
+  modalStyleSummary.innerHTML = `
     <div class="text-center">
-      <div class="spinner-border spinner-border-sm text-primary" role="status">
+      <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Creating your profile...</span>
       </div>
-      <small class="text-muted ml-2">Creating your profile...</small>
+      <p class="text-muted mt-2">Creating your profile...</p>
     </div>
   `;
-  selectedStylesDiv.appendChild(summaryDiv);
+  
+  // Show the modal
+  $('#styleProfileModal').modal('show');
+  
+  // Display selected buildings in modal
+  const selectedBuildingsGrid = document.getElementById('selected-buildings-grid');
+  selectedBuildingsGrid.innerHTML = '';
+  
+  // Get the actual building elements and their images
+  selectedBuildings.forEach((styles, buildingId) => {
+    const buildingCard = document.querySelector(`[data-building-id="${buildingId}"]`).closest('.building-card');
+    const imgSrc = buildingCard.querySelector('.square-image').src;
+    
+    const thumbnail = document.createElement('div');
+    thumbnail.className = 'col-4 col-md-3 mb-3';
+    thumbnail.innerHTML = `
+      <img src="${imgSrc}" class="img-fluid rounded" alt="Selected building">
+    `;
+    selectedBuildingsGrid.appendChild(thumbnail);
+  });
+  
+  if (selectedBuildings.size > 0) {
+    document.getElementById('selected-buildings-preview').style.display = 'block';
+    document.getElementById('view-tour-btn').style.display = 'inline-block';
+  }
   
   // Fetch the plain-language summary
   fetch('/architecture_explorer/analyze_style_preferences', {
@@ -363,42 +455,68 @@ function displayPreferredStyles(styles) {
   .then(response => response.json())
   .then(data => {
     if (data.success && data.title && data.summary) {
-      summaryDiv.innerHTML = `
-        <h5 class="mb-2 text-primary" style="font-weight: 600;">${data.title}</h5>
-        <p class="mb-0 text-secondary" style="font-size: 0.95rem;">
-          ${data.summary}
-        </p>
+      // Create learn more links
+      let learnMoreLinks = '';
+      if (data.top_styles && data.top_styles.length > 0) {
+        learnMoreLinks = `
+          <div class="mt-3 pt-3 border-top">
+            <h6 class="text-muted mb-2">Learn more about your styles:</h6>
+            <div class="d-flex flex-wrap">
+              ${data.top_styles.map(style => `
+                <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(style.replace(/ /g, '_'))}_architecture" 
+                   target="_blank" 
+                   class="btn btn-outline-info btn-sm mr-2 mb-2">
+                  <i class="fas fa-external-link-alt mr-1"></i>
+                  ${style}
+                </a>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      modalStyleSummary.innerHTML = `
+        <div id="style-summary" class="p-4 bg-light rounded mb-3">
+          <h3 class="mb-3 text-primary" style="font-weight: 600;">${data.title}</h3>
+          <p class="mb-0 text-secondary" style="font-size: 1.1rem; line-height: 1.6;">
+            ${data.summary}
+          </p>
+          ${learnMoreLinks}
+        </div>
       `;
+      
+      // Store for sharing
+      window.currentStyleProfile = {
+        title: data.title,
+        summary: data.summary
+      };
     } else {
       console.error('Failed to get style summary:', data.error);
-      summaryDiv.style.display = 'none';
+      modalStyleSummary.innerHTML = '<p class="text-danger">Failed to generate your profile. Please try again.</p>';
     }
   })
   .catch(error => {
     console.error('Error fetching style summary:', error);
-    summaryDiv.style.display = 'none';
+    modalStyleSummary.innerHTML = '<p class="text-danger">An error occurred. Please try again.</p>';
   });
 
-  console.log('UI updated with preferred styles');
-
-  // Show the "Generate New Image" button
-  if (generateNewImageButton) {
-    generateNewImageButton.style.display = 'block';
+  // Update the generate button in modal
+  const generateModalBtn = document.getElementById('generate-image-modal-btn');
+  if (generateModalBtn) {
     const userSignedIn = generateNewImageButton.getAttribute('data-user-signed-in') === 'true';
     const userHasActiveSubscription = generateNewImageButton.getAttribute('data-user-has-active-subscription') === 'true';
     
+    generateModalBtn.style.display = 'inline-block';
+    
     if (userHasActiveSubscription) {
-      generateNewImageButton.textContent = 'Generate New Image';
-      generateNewImageButton.classList.add('btn-secondary');
-      generateNewImageButton.classList.remove('btn-primary');
+      generateModalBtn.textContent = 'Generate Building';
+      generateModalBtn.onclick = () => generateImage(styles);
     } else if (userSignedIn) {
-      generateNewImageButton.textContent = 'Generate Image with Style';
-      generateNewImageButton.classList.add('btn-primary');
-      generateNewImageButton.classList.remove('btn-secondary');
+      generateModalBtn.textContent = 'Subscribe to Generate';
+      generateModalBtn.onclick = () => window.location.href = '/account';
     } else {
-      generateNewImageButton.textContent = 'Login to Generate Image with Your Styles';
-      generateNewImageButton.classList.add('btn-primary');
-      generateNewImageButton.classList.remove('btn-secondary');
+      generateModalBtn.textContent = 'Login to Generate';
+      generateModalBtn.onclick = () => window.location.href = '/users/sign_in';
     }
   }
 }
@@ -467,8 +585,163 @@ function displayGeneratedImage(imageUrl) {
 
 function updateSelectedCount() {
   const count = selectedBuildings.size;
-  analyzeButton.textContent = `Analyze My Style (${count} selected)`;
+  const countNumber = document.getElementById('count-number');
+  if (countNumber) {
+    countNumber.textContent = count;
+  }
+  
+  // Update button state
+  if (count >= 3) {
+    analyzeButton.disabled = false;
+    analyzeButton.classList.remove('btn-secondary');
+    analyzeButton.classList.add('btn-primary');
+  } else {
+    analyzeButton.disabled = true;
+  }
+  
   console.log('Selected count updated:', count);
+}
+
+// Social sharing functionality
+function setupSocialSharing() {
+  if (!window.currentStyleProfile) {
+    alert('Please wait for your profile to generate.');
+    return;
+  }
+  
+  const { title, summary } = window.currentStyleProfile;
+  const shareText = `I'm a "${title}" according to Architecture Helper! ${summary}`;
+  const shareUrl = `${window.location.href} - Find your own architectural style!`;
+  
+  return { shareText, shareUrl };
+}
+
+document.getElementById('share-twitter-btn').addEventListener('click', function() {
+  const { shareText, shareUrl } = setupSocialSharing();
+  if (!shareText) return;
+  
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
+  window.open(twitterUrl, '_blank');
+});
+
+document.getElementById('share-facebook-btn').addEventListener('click', function() {
+  const { shareText, shareUrl } = setupSocialSharing();
+  if (!shareText) return;
+  
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(shareText + ' Find your own architectural style!')}`;
+  window.open(facebookUrl, '_blank');
+});
+
+document.getElementById('share-linkedin-btn').addEventListener('click', function() {
+  const { shareText, shareUrl } = setupSocialSharing();
+  if (!shareText) return;
+  
+  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&summary=${encodeURIComponent(shareText + ' Find your own architectural style!')}`;
+  window.open(linkedinUrl, '_blank');
+});
+
+// View tour functionality
+document.getElementById('view-tour-btn').addEventListener('click', function() {
+  // Get building IDs from selected buildings
+  const buildingIds = Array.from(selectedBuildings.keys());
+  
+  if (buildingIds.length === 0) {
+    alert('No buildings selected for tour.');
+    return;
+  }
+  
+  // Close the current modal and show tour preview
+  $('#styleProfileModal').modal('hide');
+  
+  setTimeout(() => {
+    showTourPreview(buildingIds);
+  }, 300);
+});
+
+function showTourPreview(buildingIds) {
+  // Create a simple tour modal
+  const tourModal = document.createElement('div');
+  tourModal.className = 'modal fade';
+  tourModal.id = 'styleTourModal';
+  tourModal.innerHTML = `
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-route mr-2"></i>Your Architectural Style Tour
+          </h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-4">
+            <h6 class="text-muted">Experience your ${buildingIds.length} selected buildings in a guided tour</h6>
+            <p class="small text-muted">This preview shows how a full tour would work with the existing carousel component</p>
+          </div>
+          
+          <div class="tour-preview-grid row">
+            ${Array.from(selectedBuildings.entries()).map(([buildingId, styles], index) => {
+              const buildingCard = document.querySelector(`[data-building-id="${buildingId}"]`).closest('.building-card');
+              const imgSrc = buildingCard.querySelector('.square-image').src;
+              
+              return `
+                <div class="col-md-6 mb-3">
+                  <div class="card h-100">
+                    <img src="${imgSrc}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Building ${index + 1}">
+                    <div class="card-body">
+                      <h6 class="card-title">Stop ${index + 1}</h6>
+                      <div class="mb-2">
+                        ${styles.slice(0, 3).map(style => `
+                          <span class="badge badge-secondary mr-1">${style}</span>
+                        `).join('')}
+                      </div>
+                      <a href="/architecture_explorer/${buildingId}" class="btn btn-sm btn-primary" target="_blank">
+                        <i class="fas fa-eye mr-1"></i> View Analysis
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          
+          <div class="text-center mt-4 p-3 bg-light rounded">
+            <h6 class="mb-2">Coming Soon: Full Tour Experience</h6>
+            <p class="small text-muted mb-3">
+              The complete tour will include navigation between buildings, detailed architectural analysis, 
+              interactive maps, and downloadable tour guides - all integrated with our existing places tour system.
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+              <button class="btn btn-outline-primary btn-sm" disabled>
+                <i class="fas fa-map mr-1"></i> Interactive Map
+              </button>
+              <button class="btn btn-outline-primary btn-sm" disabled>
+                <i class="fas fa-download mr-1"></i> Tour Guide
+              </button>
+              <button class="btn btn-outline-primary btn-sm" disabled>
+                <i class="fas fa-route mr-1"></i> Optimized Route
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close Preview</button>
+          <button type="button" class="btn btn-primary" onclick="window.open('/building_library', '_blank')">
+            <i class="fas fa-building mr-1"></i> Explore More Buildings
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(tourModal);
+  $(tourModal).modal('show');
+  
+  // Clean up when modal is closed
+  $(tourModal).on('hidden.bs.modal', function() {
+    document.body.removeChild(tourModal);
+  });
 }
 
 console.log('Event listeners set up');

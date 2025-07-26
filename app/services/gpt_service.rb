@@ -268,9 +268,13 @@ class GptService
         title_match = content.match(/TITLE:\s*(.+?)(?:\n|$)/)
         summary_match = content.match(/SUMMARY:\s*(.+?)(?:\n|$)/)
         
+        # Extract the top styles for learn more links
+        top_styles = styles_data.first(3).map { |s| s[:name] }
+        
         {
           title: title_match ? title_match[1].strip : "Architecture Enthusiast",
-          summary: summary_match ? summary_match[1].strip : content
+          summary: summary_match ? summary_match[1].strip : content,
+          top_styles: top_styles
         }
       else
         nil

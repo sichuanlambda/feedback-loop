@@ -398,7 +398,8 @@ class ArchitectureExplorerController < ApplicationController
         render json: {
           success: true,
           title: result[:title],
-          summary: result[:summary]
+          summary: result[:summary],
+          top_styles: result[:top_styles]
         }
       else
         render json: {
