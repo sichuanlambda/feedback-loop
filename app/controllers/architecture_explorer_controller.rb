@@ -416,6 +416,26 @@ class ArchitectureExplorerController < ApplicationController
     end
   end
 
+  def building_data
+    building_analysis = BuildingAnalysis.find_by(id: params[:id])
+    
+    if building_analysis
+      render json: {
+        success: true,
+        id: building_analysis.id,
+        image_url: building_analysis.image_url,
+        address: building_analysis.address || "Building ##{building_analysis.id}",
+        h3_contents: building_analysis.h3_contents,
+        html_content: building_analysis.html_content
+      }
+    else
+      render json: {
+        success: false,
+        error: "Building not found"
+      }
+    end
+  end
+
   private
 
   def calculate_style_frequency(building_analyses)

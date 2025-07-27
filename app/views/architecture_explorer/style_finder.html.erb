@@ -1006,32 +1006,71 @@ document.getElementById('share-linkedin-btn').addEventListener('click', function
 
 // View tour functionality - using the full virtual tour experience
 document.getElementById('view-tour-btn').addEventListener('click', function() {
-  // Get building data from selected buildings
-  const tourBuildings = Array.from(selectedBuildings.entries()).map(([buildingId, styles]) => {
-    const buildingCard = document.querySelector(`[data-building-id="${buildingId}"]`).closest('.building-card');
-    const imgSrc = buildingCard.querySelector('.square-image').src;
-    
-    // Find the actual building data from the DOM
-    return {
-      id: parseInt(buildingId),
-      image_url: imgSrc,
-      address: `Building #${buildingId}`, // Could be enhanced to get actual address
-      h3_contents: JSON.stringify(styles),
-      html_content: `<h3>Architectural Analysis</h3><p>This building showcases ${styles.slice(0, 3).join(', ')} architectural influences.</p>`
-    };
-  });
+  // Show loading state
+  this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Loading Tour...';
+  this.disabled = true;
   
-  if (tourBuildings.length === 0) {
+  // Get building IDs from selected buildings
+  const buildingIds = Array.from(selectedBuildings.keys());
+  
+  if (buildingIds.length === 0) {
     alert('No buildings selected for tour.');
+    this.innerHTML = '<i class="fas fa-route mr-1"></i> View Style Tour';
+    this.disabled = false;
     return;
   }
   
-  // Close the current modal
-  $('#styleProfileModal').modal('hide');
-  
-  setTimeout(() => {
-    startVirtualTour(tourBuildings);
-  }, 300);
+  // Fetch actual building data from the server using API endpoint
+  Promise.all(buildingIds.map(buildingId => 
+    fetch(`/architecture_explorer/${buildingId}/building_data`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          return {
+            id: data.id,
+            image_url: data.image_url,
+            address: data.address,
+            h3_contents: data.h3_contents,
+            html_content: data.html_content
+          };
+        } else {
+          throw new Error(data.error || 'Failed to fetch building data');
+        }
+      })
+      .catch(error => {
+        console.error(`Error fetching building ${buildingId}:`, error);
+        // Fallback to basic data from the current page
+        const buildingCard = document.querySelector(`[data-building-id="${buildingId}"]`).closest('.building-card');
+        const imgSrc = buildingCard.querySelector('.square-image').src;
+        
+        return {
+          id: parseInt(buildingId),
+          image_url: imgSrc,
+          address: `Building #${buildingId}`,
+          h3_contents: JSON.stringify(selectedBuildings.get(buildingId)),
+          html_content: `<h3>Architectural Analysis</h3><p>Unable to load detailed analysis for this building.</p>`
+        };
+      })
+  ))
+  .then(tourBuildings => {
+    // Reset button state
+    this.innerHTML = '<i class="fas fa-route mr-1"></i> View Style Tour';
+    this.disabled = false;
+    
+    // Close the current modal
+    $('#styleProfileModal').modal('hide');
+    
+    setTimeout(() => {
+      startVirtualTour(tourBuildings);
+    }, 300);
+  })
+  .catch(error => {
+    console.error('Error loading tour buildings:', error);
+    alert('Error loading building data for tour.');
+    // Reset button state
+    this.innerHTML = '<i class="fas fa-route mr-1"></i> View Style Tour';
+    this.disabled = false;
+  });
 });
 
 // Virtual Tour Functionality (from places pages)

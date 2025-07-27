@@ -96,6 +96,7 @@ Rails.application.routes.draw do
   get 'architecture_explorer/:id/status', to: 'architecture_explorer#status', as: :architecture_explorer_status
   get 'style-finder', to: 'architecture_explorer#style_finder', as: :style_finder
   post 'architecture_explorer/analyze_style_preferences', to: 'architecture_explorer#analyze_style_preferences'
+  get 'architecture_explorer/:id/building_data', to: 'architecture_explorer#building_data', as: :building_data
   post '/generate_image', to: 'architecture_explorer#generate_image'
 
   # Architecture Designer Routes
