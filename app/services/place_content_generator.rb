@@ -106,18 +106,67 @@ class PlaceContentGenerator
 
   def build_content_prompt(styles)
     styles_text = styles.any? ? styles.join(', ') : 'various architectural styles'
+    building_count = @place.building_analyses_in_place.count
     
-    "Write a comprehensive but concise HTML article about the architecture of #{@place.name}. " \
-    "Focus on the main architectural styles found in the area: #{styles_text}. " \
-    "Include sections about historical context, notable buildings, and contemporary developments. " \
-    "Use proper HTML tags (h2, h3, p) and keep it engaging for architecture enthusiasts. " \
-    "Length should be 300-500 words."
+    "Write a comprehensive HTML article about the architecture of #{@place.name}. " \
+    "#{styles.any? ? "Community members have identified these styles in the area: #{styles_text}. " : ''}" \
+    "Include the following sections with h2 headings:\n" \
+    "1. Architectural Heritage — the historical evolution of architecture in #{@place.name}\n" \
+    "2. Signature Styles — the dominant architectural styles, with specific real examples (building names, architects, years)\n" \
+    "3. Notable Buildings — 5-8 must-see buildings with brief descriptions\n" \
+    "4. Neighborhoods to Explore — 3-4 neighborhoods known for distinctive architecture\n" \
+    "5. Contemporary Scene — modern architectural developments and notable new buildings\n\n" \
+    "Be specific — use real building names, real architects, real dates. " \
+    "Write for architecture enthusiasts who want to explore the city. " \
+    "Use h2 for main sections, h3 for subsections, p for paragraphs, and ul/li for lists. " \
+    "Length: 600-900 words. Make it engaging and informative."
   end
 
   def generate_content_with_ai(prompt)
-    # This would integrate with your existing GPT service
-    # For now, return nil to trigger fallback
-    nil
+    begin
+      gpt = GptService.new
+      body = {
+        model: "gpt-4o-mini",
+        max_tokens: 2000,
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert architectural historian and travel writer. Write engaging, informative HTML content about city architecture. Use proper HTML tags (h2, h3, p, ul, li). Do NOT include html/head/body wrapper tags — just the article content. Be specific about real buildings and neighborhoods."
+          },
+          { role: "user", content: prompt }
+        ]
+      }.to_json
+
+      response = HTTParty.post(
+        'https://api.openai.com/v1/chat/completions',
+        headers: {
+          "Authorization" => "Bearer #{gpt_api_key}",
+          "Content-Type" => "application/json"
+        },
+        body: body,
+        timeout: 60
+      )
+
+      if response.code == 200
+        content = response.dig('choices', 0, 'message', 'content')
+        # Strip any markdown code fences GPT might add
+        content&.gsub(/\A```html?\n?/, '')&.gsub(/\n?```\z/, '')
+      else
+        Rails.logger.error "GPT API error for place content: #{response.code} - #{response.body}"
+        nil
+      end
+    rescue => e
+      Rails.logger.error "Failed to generate AI content for place: #{e.message}"
+      nil
+    end
+  end
+
+  def gpt_api_key
+    if Rails.env.production?
+      ENV['GPT_API_KEY_PRODUCTION']
+    else
+      Rails.application.credentials.openai[:api_key]
+    end
   end
 
   def generate_fallback_content(styles)
