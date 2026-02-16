@@ -21,15 +21,13 @@ class BuildingAnalysis < ApplicationRecord
     all_styles = []
 
     h3_contents.each do |content|
-      next if content.blank? # Skip if content is nil or empty
-      styles_with_percentages = JSON.parse(content)
-
-      styles = styles_with_percentages.map do |style_with_percentage|
-        match = style_with_percentage.match(/^(.*?)\s*\d+%$/)
-        match ? match[1].strip : nil
-      end.compact
-
-      all_styles.concat(styles)
+      next if content.blank?
+      begin
+        styles = StyleNormalizer.normalize_array(JSON.parse(content))
+        all_styles.concat(styles)
+      rescue JSON::ParserError
+        next
+      end
     end
 
     all_styles.tally
@@ -40,6 +38,14 @@ class BuildingAnalysis < ApplicationRecord
   private
 
   def normalize_styles
-    self.h3_contents = StyleNormalizer.normalize_array(h3_contents)
+    return if h3_contents.blank?
+
+    begin
+      styles = h3_contents.is_a?(String) ? JSON.parse(h3_contents) : Array(h3_contents)
+      normalized = StyleNormalizer.normalize_array(styles)
+      self.h3_contents = normalized.to_json
+    rescue JSON::ParserError
+      # Leave as-is if we can't parse
+    end
   end
 end

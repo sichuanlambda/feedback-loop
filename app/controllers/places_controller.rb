@@ -39,7 +39,9 @@ class PlacesController < ApplicationController
       next unless building.h3_contents.present?
       
       begin
-        styles = JSON.parse(building.h3_contents || '[]').map { |style| style.gsub(/\s*\d+%$/, '') }
+        styles = StyleNormalizer.normalize_array(
+          JSON.parse(building.h3_contents || '[]')
+        )
         styles.each { |style| style_counts[style] += 1 }
       rescue JSON::ParserError => e
         Rails.logger.error "Failed to parse h3_contents for building #{building.id}: #{e.message}"
