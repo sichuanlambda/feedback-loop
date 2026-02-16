@@ -90,15 +90,30 @@ class ArchitectureExplorerController < ApplicationController
 
   def by_style
     @style_name = params[:style_name]
-    @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ? AND visible_in_library = ?", "%#{@style_name.downcase}%", true).order(created_at: :desc)
 
-    @architecture_styles = BuildingAnalysis.pluck(:h3_contents).compact.map do |h3_content|
+    # Find buildings whose normalized styles include this style name
+    # We still use LIKE for the DB query, but normalize the display
+    canonical = StyleNormalizer.normalize(@style_name)
+    
+    # Search for buildings that match either the canonical name or any of its variants
+    variants = StyleNormalizer::CANONICAL_STYLES[canonical] || [@style_name.downcase]
+    conditions = variants.map { |v| "LOWER(h3_contents) LIKE ?" }
+    values = variants.map { |v| "%#{v}%" }
+    
+    @analyzed_buildings = BuildingAnalysis
+      .where(visible_in_library: true)
+      .where(conditions.join(' OR '), *values)
+      .order(created_at: :desc)
+
+    @style_name = canonical  # Display the canonical name
+
+    @architecture_styles = BuildingAnalysis.pluck(:h3_contents).compact.flat_map do |h3_content|
       begin
-        JSON.parse(h3_content || '[]').map { |style| style.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
+        StyleNormalizer.normalize_array(JSON.parse(h3_content || '[]'))
       rescue JSON::ParserError
         []
       end
-    end.flatten.uniq.sort.first(15)
+    end.uniq.sort.first(20)
 
     render 'architecture_explorer/building_library', layout: 'application'
   end
@@ -156,10 +171,20 @@ class ArchitectureExplorerController < ApplicationController
       @html_content = @building_analysis.html_content
       @image_url = @building_analysis.image_url # Make the image URL available in the view
 
-      # Extract and clean H3 contents from the HTML content
-      h3_contents = extract_h3s(@html_content)
-      @h3_contents = clean_h3_contents(h3_contents)
-      Rails.logger.debug "Cleaned H3 contents for show: #{@h3_contents.inspect}"
+      # Use stored normalized styles, falling back to re-extraction from HTML
+      if @building_analysis.h3_contents.present?
+        begin
+          @h3_contents = StyleNormalizer.normalize_array(
+            JSON.parse(@building_analysis.h3_contents)
+          )
+        rescue JSON::ParserError
+          @h3_contents = []
+        end
+      else
+        h3_contents = extract_h3s(@html_content)
+        @h3_contents = StyleNormalizer.normalize_array(clean_h3_contents(h3_contents))
+      end
+      Rails.logger.debug "Normalized H3 contents for show: #{@h3_contents.inspect}"
     else
       redirect_to root_path, alert: "Analysis not found"
     end
@@ -550,18 +575,15 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def normalize_h3_contents(h3_contents)
-    # Strip special characters and numbers, and ensure no duplicates
-    normalized_contents = h3_contents.map do |content|
-      content.gsub(/[^a-zA-Z\s]/, '').strip # Remove special characters and numbers
-    end.uniq # Remove duplicates
-
-    normalized_contents
+    StyleNormalizer.normalize_array(h3_contents)
   end
 
   def calculate_style_metrics
     style_counts = Hash.new(0)
     @analyzed_buildings.each do |building|
-      styles = JSON.parse(building.h3_contents || '[]').map { |style| style.gsub(/\s*\d+%$/, '') }
+      styles = StyleNormalizer.normalize_array(
+        JSON.parse(building.h3_contents || '[]')
+      )
       styles.each { |style| style_counts[style] += 1 }
     end
     @style_frequency = style_counts.sort_by { |_style, count| -count }

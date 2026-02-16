@@ -1,147 +1,122 @@
 module StyleNormalizer
-  STYLE_MAPPINGS = {
-    /\b(arts?[\s&-]*crafts?|craftsman)\b/i => "Arts and Crafts",
-    /\bart[\s-]*deco\b/i => "Art Deco",
-    /\bmid[\s-]*century[\s-]*modern\b/i => "Mid-Century Modern",
-    /\bmodern\b/i => "Modern",
-    /\bcontemporary\b/i => "Contemporary",
-    /\bvictorian\b/i => "Victorian",
-    /\bcolonial\b/i => "Colonial",
-    /\bmediterranean\b/i => "Mediterranean",
-    /\bfarmhouse\b/i => "Farmhouse",
-    /\bcraftsman\b/i => "Craftsman",
-    /\branch\b/i => "Ranch",
-    /\btudor\b/i => "Tudor",
-    /\bminimalist\b/i => "Minimalist",
-    /\bscandinavian\b/i => "Scandinavian",
-    /\bindustrial\b/i => "Industrial",
-    /\brustic\b/i => "Rustic",
-    /\btraditional\b/i => "Traditional",
-    /\btransitional\b/i => "Transitional",
-    /\beclectic\b/i => "Eclectic",
-    /\bcoastal\b/i => "Coastal",
-    /\btropical\b/i => "Tropical",
-    /\basian\b/i => "Asian",
-    /\bjapanese\b/i => "Japanese",
-    /\bzen\b/i => "Zen",
-    /\bart[\s-]*nouveau\b/i => "Art Nouveau",
-    /\bbaroque\b/i => "Baroque",
-    /\brococo\b/i => "Rococo",
-    /\bneoclassical\b/i => "Neoclassical",
-    /\bgothic\b/i => "Gothic",
-    /\brenaissance\b/i => "Renaissance",
-    /\bshabby[\s-]*chic\b/i => "Shabby Chic",
-    /\bfrench[\s-]*country\b/i => "French Country",
-    /\bsouthwestern\b/i => "Southwestern",
-    /\bhollywood[\s-]*regency\b/i => "Hollywood Regency",
-    /\bart[\s-]*moderne\b/i => "Art Moderne",
-    /\bbrutalist\b/i => "Brutalist",
-    /\bpostmodern\b/i => "Postmodern",
-    /\bdeconstructivist\b/i => "Deconstructivist",
-    /\bhigh[\s-]*tech\b/i => "High-Tech",
-    /\borganic\b/i => "Organic",
-    /\bprairie[\s-]*style\b/i => "Prairie Style",
-    /\bshaker\b/i => "Shaker",
-    /\bbauhaus\b/i => "Bauhaus",
-    /\bgreek[\s-]*revival\b/i => "Greek Revival",
-    /\bitalian[\s-]*renaissance\b/i => "Italian Renaissance",
-    /\bspanish[\s-]*colonial\b/i => "Spanish Colonial",
-    /\bcape[\s-]*cod\b/i => "Cape Cod",
-    /\bgeorgian\b/i => "Georgian",
-    /\bfederal\b/i => "Federal",
-    /\bqueen[\s-]*anne\b/i => "Queen Anne",
-    /\bmission[\s-]*revival\b/i => "Mission Revival",
-    /\bpueblo[\s-]*revival\b/i => "Pueblo Revival",
-    /\bbeaux[\s-]*arts\b/i => "Beaux-Arts",
-    /\binternational[\s-]*style\b/i => "International Style",
-    /\bcontemporary[\s-]*modern\b/i => "Contemporary Modern",
-    /\bmodern[\s-]*farmhouse\b/i => "Modern Farmhouse",
-    /\bboho\b/i => "Bohemian",
-    /\bmediterranean[\s-]*revival\b/i => "Mediterranean Revival",
-    /\bspanish[\s-]*revival\b/i => "Spanish Revival",
-    /\bfrench[\s-]*provincial\b/i => "French Provincial",
-    /\bchalet\b/i => "Chalet",
-    /\bprovincial\b/i => "Provincial",
-    /\bsouthern\b/i => "Southern",
-    /\bnordic\b/i => "Nordic",
-    /\bwabi[\s-]*sabi\b/i => "Wabi-Sabi",
-    /\blagom\b/i => "Lagom",
-    /\bhygge\b/i => "Hygge",
-    /\bfeng[\s-]*shui\b/i => "Feng Shui",
-    /\bvintage\b/i => "Vintage",
-    /\bretro\b/i => "Retro",
-    /\bsteampunk\b/i => "Steampunk",
-    /\bbiophilic\b/i => "Biophilic",
-    /\bsustainable\b/i => "Sustainable",
-    /\beco[\s-]*friendly\b/i => "Eco-Friendly",
-    /\bgreen\b/i => "Green",
-    /\bsmart[\s-]*home\b/i => "Smart Home",
-    /\bminimalism\b/i => "Minimalist",
-    /\bmaximalism\b/i => "Maximalist",
-    /\bgrandmillennial\b/i => "Grandmillennial",
-    /\bcottagecore\b/i => "Cottagecore",
-    /\bjaponisme\b/i => "Japonisme",
-    /\bwabi[\s-]*sabi\b/i => "Wabi-Sabi",
-    /\bhampton\b/i => "Hamptons",
-    /\bcoastal[\s-]*grandmother\b/i => "Coastal Grandmother",
-    /\bscandi\b/i => "Scandinavian",
-    # Add more specific multi-word styles
-    /\bscandinavian[\s-]*minimalist\b/i => "Scandinavian Minimalist",
-    /\bindustrial[\s-]*loft\b/i => "Industrial Loft",
-    /\bboho[\s-]*eclectic\b/i => "Boho Eclectic",
-    /\bfarmhouse[\s-]*chic\b/i => "Farmhouse Chic",
-    /\brustic[\s-]*modern\b/i => "Rustic Modern",
-    /\bcoastal[\s-]*farmhouse\b/i => "Coastal Farmhouse",
-    /\bmodern[\s-]*industrial\b/i => "Modern Industrial",
-    /\btraditional[\s-]*contemporary\b/i => "Traditional Contemporary",
-    /\beclectic[\s-]*bohemian\b/i => "Eclectic Bohemian",
-    /\bminimalist[\s-]*scandinavian\b/i => "Minimalist Scandinavian",
-    # Additional styles
-    /\bitalianate\b/i => "Italianate",
-    /\bbyzantine\b/i => "Byzantine",
-    /\bromanesque\b/i => "Romanesque",
-    /\bcarpenter[\s-]*gothic\b/i => "Carpenter Gothic",
-    /\bchateauesque\b/i => "Chateauesque",
-    /\bexotic[\s-]*revival\b/i => "Exotic Revival",
-    /\bfolk[\s-]*victorian\b/i => "Folk Victorian",
-    /\bitalian[\s-]*renaissance\b/i => "Italian Renaissance",
-    /\bjacobean\b/i => "Jacobean",
-    /\bmission\b/i => "Mission",
-    /\bneogothic\b/i => "Neo-Gothic",
-    /\bneorenaissance\b/i => "Neo-Renaissance",
-    /\bneoromanesque\b/i => "Neo-Romanesque",
-    /\bneovernacular\b/i => "Neo-Vernacular",
-    /\bpalladian\b/i => "Palladian",
-    /\bpicturesque\b/i => "Picturesque",
-    /\bpueblo\b/i => "Pueblo",
-    /\bregency\b/i => "Regency",
-    /\bromantic\b/i => "Romantic",
-    /\bsecond[\s-]*empire\b/i => "Second Empire",
-    /\bspanish[\s-]*revival\b/i => "Spanish Revival",
-    /\bstreamline[\s-]*moderne\b/i => "Streamline Moderne",
-    /\bvernacular\b/i => "Vernacular",
-    /\bwest[\s-]*indian\b/i => "West Indian"
-  }
+  # Canonical style taxonomy with synonyms/variants that map to each canonical name.
+  # When GPT or user input produces a variant, we normalize to the canonical form.
+  # Ordered roughly chronologically within each era.
+  CANONICAL_STYLES = {
+    # Ancient & Classical
+    "Ancient Egyptian"          => ["egyptian", "ancient egyptian", "egyptian revival"],
+    "Classical Greek"           => ["classical greek", "greek", "hellenistic"],
+    "Classical Roman"           => ["classical roman", "roman", "roman architecture"],
+    "Byzantine"                 => ["byzantine", "neo-byzantine", "neo byzantine"],
+    "Romanesque"                => ["romanesque", "neo-romanesque", "neoromantesque", "richardsonian romanesque"],
+    "Gothic"                    => ["gothic", "gothic architecture", "neo-gothic", "neogothic", "gothic revival", "carpenter gothic", "rayonnant"],
+    "Renaissance"               => ["renaissance", "neo-renaissance", "neorenaissance", "italian renaissance"],
+    "Baroque"                   => ["baroque", "sicilian baroque"],
+    "Rococo"                    => ["rococo"],
+    "Palladian"                 => ["palladian", "adam style"],
+
+    # 18th-19th Century Revival & Classical
+    "Neoclassical"              => ["neoclassical", "neoclassicism", "classical revival", "greek revival", "federal", "federal style", "stripped classicism", "new classical"],
+    "Beaux-Arts"                => ["beaux-arts", "beaux arts", "city beautiful", "city beautiful movement"],
+    "Victorian"                 => ["victorian", "folk victorian", "queen anne", "second empire", "edwardian"],
+    "Colonial Revival"          => ["colonial", "colonial revival", "dutch colonial", "dutch colonial revival", "georgian", "georgian revival", "cape cod"],
+    "Tudor Revival"             => ["tudor", "tudor revival", "jacobean", "elizabethan", "scottish baronial"],
+    "Italianate"                => ["italianate"],
+    "Romanesque Revival"        => ["romanesque revival", "richardsonian romanesque"],
+
+    # Arts & Crafts / Early 20th Century
+    "Arts and Crafts"           => ["arts and crafts", "arts & crafts", "art & crafts", "craftsman", "shingle style", "american foursquare"],
+    "Art Nouveau"               => ["art nouveau", "vienna secession", "jugendstil", "japonism", "japonisme"],
+    "Art Deco"                  => ["art deco", "zigzag moderne", "streamline moderne", "art moderne"],
+
+    # Mission / Spanish / Mediterranean
+    "Mediterranean Revival"     => ["mediterranean", "mediterranean revival", "spanish colonial", "spanish colonial revival", "spanish revival", "mission", "mission revival", "pueblo", "pueblo revival", "territorial revival"],
+
+    # Modernism (the big bucket — this is where most overlap happens)
+    "Modernism"                 => [
+      "modern", "modern movement", "modernism", "modernist",
+      "international style", "international",
+      "bauhaus", "de stijl",
+      "functionalism", "functionalist",
+      "constructivism", "suprematism",
+      "new objectivity", "rationalism",
+      "scandinavian modern",
+      "tropical modernism"
+    ],
+    "Prairie Style"             => ["prairie style", "prairie", "usonian"],
+    "Expressionism"             => ["expressionism", "expressionist", "blobitecture"],
+    "Futurism"                  => ["futurism", "futurist", "neo-futurism", "neo futurism"],
+    "Mid-Century Modern"        => ["mid-century modern", "mid century modern", "mcm"],
+
+    # Brutalism & Late Modernism
+    "Brutalism"                 => ["brutalism", "brutalist", "new brutalism"],
+    "Structuralism"             => ["structuralism", "structural expressionism", "structuralist"],
+    "Metabolism"                => ["metabolism", "metabolist"],
+
+    # Postmodernism & Contemporary
+    "Postmodernism"             => ["postmodernism", "postmodern", "post-modernism", "post modernism", "post-modern"],
+    "Deconstructivism"          => ["deconstructivism", "deconstructivist", "post-structuralism"],
+    "High-Tech"                 => ["high-tech", "high tech", "hightech", "hi-tech"],
+    "Critical Regionalism"      => ["critical regionalism", "regionalism", "neo-vernacular", "neovernacular", "vernacular"],
+    "Parametricism"             => ["parametricism", "parametric", "computational design"],
+    "Contemporary"              => ["contemporary", "contemporary modern", "modern contemporary"],
+
+    # Sustainable / Green
+    "Sustainable Architecture"  => ["sustainable", "sustainable architecture", "eco-friendly", "eco friendly", "green architecture", "biophilic", "green"],
+
+    # Organic
+    "Organic Architecture"      => ["organic architecture", "organic"],
+
+    # Minimalism
+    "Minimalism"                => ["minimalism", "minimalist", "minimalistic"],
+
+    # Regional / Other
+    "Chicago School"            => ["chicago school"],
+    "Chateauesque"              => ["chateauesque"],
+    "Indo-Saracenic"            => ["indo-saracenic", "saracen"],
+    "Mayan Revival"             => ["mayan revival"],
+  }.freeze
+
+  # Build a reverse lookup: lowercase variant → canonical name
+  VARIANT_TO_CANONICAL = {}.tap do |map|
+    CANONICAL_STYLES.each do |canonical, variants|
+      variants.each { |v| map[v.downcase.strip] = canonical }
+      # Also map the canonical name itself
+      map[canonical.downcase.strip] = canonical
+    end
+  end.freeze
 
   def self.normalize(style)
     return nil if style.nil?
     return style if style.is_a?(Array)
 
-    normalized = style.to_s.strip.downcase
-    normalized = remove_percentage(normalized)
+    cleaned = style.to_s.strip
+    cleaned = remove_percentage(cleaned)
+    cleaned = cleaned.gsub(/[:\-–—]?\s*\d+\s*%?\s*$/, '').strip  # Remove trailing percentages
+    cleaned = cleaned.gsub(/\A[\s:]+|[\s:]+\z/, '')               # Remove leading/trailing colons
 
-    # Check for exact matches first
-    STYLE_MAPPINGS.each do |pattern, replacement|
-      return replacement if normalized.match?(/\A#{pattern}\z/i)
+    lookup = cleaned.downcase.strip
+
+    # Direct match
+    return VARIANT_TO_CANONICAL[lookup] if VARIANT_TO_CANONICAL.key?(lookup)
+
+    # Try progressively looser matching
+    # 1. Remove common suffixes/prefixes
+    simplified = lookup
+      .gsub(/\s*(style|architecture|design|movement|school|revival)\s*/i, ' ')
+      .strip
+      .gsub(/\s+/, ' ')
+
+    return VARIANT_TO_CANONICAL[simplified] if VARIANT_TO_CANONICAL.key?(simplified)
+
+    # 2. Check if any canonical variant is contained in the input
+    VARIANT_TO_CANONICAL.each do |variant, canonical|
+      next if variant.length < 4 # Skip very short variants to avoid false positives
+      return canonical if lookup.include?(variant)
     end
 
-    # If no exact match, check for partial matches
-    STYLE_MAPPINGS.each do |pattern, replacement|
-      return replacement if normalized.match?(pattern)
-    end
-
-    # If no match found, capitalize each word
-    normalized.split.map(&:capitalize).join(' ')
+    # 3. If no match, return cleaned-up title case
+    cleaned.split.map(&:capitalize).join(' ')
   end
 
   def self.remove_percentage(style)
@@ -149,6 +124,21 @@ module StyleNormalizer
   end
 
   def self.normalize_array(styles)
-    Array(styles).map { |style| normalize(style) }.compact.uniq
+    Array(styles)
+      .map { |style| normalize(style) }
+      .compact
+      .reject(&:blank?)
+      .uniq  # Remove duplicates after normalization
+  end
+
+  # Returns all canonical style names (useful for dropdowns, filters)
+  def self.all_canonical_styles
+    CANONICAL_STYLES.keys.sort
+  end
+
+  # Check if a style string would normalize to a known canonical style
+  def self.known?(style)
+    normalized = normalize(style)
+    CANONICAL_STYLES.key?(normalized)
   end
 end
