@@ -28,7 +28,6 @@
 </head>
 <body>
 
-<% if @custom_nav %>
 <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background: #F4F7FA; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
   <div class="container-fluid">
     <a class="navbar-brand" href="/architecture_designer/step1" style="color: #01161e;">Architecture Helper</a>
@@ -57,37 +56,6 @@
     </div>
   </div>
 </nav>
-<% else %>
-<nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background: #F4F7FA; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/" style="color: #01161e;">Nathan's Platform</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav mr-auto">
-        <a class="nav-item nav-link" href="/feedbacks/dashboard">Metrics 📊</a>
-        <a class="nav-item nav-link" href="/roastery">Roastery 🔥</a>
-        <a class="nav-item nav-link" href="/screenshot_searcher">Img->Text Extractor 🔍</a>
-        <a class="nav-item nav-link" href="/rate_my_dog">Rate my 🐶</a>
-        <a class="nav-item nav-link" href="/architecture_designer/step1">Architecture Helper 🏛️</a>
-      </div>
-      <div class="navbar-nav ml-auto">
-        <% if user_signed_in? %>
-          <% if current_user.admin? %>
-            <%= link_to 'Admin Panel', admin_dashboard_path, class: 'nav-item nav-link text-warning' %>
-          <% end %>
-          <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
-          <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
-        <% else %>
-          <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
-          <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
-        <% end %>
-      </div>
-    </div>
-  </div>
-</nav>
-<% end %>
 
 <div class="container mt-4">
   <%= yield %>
@@ -112,7 +80,5 @@
     });
   });
 </script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

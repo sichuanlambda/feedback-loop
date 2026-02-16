@@ -133,10 +133,6 @@ Rails.application.routes.draw do
   get 'thumbs_down', to: 'feedbacks#thumbs_down'
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Stripe Checkout Route
-  post '/stripe_checkout', to: 'stripe#checkout'
-  post '/create_stripe_checkout_session', to: 'stripe#create_checkout_session'
-
   namespace :api do
     resources :building_analyses, only: [:index]
   end

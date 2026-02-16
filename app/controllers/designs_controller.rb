@@ -91,9 +91,6 @@ class DesignsController < ApplicationController
   end
 
   def send_image_generation_request(prompt)
-    Rails.logger.debug "GPT Response: #{response.body}"
-    response.code == 200 ? JSON.parse(response.body) : nil
-
     body = {
       model: 'dall-e-3',
       prompt: prompt,
