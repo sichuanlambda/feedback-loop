@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1117;
+    color: #e1e4e8;
+    padding: 24px;
+    line-height: 1.5;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #21262d;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #f0f3f6;
+    letter-spacing: -0.3px;
+  }
+  .header .emoji { font-size: 26px; }
+  .header .timestamp {
+    margin-left: auto;
+    font-size: 13px;
+    color: #6e7681;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .card.full { grid-column: 1 / -1; }
+  .card h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #6e7681;
+    margin-bottom: 14px;
+  }
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #21262d;
+  }
+  .status-row:last-child { border-bottom: none; }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.green { background: #3fb950; }
+  .dot.yellow { background: #d29922; }
+  .dot.blue { background: #58a6ff; }
+  .dot.gray { background: #484f58; }
+  .dot.red { background: #f85149; }
+  .status-row .label {
+    font-size: 14px;
+    color: #e1e4e8;
+    flex: 1;
+  }
+  .status-row .meta {
+    font-size: 12px;
+    color: #6e7681;
+    text-align: right;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+  .tag.merged { background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44; }
+  .tag.open { background: #23863622; color: #3fb950; border: 1px solid #23863644; }
+  .tag.pending { background: #d2992222; color: #d29922; border: 1px solid #d2992244; }
+  .tag.done { background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44; }
+  .tag.planned { background: #48505822; color: #8b949e; border: 1px solid #48505844; }
+
+  .timeline { padding-left: 0; list-style: none; }
+  .timeline li {
+    position: relative;
+    padding: 8px 0 8px 20px;
+    font-size: 13px;
+    color: #8b949e;
+    border-left: 2px solid #21262d;
+  }
+  .timeline li::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 14px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #30363d;
+    border: 2px solid #484f58;
+  }
+  .timeline li.active::before { background: #3fb950; border-color: #3fb950; }
+  .timeline li .time { color: #484f58; font-size: 11px; }
+  .timeline li strong { color: #e1e4e8; }
+
+  .project-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .project-header .name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f0f3f6;
+  }
+  .project-header .url {
+    font-size: 12px;
+    color: #484f58;
+  }
+  .progress-bar {
+    height: 6px;
+    background: #21262d;
+    border-radius: 3px;
+    margin: 10px 0;
+    overflow: hidden;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #1f6feb, #58a6ff);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: #6e7681;
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .stat {
+    text-align: center;
+    padding: 12px;
+    background: #0d1117;
+    border-radius: 8px;
+  }
+  .stat .number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #58a6ff;
+  }
+  .stat .desc {
+    font-size: 11px;
+    color: #6e7681;
+    margin-top: 2px;
+  }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+    .stat-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="emoji">🏛️</span>
+  <h1>Atlas Dashboard</h1>
+  <span class="timestamp">Updated Feb 16, 2026 · 11:52 UTC</span>
+</div>
+
+<!-- Stats -->
+<div class="card full" style="margin-bottom: 16px;">
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="number">2</div>
+      <div class="desc">PRs Open</div>
+    </div>
+    <div class="stat">
+      <div class="number">4</div>
+      <div class="desc">Bugs Fixed</div>
+    </div>
+    <div class="stat">
+      <div class="number">1</div>
+      <div class="desc">Day Active</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- Active Project -->
+  <div class="card full">
+    <h2>🏗️ Active Project</h2>
+    <div class="project-header">
+      <span class="name">Architecture Helper</span>
+      <span class="url">app.architecturehelper.com</span>
+    </div>
+    <div class="progress-bar"><div class="fill" style="width: 25%"></div></div>
+    <div class="progress-label">Phase 1: Cleanup & Stability — 25% complete</div>
+  </div>
+
+  <!-- Pull Requests -->
+  <div class="card">
+    <h2>📦 Pull Requests</h2>
+    <div class="status-row">
+      <span class="dot green"></span>
+      <span class="label">PR #1 — Fix crashes & branding</span>
+      <span class="tag open">Ready</span>
+    </div>
+    <div class="status-row">
+      <span class="dot green"></span>
+      <span class="label">PR #2 — Pagination & lazy load</span>
+      <span class="tag open">Ready</span>
+    </div>
+    <div class="status-row">
+      <span class="dot gray"></span>
+      <span class="label">PR #3 — SF & Chicago guides</span>
+      <span class="tag planned">Planned</span>
+    </div>
+  </div>
+
+  <!-- Findings -->
+  <div class="card">
+    <h2>🔍 Key Findings</h2>
+    <div class="status-row">
+      <span class="dot red"></span>
+      <span class="label">Monetization partially broken</span>
+      <span class="meta">No checkout flow</span>
+    </div>
+    <div class="status-row">
+      <span class="dot green"></span>
+      <span class="label">AI style tagging</span>
+      <span class="meta">Working ✓</span>
+    </div>
+    <div class="status-row">
+      <span class="dot yellow"></span>
+      <span class="label">City guide AI generation</span>
+      <span class="meta">Stubbed out</span>
+    </div>
+    <div class="status-row">
+      <span class="dot yellow"></span>
+      <span class="label">City field not auto-set</span>
+      <span class="meta">On create</span>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="card full">
+    <h2>📋 Activity Log</h2>
+    <ul class="timeline">
+      <li class="active">
+        <span class="time">11:52</span> — <strong>PR #2 pushed</strong> — Pagination + lazy loading for building library
+      </li>
+      <li class="active">
+        <span class="time">11:48</span> — <strong>PR #1 pushed</strong> — Fixed 4 crashes, removed Nathan's Platform nav, cleaned duplicate assets
+      </li>
+      <li class="active">
+        <span class="time">11:30</span> — <strong>Codebase audit complete</strong> — Full analysis of tech stack, features, bugs, opportunities
+      </li>
+      <li class="active">
+        <span class="time">11:15</span> — <strong>Repo cloned</strong> — GitHub access configured, feedback-loop repo ready
+      </li>
+      <li>
+        <span class="time">10:45</span> — <strong>Plotzy research complete</strong> — Competitive landscape, positioning analysis delivered
+      </li>
+      <li>
+        <span class="time">Jul 17</span> — <strong>Atlas came online</strong> — First session, identity configured
+      </li>
+    </ul>
+  </div>
+
+  <!-- Roadmap -->
+  <div class="card full">
+    <h2>🗺️ Architecture Helper Roadmap</h2>
+    <div class="status-row">
+      <span class="dot green"></span>
+      <span class="label">Fix crash bugs & clean branding</span>
+      <span class="tag done">Done</span>
+    </div>
+    <div class="status-row">
+      <span class="dot green"></span>
+      <span class="label">Image optimization & pagination</span>
+      <span class="tag done">Done</span>
+    </div>
+    <div class="status-row">
+      <span class="dot yellow"></span>
+      <span class="label">SF & Chicago city guides</span>
+      <span class="tag pending">Next</span>
+    </div>
+    <div class="status-row">
+      <span class="dot gray"></span>
+      <span class="label">Wire up AI city guide generation</span>
+      <span class="tag planned">Planned</span>
+    </div>
+    <div class="status-row">
+      <span class="dot gray"></span>
+      <span class="label">Fix Stripe checkout flow</span>
+      <span class="tag planned">Planned</span>
+    </div>
+    <div class="status-row">
+      <span class="dot gray"></span>
+      <span class="label">Auto-populate city field on create</span>
+      <span class="tag planned">Planned</span>
+    </div>
+    <div class="status-row">
+      <span class="dot gray"></span>
+      <span class="label">Content marketing — Reddit, X posts</span>
+      <span class="tag planned">Planned</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
