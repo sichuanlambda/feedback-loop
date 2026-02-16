@@ -241,28 +241,20 @@ class ArchitectureExplorerController < ApplicationController
     end
 
     begin
-      result = process_building_image(params[:image])
-      Rails.logger.debug "Analysis result: #{result.inspect}"
+      address = params[:address].presence || "N/A"
 
-      # Extract H3 contents from the HTML content
-      html_content = result&.fetch(:html_content, '')
-      h3_contents = extract_h3s(html_content)
-      Rails.logger.debug "H3 Contents before normalization: #{h3_contents.inspect}"
-
-      # Normalize the H3 contents
-      normalized_h3_contents = normalize_h3_contents(h3_contents)
-      Rails.logger.debug "Normalized styles after normalization: #{normalized_h3_contents.inspect}"
-
+      # Create record immediately (html_content nil triggers "Hang tight" on show page)
       @building_analysis = BuildingAnalysis.create!(
         user: current_user,
         image_url: image_url,
-        h3_contents: normalized_h3_contents.to_json,
-        html_content: html_content,
         visible_in_library: true,
-        address: params[:address].presence || "N/A"
+        address: address
       )
 
-      redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: "Analysis complete!"
+      # Enqueue background job for GPT analysis (avoids R12 timeouts)
+      ProcessBuildingAnalysisJob.perform_later(@building_analysis.id, image_url, address)
+
+      redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: "Analysis started! Results will appear shortly."
     rescue => e
       Rails.logger.error "Error in create action: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
