@@ -51,6 +51,33 @@ class Admin::BuildingAnalysesController < ApplicationController
     end
   end
 
+  def bulk_import
+    unless params[:buildings].is_a?(Array)
+      return render json: { error: "Expected 'buildings' array" }, status: :unprocessable_entity
+    end
+
+    results = []
+    params[:buildings].each do |building_params|
+      ba = BuildingAnalysis.create!(
+        user: current_user,
+        address: building_params[:address],
+        name: building_params[:name],
+        image_url: building_params[:image_url],
+        visible_in_library: true
+      )
+
+      if building_params[:image_url].present?
+        ProcessBuildingAnalysisJob.perform_later(ba.id, building_params[:image_url], building_params[:address])
+      end
+
+      results << { id: ba.id, address: ba.address, name: ba.name, status: 'queued' }
+    end
+
+    render json: { imported: results.length, buildings: results }
+  rescue => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
   def bulk_update
     building_analysis_ids = params[:building_analysis_ids]
     action = params[:bulk_action]
@@ -79,6 +106,6 @@ class Admin::BuildingAnalysesController < ApplicationController
   end
 
   def building_analysis_params
-    params.require(:building_analysis).permit(:image_url, :h3_contents, :html_content, :visible_in_library, :address, :city)
+    params.require(:building_analysis).permit(:image_url, :h3_contents, :html_content, :visible_in_library, :address, :city, :name)
   end
 end

@@ -189,7 +189,7 @@
                                 
                                 <div class="p-3">
                                     <h6 class="mb-2">
-                                        <%= link_to "Building ##{building.id}", admin_building_analysis_path(building), class: 'text-decoration-none' %>
+                                        <%= link_to building.name.presence || "Building ##{building.id}", admin_building_analysis_path(building), class: 'text-decoration-none' %>
                                     </h6>
                                     
                                     <% if building.address.present? && building.address != "N/A" %>

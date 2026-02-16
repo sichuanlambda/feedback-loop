@@ -21,6 +21,7 @@ Rails.application.routes.draw do
         patch :toggle_visibility
       end
       collection do
+        post :bulk_import
         post :bulk_update
       end
     end

@@ -88,6 +88,10 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <%= form.label :name, 'Building Name' %>
+                                    <%= form.text_field :name, class: 'form-control', placeholder: 'e.g., St. Louis Cathedral' %>
+                                </div>
+                                <div class="form-group">
                                     <%= form.label :address, 'Address' %>
                                     <%= form.text_field :address, class: 'form-control' %>
                                 </div>
