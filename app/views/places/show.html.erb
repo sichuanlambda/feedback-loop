@@ -285,6 +285,31 @@ document.addEventListener('DOMContentLoaded', function() {
     updateModalUI();
   });
 
+  // Select All / Deselect All
+  document.getElementById('select-all-btn').addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('.building-checkbox');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+    checkboxes.forEach(cb => {
+      // Only toggle visible cards (respect style filter)
+      const card = cb.closest('.building-card');
+      if (card && card.style.display !== 'none') {
+        cb.checked = !allChecked;
+        if (cb.checked) {
+          card.classList.add('selected');
+        } else {
+          card.classList.remove('selected');
+        }
+      }
+    });
+
+    this.innerHTML = allChecked
+      ? '<i class="fas fa-check-double"></i> Select All'
+      : '<i class="fas fa-times"></i> Deselect All';
+
+    updateSelectedCount();
+  });
+
   // Update modal UI based on current mode
   function updateModalUI() {
     const modalTitle = document.getElementById('modal-title-text');
@@ -2140,8 +2165,11 @@ ${window.location.origin}
           </div>
 
           <div class="buildings-selection">
-            <div class="d-flex align-items-center mb-3">
-              <h6 id="buildings-selection-title" class="mb-0 text-center w-100">Select Buildings for Your Tour</h6>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 id="buildings-selection-title" class="mb-0">Select Buildings for Your Tour</h6>
+              <button type="button" class="btn btn-sm btn-outline-primary" id="select-all-btn">
+                <i class="fas fa-check-double"></i> Select All
+              </button>
             </div>
             <div class="buildings-grid" id="buildings-grid">
               <!-- Buildings will be populated by JavaScript -->

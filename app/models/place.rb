@@ -50,7 +50,7 @@ class Place < ApplicationRecord
       latitude: (latitude - 0.1)..(latitude + 0.1),
       longitude: (longitude - 0.1)..(longitude + 0.1),
       visible_in_library: true
-    ).limit(10)
+    )
   end
 
   def best_representative_image

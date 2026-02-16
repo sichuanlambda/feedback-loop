@@ -299,23 +299,21 @@
             position: absolute;
             bottom: 0;
             left: 0;
-            right: 0; /* Ensures the container stretches fully across the bottom of the .grid-item */
+            right: 0;
             display: flex;
-            flex-wrap: nowrap; /* Ensures items are laid out in a single line */
-            overflow-x: auto; /* Allows horizontal scrolling */
-            overflow-y: hidden; /* Prevents vertical overflow */
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-            padding: 5px; /* Adds some padding inside the container */
+            flex-wrap: wrap;
+            gap: 4px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 6px;
         }
 
         .style-pill {
-            flex: 0 0 auto; /* Prevents flex items from growing or shrinking */
-            margin-right: 5px; /* Spacing between pills */
-            font-size: 12px;
-            padding: 5px 10px;
+            flex: 0 0 auto;
+            font-size: 11px;
+            padding: 3px 8px;
             background-color: #0056b3;
             color: white;
-            border-radius: 20px;
+            border-radius: 12px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis; /* Handles overflow text */
@@ -450,8 +448,12 @@
                 <% end %>
                 <!-- Architecture styles container -->
                 <div class="architecture-styles-container">
-                    <% JSON.parse(building.h3_contents || '[]').each do |style| %>
+                    <% styles = JSON.parse(building.h3_contents || '[]') rescue [] %>
+                    <% styles.first(3).each do |style| %>
                         <span class="badge badge-primary style-pill"><%= style %></span>
+                    <% end %>
+                    <% if styles.length > 3 %>
+                        <span class="badge style-pill" style="background-color: rgba(255,255,255,0.25);">+<%= styles.length - 3 %></span>
                     <% end %>
                 </div>
             </div>
