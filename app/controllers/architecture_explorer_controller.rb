@@ -231,6 +231,8 @@ class ArchitectureExplorerController < ApplicationController
 
     image_url = if params[:image].present?
                   upload_image_to_s3(params[:image])
+                elsif params[:external_image_url].present?
+                  params[:external_image_url]
                 elsif params[:previewed_image_url].present?
                   params[:previewed_image_url]
                 end
@@ -248,7 +250,8 @@ class ArchitectureExplorerController < ApplicationController
         user: current_user,
         image_url: image_url,
         visible_in_library: true,
-        address: address
+        address: address,
+        name: params[:building_name].presence
       )
 
       # Enqueue background job for GPT analysis (avoids R12 timeouts)

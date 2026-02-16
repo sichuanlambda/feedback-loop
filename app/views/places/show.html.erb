@@ -1,6 +1,23 @@
 <% content_for :title, @place.meta_title || "#{@place.name} Architecture Guide" %>
 <% content_for :meta_description, @place.meta_description || "Explore the architecture of #{@place.name}. Discover the main architectural styles, notable buildings, and historical context." %>
 
+<% content_for :head do %>
+  <meta property="og:title" content="<%= @place.name %> Architecture Guide | Architecture Helper" />
+  <meta property="og:description" content="<%= @place.meta_description.presence || truncate(strip_tags(@place.description.to_s), length: 160) %>" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="<%= request.original_url %>" />
+  <% og_image = @place.hero_image_url.presence || @place.best_representative_image %>
+  <% if og_image.present? %>
+    <meta property="og:image" content="<%= og_image %>" />
+  <% end %>
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="<%= @place.name %> Architecture Guide" />
+  <meta name="twitter:description" content="<%= @place.meta_description.presence || truncate(strip_tags(@place.description.to_s), length: 160) %>" />
+  <% if og_image.present? %>
+    <meta name="twitter:image" content="<%= og_image %>" />
+  <% end %>
+<% end %>
+
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
 <script>

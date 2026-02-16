@@ -160,6 +160,9 @@
   <div class="row">
     <!-- Left two-thirds for the current content -->
     <div class="col-md-8">
+      <% if @building_analysis.name.present? %>
+        <h2 class="mb-3"><%= @building_analysis.name %></h2>
+      <% end %>
       <% if @html_content.present? %>
         <%= raw @html_content %>
     <% else %>

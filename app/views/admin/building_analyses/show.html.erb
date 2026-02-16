@@ -162,6 +162,12 @@
                                     </span>
                                 </td>
                             </tr>
+                            <% if @building_analysis.name.present? %>
+                                <tr>
+                                    <td><strong>Name:</strong></td>
+                                    <td><%= @building_analysis.name %></td>
+                                </tr>
+                            <% end %>
                             <% if @building_analysis.address.present? && @building_analysis.address != "N/A" %>
                                 <tr>
                                     <td><strong>Address:</strong></td>
