@@ -102,8 +102,17 @@ class ArchitectureExplorerController < ApplicationController
 
   def by_style
     @style_name = params[:style_name]
-    @buildings = Building.where('styles @> ?', "{#{@style_name}}") # Assuming styles are stored in an array column
-    render :indexturn
+    @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ? AND visible_in_library = ?", "%#{@style_name.downcase}%", true).order(created_at: :desc)
+
+    @architecture_styles = BuildingAnalysis.pluck(:h3_contents).compact.map do |h3_content|
+      begin
+        JSON.parse(h3_content || '[]').map { |style| style.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
+      rescue JSON::ParserError
+        []
+      end
+    end.flatten.uniq.sort.first(15)
+
+    render 'architecture_explorer/building_library', layout: 'application'
   end
 
   def by_location
