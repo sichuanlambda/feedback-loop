@@ -75,7 +75,7 @@ class Place < ApplicationRecord
       next unless building.h3_contents.present?
       
       begin
-        styles = JSON.parse(building.h3_contents)
+        styles = StyleNormalizer.normalize_array(JSON.parse(building.h3_contents))
         styles.each { |style| style_counts[style] += 1 }
       rescue JSON::ParserError
         next
