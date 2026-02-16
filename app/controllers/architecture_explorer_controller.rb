@@ -40,14 +40,11 @@ class ArchitectureExplorerController < ApplicationController
 
     if params[:search].present?
       search_term = params[:search].downcase
-      # Fetches records that contain the search term in `h3_contents` and are visible in the library
       @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ? AND visible_in_library = ?", "%#{search_term}%", true)
     else
-      # Fetches all records that are visible in the library when there is no search term
       @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
     end
-    # Orders the results by creation date in descending order for both cases
-    @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
+    @analyzed_buildings = @analyzed_buildings.order(created_at: :desc).page(params[:page]).per(24)
 
     # Extract all styles from h3_contents, clean them, and assign to @architecture_styles
     all_styles = BuildingAnalysis.pluck(:h3_contents).compact.map do |h3_content|
@@ -59,15 +56,6 @@ class ArchitectureExplorerController < ApplicationController
       end
     end.flatten.uniq.sort.first(15)
     @architecture_styles = all_styles
-
-    # Handling the search functionality
-    if params[:search].present?
-      search_term = params[:search].downcase
-      @analyzed_buildings = BuildingAnalysis.where("LOWER(h3_contents) LIKE ? AND visible_in_library = ?", "%#{search_term}%", true)
-    else
-      @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
-    end
-    @analyzed_buildings = @analyzed_buildings.order(created_at: :desc)
 
     render 'architecture_explorer/building_library', layout: 'application'
   end
