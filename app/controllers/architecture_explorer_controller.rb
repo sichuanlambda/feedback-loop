@@ -97,26 +97,29 @@ class ArchitectureExplorerController < ApplicationController
     conditions = variants.map { |v| "LOWER(h3_contents) LIKE ?" }
     values = variants.map { |v| "%#{v}%" }
 
-    @analyzed_buildings = BuildingAnalysis
+    all_buildings = BuildingAnalysis
       .where(visible_in_library: true)
       .where(conditions.join(' OR '), *values)
       .order(created_at: :desc)
 
+    @total_building_count = all_buildings.count
+    @analyzed_buildings = all_buildings.page(params[:page]).per(24)
+
     @style_name = canonical
 
-    # Cities that have this style
-    @cities = @analyzed_buildings.map { |b| b.address.to_s.split(',').last(2).first.to_s.strip }.reject(&:blank?).tally.sort_by { |_c, n| -n }
+    # Cities that have this style (use unpaginated query for full city data)
+    @cities = all_buildings.pluck(:address).compact.map { |a| a.split(',').last(2).first.to_s.strip }.reject(&:blank?).tally.sort_by { |_c, n| -n }
     @places = begin
       Place.where("LOWER(name) IN (?)", @cities.map { |c, _| c.downcase }).limit(12)
     rescue
       []
     end
 
-    # Co-occurring / related styles
+    # Co-occurring / related styles (use full set, not paginated)
     style_tally = Hash.new(0)
-    @analyzed_buildings.each do |b|
+    all_buildings.pluck(:h3_contents).compact.each do |h|
       begin
-        styles = StyleNormalizer.normalize_array(JSON.parse(b.h3_contents || '[]'))
+        styles = StyleNormalizer.normalize_array(JSON.parse(h))
         styles.each { |s| style_tally[s] += 1 unless s == @style_name }
       rescue JSON::ParserError
         next

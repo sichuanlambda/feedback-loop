@@ -1,5 +1,5 @@
-<% content_for :title, "#{@style_name} Architecture — History, Buildings & Examples | Architecture Helper" %>
-<% content_for :meta_description do %>Explore <%= @style_name %> architecture: history, key characteristics, famous examples, and <%= @analyzed_buildings.size %> buildings in our library. A comprehensive guide to <%= @style_name %> design.<% end %>
+<% content_for :title, "#{@style_name} Architecture — History, Buildings & Examples" %>
+<% content_for :meta_description do %>Explore <%= @style_name %> architecture: history, key characteristics, famous examples, and <%= @total_building_count %> buildings in our library. A comprehensive guide to <%= @style_name %> design.<% end %>
 
 <%
 style_content = {
@@ -1190,7 +1190,7 @@ hero_building = @analyzed_buildings.first
             %>
             <div class="famous-card">
               <% if matched&.image_url.present? %>
-                <img src="<%= matched.image_url %>" alt="<%= ex[:name] %>">
+                <img src="<%= matched.image_url %>" alt="<%= ex[:name] %>" loading="lazy" decoding="async">
               <% end %>
               <div class="fc-body">
                 <h4><%= ex[:name] %></h4>
@@ -1210,12 +1210,12 @@ hero_building = @analyzed_buildings.first
 
     <!-- Buildings in Our Library -->
     <% if @analyzed_buildings.any? %>
-      <h2>Buildings in Our Library (<%= @analyzed_buildings.size %>)</h2>
+      <h2>Buildings in Our Library (<%= @total_building_count %>)</h2>
       <div class="building-grid">
-        <% @analyzed_buildings.limit(24).each do |building| %>
+        <% @analyzed_buildings.each do |building| %>
           <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
             <% if building.image_url.present? %>
-              <img src="<%= building.image_url %>" alt="<%= building.name || building.address || 'Building' %>" loading="lazy">
+              <img src="<%= building.image_url %>" alt="<%= building.name || building.address || 'Building' %>" loading="lazy" width="300" height="160" decoding="async">
             <% end %>
             <div class="bc-body">
               <h4><%= building.name.presence || building.address.to_s.split(',').first || 'Building' %></h4>
@@ -1223,6 +1223,9 @@ hero_building = @analyzed_buildings.first
             </div>
           </a>
         <% end %>
+      </div>
+      <div style="display: flex; justify-content: center; margin: 2rem 0;">
+        <%= paginate @analyzed_buildings %>
       </div>
     <% end %>
 
