@@ -1,0 +1,88 @@
+<% content_for :title, "Architectural Styles Guide — Architecture Helper" %>
+<% content_for :meta_description, "Explore #{@styles_with_counts.size} architectural styles across #{@total_buildings} buildings. From Art Deco to Gothic Revival, discover how design movements shape our cities." %>
+
+<%
+STYLE_DESCRIPTIONS = {
+  "Art Deco" => "Bold geometric patterns, rich colors, and lavish ornamentation from the 1920s–1930s.",
+  "Art Nouveau" => "Organic curves, floral motifs, and flowing lines inspired by natural forms, popular 1890–1910.",
+  "Baroque" => "Grand, dramatic architecture with ornate detail, bold curves, and a sense of movement, originating in 17th-century Europe.",
+  "Bauhaus" => "Functional minimalism born in 1920s Germany, uniting art and industrial design with clean geometry.",
+  "Beaux-Arts" => "Lavish classical style taught at Paris's École des Beaux-Arts, featuring grand axes, sculptures, and rich detailing.",
+  "Brutalism" => "Raw concrete, massive forms, and bold geometric shapes, prominent from the 1950s to 1970s.",
+  "Byzantine" => "Domes, mosaics, and richly decorated interiors rooted in the Eastern Roman Empire tradition.",
+  "Chicago School" => "Pioneering steel-frame skyscrapers with large windows and restrained ornament, born in 1880s Chicago.",
+  "Classical" => "Rooted in ancient Greek and Roman ideals of symmetry, proportion, and columnar orders.",
+  "Colonial" => "Symmetrical facades, central doorways, and practical design brought by European settlers to the Americas.",
+  "Contemporary" => "Current-era design emphasizing sustainability, mixed materials, and expressive, site-responsive forms.",
+  "Craftsman" => "Low-pitched roofs, exposed rafters, and handcrafted details celebrating artisanal construction, popular 1900–1930.",
+  "Deconstructivism" => "Fragmented, unpredictable forms that challenge conventional geometry, emerging in the late 1980s.",
+  "Edwardian" => "Lighter, airier successor to Victorian design popular in early 1900s Britain, with classical and Arts & Crafts influences.",
+  "Federal" => "American neoclassical style of the early republic, marked by refined symmetry, fanlights, and delicate ornament.",
+  "Georgian" => "Symmetrical brick or stone facades with sash windows and classical proportions, dominant in 18th-century Britain.",
+  "Gothic" => "Medieval European style defined by pointed arches, ribbed vaults, flying buttresses, and soaring verticality.",
+  "Gothic Revival" => "A 19th-century revival of medieval Gothic forms — pointed arches, tracery, and romantic craftsmanship.",
+  "Greek Revival" => "Inspired by ancient Greek temples, featuring prominent columns, pediments, and white-painted facades.",
+  "Industrial" => "Exposed structural elements, raw materials, and utilitarian aesthetics drawn from factories and warehouses.",
+  "International Style" => "Glass curtain walls, open floor plans, and rejection of ornament, defining mid-20th-century modernism.",
+  "Islamic" => "Geometric patterns, arabesques, muqarnas, and courtyards reflecting centuries of Islamic artistic tradition.",
+  "Italianate" => "Mid-19th-century style inspired by Italian Renaissance villas — low roofs, bracketed cornices, and tall windows.",
+  "Mediterranean Revival" => "Stucco walls, red tile roofs, arched openings, and courtyards evoking the warmth of the Mediterranean.",
+  "Mid-Century Modern" => "Clean lines, organic curves, and integration with nature, defining postwar design from the 1940s–1960s.",
+  "Minimalist" => "Stripped to essentials — pure geometry, monochrome palettes, and an emphasis on space and light.",
+  "Mission Revival" => "Inspired by Spanish missions of the American Southwest — smooth stucco, parapeted rooflines, and bell towers.",
+  "Modern" => "Broad 20th-century movement favoring function, simplicity, and new materials over historical ornamentation.",
+  "Moorish Revival" => "Horseshoe arches, intricate tilework, and ornamental stucco inspired by the architecture of Islamic Iberia.",
+  "Neoclassical" => "Grand columns, pediments, and symmetry inspired by ancient Greece and Rome, prominent from the mid-18th century.",
+  "Neo-Gothic" => "A continuation of Gothic Revival ideals with pointed arches, tracery, and vertical emphasis in modern contexts.",
+  "Neo-Renaissance" => "19th-century revival of Renaissance forms — rusticated bases, arched windows, and classical balustrades.",
+  "Organic" => "Architecture that harmonizes with its natural surroundings, championed by Frank Lloyd Wright and others.",
+  "Parametric" => "Algorithmically generated, flowing forms enabled by computational design tools, defining 21st-century avant-garde.",
+  "Postmodern" => "Playful reaction to Modernism, mixing historical references, color, and irony, emerging in the 1970s–1980s.",
+  "Prairie School" => "Horizontal lines, flat or hipped roofs, and integration with the landscape, pioneered by Frank Lloyd Wright.",
+  "Queen Anne" => "Asymmetrical, richly textured Victorian houses with turrets, wrap-around porches, and decorative shingles.",
+  "Renaissance" => "Originating in 15th-century Italy, defined by symmetry, proportion, columns, and classical humanism.",
+  "Renaissance Revival" => "19th-century reinterpretation of Renaissance ideals with grand facades, cornices, and arched windows.",
+  "Richardsonian Romanesque" => "Heavy stone masonry, round arches, and rugged textures popularized by H.H. Richardson in the 1880s.",
+  "Rococo" => "Elaborate, playful ornamentation with pastel colors, gilding, and asymmetric curves, popular in 18th-century Europe.",
+  "Romanesque" => "Thick walls, round arches, and sturdy towers characteristic of medieval European architecture before Gothic.",
+  "Romanesque Revival" => "19th-century revival featuring round arches, heavy masonry, and fortress-like solidity.",
+  "Second Empire" => "Mansard roofs with dormer windows, ornate detailing, and Parisian elegance, popular 1860s–1880s.",
+  "Spanish Colonial Revival" => "White stucco, red tile roofs, wrought iron, and arched colonnades evoking Spain's colonial heritage.",
+  "Streamline Moderne" => "Aerodynamic curves, smooth surfaces, and horizontal lines reflecting 1930s machine-age optimism.",
+  "Tudor" => "Steeply pitched roofs, half-timbering, and decorative chimneys evoking medieval English manor houses.",
+  "Tudor Revival" => "Early 20th-century revival of Tudor forms — half-timber patterns, cross gables, and leaded glass windows.",
+  "Victorian" => "Ornate, eclectic 19th-century designs spanning Gothic Revival, Italianate, Queen Anne, and more.",
+}
+%>
+
+<div class="container" style="max-width: 960px; margin: 0 auto; padding: 24px 16px;">
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb" style="background: none; padding: 0; font-size: 0.9rem;">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Styles</li>
+    </ol>
+  </nav>
+
+  <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 8px;">Explore Architecture by Style</h1>
+  <p style="color: #555; font-size: 1.05rem; margin-bottom: 32px;">
+    Discover <%= @total_buildings %> buildings across <%= @styles_with_counts.size %> architectural styles.
+    From Art Deco skyscrapers to Gothic cathedrals, explore how different design movements shape our cities.
+  </p>
+
+  <div class="row">
+    <% @styles_with_counts.each do |style_name, count| %>
+      <div class="col-md-4 col-sm-6 mb-4">
+        <% slug = style_name.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+$/, '') %>
+        <a href="/styles/<%= slug %>" style="text-decoration: none; color: inherit; display: block; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; height: 100%; transition: box-shadow 0.2s, transform 0.2s;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #0056b3; margin-bottom: 6px;"><%= style_name %></h3>
+          <span style="display: inline-block; background: #0056b3; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 2px 10px; border-radius: 10px; margin-bottom: 8px;"><%= count %> <%= count == 1 ? 'building' : 'buildings' %></span>
+          <% if STYLE_DESCRIPTIONS[style_name] %>
+            <p style="color: #666; font-size: 0.85rem; line-height: 1.5; margin: 0;"><%= STYLE_DESCRIPTIONS[style_name] %></p>
+          <% end %>
+        </a>
+      </div>
+    <% end %>
+  </div>
+
+</div>
