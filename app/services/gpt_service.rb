@@ -54,127 +54,49 @@ class GptService
   def send_building_analysis(image_url)
     Rails.logger.debug "GptService: Received image_url for building analysis: #{image_url}"
 
+    style_list = "Ancient Egyptian, Classical Greek, Classical Roman, Byzantine, Romanesque, Gothic, Renaissance, Baroque, Rococo, Neoclassical, Gothic Revival, Romanticism, Beaux-Arts, Victorian, Edwardian, Art Nouveau, Art Deco, Bauhaus, International Style, Streamline Moderne, Brutalism, Postmodernism, Deconstructivism, High-Tech, Sustainable Architecture, Parametricism, Minimalism, Expressionism, Futurism, Constructivism, Organic Architecture, Critical Regionalism, Metabolism, Neo-Futurism, Post-Structuralism, New Classical, Neo-vernacular, Neo-Byzantine, Neo-Gothic, Art & Crafts, Prairie Style, Usonian, Colonial Revival, Tudor Revival, Mediterranean Revival, Mission Revival, Spanish Colonial Revival, Pueblo Revival, Federal Style, American Foursquare, Chicago School, Italianate, Second Empire, Queen Anne, Shingle Style, Richardsonian Romanesque, Carpenter Gothic, Dutch Colonial Revival, Georgian Revival, Chateauesque, City Beautiful Movement, Modern Movement, Scandinavian Modern, Mid-Century Modern, Structuralism, Post-Industrial, High-tech, Blobitecture, De Stijl, Expressionist, Fascist, Nazi Architecture, Stalinist, Suprematism, Vorticism, Futurist, Metaphoric, New Objectivity, Rationalism, Rayonnant, Regionalism, Russian Revival, Saracen, Scottish Baronial, Sicilian Baroque, Stripped Classicism, Territorial Revival, Traditionalist School, Tropical Modernism, Vernacular, Vienna Secession, Zigzag Moderne, Anglo-Saxon, Ottonian, Carolingian, Merovingian, Norman, Salon Style, Jacobean, Elizabethan, Palladian, Adam Style, Regency, Japonism, Egyptian Revival, Mayan Revival, Indo-Saracenic"
+
+    prompt = <<~PROMPT
+      Analyze the architecture and design of this building. Return your response as a JSON object with the following structure:
+
+      {
+        "building_name": "Name of the building if recognizable, otherwise a descriptive name",
+        "year_built": "Year or decade if identifiable, otherwise null",
+        "architect": "Architect name if known, otherwise null",
+        "overview": "A 2-3 sentence overview of the building and its architectural significance.",
+        "styles": [
+          {
+            "name": "Style Name",
+            "confidence": 85,
+            "description": "A paragraph explaining how this style manifests in the building — specific elements, details, and design choices that reflect this influence.",
+            "key_elements": ["Element 1", "Element 2", "Element 3"]
+          }
+        ],
+        "notable_features": ["Feature 1", "Feature 2", "Feature 3"],
+        "historical_context": "A paragraph about when and why it was built, its place in architectural history, and any significant events.",
+        "fun_facts": ["Fact 1", "Fact 2"]
+      }
+
+      Rules:
+      - Choose styles ONLY from this list: #{style_list}
+      - Include up to 4-5 styles maximum, sorted by confidence (highest first)
+      - Confidence is 0-100 representing how strongly the style is present
+      - Each style should have 3-5 key_elements
+      - Include 3-5 notable_features
+      - Include 2-3 fun_facts
+      - Return ONLY valid JSON, no other text
+    PROMPT
+
     body = {
       model: "gpt-4o-mini",
-      max_tokens: 1000,
+      max_tokens: 1500,
+      response_format: { type: "json_object" },
       messages: [
         {
           role: "user",
           content: [
-            {
-              type: "text",
-              text: "Can you tell me about the architecture and design of this building? Please tell me about the different influences it has and the components of the building that relate to those influences. Then, I want learn about those different styles and influences, and instances of them in real life. Please generate response in HTML only, feel free to use headings, sub-headings, and bullet pts. Don't include extra intro or outtro information, and please make the styles and influences H3s. Please include the 'confidence score' associated with each style as a 0-100% along with it's title like this: <style/influence title:> 87%. Can you also make all of the %s a cooler styling with css? It should be bolded and this shade of blue 0056b3. For the styles and influences, please only choose from the following list: Ancient Egyptian
-              Classical Greek
-              Classical Roman
-              Byzantine
-              Romanesque
-              Gothic
-              Renaissance
-              Baroque
-              Rococo
-              Neoclassical
-              Gothic Revival
-              Romanticism
-              Beaux-Arts
-              Victorian
-              Edwardian
-              Art Nouveau
-              Art Deco
-              Bauhaus
-              International Style
-              Streamline Moderne
-              Brutalism
-              Postmodernism
-              Deconstructivism
-              High-Tech
-              Sustainable Architecture
-              Parametricism
-              Minimalism
-              Expressionism
-              Futurism
-              Constructivism
-              Organic Architecture
-              Critical Regionalism
-              Metabolism
-              Neo-Futurism
-              Post-Structuralism
-              New Classical
-              Neo-vernacular
-              Neo-Byzantine
-              Neo-Gothic
-              Art & Crafts
-              Prairie Style
-              Usonian
-              Colonial Revival
-              Tudor Revival
-              Mediterranean Revival
-              Mission Revival
-              Spanish Colonial Revival
-              Pueblo Revival
-              Federal Style
-              American Foursquare
-              Chicago School
-              Italianate
-              Second Empire
-              Queen Anne
-              Shingle Style
-              Richardsonian Romanesque
-              Carpenter Gothic
-              Dutch Colonial Revival
-              Georgian Revival
-              Chateauesque
-              City Beautiful Movement
-              Modern Movement
-              Scandinavian Modern
-              Mid-Century Modern
-              Structuralism
-              Post-Industrial
-              High-tech
-              Blobitecture
-              De Stijl
-              Expressionist
-              Fascist
-              Nazi Architecture
-              Stalinist
-              Suprematism
-              Vorticism
-              Futurist
-              Metaphoric
-              New Objectivity
-              Rationalism
-              Rayonnant
-              Regionalism
-              Russian Revival
-              Saracen
-              Scottish Baronial
-              Sicilian Baroque
-              Stripped Classicism
-              Territorial Revival
-              Traditionalist School
-              Tropical Modernism
-              Vernacular
-              Vienna Secession
-              Zigzag Moderne
-              Anglo-Saxon
-              Ottonian
-              Carolingian
-              Merovingian
-              Norman
-              Salon Style
-              Jacobean
-              Elizabethan
-              Palladian
-              Adam Style
-              Regency
-              Japonism
-              Egyptian Revival
-              Mayan Revival
-              Indo-Saracenic"
-            },
-            {
-              type: "image_url",
-              image_url: { url: image_url }
-            }
+            { type: "text", text: prompt },
+            { type: "image_url", image_url: { url: image_url } }
           ]
         }
       ]
@@ -310,10 +232,8 @@ class GptService
     response_data = JSON.parse(response.body)
     if response_data['choices'] && response_data['choices'].any?
       content = response_data['choices'].first['message']['content']
-      cleaned_content = content.gsub(/\*\*/, '')
-      json_content = { "analysis": cleaned_content }.to_json
-      parsed_json = JSON.parse(json_content)
-
+      # With response_format: json_object, content is already valid JSON
+      parsed_json = JSON.parse(content)
       Rails.logger.debug "Parsed GPT Architecture Content: #{parsed_json}"
       parsed_json
     else

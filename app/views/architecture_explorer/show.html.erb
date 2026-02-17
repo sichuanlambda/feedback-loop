@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Validator - Home</title>
+    <title><%= @is_structured && @building_data ? "#{@building_data['building_name']} — Architecture Helper" : "Building Analysis — Architecture Helper" %></title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
     <script defer data-domain="app.architecturehelper.com" src="https://plausible.io/js/script.js"></script>
@@ -13,249 +13,464 @@
         posthog.init('phc_MltKSavY2s3FENOZhvocfU5qHx4f8xsJTAku0H0jVLH',{api_host:'https://app.posthog.com'})
     </script>
 <style>
-    body {
-       background-color: white; /* Sets the entire page background to black */
-    }
-    .btn-primary {
-        background-color: #0056b3;
-        color: white;
-        border-radius: 20px;
-        padding: 10px 20px;
-        font-size: 18px;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-        border: none;
-        margin-bottom: 10px;
-        margin-top: 10px;
-    }
-    .btn-primary:hover {
-        background-color: #004080;
-    }
-    .btn-secondary {
-            background-color: #E8E8E8;
-            color: #0056b3; /* Adjust the color to match your theme */
-            border: 2px solid #0056b3; /* Blue border */
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-size: 18px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            margin: 20px
-        }
+  body { background-color: #fff; }
 
-        .btn-secondary:hover {
-            background-color: #f0f0f0; /* Light grey for hover effect, adjust as needed */
-            color: #003366; /* Darker blue for hover text */
-            border-color: #003366; /* Darker blue for hover border */
-        }
-    h1 {
-        font-size: 48px;
-        color: black;
-        margin-bottom: 20px;
-    }
-    h3 {
-        margin: 30px;
-    }
-    .col-md-4 img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 10px 10px 0 0; /* Rounded corners at the top only */
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        margin-bottom: 0; /* Remove bottom margin */
-    }
-    .col-md-8 {
-      margin-bottom: 0;
-    }
-    .badge {
-        margin: 5px; /* Spacing between pills */
-        font-size: 16px;
-        background-color: #0056b3;
-    }
-    .button-container {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        margin-top: 0; /* Remove top margin */
-        padding: 0; /* Remove padding */
-    }
-    .btn-library {
-        background-color: #E8E8E8;
-        color: #0056b3;
-        border: 1px solid #0056b3;
-        border-top: none; /* Remove top border */
-        padding: 10px 10px;
-        font-size: 16px;
-        text-align: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        display: inline-block;
-        text-decoration: none;
-        margin: 0; /* Remove margin */
-        border-radius: 0 0 10px 10px; /* Rounded corners at the bottom only */
-    }
-    .btn-library:hover {
-        background-color: #f0f0f0; /* Light grey for hover effect */
-        color: #003366; /* Darker blue for hover text */
-        border-color: #003366; /* Darker blue for hover border */
-    }
-    .container-fluid, .row, .col-md-8, {
-        padding-right: 0;
-        padding-left: 0;
-        margin-right: 0;
-        margin-left: 0;
-    }
-    .address-container {
-        margin-top: 30px; /* Add top margin */
-        margin-bottom: 20px; /* Add bottom margin */
-        background-color: #f8f9fa; /* Light background color for the container */
-        border-radius: 10px; /* Rounded corners */
-        padding: 15px; /* Padding inside the container */
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* Add shadow for dep th */
-    }
+  /* Header */
+  .building-header { margin-bottom: 0; }
+  .building-header h1 { font-size: 2.2rem; color: #1a1a1a; margin-bottom: 4px; font-weight: 700; }
+  .building-meta { color: #666; font-size: 1rem; margin-bottom: 16px; }
+  .building-meta span + span::before { content: "·"; margin: 0 8px; }
 
-    .address-title {
-        font-size: 20px; /* Font size for title */
-        color: #0056b3; /* Font color for title */
-        margin-bottom: 10px; /* Space below the title */
-    }
+  /* Hero row */
+  .hero-row { margin-bottom: 32px; }
+  .hero-image { border-radius: 12px; overflow: hidden; }
+  .hero-image img { width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
 
-    .btn-address-update {
-        background-color: #28a745; /* Green background color */
-        color: white; /* White text color */
-        padding: 10px 20px; /* Padding inside the button */
-        border-radius: 5px; /* Rounded corners for the button */
-        border: none; /* Remove border */
-        font-size: 16px; /* Font size for the button */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Shadow for the button */
-        display: block; /* Make the button a block-level element */
-        margin-left: auto; /* Automatically adjust left margin */
-        margin-right: auto; /* Automatically adjust right margin */
-        margin-top: 10px; /* Add some space above the button */
-    }
+  /* Style badges with confidence */
+  .style-badge-list { list-style: none; padding: 0; margin: 0; }
+  .style-badge-item { margin-bottom: 12px; }
+  .style-badge-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .style-badge-name { font-weight: 600; font-size: 0.95rem; color: #1a1a1a; }
+  .style-badge-pct { font-weight: 700; font-size: 0.9rem; color: #0056b3; }
+  .confidence-bar { height: 8px; border-radius: 4px; background: #e9ecef; overflow: hidden; }
+  .confidence-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
 
-    .btn-address-update:hover {
-        background-color: #218838; /* Darker green on hover */
-    }
-    .loading-text {
-        text-align: center;
-        margin-bottom: 20px;
-        }
+  /* Sections */
+  .section-title { font-size: 1.4rem; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; margin-top: 32px; }
+  .section-text { color: #444; font-size: 1rem; line-height: 1.7; }
 
-        #loader {
-        /* Ensures the loader is centered in its parent */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        }
+  /* Style cards */
+  .style-card { border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; margin-bottom: 16px; transition: box-shadow 0.2s ease, transform 0.2s ease; }
+  .style-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .style-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .style-card h4 { font-size: 1.15rem; font-weight: 700; margin: 0; color: #1a1a1a; }
+  .style-card .confidence-pill { background: #0056b3; color: #fff; font-size: 0.8rem; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+  .style-card p { color: #444; line-height: 1.6; margin-bottom: 12px; }
+  .style-card ul { padding-left: 20px; margin-bottom: 12px; }
+  .style-card ul li { color: #555; margin-bottom: 4px; }
+  .style-card .explore-link { color: #0056b3; font-weight: 600; text-decoration: none; font-size: 0.9rem; }
+  .style-card .explore-link:hover { text-decoration: underline; }
 
-        /* If you need to remove a border that's still appearing for some reason */
-        #loading-animation {
-        border: none;
-        }
+  /* Notable features */
+  .feature-list { list-style: none; padding: 0; }
+  .feature-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; color: #444; }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list li::before { content: "✦"; color: #0056b3; margin-right: 10px; font-size: 0.8rem; }
+
+  /* Fun facts callout */
+  .fun-facts-box { background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%); border-radius: 12px; padding: 20px 24px; border-left: 4px solid #0056b3; }
+  .fun-facts-box h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: #0056b3; }
+  .fun-facts-box ul { list-style: none; padding: 0; margin: 0; }
+  .fun-facts-box li { padding: 6px 0; color: #333; }
+  .fun-facts-box li::before { content: "💡"; margin-right: 8px; }
+
+  /* Address form */
+  .address-container { background: #f8f9fa; border-radius: 12px; padding: 20px; margin-top: 24px; border: 1px solid #e9ecef; }
+  .address-container .address-title { font-size: 1.1rem; font-weight: 600; color: #0056b3; margin-bottom: 12px; }
+  .btn-address-update { background: #28a745; color: #fff; padding: 8px 20px; border-radius: 6px; border: none; font-size: 0.9rem; cursor: pointer; margin-top: 8px; }
+  .btn-address-update:hover { background: #218838; }
+
+  /* Action buttons */
+  .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .btn-action { background: #f8f9fa; color: #0056b3; border: 1px solid #0056b3; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; text-decoration: none; text-align: center; transition: all 0.2s; cursor: pointer; }
+  .btn-action:hover { background: #0056b3; color: #fff; text-decoration: none; }
+  .btn-action.active { background: #0056b3; color: #fff; }
+
+  /* Horizontal scroll rows */
+  .scroll-row { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+  .scroll-row::-webkit-scrollbar { height: 6px; }
+  .scroll-row::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+  .building-card { min-width: 200px; max-width: 220px; scroll-snap-align: start; border: 1px solid #e9ecef; border-radius: 12px; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; flex-shrink: 0; text-decoration: none; color: inherit; display: block; }
+  .building-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); text-decoration: none; color: inherit; }
+  .building-card img { width: 100%; height: 140px; object-fit: cover; }
+  .building-card-body { padding: 10px 12px; }
+  .building-card-body h5 { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .building-card-badge { display: inline-block; background: #0056b3; color: #fff; font-size: 0.7rem; padding: 2px 8px; border-radius: 8px; }
+
+  /* Explore style cards */
+  .explore-style-card { border: 1px solid #e9ecef; border-radius: 12px; padding: 16px; text-decoration: none; color: inherit; display: block; transition: box-shadow 0.2s, transform 0.2s; }
+  .explore-style-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); text-decoration: none; color: inherit; }
+  .explore-style-card h5 { font-size: 1rem; font-weight: 700; color: #0056b3; margin-bottom: 4px; }
+  .explore-style-card .count { font-size: 0.85rem; color: #888; }
+
+  /* City card */
+  .city-card { background: linear-gradient(135deg, #0056b3 0%, #003d80 100%); border-radius: 12px; padding: 24px; color: #fff; text-decoration: none; display: block; transition: transform 0.2s; }
+  .city-card:hover { transform: translateY(-2px); text-decoration: none; color: #fff; }
+  .city-card h4 { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+  .city-card p { opacity: 0.9; margin: 0; font-size: 0.95rem; }
+
+  /* Content gate */
+  .content-gate-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.95)); display: flex; align-items: center; justify-content: center; }
+  .content-gate-box { text-align: center; background: #fff; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.12); max-width: 480px; }
+
+  /* Loading */
+  .loading-text { text-align: center; margin-bottom: 20px; }
+  #loader { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #loading-animation { border: none; }
+
+  /* No location prompt */
+  .no-location-prompt { background: #f8f9fa; border-radius: 12px; padding: 20px; text-align: center; color: #666; border: 1px dashed #ccc; }
+
+  /* Legacy content wrapper */
+  .legacy-content { padding: 0 16px; }
+  .legacy-content h3 { margin: 20px 0 10px; }
+
+  @media (max-width: 768px) {
+    .building-header h1 { font-size: 1.6rem; }
+    .hero-row .col-md-5, .hero-row .col-md-7 { margin-bottom: 16px; }
+    .style-card { padding: 14px; }
+    .building-card { min-width: 160px; max-width: 180px; }
+  }
 </style>
+</head>
+<body>
 
-<div class="container-fluid">
-  <div class="row">
-    <!-- Left two-thirds for the current content -->
-    <div class="col-md-8">
+<div class="container" style="max-width: 960px; margin: 0 auto; padding: 24px 16px;">
+
+  <% if @html_content.present? %>
+    <% if @content_gated %>
+      <%# === CONTENT GATED VIEW === %>
+      <div style="position: relative;">
+        <div style="filter: blur(8px); -webkit-filter: blur(8px); pointer-events: none; max-height: 300px; overflow: hidden;">
+          <% if @is_structured && @building_data %>
+            <h1><%= @building_data['building_name'] %></h1>
+            <p><%= @building_data['overview'] %></p>
+          <% else %>
+            <%= raw @html_content.truncate(800, omission: '...') %>
+          <% end %>
+        </div>
+        <div class="content-gate-overlay">
+          <div class="content-gate-box">
+            <h2 style="font-size: 24px; margin-bottom: 12px; color: #1a1a1a;">🔒 Unlock Full Analysis</h2>
+            <p style="color: #666; font-size: 16px; margin-bottom: 24px;">Sign up free to see complete architectural analysis, style breakdowns, and historical context.</p>
+            <% if user_signed_in? %>
+              <a href="/account" class="btn btn-primary" style="font-size: 18px; padding: 12px 32px;">Upgrade to Pro</a>
+            <% else %>
+              <a href="<%= new_user_registration_path %>" class="btn btn-primary" style="font-size: 18px; padding: 12px 32px;">Sign Up Free</a>
+              <p style="margin-top: 12px; color: #999; font-size: 14px;">Already have an account? <a href="<%= new_user_session_path %>">Sign in</a></p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+    <% elsif @is_structured && @building_data %>
+      <%# === STRUCTURED JSON VIEW === %>
+
+      <%# Header %>
+      <div class="building-header">
+        <h1><%= @building_data['building_name'] || @building_analysis.name || "Building Analysis" %></h1>
+        <div class="building-meta">
+          <% if @building_data['architect'] %><span><%= @building_data['architect'] %></span><% end %>
+          <% if @building_data['year_built'] %><span>Built <%= @building_data['year_built'] %></span><% end %>
+          <% if @building_analysis.address.present? && @building_analysis.address != "N/A" %><span><%= @building_analysis.address %></span><% end %>
+        </div>
+      </div>
+
+      <%# Hero row: image + style badges %>
+      <div class="row hero-row">
+        <div class="col-md-5">
+          <div class="hero-image">
+            <% if @image_url.present? %>
+              <img src="<%= @image_url %>" alt="<%= @building_data['building_name'] %>">
+            <% end %>
+          </div>
+          <div class="action-buttons">
+            <%= link_to 'Building Library', '/building_library', class: 'btn-action' %>
+            <% if @is_shared %>
+              <%= button_to '✅ In Library', remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action active' %>
+            <% else %>
+              <%= button_to '➕ Add to Library', add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action' %>
+            <% end %>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <% if @building_data['styles'].present? %>
+            <ul class="style-badge-list">
+              <% @building_data['styles'].each do |style| %>
+                <li class="style-badge-item">
+                  <div class="style-badge-header">
+                    <span class="style-badge-name"><%= style['name'] %></span>
+                    <span class="style-badge-pct"><%= style['confidence'] %>%</span>
+                  </div>
+                  <div class="confidence-bar">
+                    <% color = style['confidence'].to_i >= 75 ? '#28a745' : (style['confidence'].to_i >= 50 ? '#ffc107' : '#dc3545') %>
+                    <div class="confidence-bar-fill" style="width: <%= style['confidence'] %>%; background: <%= color %>;"></div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Overview %>
+      <% if @building_data['overview'].present? %>
+        <p class="section-text" style="font-size: 1.05rem;"><%= @building_data['overview'] %></p>
+      <% end %>
+
+      <%# Architectural Styles %>
+      <% if @building_data['styles'].present? %>
+        <h2 class="section-title">Architectural Styles</h2>
+        <% @building_data['styles'].each do |style| %>
+          <div class="style-card">
+            <div class="style-card-header">
+              <h4><%= style['name'] %></h4>
+              <span class="confidence-pill"><%= style['confidence'] %>%</span>
+            </div>
+            <p><%= style['description'] %></p>
+            <% if style['key_elements'].present? %>
+              <ul>
+                <% style['key_elements'].each do |el| %>
+                  <li><%= el %></li>
+                <% end %>
+              </ul>
+            <% end %>
+            <% slug = style['name'].downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+$/, '') %>
+            <a href="/building_library/styles/<%= slug %>" class="explore-link">Explore more <%= style['name'] %> buildings →</a>
+          </div>
+        <% end %>
+      <% end %>
+
+      <%# Notable Features %>
+      <% if @building_data['notable_features'].present? %>
+        <h2 class="section-title">Notable Features</h2>
+        <ul class="feature-list">
+          <% @building_data['notable_features'].each do |feature| %>
+            <li><%= feature %></li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <%# Historical Context %>
+      <% if @building_data['historical_context'].present? %>
+        <h2 class="section-title">Historical Context</h2>
+        <p class="section-text"><%= @building_data['historical_context'] %></p>
+      <% end %>
+
+      <%# Fun Facts %>
+      <% if @building_data['fun_facts'].present? %>
+        <div class="fun-facts-box" style="margin-top: 32px;">
+          <h3>Fun Facts</h3>
+          <ul>
+            <% @building_data['fun_facts'].each do |fact| %>
+              <li><%= fact %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+    <% else %>
+      <%# === LEGACY HTML VIEW === %>
       <% if @building_analysis.name.present? %>
         <h2 class="mb-3"><%= @building_analysis.name %></h2>
       <% end %>
-      <% if @html_content.present? %>
-        <% if @content_gated %>
-          <div style="position: relative;">
-            <div style="filter: blur(8px); -webkit-filter: blur(8px); pointer-events: none; max-height: 300px; overflow: hidden;">
-              <%= raw @html_content.truncate(800, omission: '...') %>
-            </div>
-            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.95)); display: flex; align-items: center; justify-content: center;">
-              <div style="text-align: center; background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.12); max-width: 480px;">
-                <h2 style="font-size: 24px; margin-bottom: 12px; color: #1a1a1a;">🔒 Unlock Full Analysis</h2>
-                <p style="color: #666; font-size: 16px; margin-bottom: 24px;">Sign up free to see complete architectural analysis, style breakdowns, and historical context.</p>
-                <% if user_signed_in? %>
-                  <a href="/account" class="btn btn-primary" style="font-size: 18px; padding: 12px 32px;">Upgrade to Pro</a>
-                <% else %>
-                  <a href="<%= new_user_registration_path %>" class="btn btn-primary" style="font-size: 18px; padding: 12px 32px;">Sign Up Free</a>
-                  <p style="margin-top: 12px; color: #999; font-size: 14px;">Already have an account? <a href="<%= new_user_session_path %>">Sign in</a></p>
-                <% end %>
-              </div>
-            </div>
+
+      <div class="row hero-row">
+        <div class="col-md-5">
+          <div class="hero-image">
+            <% if @image_url.present? %>
+              <img src="<%= @image_url %>" alt="Building Image">
+            <% end %>
           </div>
-        <% else %>
-          <%= raw @html_content %>
-        <% end %>
-    <% else %>
-        <!-- Loading Animation Container -->
-        <div id="loader" class="text-center">
-            <h2 class="loading-text">Hang tight, we're working on your analysis</h2>
-            <%= image_tag 'buildinganimation.gif', alt: 'Loading...', id: 'loading-animation', class: 'mx-auto d-block' %>
-        </div>
-
-        <!-- Results Container -->
-        <div id="results" style="display:none;">
-        <!-- Your results will be shown here after the data is ready -->
-        </div>      
-    <% end %>
-    </div>
-
-    <!-- Right one-third for the image and pills -->
-    <div class="col-md-4 img">
-        <% if @image_url.present? %>
-            <img src="<%= @image_url %>" alt="Submitted Image" class="img-fluid">
-            <!-- buttons right under the image -->
-            <div class="button-container text-center">
-                <%= link_to 'Explore Building Library', '/building_library', class: 'btn-library' %>
-                <% if @is_shared %>
-                    <%= button_to ' ✅ Shared in Building Library ', remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-library' %>
-                <% else %>
-                    <%= button_to '❌ Removed from the Library', add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-library' %>
-                <% end %>
-            </div>
-        <% else %>
-            <p>No image available.</p>
-        <% end %>
-        
-        <% if @h3_contents.present? %>
+          <div class="action-buttons">
+            <%= link_to 'Building Library', '/building_library', class: 'btn-action' %>
+            <% if @is_shared %>
+              <%= button_to '✅ In Library', remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action active' %>
+            <% else %>
+              <%= button_to '➕ Add to Library', add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action' %>
+            <% end %>
+          </div>
+          <% if @h3_contents.present? %>
             <div class="mt-3">
-                <% if @content_gated %>
-                  <span class="badge badge-primary"><%= @h3_contents.first %></span>
-                  <span class="badge" style="background-color: #ccc; color: #999;">+ <%= @h3_contents.length - 1 %> more styles</span>
-                <% else %>
-                  <% @h3_contents.each do |h3_content| %>
-                    <span class="badge badge-primary"><%= h3_content %></span>
-                  <% end %>
-                <% end %>
+              <% @h3_contents.each do |h3_content| %>
+                <span class="badge badge-primary" style="background-color: #0056b3; font-size: 14px; margin: 3px;"><%= h3_content %></span>
+              <% end %>
             </div>
+          <% end %>
+        </div>
+        <div class="col-md-7">
+          <div class="legacy-content">
+            <%= raw @html_content %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+  <% else %>
+    <%# === LOADING STATE === %>
+    <% if @building_analysis.name.present? %>
+      <h2 class="mb-3"><%= @building_analysis.name %></h2>
+    <% end %>
+    <div class="row hero-row">
+      <div class="col-md-5">
+        <% if @image_url.present? %>
+          <div class="hero-image">
+            <img src="<%= @image_url %>" alt="Building Image">
+          </div>
         <% end %>
-          <div class="address-container">
-                <div class="address-title">Add Building to Map</div>
-                <%= form_with model: @building_analysis, url: architecture_explorer_update_path(@building_analysis), method: :patch do |form| %>
-                    <div>
-                        <%= form.label :address, "Address or City" %>
-                        <%= form.text_field :address %>
-                        <%= form.submit "Add Location", class: 'btn-address-update' %>
-                    </div>
-                <% end %>
-            </div>
-
-        <!-- Button Container -->
-        <%# <div class="container text-center mb-4">
-            <%= link_to 'Generate Architecture', step1_architecture_designer_index_path, class: 'btn btn-primary', id: 'generate-architecture-btn' %>
-        <%# </div> %>
-
+      </div>
+      <div class="col-md-7">
+        <div id="loader" class="text-center">
+          <h2 class="loading-text">Hang tight, we're working on your analysis</h2>
+          <%= image_tag 'buildinganimation.gif', alt: 'Loading...', id: 'loading-animation', class: 'mx-auto d-block' %>
+        </div>
+        <div id="results" style="display:none;"></div>
+      </div>
     </div>
+  <% end %>
+
+  <%# === ADD TO MAP === %>
+  <div class="address-container">
+    <div class="address-title">📍 Add Building to Map</div>
+    <%= form_with model: @building_analysis, url: architecture_explorer_update_path(@building_analysis), method: :patch do |form| %>
+      <div class="form-group mb-0">
+        <%= form.label :address, "Address or City", style: "font-size: 0.9rem; color: #666;" %>
+        <%= form.text_field :address, class: "form-control", placeholder: "e.g. 350 Fifth Avenue, New York" %>
+        <%= form.submit "Add Location", class: 'btn-address-update' %>
+      </div>
+    <% end %>
+  </div>
+
+  <%# === SIMILAR STYLE BUILDINGS === %>
+  <% if @similar_buildings.present? && @similar_buildings.any? %>
+    <h2 class="section-title">Similar Style Buildings</h2>
+    <div class="scroll-row">
+      <% @similar_buildings.each do |building| %>
+        <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
+          <% if building.image_url.present? %>
+            <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>">
+          <% else %>
+            <div style="width:100%;height:140px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+          <% end %>
+          <div class="building-card-body">
+            <h5><%= building.name || building.address || "Building ##{building.id}" %></h5>
+            <% begin %>
+              <% top_style = JSON.parse(building.h3_contents || '[]').first %>
+              <% if top_style %><span class="building-card-badge"><%= top_style %></span><% end %>
+            <% rescue; end %>
+          </div>
+        </a>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# === NEARBY BUILDINGS === %>
+  <% if @building_analysis.latitude.present? && @building_analysis.longitude.present? %>
+    <% if @nearby_buildings.present? && @nearby_buildings.any? %>
+      <h2 class="section-title">Buildings in the Same Area</h2>
+      <div class="scroll-row">
+        <% @nearby_buildings.each do |building| %>
+          <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
+            <% if building.image_url.present? %>
+              <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>">
+            <% else %>
+              <div style="width:100%;height:140px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+            <% end %>
+            <div class="building-card-body">
+              <h5><%= building.name || building.address || "Building ##{building.id}" %></h5>
+              <% begin %>
+                <% top_style = JSON.parse(building.h3_contents || '[]').first %>
+                <% if top_style %><span class="building-card-badge"><%= top_style %></span><% end %>
+              <% rescue; end %>
+            </div>
+          </a>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="no-location-prompt" style="margin-top: 32px;">
+      <p style="margin: 0;">📍 Know where this building is? Add the address above to discover nearby architecture.</p>
+    </div>
+  <% end %>
+
+  <%# === EXPLORE THIS CITY === %>
+  <% if @city_place.present? %>
+    <h2 class="section-title">Explore This City</h2>
+    <a href="/places/<%= @city_place.slug %>" class="city-card">
+      <h4><%= @building_analysis.city %> Architecture Guide</h4>
+      <p>Explore <%= @city_building_count || 0 %> buildings across <%= @city_style_count || 0 %> styles →</p>
+    </a>
+  <% end %>
+
+  <%# === EXPLORE BY STYLE === %>
+  <% if @h3_contents.present? && @style_building_counts.present? %>
+    <h2 class="section-title">Explore by Style</h2>
+    <div class="row">
+      <% @h3_contents.first(3).each do |style| %>
+        <div class="col-md-4 mb-3">
+          <% slug = style.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+$/, '') %>
+          <a href="/building_library/styles/<%= slug %>" class="explore-style-card">
+            <h5><%= style %></h5>
+            <span class="count"><%= @style_building_counts[style] || 0 %> buildings</span>
+          </a>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+</div>
+
 <script>
   let checkCount = 0;
-  const maxChecks = 12; // Adjust based on desired number of tries
+  const maxChecks = 12;
+
+  function renderStructuredContent(data) {
+    try {
+      const parsed = JSON.parse(data);
+      if (parsed.styles) {
+        // It's structured JSON - render it nicely
+        let html = '';
+        if (parsed.overview) html += '<p class="section-text" style="font-size:1.05rem;">' + escapeHtml(parsed.overview) + '</p>';
+        if (parsed.styles) {
+          html += '<h2 class="section-title">Architectural Styles</h2>';
+          parsed.styles.forEach(function(style) {
+            const color = style.confidence >= 75 ? '#28a745' : (style.confidence >= 50 ? '#ffc107' : '#dc3545');
+            html += '<div class="style-card">';
+            html += '<div class="style-card-header"><h4>' + escapeHtml(style.name) + '</h4><span class="confidence-pill">' + style.confidence + '%</span></div>';
+            html += '<p>' + escapeHtml(style.description) + '</p>';
+            if (style.key_elements && style.key_elements.length > 0) {
+              html += '<ul>' + style.key_elements.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') + '</ul>';
+            }
+            const slug = style.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+            html += '<a href="/building_library/styles/' + slug + '" class="explore-link">Explore more ' + escapeHtml(style.name) + ' buildings →</a>';
+            html += '</div>';
+          });
+        }
+        if (parsed.notable_features && parsed.notable_features.length > 0) {
+          html += '<h2 class="section-title">Notable Features</h2><ul class="feature-list">';
+          parsed.notable_features.forEach(function(f) { html += '<li>' + escapeHtml(f) + '</li>'; });
+          html += '</ul>';
+        }
+        if (parsed.historical_context) html += '<h2 class="section-title">Historical Context</h2><p class="section-text">' + escapeHtml(parsed.historical_context) + '</p>';
+        if (parsed.fun_facts && parsed.fun_facts.length > 0) {
+          html += '<div class="fun-facts-box" style="margin-top:24px;"><h3>Fun Facts</h3><ul>';
+          parsed.fun_facts.forEach(function(f) { html += '<li>' + escapeHtml(f) + '</li>'; });
+          html += '</ul></div>';
+        }
+        return html;
+      }
+    } catch(e) {
+      // Not JSON, fall through
+    }
+    return data; // Legacy HTML
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+  }
 
   function updateBadgeContainer(h3Contents) {
     const badgeContainer = document.querySelector('.mt-3');
-    badgeContainer.innerHTML = ''; // Clear existing badges
-
-    h3Contents.forEach(style => {
+    if (!badgeContainer) return;
+    badgeContainer.innerHTML = '';
+    h3Contents.forEach(function(style) {
       const badge = document.createElement('span');
       badge.className = 'badge badge-primary';
+      badge.style.backgroundColor = '#0056b3';
+      badge.style.fontSize = '14px';
+      badge.style.margin = '3px';
       badge.textContent = style;
       badgeContainer.appendChild(badge);
     });
@@ -268,30 +483,30 @@
     }
 
     const analysisId = <%= @building_analysis.id %>;
-    fetch(`/architecture_explorer/${analysisId}/status`)
-      .then(response => response.json())
-      .then(data => {
+    fetch('/architecture_explorer/' + analysisId + '/status')
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
         if (data.status === 'completed') {
-          // Hide the loader
-          document.getElementById('loader').style.display = 'none';
+          var loader = document.getElementById('loader');
+          if (loader) loader.style.display = 'none';
 
-          // Update the page content with the analysis results
-          document.getElementById('results').innerHTML = data.html_content;
-          document.getElementById('results').style.display = 'block';
+          var results = document.getElementById('results');
+          if (results) {
+            results.innerHTML = renderStructuredContent(data.html_content);
+            results.style.display = 'block';
+          }
 
-          // Update the badge container with new styles
-          const h3Contents = JSON.parse(data.h3_contents || '[]');
+          var h3Contents = [];
+          try { h3Contents = JSON.parse(data.h3_contents || '[]'); } catch(e) {}
           updateBadgeContainer(h3Contents);
         } else {
-          // Show the loader
-          document.getElementById('loader').style.display = 'block';
-
-          // Increment checkCount and re-check the status after a delay
+          var loader = document.getElementById('loader');
+          if (loader) loader.style.display = 'block';
           checkCount++;
           setTimeout(checkAnalysisStatus, 5000);
         }
       })
-      .catch(error => console.error('Error checking analysis status:', error));
+      .catch(function(error) { console.error('Error checking analysis status:', error); });
   }
 
   document.addEventListener('DOMContentLoaded', checkAnalysisStatus);

@@ -167,10 +167,19 @@ class ArchitectureExplorerController < ApplicationController
     @building_analysis = BuildingAnalysis.find_by(id: params[:id])
 
     if @building_analysis
-      # Move the @is_shared assignment here, after confirming @building_analysis is not nil
       @is_shared = @building_analysis.visible_in_library
       @html_content = @building_analysis.html_content
-      @image_url = @building_analysis.image_url # Make the image URL available in the view
+      @image_url = @building_analysis.image_url
+
+      # Detect structured JSON vs legacy HTML
+      @is_structured = @html_content.present? && @html_content.strip.start_with?('{')
+      if @is_structured
+        begin
+          @building_data = JSON.parse(@html_content)
+        rescue JSON::ParserError
+          @is_structured = false
+        end
+      end
 
       # Use stored normalized styles, falling back to re-extraction from HTML
       if @building_analysis.h3_contents.present?
@@ -185,6 +194,47 @@ class ArchitectureExplorerController < ApplicationController
         h3_contents = extract_h3s(@html_content)
         @h3_contents = StyleNormalizer.normalize_array(clean_h3_contents(h3_contents))
       end
+
+      # Similar buildings (shared styles)
+      if @h3_contents.present?
+        style_conditions = @h3_contents.map { |_s| "LOWER(h3_contents) LIKE ?" }
+        style_values = @h3_contents.map { |s| "%#{s.downcase}%" }
+        @similar_buildings = BuildingAnalysis.where(visible_in_library: true)
+          .where.not(id: @building_analysis.id)
+          .where("h3_contents IS NOT NULL")
+          .where(style_conditions.join(' OR '), *style_values)
+          .limit(8)
+      end
+
+      # Nearby buildings
+      if @building_analysis.latitude.present? && @building_analysis.longitude.present?
+        lat = @building_analysis.latitude
+        lng = @building_analysis.longitude
+        @nearby_buildings = BuildingAnalysis.where(visible_in_library: true)
+          .where.not(id: @building_analysis.id)
+          .where("latitude IS NOT NULL AND longitude IS NOT NULL")
+          .where("latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?",
+                 lat - 0.15, lat + 0.15, lng - 0.15, lng + 0.15)
+          .limit(8)
+      end
+
+      # City place page
+      if @building_analysis.city.present? && defined?(Place)
+        @city_place = Place.find_by("LOWER(name) LIKE ?", "%#{@building_analysis.city.downcase}%")
+        @city_building_count = BuildingAnalysis.where(visible_in_library: true, city: @building_analysis.city).count
+        @city_style_count = BuildingAnalysis.where(visible_in_library: true, city: @building_analysis.city)
+          .pluck(:h3_contents).compact.flat_map { |h| JSON.parse(h) rescue [] }.uniq.count
+      end
+
+      # Style counts for "Explore by Style" section
+      if @h3_contents.present?
+        @style_building_counts = {}
+        @h3_contents.first(3).each do |style|
+          @style_building_counts[style] = BuildingAnalysis.where(visible_in_library: true)
+            .where("LOWER(h3_contents) LIKE ?", "%#{style.downcase}%").count
+        end
+      end
+
       Rails.logger.debug "Normalized H3 contents for show: #{@h3_contents.inspect}"
     else
       redirect_to root_path, alert: "Analysis not found"
