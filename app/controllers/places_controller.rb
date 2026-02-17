@@ -15,13 +15,9 @@ class PlacesController < ApplicationController
     @initial_center = [@place.longitude, @place.latitude]
     @initial_zoom = @place.zoom_level || 12
     
-    # Get buildings for this place
-    # Extract just the city name from the place name (e.g., "Denver" from "Denver, Colorado")
-    city_name = @place.name.split(',').first.strip.downcase
-    
-    @building_analyses = BuildingAnalysis.where(visible_in_library: true)
-                                        .where("LOWER(address) LIKE ?", "%#{city_name}%")
-                                        .order(created_at: :desc)
+    # Get buildings for this place using geographic bounding box
+    # This matches the Place model's building_analyses_in_place method
+    @building_analyses = @place.building_analyses_in_place.order(created_at: :desc)
 
     # Calculate style statistics for this place
     calculate_place_style_metrics
