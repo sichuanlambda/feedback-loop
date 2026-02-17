@@ -164,7 +164,27 @@
         <h2 class="mb-3"><%= @building_analysis.name %></h2>
       <% end %>
       <% if @html_content.present? %>
-        <%= raw @html_content %>
+        <% if @content_gated %>
+          <div style="position: relative;">
+            <div style="filter: blur(8px); -webkit-filter: blur(8px); pointer-events: none; max-height: 300px; overflow: hidden;">
+              <%= raw @html_content.truncate(800, omission: '...') %>
+            </div>
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.95)); display: flex; align-items: center; justify-content: center;">
+              <div style="text-align: center; background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.12); max-width: 480px;">
+                <h2 style="font-size: 24px; margin-bottom: 12px; color: #1a1a1a;">🔒 Unlock Full Analysis</h2>
+                <p style="color: #666; font-size: 16px; margin-bottom: 24px;">Sign up free to see complete architectural analysis, style breakdowns, and historical context.</p>
+                <% if user_signed_in? %>
+                  <a href="/account" class="btn btn-primary" style="font-size: 18px; padding: 12px 32px;">Upgrade to Pro</a>
+                <% else %>
+                  <a href="<%= new_user_registration_path %>" class="btn btn-primary" style="font-size: 18px; padding: 12px 32px;">Sign Up Free</a>
+                  <p style="margin-top: 12px; color: #999; font-size: 14px;">Already have an account? <a href="<%= new_user_session_path %>">Sign in</a></p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <%= raw @html_content %>
+        <% end %>
     <% else %>
         <!-- Loading Animation Container -->
         <div id="loader" class="text-center">
@@ -198,8 +218,13 @@
         
         <% if @h3_contents.present? %>
             <div class="mt-3">
-                <% @h3_contents.each do |h3_content| %>
+                <% if @content_gated %>
+                  <span class="badge badge-primary"><%= @h3_contents.first %></span>
+                  <span class="badge" style="background-color: #ccc; color: #999;">+ <%= @h3_contents.length - 1 %> more styles</span>
+                <% else %>
+                  <% @h3_contents.each do |h3_content| %>
                     <span class="badge badge-primary"><%= h3_content %></span>
+                  <% end %>
                 <% end %>
             </div>
         <% end %>

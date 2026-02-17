@@ -145,6 +145,14 @@ Rails.application.routes.draw do
   get 'development_estimations', to: 'architecture_explorer#development_estimations'
   post 'generate_development_estimation', to: 'architecture_explorer#generate_development_estimation'
 
+  # Style pages (programmatic SEO)
+  get 'styles', to: 'architecture_explorer#styles_index', as: 'styles_index'
+  get 'styles/:style_name', to: 'architecture_explorer#style_show', as: 'style_show'
+
   # Places routes
-  resources :places, only: [:index, :show], param: :slug
+  resources :places, only: [:index, :show], param: :slug do
+    member do
+      post :subscribe
+    end
+  end
 end

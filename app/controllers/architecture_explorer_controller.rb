@@ -7,6 +7,7 @@ require 'open-uri'
 class ArchitectureExplorerController < ApplicationController
   before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map]
   before_action :set_custom_nav
+  before_action :check_analysis_view_limit, only: [:show]
   # include BuildingAnalysisProcessor
 
   # Use the default layout for most actions
@@ -561,6 +562,27 @@ class ArchitectureExplorerController < ApplicationController
     return nil
   end
 
+  def check_analysis_view_limit
+    # Premium users (active subscription) get unlimited views
+    if user_signed_in? && current_user.subscription_status == 'active'
+      @content_gated = false
+      return
+    end
+
+    # Track views via session
+    session[:analyses_viewed] ||= []
+    building_id = params[:id].to_s
+
+    unless session[:analyses_viewed].include?(building_id)
+      session[:analyses_viewed] << building_id
+    end
+
+    view_count = session[:analyses_viewed].length
+    max_views = user_signed_in? ? 10 : 3
+
+    @content_gated = view_count > max_views
+  end
+
   def set_custom_nav
     @custom_nav = true
   end
@@ -575,6 +597,38 @@ class ArchitectureExplorerController < ApplicationController
 
   def normalize_h3_contents(h3_contents)
     StyleNormalizer.normalize_array(h3_contents)
+  end
+
+  def styles_index
+    style_counts = Hash.new(0)
+    BuildingAnalysis.where(visible_in_library: true).pluck(:h3_contents).compact.each do |h3_content|
+      begin
+        styles = StyleNormalizer.normalize_array(JSON.parse(h3_content))
+        styles.each { |style| style_counts[style] += 1 }
+      rescue JSON::ParserError
+        next
+      end
+    end
+    @styles_with_counts = style_counts.sort_by { |_style, count| -count }
+    @total_buildings = BuildingAnalysis.where(visible_in_library: true).count
+  end
+
+  def style_show
+    @style_name = StyleNormalizer.normalize(params[:style_name])
+    variants = StyleNormalizer::CANONICAL_STYLES[@style_name] || [params[:style_name].downcase]
+    conditions = variants.map { |_v| "LOWER(h3_contents) LIKE ?" }
+    values = variants.map { |v| "%#{v}%" }
+
+    @analyzed_buildings = BuildingAnalysis
+      .where(visible_in_library: true)
+      .where(conditions.join(' OR '), *values)
+      .order(created_at: :desc)
+
+    # Cities that have this style
+    @cities = @analyzed_buildings.map { |b| b.address.to_s.split(',').last(2).first.to_s.strip }.reject(&:blank?).tally.sort_by { |_c, n| -n }
+
+    # Matching places
+    @places = Place.where("LOWER(name) IN (?)", @cities.map { |c, _| c.downcase }).limit(12) if defined?(Place)
   end
 
   def calculate_style_metrics
