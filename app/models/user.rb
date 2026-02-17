@@ -11,6 +11,7 @@ class User < ApplicationRecord
   validates :public_name, presence: true, if: :enforce_profile_completion?
 
   before_create :set_default_credits
+  before_save :set_marketing_opted_in_at
   before_validation :assign_handle_and_public_name, on: :create
 
   def admin?
@@ -51,6 +52,15 @@ class User < ApplicationRecord
   def assign_handle_and_public_name
     self.handle = User.generate_unique_handle if handle.blank?
     self.public_name = User.generate_unique_public_name if public_name.blank?
+  end
+
+  # Timestamps when a user opts into marketing emails
+  def set_marketing_opted_in_at
+    if marketing_opt_in_changed? && marketing_opt_in?
+      self.marketing_opted_in_at = Time.current
+    elsif marketing_opt_in_changed? && !marketing_opt_in?
+      self.marketing_opted_in_at = nil
+    end
   end
 
   # Sets default credits for users without an active subscription
