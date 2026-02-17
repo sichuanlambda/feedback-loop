@@ -91,45 +91,45 @@ class ArchitectureExplorerController < ApplicationController
 
   def by_style
     @style_name = params[:style_name]
-
-    # Find buildings whose normalized styles include this style name
-    # We still use LIKE for the DB query, but normalize the display
     canonical = StyleNormalizer.normalize(@style_name)
-    
-    # Search for buildings that match either the canonical name or any of its variants
+
     variants = StyleNormalizer::CANONICAL_STYLES[canonical] || [@style_name.downcase]
     conditions = variants.map { |v| "LOWER(h3_contents) LIKE ?" }
     values = variants.map { |v| "%#{v}%" }
-    
+
     @analyzed_buildings = BuildingAnalysis
       .where(visible_in_library: true)
       .where(conditions.join(' OR '), *values)
       .order(created_at: :desc)
-      .page(params[:page]).per(24)
 
-    @style_name = canonical  # Display the canonical name
+    @style_name = canonical
 
-    # Set user stats (required by building_library view)
-    if user_signed_in?
-      style_frequency = BuildingAnalysis.style_frequency(current_user.id)
-      @style_frequency = style_frequency.sort_by { |_style, frequency| -frequency }
-      @unique_style_count = @style_frequency.length
-      @buildings_submitted_count = BuildingAnalysis.where(user: current_user).count
-    else
-      @style_frequency = nil
-      @unique_style_count = nil
-      @buildings_submitted_count = nil
+    # Cities that have this style
+    @cities = @analyzed_buildings.map { |b| b.address.to_s.split(',').last(2).first.to_s.strip }.reject(&:blank?).tally.sort_by { |_c, n| -n }
+    @places = begin
+      Place.where("LOWER(name) IN (?)", @cities.map { |c, _| c.downcase }).limit(12)
+    rescue
+      []
     end
 
-    @architecture_styles = BuildingAnalysis.pluck(:h3_contents).compact.flat_map do |h3_content|
+    # Co-occurring / related styles
+    style_tally = Hash.new(0)
+    @analyzed_buildings.each do |b|
       begin
-        StyleNormalizer.normalize_array(JSON.parse(h3_content || '[]'))
+        styles = StyleNormalizer.normalize_array(JSON.parse(b.h3_contents || '[]'))
+        styles.each { |s| style_tally[s] += 1 unless s == @style_name }
       rescue JSON::ParserError
-        []
+        next
       end
-    end.uniq.sort.first(20)
+    end
+    @related_styles = style_tally.sort_by { |_s, c| -c }.first(6)
 
-    render 'architecture_explorer/building_library', layout: 'application'
+    # All styles for sidebar navigation
+    @all_styles = BuildingAnalysis.where(visible_in_library: true).pluck(:h3_contents).compact.flat_map { |h|
+      begin; StyleNormalizer.normalize_array(JSON.parse(h)); rescue; []; end
+    }.tally.sort_by { |_s, c| -c }.first(30)
+
+    render 'architecture_explorer/by_style', layout: 'application'
   end
 
   def by_location
@@ -677,33 +677,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def style_show
-    @style_name = StyleNormalizer.normalize(params[:style_name])
-    variants = StyleNormalizer::CANONICAL_STYLES[@style_name] || [params[:style_name].downcase]
-    conditions = variants.map { |_v| "LOWER(h3_contents) LIKE ?" }
-    values = variants.map { |v| "%#{v}%" }
-
-    @analyzed_buildings = BuildingAnalysis
-      .where(visible_in_library: true)
-      .where(conditions.join(' OR '), *values)
-      .order(created_at: :desc)
-
-    # Cities that have this style
-    @cities = @analyzed_buildings.map { |b| b.address.to_s.split(',').last(2).first.to_s.strip }.reject(&:blank?).tally.sort_by { |_c, n| -n }
-
-    # Matching places
-    @places = Place.where("LOWER(name) IN (?)", @cities.map { |c, _| c.downcase }).limit(12) if defined?(Place)
-
-    # Co-occurring styles
-    style_tally = Hash.new(0)
-    @analyzed_buildings.each do |b|
-      begin
-        styles = StyleNormalizer.normalize_array(JSON.parse(b.h3_contents || '[]'))
-        styles.each { |s| style_tally[s] += 1 unless s == @style_name }
-      rescue JSON::ParserError
-        next
-      end
-    end
-    @related_styles = style_tally.sort_by { |_s, c| -c }.first(6)
+    redirect_to buildings_by_style_path(style_name: params[:style_name]), status: :moved_permanently
   end
 
   def calculate_style_metrics

@@ -1,0 +1,1290 @@
+<% content_for :title, "#{@style_name} Architecture — History, Buildings & Examples | Architecture Helper" %>
+<% content_for :meta_description do %>Explore <%= @style_name %> architecture: history, key characteristics, famous examples, and <%= @analyzed_buildings.size %> buildings in our library. A comprehensive guide to <%= @style_name %> design.<% end %>
+
+<%
+STYLE_CONTENT = {
+  "Art Deco" => {
+    era: "1920s–1940s",
+    origin: "France, United States",
+    tagline: "Where geometry meets glamour",
+    intro: "Art Deco is one of the most visually distinctive architectural styles of the 20th century. Born from a desire to celebrate modernity, technological progress, and luxury, it transformed cityscapes around the world with its bold geometric forms, lavish materials, and unmistakable sense of confidence. From the soaring skyscrapers of Manhattan to the pastel-hued hotels of Miami Beach, Art Deco buildings command attention and admiration nearly a century after their creation.",
+    history: "The style takes its name from the 1925 Exposition Internationale des Arts Décoratifs et Industriels Modernes in Paris, though its roots extend back to the pre-war experiments of Viennese and French designers. In the United States, Art Deco became the language of aspiration during the Roaring Twenties and persisted through the Depression era, when streamlined variants emerged. The style absorbed influences from ancient Egyptian art (spurred by the 1922 discovery of Tutankhamun's tomb), Cubism, Futurism, and indigenous American motifs, fusing them into a cosmopolitan aesthetic that felt simultaneously ancient and futuristic.",
+    characteristics: [
+      "Bold geometric patterns and angular forms",
+      "Stepped or ziggurat-like profiles and setback massing",
+      "Rich materials: chrome, marble, exotic woods, lacquer, and terracotta",
+      "Stylized natural motifs — sunbursts, chevrons, fountains, and flora",
+      "Vertical emphasis with strong horizontal banding",
+      "Elaborate lobby interiors with murals, metalwork, and ornamental ceilings",
+      "Integration of sculpture and bas-relief into facades"
+    ],
+    famous_examples: [
+      { name: "Chrysler Building", city: "New York City", year: "1930" },
+      { name: "Empire State Building", city: "New York City", year: "1931" },
+      { name: "Guardian Building", city: "Detroit", year: "1929" },
+      { name: "Eastern Columbia Building", city: "Los Angeles", year: "1929" },
+      { name: "Palacio de Bellas Artes", city: "Mexico City", year: "1934" }
+    ],
+    why_it_matters: "Art Deco democratized beauty in architecture by bringing artistry and craftsmanship to commercial buildings, movie theaters, apartment blocks, and subway stations — not just palaces and churches. Its optimistic embrace of new materials and industrial techniques anticipated our modern world, while its insistence on ornament and delight reminds us that buildings can be joyful. Today, Art Deco districts from Miami to Mumbai are beloved heritage zones, and the style's influence echoes in contemporary design that values bold geometry and material richness.",
+    related_styles: ["Streamline Moderne", "Beaux-Arts", "Art Nouveau", "International Style"]
+  },
+  "Art Nouveau" => {
+    era: "1890–1910",
+    origin: "Belgium, France",
+    tagline: "Nature as architecture's muse",
+    intro: "Art Nouveau swept through Europe like a vine climbing a trellis — organic, sinuous, and impossible to ignore. Rejecting the rigid historicism of the 19th century, architects and designers drew inspiration from the natural world: whiplash curves, flowering tendrils, insect wings, and ocean waves became the vocabulary of a style that sought to dissolve the boundaries between art, craft, and daily life.",
+    history: "The movement emerged simultaneously in Brussels (where Victor Horta designed the revolutionary Hôtel Tassel in 1893), Paris, Glasgow, Vienna, and Barcelona. Known by different names across Europe — Jugendstil in Germany, Modernisme in Catalonia, Sezessionstil in Austria — it was united by a commitment to total design, where every element from the building's structure to its door handles formed a unified artistic vision. Though relatively short-lived, Art Nouveau's influence on 20th-century design was profound, anticipating organic modernism and biophilic architecture.",
+    characteristics: [
+      "Flowing, organic lines inspired by plant forms and natural curves",
+      "Innovative use of iron, glass, and ceramic in expressive structural roles",
+      "Asymmetrical facades with dynamic, almost living compositions",
+      "Integration of decorative arts: stained glass, mosaic, metalwork, and ceramic tile",
+      "Whiplash curves and undulating surfaces",
+      "Emphasis on craftsmanship and handmade quality"
+    ],
+    famous_examples: [
+      { name: "Casa Batlló", city: "Barcelona", year: "1906" },
+      { name: "Hôtel Tassel", city: "Brussels", year: "1893" },
+      { name: "Paris Métro Entrances", city: "Paris", year: "1900" },
+      { name: "Secession Building", city: "Vienna", year: "1898" }
+    ],
+    why_it_matters: "Art Nouveau proved that modernity need not mean coldness. By insisting that beauty, craft, and nature could coexist with innovation, it offered an alternative path that resonates strongly today as architects embrace biophilic design, organic forms, and the integration of art into everyday spaces.",
+    related_styles: ["Art Deco", "Arts and Crafts", "Organic", "Jugendstil"]
+  },
+  "Baroque" => {
+    era: "1600–1750",
+    origin: "Italy",
+    tagline: "Drama, grandeur, and divine spectacle",
+    intro: "Baroque architecture is the architecture of persuasion. Emerging in Counter-Reformation Italy, it was designed to overwhelm the senses, inspire awe, and communicate the power of the Church and the state. With its bold curves, theatrical lighting, gilded surfaces, and monumental scale, Baroque architecture transformed the cities of Europe into stages for spiritual and political drama.",
+    history: "The style originated in Rome around 1600, pioneered by architects like Carlo Maderno, Gian Lorenzo Bernini, and Francesco Borromini. It spread rapidly across Catholic Europe — to Spain, Portugal, Austria, and the colonial territories of Latin America — and was adapted by Protestant nations in more restrained forms. Baroque urban planning created grand plazas, sweeping avenues, and monumental fountains that remain the defining features of cities like Rome, Prague, and Vienna.",
+    characteristics: [
+      "Grand scale with dramatic use of light, shadow, and movement",
+      "Curved walls, undulating facades, and oval floor plans",
+      "Lavish ornamentation: gilding, frescoes, stucco, and sculpture",
+      "Monumental staircases, domes, and colonnades",
+      "Integration of architecture, painting, and sculpture into a total artwork",
+      "Strong axial planning with processional sequences"
+    ],
+    famous_examples: [
+      { name: "St. Peter's Basilica", city: "Vatican City", year: "1626" },
+      { name: "Palace of Versailles", city: "Versailles", year: "1682" },
+      { name: "Karlskirche", city: "Vienna", year: "1737" },
+      { name: "Church of the Gesù", city: "Rome", year: "1584" }
+    ],
+    why_it_matters: "Baroque architecture reminds us of the emotional power of space. In an age of minimalism and efficiency, Baroque buildings demonstrate that architecture can move us, astonish us, and create experiences that transcend the purely functional. The style's mastery of theatrical space continues to inspire architects, set designers, and urban planners.",
+    related_styles: ["Rococo", "Renaissance", "Neoclassical", "Beaux-Arts"]
+  },
+  "Bauhaus" => {
+    era: "1919–1933",
+    origin: "Germany",
+    tagline: "Form follows function, art meets industry",
+    intro: "The Bauhaus was more than an architectural style — it was a revolution in how we think about design. Founded by Walter Gropius in Weimar, Germany in 1919, the Bauhaus school sought to unify art, craft, and technology to create a new aesthetic for the modern industrial age. Its architectural legacy — clean lines, flat roofs, white walls, and glass curtain walls — became the template for modernism worldwide.",
+    history: "The school moved from Weimar to Dessau in 1925, where Gropius designed the iconic Bauhaus building with its revolutionary glass curtain wall. Under successive directors — Gropius, Hannes Meyer, and Ludwig Mies van der Rohe — the school refined its approach to functional design. When the Nazis closed the Bauhaus in 1933, its masters emigrated to the United States, Britain, and Israel, spreading its principles across the globe. Tel Aviv's White City, built largely by Bauhaus-trained architects, contains the world's largest collection of Bauhaus buildings.",
+    characteristics: [
+      "Flat roofs and smooth, unadorned facades",
+      "Asymmetrical compositions based on function",
+      "Open floor plans with flexible interior spaces",
+      "Steel, glass, and reinforced concrete as primary materials",
+      "Ribbon windows and glass curtain walls",
+      "Primary colors used as accents against white surfaces",
+      "Integration of all design disciplines into a unified whole"
+    ],
+    famous_examples: [
+      { name: "Bauhaus Building", city: "Dessau", year: "1925" },
+      { name: "Fagus Factory", city: "Alfeld", year: "1911" },
+      { name: "Villa Tugendhat", city: "Brno", year: "1930" },
+      { name: "Tel Aviv White City", city: "Tel Aviv", year: "1930s" }
+    ],
+    why_it_matters: "The Bauhaus transformed design education, established the foundations of modern graphic design, furniture design, and architecture, and proved that good design could be democratic — available to everyone, not just the wealthy. Its principles of clarity, functionality, and the unity of art and technology remain the bedrock of design education worldwide.",
+    related_styles: ["International Style", "Modern", "Minimalist", "De Stijl"]
+  },
+  "Beaux-Arts" => {
+    era: "1880s–1920s",
+    origin: "France",
+    tagline: "Classical grandeur for the modern age",
+    intro: "Beaux-Arts architecture represents the pinnacle of academic classical design. Taught at the prestigious École des Beaux-Arts in Paris, this style combined Greek and Roman architectural forms with Renaissance planning principles and modern engineering to create buildings of extraordinary grandeur. In America, Beaux-Arts became the chosen style for institutions that wanted to project permanence, culture, and civic pride.",
+    history: "American architects who studied in Paris — including Richard Morris Hunt, Charles McKim, and Daniel Burnham — brought the Beaux-Arts approach back to the United States, where it flourished from the 1880s through the 1920s. The 1893 World's Columbian Exposition in Chicago, with its gleaming 'White City,' established Beaux-Arts as the style of American aspiration. Grand railway stations, public libraries, museums, and government buildings across the country adopted its monumental vocabulary.",
+    characteristics: [
+      "Symmetrical facades with grand axial planning",
+      "Classical columns, pilasters, and entablatures at monumental scale",
+      "Elaborate sculptural decoration and allegorical figures",
+      "Grand staircases, arched openings, and rusticated bases",
+      "Rich materials: marble, bronze, gilt, and polished stone",
+      "Mansard roofs, balustrades, and cartouches"
+    ],
+    famous_examples: [
+      { name: "Palais Garnier", city: "Paris", year: "1875" },
+      { name: "Grand Central Terminal", city: "New York City", year: "1913" },
+      { name: "New York Public Library", city: "New York City", year: "1911" },
+      { name: "San Francisco City Hall", city: "San Francisco", year: "1915" }
+    ],
+    why_it_matters: "Beaux-Arts architecture created some of the most beloved public spaces in the world. Its emphasis on civic grandeur, beautiful materials, and human-scaled monumentality offers lessons for contemporary architects seeking to create public buildings that inspire pride and belonging.",
+    related_styles: ["Neoclassical", "Baroque", "Art Deco", "Classical"]
+  },
+  "Brutalism" => {
+    era: "1950s–1970s",
+    origin: "United Kingdom",
+    tagline: "Raw concrete, radical honesty",
+    intro: "No architectural style provokes stronger reactions than Brutalism. Its massive concrete forms, raw textures, and uncompromising geometry inspire fierce devotion and visceral dislike in roughly equal measure. Born from postwar idealism and a belief that architecture could reshape society, Brutalism produced some of the 20th century's most powerful and controversial buildings.",
+    history: "The term derives from the French béton brut (raw concrete), championed by Le Corbusier in his Unité d'Habitation in Marseille (1952). In Britain, architects Alison and Peter Smithson theorized 'New Brutalism' as an ethical stance: honest expression of materials and structure, rejection of prettiness, and commitment to social housing and civic infrastructure. The style spread worldwide, becoming the default for universities, government buildings, and social housing complexes from London to São Paulo to Chandigarh.",
+    characteristics: [
+      "Exposed raw concrete (béton brut) as the primary material",
+      "Massive, sculptural geometric forms",
+      "Bold structural expression — the building's bones are visible",
+      "Repetitive modular elements creating rhythmic patterns",
+      "Elevated structures on pilotis, with covered walkways",
+      "Minimal surface decoration — texture comes from formwork patterns"
+    ],
+    famous_examples: [
+      { name: "Barbican Centre", city: "London", year: "1982" },
+      { name: "Habitat 67", city: "Montreal", year: "1967" },
+      { name: "National Theatre", city: "London", year: "1976" },
+      { name: "Unité d'Habitation", city: "Marseille", year: "1952" }
+    ],
+    why_it_matters: "Brutalism's radical honesty challenged architecture's tendency toward concealment and decoration. Today, a growing preservation movement celebrates Brutalist buildings as bold artistic statements and important social artifacts. The style's emphasis on structural expression and material truth continues to influence contemporary architects who reject superficiality.",
+    related_styles: ["Modern", "International Style", "Metabolist", "Deconstructivism"]
+  },
+  "Byzantine" => {
+    era: "330–1453",
+    origin: "Eastern Roman Empire",
+    tagline: "Heaven on earth, rendered in mosaic and dome",
+    intro: "Byzantine architecture created some of the most awe-inspiring interior spaces in human history. For over a millennium, the architects of the Eastern Roman Empire perfected the art of enclosing vast spaces with soaring domes, then covering every surface with shimmering gold mosaics that dissolved the boundary between the earthly and the divine.",
+    history: "The style emerged when Emperor Constantine established Constantinople (modern Istanbul) as the new capital of the Roman Empire in 330 AD. It reached its zenith under Emperor Justinian, whose architects Anthemius of Tralles and Isidorus of Miletus created the Hagia Sophia (537 AD) — a building so extraordinary that it remained the world's largest cathedral for nearly a thousand years. Byzantine architectural principles spread throughout the Orthodox Christian world, influencing churches in Russia, Greece, the Balkans, and beyond.",
+    characteristics: [
+      "Central-plan churches crowned with massive pendentive domes",
+      "Rich interior decoration with gold mosaics and frescoes",
+      "Relatively plain exteriors contrasting with lavish interiors",
+      "Use of the pendentive to transition from square base to circular dome",
+      "Elaborate carved capitals and marble revetment",
+      "Hierarchical spatial organization reflecting theological order"
+    ],
+    famous_examples: [
+      { name: "Hagia Sophia", city: "Istanbul", year: "537" },
+      { name: "San Vitale", city: "Ravenna", year: "547" },
+      { name: "St. Mark's Basilica", city: "Venice", year: "1094" },
+      { name: "Monastery of Hosios Loukas", city: "Boeotia", year: "1011" }
+    ],
+    why_it_matters: "Byzantine architecture demonstrated that the most profound architectural experiences come from the manipulation of light and surface within enclosed space. Its influence extends far beyond the Christian world, inspiring Islamic architecture and continuing to shape Orthodox church design today.",
+    related_styles: ["Romanesque", "Islamic", "Gothic", "Russian Revival"]
+  },
+  "Chicago School" => {
+    era: "1880s–1910s",
+    origin: "United States",
+    tagline: "The birth of the skyscraper",
+    intro: "The Chicago School gave the world the modern skyscraper. After the Great Fire of 1871 leveled much of the city, Chicago became a laboratory for architectural innovation. Engineers and architects developed steel-frame construction, enabling buildings to rise far beyond the limits of load-bearing masonry. The result was a new building type that would reshape the skylines of cities worldwide.",
+    history: "Architects like William Le Baron Jenney, Daniel Burnham, John Root, and Louis Sullivan pioneered steel-frame construction and the 'Chicago window' — a large fixed pane flanked by narrower operable sashes. Sullivan's dictum 'form follows function' became the rallying cry of modern architecture. The Home Insurance Building (1885), often called the first skyscraper, used a metal frame to support its walls, fundamentally changing how buildings were conceived and constructed.",
+    characteristics: [
+      "Steel-frame construction enabling unprecedented height",
+      "Large plate glass windows (the 'Chicago window')",
+      "Restrained but elegant ornamental programs",
+      "Tripartite facade composition: base, shaft, and capital",
+      "Flat roofs and clean rectangular profiles",
+      "Sullivan's organic ornamental terracotta work"
+    ],
+    famous_examples: [
+      { name: "Rookery Building", city: "Chicago", year: "1888" },
+      { name: "Monadnock Building", city: "Chicago", year: "1893" },
+      { name: "Carson Pirie Scott Building", city: "Chicago", year: "1899" },
+      { name: "Reliance Building", city: "Chicago", year: "1895" }
+    ],
+    why_it_matters: "The Chicago School invented the tall office building and, with it, the modern city. Its innovations in structural engineering, its aesthetic principles, and its belief that commercial architecture could aspire to art laid the foundation for everything from the International Style to today's supertall towers.",
+    related_styles: ["International Style", "Modern", "Prairie School", "Art Deco"]
+  },
+  "Classical" => {
+    era: "800 BC–600 AD",
+    origin: "Greece, Rome",
+    tagline: "The eternal language of architecture",
+    intro: "Classical architecture is the foundation upon which Western architecture stands. Developed in ancient Greece and refined by the Romans, its principles of symmetry, proportion, and the columnar orders have been studied, adapted, and reinterpreted for over 2,500 years. From the Parthenon to the Lincoln Memorial, classical forms communicate permanence, dignity, and universal ideals.",
+    history: "The Greeks developed three columnar orders — Doric, Ionic, and Corinthian — each with specific proportional relationships between base, shaft, capital, and entablature. The Romans added the Tuscan and Composite orders and revolutionized construction with the arch, vault, and concrete, enabling buildings of unprecedented scale like the Pantheon and the Colosseum. After the fall of Rome, classical principles were preserved in treatises by Vitruvius and revived during the Renaissance, ensuring their influence would span millennia.",
+    characteristics: [
+      "Columnar orders: Doric, Ionic, Corinthian, Tuscan, and Composite",
+      "Symmetrical plans and proportional facades",
+      "Triangular pediments over porticoes",
+      "Entablatures with architrave, frieze, and cornice",
+      "Post-and-lintel construction (Greek) and arches/vaults (Roman)",
+      "Mathematical proportional systems governing all elements"
+    ],
+    famous_examples: [
+      { name: "Parthenon", city: "Athens", year: "438 BC" },
+      { name: "Pantheon", city: "Rome", year: "125 AD" },
+      { name: "Colosseum", city: "Rome", year: "80 AD" },
+      { name: "Temple of Hephaestus", city: "Athens", year: "415 BC" }
+    ],
+    why_it_matters: "Classical architecture established the idea that buildings could embody ideal proportions and universal beauty. Its vocabulary remains the most widely understood architectural language in the world, and its principles of order, harmony, and human scale continue to inform architects seeking timeless design.",
+    related_styles: ["Neoclassical", "Greek Revival", "Beaux-Arts", "Renaissance"]
+  },
+  "Colonial" => {
+    era: "1600s–1800s",
+    origin: "European colonies worldwide",
+    tagline: "Old World traditions in New World settings",
+    intro: "Colonial architecture tells the story of cultural transplantation — European settlers bringing familiar building traditions to unfamiliar lands and adapting them to new climates, materials, and social conditions. From the clapboard houses of New England to the haciendas of Mexico, Colonial buildings reflect the meeting of cultures and the forging of new identities.",
+    history: "Each colonial power left a distinctive architectural legacy. British colonists built symmetrical Georgian houses with central hallways; the Spanish created thick-walled adobe structures with interior courtyards; the Dutch built steep-gabled brick houses; and the French developed the raised Creole cottage. Over time, these imported forms were modified by local conditions — wider porches for hotter climates, different materials where European supplies were unavailable — creating distinctly American, Latin American, and Asian architectural traditions.",
+    characteristics: [
+      "Symmetrical facades with central entrance doors",
+      "Steep roofs adapted to local climate conditions",
+      "Local materials: clapboard, brick, adobe, or stone",
+      "Multi-pane sash windows in regular patterns",
+      "Simple classical details — pilasters, pediments, fanlights",
+      "Practical layouts suited to domestic and agricultural life"
+    ],
+    famous_examples: [
+      { name: "Independence Hall", city: "Philadelphia", year: "1753" },
+      { name: "Williamsburg Governor's Palace", city: "Williamsburg", year: "1722" },
+      { name: "Mission San Juan Capistrano", city: "San Juan Capistrano", year: "1776" },
+      { name: "St. Louis Cathedral", city: "New Orleans", year: "1794" }
+    ],
+    why_it_matters: "Colonial architecture represents the roots of American and Latin American building traditions. Understanding Colonial styles illuminates how architecture carries cultural identity across oceans and how new environments transform inherited forms into something original.",
+    related_styles: ["Georgian", "Federal", "Spanish Colonial Revival", "Cape Cod"]
+  },
+  "Contemporary" => {
+    era: "1990s–present",
+    origin: "Global",
+    tagline: "Architecture of right now",
+    intro: "Contemporary architecture defies easy definition because it is, by nature, the architecture of the present moment — diverse, experimental, and responsive to rapidly changing technologies, environmental imperatives, and cultural values. What unites contemporary work is an emphasis on sustainability, digital fabrication, material innovation, and designs that respond thoughtfully to their specific sites and communities.",
+    history: "The term 'contemporary' distinguishes current architectural practice from the historical 'Modern' movement. Where modernism sought universal solutions, contemporary architecture embraces pluralism. The rise of computational design tools, parametric modeling, and Building Information Modeling (BIM) has expanded the formal possibilities of architecture, while the climate crisis has made sustainable design an ethical imperative rather than an optional feature.",
+    characteristics: [
+      "Emphasis on sustainability, energy efficiency, and green materials",
+      "Free-form geometry enabled by digital design and fabrication",
+      "Transparency and the blurring of interior and exterior spaces",
+      "Adaptive reuse and dialogue with existing urban contexts",
+      "Mixed materials: timber, glass, steel, recycled and bio-based products",
+      "Site-specific design responding to local climate and culture"
+    ],
+    famous_examples: [
+      { name: "The Shard", city: "London", year: "2012" },
+      { name: "CCTV Headquarters", city: "Beijing", year: "2012" },
+      { name: "Bosco Verticale", city: "Milan", year: "2014" },
+      { name: "CopenHill", city: "Copenhagen", year: "2019" }
+    ],
+    why_it_matters: "Contemporary architecture confronts the defining challenge of our era: how to build beautifully and sustainably on a planet with finite resources. The best contemporary buildings show that environmental responsibility and architectural ambition are not opposed but deeply complementary.",
+    related_styles: ["Parametric", "Deconstructivism", "Minimalist", "Modern"]
+  },
+  "Craftsman" => {
+    era: "1900–1930",
+    origin: "United States",
+    tagline: "The art of honest handiwork",
+    intro: "Craftsman architecture emerged from the American Arts and Crafts movement as a direct response to the mass-produced, over-ornamented buildings of the Victorian era. Championing honest materials, skilled handwork, and simple living, the Craftsman style created some of America's most beloved and livable homes — houses that feel warm, human-scaled, and deeply connected to their surroundings.",
+    history: "Inspired by the English Arts and Crafts movement of William Morris, American designers Gustav Stickley, Charles and Henry Greene, and others developed the Craftsman ideal through publications like Stickley's magazine The Craftsman (1901–1916). The Greene brothers' Gamble House in Pasadena (1908) represents the style's artistic pinnacle, while Sears catalog homes brought Craftsman design to middle-class families across America. The style's popularity waned with the Depression but has enjoyed continuous revival.",
+    characteristics: [
+      "Low-pitched gable roofs with wide, overhanging eaves",
+      "Exposed roof rafters and decorative brackets",
+      "Tapered columns on stone or brick piers supporting porches",
+      "Extensive use of natural materials: wood, stone, and brick",
+      "Built-in furniture, cabinetry, and window seats",
+      "Open floor plans connecting living, dining, and kitchen areas"
+    ],
+    famous_examples: [
+      { name: "Gamble House", city: "Pasadena", year: "1908" },
+      { name: "Thorsen House", city: "Berkeley", year: "1909" },
+      { name: "Stickley's Craftsman Farms", city: "Parsippany", year: "1911" }
+    ],
+    why_it_matters: "The Craftsman movement's insistence on quality materials, skilled labor, and human-scaled design anticipated many current architectural values. In an age of prefabrication and mass production, the Craftsman ideal of a handmade home crafted from natural materials remains powerfully appealing.",
+    related_styles: ["Arts and Crafts", "Prairie School", "Mission Revival", "Bungalow"]
+  },
+  "Deconstructivism" => {
+    era: "1980s–present",
+    origin: "Global",
+    tagline: "Defying gravity, defying expectation",
+    intro: "Deconstructivism shattered architectural conventions — sometimes literally. Inspired by the philosophical writings of Jacques Derrida and the visual experiments of Russian Constructivism, deconstructivist architects created buildings that appear fragmented, disjointed, and dynamically unstable. These are structures that challenge our assumptions about what buildings can look like and how they should behave.",
+    history: "The movement was crystallized by Philip Johnson and Mark Wigley's 1988 exhibition 'Deconstructivist Architecture' at MoMA, which featured seven architects: Frank Gehry, Daniel Libeskind, Rem Koolhaas, Peter Eisenman, Zaha Hadid, Coop Himmelb(l)au, and Bernard Tschumi. Gehry's Guggenheim Museum Bilbao (1997) became the movement's most famous building, demonstrating that radically unconventional forms could revitalize entire cities.",
+    characteristics: [
+      "Fragmented forms that appear to be in motion or collision",
+      "Unexpected angles, tilted walls, and non-rectilinear geometry",
+      "Apparent structural instability that defies expectations",
+      "Clashing materials, surfaces, and geometric systems",
+      "Absence of obvious symmetry, harmony, or visual logic",
+      "Complex curved surfaces enabled by digital design tools"
+    ],
+    famous_examples: [
+      { name: "Guggenheim Museum Bilbao", city: "Bilbao", year: "1997" },
+      { name: "Jewish Museum", city: "Berlin", year: "2001" },
+      { name: "Walt Disney Concert Hall", city: "Los Angeles", year: "2003" },
+      { name: "CCTV Headquarters", city: "Beijing", year: "2012" }
+    ],
+    why_it_matters: "Deconstructivism expanded architecture's expressive vocabulary beyond anything previously imagined. By demonstrating that buildings need not conform to regular geometry, it opened the door for the digitally-driven, free-form architecture of the 21st century and proved that architecture can be as challenging and provocative as any other art form.",
+    related_styles: ["Parametric", "Brutalism", "Expressionism", "Contemporary"]
+  },
+  "Edwardian" => {
+    era: "1901–1910",
+    origin: "United Kingdom",
+    tagline: "Victorian restraint, Edwardian light",
+    intro: "Edwardian architecture represents a graceful transition between the ornate complexity of the Victorian era and the stripped-down modernism that would follow. Named for King Edward VII's brief reign, the style brought more light, space, and classical restraint to British domestic and commercial architecture, creating buildings that feel airy and elegant without Victorian excess.",
+    history: "The Edwardian era was shaped by technological advances — electric lighting, improved plumbing, and better glass manufacturing — that allowed architects to design rooms with larger windows and more open plans. The style blended elements of Baroque Revival, Arts and Crafts, and Art Nouveau, creating a distinctive English character. Edwardian suburbs, with their wide tree-lined streets and spacious semi-detached houses, remain some of the most desirable residential areas in British cities.",
+    characteristics: [
+      "Wider hallways and larger rooms compared to Victorian homes",
+      "Large sash windows, often with decorative leaded glass",
+      "Classical proportions with simpler, more restrained ornament",
+      "Red brick or rendered facades with stone or terracotta details",
+      "Front gardens with low brick walls and tiled paths",
+      "Mock-Tudor half-timbering on upper stories"
+    ],
+    famous_examples: [
+      { name: "Selfridges", city: "London", year: "1909" },
+      { name: "The Ritz Hotel", city: "London", year: "1906" },
+      { name: "Methodist Central Hall", city: "London", year: "1912" }
+    ],
+    why_it_matters: "Edwardian architecture represents a civilized middle ground between ornamental excess and modernist austerity. Its emphasis on light, proportion, and livability makes Edwardian houses perennially popular, and its balanced approach to tradition and innovation offers lessons for residential design today.",
+    related_styles: ["Victorian", "Arts and Crafts", "Baroque Revival", "Georgian"]
+  },
+  "Federal" => {
+    era: "1780–1830",
+    origin: "United States",
+    tagline: "The young republic's refined elegance",
+    intro: "Federal architecture was America's first truly national style — an expression of the new republic's democratic ideals rendered in brick, marble, and delicate neoclassical ornament. Drawing from the work of Scottish architect Robert Adam and the archaeological discoveries at Pompeii and Herculaneum, Federal architecture refined the Georgian tradition with lighter, more elegant details.",
+    history: "The style flourished in the decades following American independence, particularly in the prosperous merchant cities of the Eastern Seaboard — Boston, Salem, New York, Philadelphia, and Charleston. Architect Charles Bulfinch and builder-designer Samuel McIntire created some of the finest Federal buildings, while Thomas Jefferson's designs for Monticello and the University of Virginia blended Federal elegance with Palladian classicism.",
+    characteristics: [
+      "Delicate neoclassical ornament: swags, urns, garlands, and eagles",
+      "Elliptical and semicircular fanlights over entrance doors",
+      "Palladian windows and oval or circular rooms",
+      "Low-pitched roofs with balustrades",
+      "Attenuated columns and pilasters",
+      "Symmetrical facades of brick with white marble or wood trim"
+    ],
+    famous_examples: [
+      { name: "Massachusetts State House", city: "Boston", year: "1798" },
+      { name: "Monticello", city: "Charlottesville", year: "1809" },
+      { name: "Hamilton Grange", city: "New York City", year: "1802" }
+    ],
+    why_it_matters: "Federal architecture embodies the aspirations of the early American republic — elegance without aristocratic excess, learning without pedantry, beauty grounded in democratic ideals. Its careful proportions and refined details set a standard for American domestic architecture that endures.",
+    related_styles: ["Georgian", "Neoclassical", "Greek Revival", "Colonial"]
+  },
+  "Georgian" => {
+    era: "1714–1830",
+    origin: "United Kingdom",
+    tagline: "Order, proportion, and enduring grace",
+    intro: "Georgian architecture is the embodiment of English classical restraint. Spanning the reigns of the four King Georges, it brought Palladian ideals of symmetry, proportion, and harmony to everything from grand country houses to modest terraced homes. Georgian buildings are so timelessly proportioned that they remain among the most admired and imitated in the English-speaking world.",
+    history: "The style was shaped by a series of influential architects and pattern-book authors — Colen Campbell, Lord Burlington, James Gibbs, and Robert Adam — who adapted the Renaissance classicism of Andrea Palladio for British tastes and climates. The Georgian era saw the creation of some of the finest planned urban environments in history, including Bath's Royal Crescent, Edinburgh's New Town, and Dublin's Georgian squares.",
+    characteristics: [
+      "Symmetrical facades with central entrance door",
+      "Sash windows in regular rows, diminishing in size with each story",
+      "Classical doorways with fanlights, columns, and pediments",
+      "Brick or stone construction with precise proportional ratios",
+      "Hipped roofs, often hidden behind parapets",
+      "Restrained classical ornament — quoins, cornices, keystones"
+    ],
+    famous_examples: [
+      { name: "Royal Crescent", city: "Bath", year: "1774" },
+      { name: "Chiswick House", city: "London", year: "1729" },
+      { name: "Drayton Hall", city: "Charleston", year: "1742" }
+    ],
+    why_it_matters: "Georgian architecture proved that restraint and proportion could create buildings of extraordinary beauty and enduring appeal. Its vocabulary of symmetry, classical detail, and harmonious proportions remains the foundation of traditional residential design across the English-speaking world.",
+    related_styles: ["Federal", "Colonial", "Neoclassical", "Palladian"]
+  },
+  "Gothic" => {
+    era: "1100s–1500s",
+    origin: "France",
+    tagline: "Reaching for heaven in stone and light",
+    intro: "Gothic architecture represents one of humanity's most audacious structural achievements. For four centuries, master builders across Europe competed to create churches of ever-greater height, flooding their interiors with colored light through vast stained-glass windows. The result was a body of work — the great cathedrals — that remains among the most sublime achievements of human civilization.",
+    history: "The Gothic style was born at the Abbey Church of Saint-Denis near Paris around 1140, when Abbot Suger employed pointed arches, ribbed vaults, and large windows to create an architecture of luminous transcendence. The innovations spread rapidly: Notre-Dame de Paris, Chartres, Reims, Amiens, Cologne, and Salisbury cathedrals followed in a building campaign that lasted centuries. Each generation pushed the structural system further, achieving ever-greater height and transparency.",
+    characteristics: [
+      "Pointed arches distributing weight more efficiently than round arches",
+      "Ribbed vaults creating skeletal ceiling structures",
+      "Flying buttresses transferring roof thrust to external supports",
+      "Vast stained-glass windows filling interiors with colored light",
+      "Soaring vertical proportions emphasizing height and aspiration",
+      "Elaborate stone tracery, pinnacles, and sculptural programs"
+    ],
+    famous_examples: [
+      { name: "Notre-Dame de Paris", city: "Paris", year: "1345" },
+      { name: "Chartres Cathedral", city: "Chartres", year: "1220" },
+      { name: "Cologne Cathedral", city: "Cologne", year: "1880" },
+      { name: "Salisbury Cathedral", city: "Salisbury", year: "1258" }
+    ],
+    why_it_matters: "Gothic architecture pushed the boundaries of what was structurally possible with pre-industrial materials, creating spaces of transcendent beauty that continue to inspire awe. Its lesson — that engineering and artistry are inseparable — remains profoundly relevant.",
+    related_styles: ["Gothic Revival", "Neo-Gothic", "Romanesque", "Byzantine"]
+  },
+  "Gothic Revival" => {
+    era: "1740s–1900s",
+    origin: "United Kingdom",
+    tagline: "Medieval romance reborn",
+    intro: "Gothic Revival architecture brought the pointed arches, soaring spires, and romantic grandeur of medieval Gothic into the modern era. What began as an aristocratic taste for picturesque ruins grew into a major architectural movement that reshaped the skylines of cities across Europe and North America with churches, universities, government buildings, and railway stations.",
+    history: "The movement began with Horace Walpole's Strawberry Hill House (1749), a whimsical 'Gothick' villa that sparked fashionable interest in medieval forms. By the 1830s, architects like Augustus Welby Northmore Pugin and later George Gilbert Scott had elevated Gothic Revival into a serious moral and architectural crusade. Pugin argued that Gothic was the only truly Christian architecture; the British Parliament chose Gothic Revival for the rebuilt Palace of Westminster (1840s–1870s), establishing it as a national style.",
+    characteristics: [
+      "Pointed arches, ribbed vaults, and flying buttresses adapted for modern use",
+      "Ornate stone tracery and stained-glass windows",
+      "Steeply pitched roofs, spires, and pinnacles",
+      "Asymmetrical compositions with towers and turrets",
+      "Rich sculptural decoration and polychrome materials",
+      "Emphasis on verticality and dramatic silhouettes"
+    ],
+    famous_examples: [
+      { name: "Palace of Westminster", city: "London", year: "1870" },
+      { name: "St. Patrick's Cathedral", city: "New York City", year: "1878" },
+      { name: "Strawberry Hill House", city: "London", year: "1776" },
+      { name: "Parliament Hill", city: "Ottawa", year: "1876" }
+    ],
+    why_it_matters: "Gothic Revival demonstrated that historical styles could be creatively reinterpreted for modern purposes. Its finest buildings — from university quadrangles to soaring cathedrals — rank among the most atmospheric and beloved spaces in the English-speaking world.",
+    related_styles: ["Gothic", "Neo-Gothic", "Victorian", "Romanesque Revival"]
+  },
+  "Greek Revival" => {
+    era: "1820s–1860s",
+    origin: "Europe, United States",
+    tagline: "Democracy's architecture",
+    intro: "Greek Revival architecture spread across the Western world like a democratic fever. Inspired by the rediscovery of ancient Greek temples and fueled by sympathy for the Greek War of Independence (1821–1829), architects from Edinburgh to Athens to the American frontier wrapped their buildings in columned porticos and pedimented facades, creating a visual language that associated modern nations with the birthplace of democracy.",
+    history: "Archaeological expeditions to Greece in the 18th century — particularly James Stuart and Nicholas Revett's 'The Antiquities of Athens' (1762) — provided architects with accurate drawings of Greek buildings for the first time. In America, Benjamin Henry Latrobe, William Strickland, and others adapted the Greek temple form for banks, courthouses, churches, and plantation houses. The style became so ubiquitous in the antebellum South that it's sometimes called 'National Style.'",
+    characteristics: [
+      "Prominent porticos with Doric or Ionic columns",
+      "Triangular pediments over entrances and gable ends",
+      "Bold, simple moldings and clean geometric profiles",
+      "White-painted or stuccoed surfaces (though Greek temples were originally polychrome)",
+      "Symmetrical plans with central halls",
+      "Low-pitched roofs and wide entablatures"
+    ],
+    famous_examples: [
+      { name: "Second Bank of the United States", city: "Philadelphia", year: "1824" },
+      { name: "British Museum", city: "London", year: "1852" },
+      { name: "Walhalla Memorial", city: "Regensburg", year: "1842" }
+    ],
+    why_it_matters: "Greek Revival architecture expressed the Enlightenment's highest aspirations: reason, democracy, and the belief that ancient wisdom could guide modern progress. Its clean lines and democratic associations continue to make it a popular choice for civic architecture.",
+    related_styles: ["Classical", "Neoclassical", "Federal", "Beaux-Arts"]
+  },
+  "Industrial" => {
+    era: "1850s–present",
+    origin: "United Kingdom, United States",
+    tagline: "The beauty of making things",
+    intro: "Industrial architecture celebrates the raw beauty of functional structures — factories, warehouses, bridges, and infrastructure. What was once purely utilitarian has become one of the most influential aesthetic movements in contemporary design, inspiring loft living, creative workspaces, restaurants, and cultural venues worldwide.",
+    history: "The Industrial Revolution created entirely new building types: iron-framed textile mills, railway stations with vast glass-and-iron train sheds, grain elevators, and power stations. Early modernists like Le Corbusier and Walter Gropius recognized the beauty in these unself-conscious structures, celebrating their honest expression of function and material. The adaptive reuse movement of the late 20th century transformed obsolete industrial buildings into some of the world's most desirable living and working spaces.",
+    characteristics: [
+      "Exposed structural elements: steel beams, columns, and trusses",
+      "Large multi-pane windows for natural factory lighting",
+      "Brick, steel, and concrete as primary materials",
+      "Open floor plans with high ceilings",
+      "Visible mechanical systems: ductwork, piping, and wiring",
+      "Loading docks, freight elevators, and industrial hardware"
+    ],
+    famous_examples: [
+      { name: "Tate Modern", city: "London", year: "2000" },
+      { name: "Battersea Power Station", city: "London", year: "1933" },
+      { name: "Zeche Zollverein", city: "Essen", year: "1932" }
+    ],
+    why_it_matters: "Industrial architecture teaches us to find beauty in function and to see the potential in buildings that have outlived their original purpose. The adaptive reuse of industrial structures is one of the most sustainable forms of development, preserving embodied energy while creating vibrant new spaces.",
+    related_styles: ["Modern", "Brutalism", "Chicago School", "Contemporary"]
+  },
+  "International Style" => {
+    era: "1920s–1970s",
+    origin: "Europe",
+    tagline: "Less is more, everywhere",
+    intro: "The International Style promised a universal architecture for the modern world — rational, efficient, and freed from historical ornament. Its glass curtain walls, open floor plans, and structural honesty transformed cityscapes on every continent, becoming the default language of corporate and institutional architecture for half a century.",
+    history: "The term was coined by Henry-Russell Hitchcock and Philip Johnson for their landmark 1932 exhibition at the Museum of Modern Art in New York. The show presented the work of Le Corbusier, Mies van der Rohe, Walter Gropius, and J.J.P. Oud as a unified movement defined by three principles: volume rather than mass, regularity rather than symmetry, and the rejection of applied decoration. After World War II, the style spread globally as the architecture of progress, democracy, and corporate modernity.",
+    characteristics: [
+      "Glass curtain walls revealing the structural frame",
+      "Open, flexible floor plans free of load-bearing walls",
+      "Complete absence of applied ornament",
+      "Flat roofs and rectilinear volumes",
+      "Steel and reinforced concrete as primary structural materials",
+      "Pilotis (columns) raising buildings above ground level"
+    ],
+    famous_examples: [
+      { name: "Seagram Building", city: "New York City", year: "1958" },
+      { name: "Villa Savoye", city: "Poissy", year: "1931" },
+      { name: "Lever House", city: "New York City", year: "1952" },
+      { name: "Lake Shore Drive Apartments", city: "Chicago", year: "1951" }
+    ],
+    why_it_matters: "The International Style proved that architecture could transcend national and cultural boundaries, creating a shared visual language for the modern world. While its uniformity eventually provoked the Postmodern backlash, its principles of structural clarity, spatial fluidity, and honest materials remain fundamental to architectural practice.",
+    related_styles: ["Bauhaus", "Modern", "Minimalist", "Brutalism"]
+  },
+  "Islamic" => {
+    era: "700–present",
+    origin: "Arabian Peninsula, Middle East",
+    tagline: "Geometry as divine expression",
+    intro: "Islamic architecture encompasses an extraordinarily rich and diverse tradition spanning over 1,300 years and stretching from Spain to Indonesia. United by shared principles — geometric abstraction, calligraphic decoration, the importance of light and water, and the creation of paradise-like gardens and courtyards — it has produced some of the most breathtakingly beautiful buildings ever constructed.",
+    history: "The tradition began with the construction of the first mosques in Medina and expanded rapidly as Islam spread across the Middle East, North Africa, Spain, Persia, Central Asia, and the Indian subcontinent. Each region developed distinctive variations: the horseshoe arches of Moorish Spain, the tile-clad domes of Safavid Iran, the soaring minarets of Ottoman Turkey, and the red sandstone and marble of Mughal India. Despite this diversity, a coherent aesthetic vision — emphasizing the divine order revealed through geometry — unifies the tradition.",
+    characteristics: [
+      "Complex geometric patterns expressing mathematical infinity",
+      "Arabesques: interlacing vegetal and abstract ornament",
+      "Muqarnas: honeycomb-like vaulting and cornices",
+      "Calligraphic inscriptions as primary decoration",
+      "Courtyards with fountains, gardens, and water channels",
+      "Minarets, domes, and iwans (vaulted portals)"
+    ],
+    famous_examples: [
+      { name: "Alhambra", city: "Granada", year: "1370" },
+      { name: "Great Mosque of Córdoba", city: "Córdoba", year: "987" },
+      { name: "Taj Mahal", city: "Agra", year: "1653" },
+      { name: "Sultan Ahmed Mosque", city: "Istanbul", year: "1616" }
+    ],
+    why_it_matters: "Islamic architecture demonstrates that ornament can be deeply intellectual rather than merely decorative. Its mastery of geometric pattern, its sensitivity to light and water, and its creation of contemplative spaces offer rich lessons for architects working in any tradition.",
+    related_styles: ["Moorish Revival", "Byzantine", "Mughal", "Ottoman"]
+  },
+  "Italianate" => {
+    era: "1840s–1880s",
+    origin: "United Kingdom, United States",
+    tagline: "Tuscan romance in an American setting",
+    intro: "Italianate architecture brought the romance of the Italian countryside to the streets of Victorian-era cities and towns. Inspired by the informal villas of Tuscany, the style offered an alternative to the strict symmetry of Greek Revival — more relaxed, more picturesque, and perfectly suited to the aspirations of a prosperous middle class.",
+    history: "The style originated in Britain during the 1830s as part of the Picturesque movement, popularized by architects like Charles Barry (who designed the Italianate Reform Club in London). American architect Alexander Jackson Davis and landscape designer Andrew Jackson Downing brought it to the United States, where it became enormously popular for both urban brownstones and rural villas from the 1850s through the 1880s.",
+    characteristics: [
+      "Low-pitched roofs with wide, overhanging eaves",
+      "Decorative brackets (corbels) beneath the eaves",
+      "Tall, narrow windows with elaborate hoods or crowns",
+      "Cupolas or square towers on larger examples",
+      "Quoined corners and rusticated first floors",
+      "Cast-iron facades on commercial buildings"
+    ],
+    famous_examples: [
+      { name: "Reform Club", city: "London", year: "1841" },
+      { name: "Morse-Libby House", city: "Portland, Maine", year: "1860" },
+      { name: "SoHo Cast Iron District", city: "New York City", year: "1860s" }
+    ],
+    why_it_matters: "Italianate architecture democratized elegance. Its adaptable forms worked equally well for grand mansions and modest row houses, proving that picturesque beauty could be achieved at every economic level. The style's distinctive brackets and tall windows remain instantly recognizable in American towns from coast to coast.",
+    related_styles: ["Renaissance Revival", "Victorian", "Second Empire", "Queen Anne"]
+  },
+  "Mediterranean Revival" => {
+    era: "1920s–1940s",
+    origin: "United States",
+    tagline: "Sun-drenched dreams in stucco and tile",
+    intro: "Mediterranean Revival architecture captured the American imagination during the 1920s boom years, evoking the warmth, romance, and leisure of Southern European living. Blending Spanish, Italian, and Moorish influences, the style created a fantasy of Mediterranean life perfectly suited to the sun-drenched climates of Florida, California, and the American Southwest.",
+    history: "Architect Addison Mizner is credited with popularizing the style in Palm Beach, Florida, beginning in 1918 with the Everglades Club. His romantic, loosely historical designs — featuring arched loggias, tiled courtyards, and ornamental ironwork — established a template that was widely copied throughout Florida and Southern California. The style experienced a major revival in the 1980s–2000s as a popular choice for upscale residential development.",
+    characteristics: [
+      "Stucco walls in white, cream, or earth tones",
+      "Red clay barrel-tile roofs",
+      "Arched windows, doorways, and loggias",
+      "Wrought iron balconies, railings, and light fixtures",
+      "Interior courtyards with fountains and lush planting",
+      "Asymmetrical massing with towers and varied rooflines"
+    ],
+    famous_examples: [
+      { name: "Everglades Club", city: "Palm Beach", year: "1919" },
+      { name: "Coral Gables", city: "Miami", year: "1920s" },
+      { name: "Santa Barbara County Courthouse", city: "Santa Barbara", year: "1929" }
+    ],
+    why_it_matters: "Mediterranean Revival created a uniquely American architectural fantasy — a sun-soaked lifestyle architecture that shaped the identity of entire cities and regions. Its enduring popularity demonstrates architecture's power to create aspirational environments that blur the line between reality and romance.",
+    related_styles: ["Spanish Colonial Revival", "Mission Revival", "Italianate", "Moorish Revival"]
+  },
+  "Mid-Century Modern" => {
+    era: "1940s–1960s",
+    origin: "United States, Scandinavia",
+    tagline: "Living with optimism",
+    intro: "Mid-Century Modern architecture captured the optimism of the postwar era in glass, steel, and sunlight. These buildings — with their clean lines, organic curves, and seamless connection between indoor and outdoor spaces — represented a new way of living: casual, democratic, open to nature, and confidently modern. Today, Mid-Century Modern is among the most collected, photographed, and beloved architectural styles in the world.",
+    history: "The style emerged from the Case Study House program (1945–1966), which commissioned architects like Charles and Ray Eames, Pierre Koenig, and Richard Neutra to design affordable, innovative modern homes for postwar living. Simultaneously, Eero Saarinen created expressive public buildings like the TWA Flight Center and the Gateway Arch. In Scandinavia, Alvar Aalto and Arne Jacobsen developed a warmer, more organic variant. Palm Springs, California became the style's spiritual home, filled with iconic houses by Albert Frey, Donald Wexler, and William Krisel.",
+    characteristics: [
+      "Clean lines and gentle organic curves",
+      "Walls of glass connecting interior and exterior spaces",
+      "Post-and-beam construction with minimal interior walls",
+      "Flat or low-pitched butterfly and shed roofs",
+      "Integration with landscape through patios, atriums, and gardens",
+      "Natural materials (wood, stone) combined with industrial ones (steel, glass)"
+    ],
+    famous_examples: [
+      { name: "Farnsworth House", city: "Plano, Illinois", year: "1951" },
+      { name: "Case Study House #22", city: "Los Angeles", year: "1960" },
+      { name: "TWA Flight Center", city: "New York City", year: "1962" },
+      { name: "Kaufmann Desert House", city: "Palm Springs", year: "1946" }
+    ],
+    why_it_matters: "Mid-Century Modern architecture demonstrated that modernism could be warm, livable, and deeply connected to nature. Its emphasis on indoor-outdoor living, natural light, and open plans anticipated contemporary sustainable design, while its optimistic spirit remains irresistibly appealing.",
+    related_styles: ["Modern", "International Style", "Organic", "Minimalist"]
+  },
+  "Minimalist" => {
+    era: "1960s–present",
+    origin: "Japan, Europe",
+    tagline: "The eloquence of less",
+    intro: "Minimalist architecture strips design to its purest essentials — space, light, material, and proportion. Influenced by Japanese aesthetics, Zen philosophy, and the De Stijl movement, minimalist architects create environments of contemplative calm where every element serves a purpose and nothing is superfluous. The result is architecture that approaches the condition of meditation.",
+    history: "While minimalism has roots in the work of Mies van der Rohe ('less is more') and the De Stijl movement, it emerged as a distinct architectural tendency in the 1980s and 1990s through the work of Tadao Ando in Japan, John Pawson in England, and Alberto Campo Baeza in Spain. Ando's concrete churches and houses, with their masterful use of light and geometric purity, established minimalism as a legitimate and powerful architectural language.",
+    characteristics: [
+      "Pure geometric forms with clean, unbroken surfaces",
+      "Monochromatic or severely limited color palettes",
+      "Exquisite attention to material quality and detailing",
+      "Dramatic use of natural light as a design element",
+      "Open, flowing spaces with few physical barriers",
+      "Concealed storage and mechanical systems"
+    ],
+    famous_examples: [
+      { name: "Church of the Light", city: "Osaka", year: "1989" },
+      { name: "21st Century Museum", city: "Kanazawa", year: "2004" },
+      { name: "Therme Vals", city: "Vals", year: "1996" }
+    ],
+    why_it_matters: "In a world of sensory overload, minimalist architecture offers spaces for reflection and contemplation. Its discipline forces architects to perfect every detail, proving that simplicity is the hardest thing to achieve and that restraint can be profoundly expressive.",
+    related_styles: ["Modern", "International Style", "Japanese", "Bauhaus"]
+  },
+  "Mission Revival" => {
+    era: "1890s–1920s",
+    origin: "United States",
+    tagline: "California dreaming in stucco and tile",
+    intro: "Mission Revival architecture romanticized the Spanish colonial missions of California and the American Southwest, transforming their simple adobe forms into a popular and picturesque style for homes, hotels, and railway stations. The style helped create the mythic identity of the American West — sun-baked, romantic, and steeped in a carefully curated version of history.",
+    history: "The style emerged in the 1890s as California sought a distinctive regional identity. The Southern Pacific and Santa Fe railroads adopted Mission Revival for their depots, spreading the style along their routes. Architect A. Page Brown's California Building at the 1893 World's Columbian Exposition brought it to national attention. The style peaked around 1915 and gradually gave way to the more elaborate Spanish Colonial Revival.",
+    characteristics: [
+      "Smooth stucco walls in white or earth tones",
+      "Red clay tile roofs with wide overhanging eaves",
+      "Curved or shaped parapets (espadañas)",
+      "Arched openings and arcaded corridors",
+      "Bell towers or campanarios",
+      "Simple, massive forms with minimal decoration"
+    ],
+    famous_examples: [
+      { name: "Riverside Mission Inn", city: "Riverside, California", year: "1903" },
+      { name: "Stanford University", city: "Palo Alto", year: "1891" },
+      { name: "Union Station", city: "Los Angeles", year: "1939" }
+    ],
+    why_it_matters: "Mission Revival architecture created a regional identity for the American West that endures today. Its romantic interpretation of history reminds us that architecture always mediates between past and present, creating new meanings from old forms.",
+    related_styles: ["Spanish Colonial Revival", "Mediterranean Revival", "Craftsman", "Pueblo Revival"]
+  },
+  "Modern" => {
+    era: "1900s–1970s",
+    origin: "Europe, United States",
+    tagline: "Breaking with the past, building the future",
+    intro: "Modern architecture is the single most influential architectural movement of the 20th century. Rejecting centuries of historical ornament in favor of function, simplicity, and new materials — reinforced concrete, steel, and glass — modernist architects set out to create an architecture appropriate for the industrial age. The movement's legacy is everywhere: in the glass towers of our cities, the open floor plans of our homes, and the very idea that buildings should be honest expressions of their structure and purpose.",
+    history: "The roots of modernism lie in the late 19th century, with the Chicago School's steel frames and Otto Wagner's rationalist designs in Vienna. The movement crystallized after World War I through the Bauhaus, Le Corbusier's villas, and Mies van der Rohe's Barcelona Pavilion. After World War II, modernism became the dominant global style, endorsed by governments, corporations, and institutions as the architecture of progress. By the 1960s, its rigid orthodoxies provoked the Postmodern reaction.",
+    characteristics: [
+      "Rejection of historical ornament and stylistic references",
+      "Expression of structural systems and honest use of materials",
+      "Open, flexible floor plans made possible by frame construction",
+      "Flat roofs, smooth surfaces, and geometric volumes",
+      "Large windows and glass walls maximizing natural light",
+      "Integration of new technologies and industrial materials"
+    ],
+    famous_examples: [
+      { name: "Barcelona Pavilion", city: "Barcelona", year: "1929" },
+      { name: "Fallingwater", city: "Mill Run, Pennsylvania", year: "1939" },
+      { name: "Notre Dame du Haut", city: "Ronchamp", year: "1955" },
+      { name: "Sydney Opera House", city: "Sydney", year: "1973" }
+    ],
+    why_it_matters: "Modern architecture changed the world. Its insistence on function, its embrace of new materials and technologies, and its democratic vision of architecture for everyone — not just the elite — remain the foundation of contemporary practice. Love it or critique it, every architect today works in modernism's shadow.",
+    related_styles: ["International Style", "Bauhaus", "Brutalism", "Mid-Century Modern"]
+  },
+  "Moorish Revival" => {
+    era: "1840s–1920s",
+    origin: "Europe, United States",
+    tagline: "The exotic allure of Islamic Spain",
+    intro: "Moorish Revival architecture brought the mesmerizing geometric patterns, horseshoe arches, and polychrome splendor of Islamic Iberia to 19th-century Europe and America. Used for synagogues, theaters, smoking rooms, and exhibition halls, it offered architects a vocabulary of exotic beauty that stood apart from the classical and Gothic traditions that dominated Western building.",
+    history: "The style was inspired by the Alhambra in Granada, which became a pilgrimage site for architects and artists after Owen Jones published his lavishly illustrated 'Plans, Elevations, Sections and Details of the Alhambra' (1842). Moorish Revival became particularly popular for synagogues — a deliberate choice to create a non-Christian architectural identity — and for entertainment venues where exoticism was prized.",
+    characteristics: [
+      "Horseshoe and multifoil arches",
+      "Intricate geometric tilework and polychrome decoration",
+      "Ornamental stucco with arabesque patterns",
+      "Striped voussoirs in alternating colors",
+      "Domed spaces and minarets",
+      "Rich interior decoration with Islamic-inspired motifs"
+    ],
+    famous_examples: [
+      { name: "Dohány Street Synagogue", city: "Budapest", year: "1859" },
+      { name: "Plaza de Toros de Las Ventas", city: "Madrid", year: "1931" },
+      { name: "Fox Theatre", city: "Atlanta", year: "1929" }
+    ],
+    why_it_matters: "Moorish Revival architecture reminds us that Western architectural history is deeply intertwined with Islamic art and culture. Its celebration of geometric complexity and surface decoration offers a counterpoint to modernist austerity.",
+    related_styles: ["Islamic", "Art Deco", "Exotic Revival", "Byzantine"]
+  },
+  "Neoclassical" => {
+    era: "1750s–1900s",
+    origin: "France, United Kingdom",
+    tagline: "Reason and beauty in perfect proportion",
+    intro: "Neoclassical architecture emerged in the mid-18th century as an intellectual and artistic response to the perceived excesses of Baroque and Rococo design. Inspired by archaeological discoveries at Pompeii and Herculaneum and by the rational philosophy of the Enlightenment, architects returned to the pure forms of Greek and Roman antiquity to create buildings of dignified simplicity and timeless proportion.",
+    history: "The movement was shaped by theorists like Johann Joachim Winckelmann, who championed the 'noble simplicity and calm grandeur' of ancient art, and architects like Jacques-Ange Gabriel, Karl Friedrich Schinkel, and John Soane. Neoclassicism became the architecture of revolution and reform — adopted by the French Republic, the new American nation, and reform-minded rulers across Europe. Its severe beauty conveyed enlightened rationality, civic virtue, and democratic ideals.",
+    characteristics: [
+      "Grand porticos with freestanding columns in Greek or Roman orders",
+      "Symmetrical, geometrically pure compositions",
+      "Pediments, domes, and clean geometric volumes",
+      "Restrained ornament drawn from classical vocabulary",
+      "Monumental scale for civic and institutional buildings",
+      "White stone, marble, or stucco surfaces"
+    ],
+    famous_examples: [
+      { name: "The Panthéon", city: "Paris", year: "1790" },
+      { name: "United States Capitol", city: "Washington, D.C.", year: "1800" },
+      { name: "Altes Museum", city: "Berlin", year: "1830" },
+      { name: "Monticello", city: "Charlottesville", year: "1809" }
+    ],
+    why_it_matters: "Neoclassical architecture gave democratic nations a visual language of governance and civic life that remains powerful today. Its insistence on proportion, clarity, and classical beauty continues to influence architects who seek to create buildings with timeless dignity.",
+    related_styles: ["Classical", "Greek Revival", "Beaux-Arts", "Federal"]
+  },
+  "Postmodern" => {
+    era: "1970s–1990s",
+    origin: "United States, Europe",
+    tagline: "Architecture learned to laugh again",
+    intro: "Postmodern architecture was a colorful, irreverent rebellion against the austere glass boxes of modernism. Borrowing freely from history, pop culture, and classical architecture — often with tongue firmly in cheek — postmodernist architects like Robert Venturi, Michael Graves, and Philip Johnson created buildings that were witty, accessible, and unapologetically decorative.",
+    history: "Robert Venturi's 'Complexity and Contradiction in Architecture' (1966) and 'Learning from Las Vegas' (1972) provided the intellectual foundation, arguing that modernism's puritanical rejection of ornament and historical reference had impoverished architecture. Charles Jencks declared modernism dead in 1977 when the Pruitt-Igoe housing project was demolished. Through the 1980s, postmodern buildings appeared worldwide — colorful, historicist, and deliberately populist. By the 1990s, the movement had largely given way to deconstructivism and minimalism.",
+    characteristics: [
+      "Historical references used playfully or ironically",
+      "Bright colors, bold patterns, and decorative surfaces",
+      "Classical elements (columns, pediments, arches) in unexpected contexts",
+      "Complex, layered forms that reject modernist simplicity",
+      "Wit, humor, and double meanings in architectural expression",
+      "Accessible, populist aesthetic welcoming public engagement"
+    ],
+    famous_examples: [
+      { name: "AT&T Building (550 Madison)", city: "New York City", year: "1984" },
+      { name: "Portland Building", city: "Portland", year: "1982" },
+      { name: "Piazza d'Italia", city: "New Orleans", year: "1978" },
+      { name: "Neue Staatsgalerie", city: "Stuttgart", year: "1984" }
+    ],
+    why_it_matters: "Postmodernism reminded architects that buildings communicate meaning, that history is a resource rather than a burden, and that delight matters as much as efficiency. Its best lessons — about context, communication, and the value of ornament — remain relevant even as the style itself has faded.",
+    related_styles: ["Art Deco", "Classical", "Deconstructivism", "Contemporary"]
+  },
+  "Prairie School" => {
+    era: "1900–1920",
+    origin: "United States",
+    tagline: "Architecture of the American landscape",
+    intro: "The Prairie School was America's first truly original architectural movement. Developed by Frank Lloyd Wright and his contemporaries in the suburbs of Chicago, Prairie houses were designed to echo the vast, flat Midwestern landscape with their strong horizontal lines, low-pitched roofs, and open interior spaces that flowed seamlessly from room to room.",
+    history: "Frank Lloyd Wright developed the Prairie style while working from his Oak Park studio, producing a series of revolutionary houses between 1900 and 1910 — including the Robie House, the Dana-Thomas House, and the Ward W. Willits House. Wright's associates and contemporaries — Walter Burley Griffin, Marion Mahony Griffin, William Drummond, and George Maher — extended the style across the Midwest. Though the movement was relatively brief, its influence on residential architecture was profound and lasting.",
+    characteristics: [
+      "Dominant horizontal lines echoing the flat prairie landscape",
+      "Low-pitched hipped roofs with broad, sheltering overhangs",
+      "Bands of casement windows (art glass in Wright's designs)",
+      "Open floor plans with spaces flowing into each other",
+      "Central fireplaces as the heart of the home",
+      "Integration with the landscape through terraces and gardens"
+    ],
+    famous_examples: [
+      { name: "Robie House", city: "Chicago", year: "1910" },
+      { name: "Dana-Thomas House", city: "Springfield, Illinois", year: "1902" },
+      { name: "Unity Temple", city: "Oak Park, Illinois", year: "1908" }
+    ],
+    why_it_matters: "The Prairie School proved that American architecture could be something other than European import. Its principles of horizontal orientation, open planning, and integration with nature directly influenced Mid-Century Modern design and continue to shape residential architecture today.",
+    related_styles: ["Craftsman", "Organic", "Mid-Century Modern", "Arts and Crafts"]
+  },
+  "Queen Anne" => {
+    era: "1880s–1900s",
+    origin: "United Kingdom, United States",
+    tagline: "Victorian exuberance at its peak",
+    intro: "Queen Anne architecture is the most flamboyant and picturesque of all Victorian styles. With their turrets, towers, wrap-around porches, patterned shingles, and riotous mix of colors and textures, Queen Anne houses are unique compositions where no two are quite alike. Each building is a celebration of the architect's imagination and the craftsman's skill.",
+    history: "Despite the name, the style has little to do with Queen Anne's actual reign (1702–1714). British architect Richard Norman Shaw developed the original 'Queen Anne' style in the 1870s, blending medieval and classical elements. American architects took the name but created something far more exuberant — a free-form picturesque style that became the most popular house type in America during the 1880s and 1890s, aided by the mass production of decorative millwork and the expansion of the railroad.",
+    characteristics: [
+      "Asymmetrical facades with complex, irregular floor plans",
+      "Steeply pitched roofs with cross gables and dormers",
+      "Corner towers, turrets, and bay windows",
+      "Wrap-around porches with turned spindle columns",
+      "Richly varied wall surfaces: clapboard, shingles, half-timber, and patterned masonry",
+      "Ornamental millwork, sunburst panels, and stained glass"
+    ],
+    famous_examples: [
+      { name: "Carson Mansion", city: "Eureka, California", year: "1886" },
+      { name: "Mark Twain House", city: "Hartford, Connecticut", year: "1874" },
+      { name: "Painted Ladies", city: "San Francisco", year: "1890s" }
+    ],
+    why_it_matters: "Queen Anne architecture represents architectural individualism at its most expressive. In an era of mass production and standardized design, these handcrafted, one-of-a-kind houses remind us that buildings can be joyful, personal, and gloriously unpredictable.",
+    related_styles: ["Victorian", "Gothic Revival", "Second Empire", "Shingle Style"]
+  },
+  "Renaissance" => {
+    era: "1400s–1600s",
+    origin: "Italy",
+    tagline: "Perfection through proportion",
+    intro: "Renaissance architecture marked the rebirth of classical ideals in 15th-century Italy, replacing the soaring verticality of Gothic with the balanced horizontality and mathematical harmony of ancient Greece and Rome. It was an architecture of intellectual ambition — buildings designed according to ideal proportions, geometric clarity, and a humanist belief in the perfectibility of the world.",
+    history: "The Renaissance began in Florence with Filippo Brunelleschi's revolutionary dome for the Cathedral of Santa Maria del Fiore (1436), which applied Roman engineering principles to a medieval building. Leon Battista Alberti codified classical principles in his treatise 'De re aedificatoria' (1452), while Andrea Palladio's 'Four Books of Architecture' (1570) became the most influential architectural text ever written, spreading Renaissance ideals across Europe and eventually to America.",
+    characteristics: [
+      "Symmetrical facades based on classical proportional systems",
+      "Round arches, domes, and barrel vaults",
+      "Classical columns and pilasters used in correct orders",
+      "Rusticated stonework on lower levels",
+      "Prominent cornices and string courses",
+      "Centralized plans and harmonious proportional relationships"
+    ],
+    famous_examples: [
+      { name: "Florence Cathedral Dome", city: "Florence", year: "1436" },
+      { name: "Palazzo Medici", city: "Florence", year: "1444" },
+      { name: "Villa Rotonda", city: "Vicenza", year: "1570" },
+      { name: "St. Peter's Basilica", city: "Vatican City", year: "1626" }
+    ],
+    why_it_matters: "Renaissance architecture established the idea that buildings could embody philosophical ideals — proportion, harmony, and human dignity. Its treatises and principles continue to form the foundation of architectural education, and its best buildings remain paragons of balanced, humane design.",
+    related_styles: ["Classical", "Neoclassical", "Baroque", "Palladian"]
+  },
+  "Romanesque" => {
+    era: "800–1200",
+    origin: "Western Europe",
+    tagline: "Strength and solidity in stone",
+    intro: "Romanesque architecture is the sturdy, fortress-like predecessor to Gothic. With its thick walls, round arches, massive towers, and powerful sense of enclosure, Romanesque buildings communicate permanence and protection. They were built during a turbulent period of European history, and their architecture reflects a world where churches and monasteries served as both spiritual refuges and physical fortresses.",
+    history: "The Romanesque style developed in the 10th and 11th centuries as Europe emerged from the early medieval period. Monasteries — particularly those of the Benedictine and Cluniac orders — were the primary patrons, building vast abbey churches along the pilgrimage routes to Santiago de Compostela. Romanesque builders experimented with vaulting techniques and sculptural decoration, gradually developing the structural innovations that would culminate in the Gothic revolution.",
+    characteristics: [
+      "Thick load-bearing walls with few and small windows",
+      "Round arches in arcades, doorways, and windows",
+      "Barrel and groin vaults covering nave and aisles",
+      "Massive, fortress-like towers and buttresses",
+      "Sculptural decoration concentrated on portals and capitals",
+      "Geometric and zoomorphic carved ornament"
+    ],
+    famous_examples: [
+      { name: "Durham Cathedral", city: "Durham", year: "1133" },
+      { name: "Basilica of Saint-Sernin", city: "Toulouse", year: "1120" },
+      { name: "Speyer Cathedral", city: "Speyer", year: "1106" }
+    ],
+    why_it_matters: "Romanesque architecture achieved grandeur through sheer material presence — mass, weight, and the power of stone. Its buildings possess a primal authority that more refined styles cannot match, reminding us that architecture's most basic act is creating shelter and enclosure.",
+    related_styles: ["Gothic", "Byzantine", "Richardsonian Romanesque", "Romanesque Revival"]
+  },
+  "Second Empire" => {
+    era: "1850s–1880s",
+    origin: "France",
+    tagline: "Parisian elegance with a distinctive crown",
+    intro: "Second Empire architecture is instantly identifiable by one feature: the mansard roof. Named for Napoleon III's modernization of Paris during France's Second Empire (1852–1870), the style combined the grandeur of French classical architecture with practical innovation — the mansard roof's steep slopes created usable attic space while maintaining an elegant roofline.",
+    history: "Baron Haussmann's transformation of Paris under Napoleon III created wide boulevards lined with uniform mansard-roofed buildings, establishing a visual identity for modern Paris that endures today. The style spread internationally, becoming especially popular in the United States during the Grant administration. City halls, courthouses, and grand residences across America adopted the mansard roof as a symbol of cosmopolitan sophistication.",
+    characteristics: [
+      "Mansard roofs with dormer windows in the steep lower slope",
+      "Elaborate roof cresting and decorative ironwork",
+      "Paired columns, pilasters, and classical entablatures",
+      "Quoined corners and richly decorated window surrounds",
+      "Projecting central and end pavilions",
+      "Heavily ornamented facades with sculptural details"
+    ],
+    famous_examples: [
+      { name: "Palais Garnier (Paris Opera)", city: "Paris", year: "1875" },
+      { name: "Old Executive Office Building", city: "Washington, D.C.", year: "1888" },
+      { name: "Philadelphia City Hall", city: "Philadelphia", year: "1901" }
+    ],
+    why_it_matters: "Second Empire architecture demonstrated that style could serve practical purposes — the mansard roof maximized usable space while creating a distinctive silhouette. The style's association with urban sophistication helped shape the identity of American cities during the Gilded Age.",
+    related_styles: ["Beaux-Arts", "Baroque", "Victorian", "Italianate"]
+  },
+  "Tudor" => {
+    era: "1485–1603",
+    origin: "England",
+    tagline: "England's most romantic vernacular",
+    intro: "Tudor architecture evokes the England of Shakespeare, Henry VIII, and Elizabeth I — a world of half-timbered manor houses, soaring great halls, ornamental chimneys, and mullioned windows. It represents the transition from medieval fortress-building to the more comfortable and decorative domestic architecture of the Renaissance, creating some of the most atmospheric buildings in the English-speaking world.",
+    history: "The Tudor period saw England transform from a medieval kingdom to a Renaissance power. In architecture, this meant a shift from defensive castles to comfortable manor houses built for display and domestic pleasure. The dissolution of the monasteries (1536–1541) released a flood of building materials and land, spurring a construction boom. Great houses like Hampton Court Palace, Hardwick Hall, and Compton Wynyates combined medieval building traditions with new Renaissance influences.",
+    characteristics: [
+      "Decorative half-timbering with plaster or brick infill",
+      "Steeply pitched roofs with multiple cross gables",
+      "Tall, ornamental chimney stacks, often in decorative brickwork",
+      "Mullioned and transomed windows with leaded glass",
+      "Flattened Tudor arches over doorways",
+      "Great halls with hammer-beam or open-timber roofs"
+    ],
+    famous_examples: [
+      { name: "Hampton Court Palace", city: "London", year: "1530" },
+      { name: "Hardwick Hall", city: "Derbyshire", year: "1597" },
+      { name: "Little Moreton Hall", city: "Cheshire", year: "1580" }
+    ],
+    why_it_matters: "Tudor architecture created the template for the English country house — perhaps the most influential building type in the English-speaking world. Its half-timbered aesthetic remains one of the most instantly recognizable and widely imitated architectural images, influencing residential design from suburban London to suburban Detroit.",
+    related_styles: ["Tudor Revival", "Gothic", "Elizabethan", "Medieval"]
+  },
+  "Tudor Revival" => {
+    era: "1890s–1940s",
+    origin: "United Kingdom, United States",
+    tagline: "Ye Olde England in the suburbs",
+    intro: "Tudor Revival architecture brought the romantic charm of medieval English buildings to 20th-century suburbs across America and Britain. With their distinctive half-timber patterns, steeply pitched roofs, and prominent chimneys, Tudor Revival houses created an idealized vision of English village life that appealed to homeowners seeking warmth, character, and a sense of history.",
+    history: "The style became popular in the early 1900s as suburban development expanded in both Britain and America. Architects adapted medieval English forms — half-timbering, casement windows, steeply pitched roofs — for modern construction, using applied decorative timbers over stucco or brick rather than true timber framing. The style peaked in popularity during the 1920s and 1930s, particularly in upscale suburban neighborhoods across the American Northeast and Midwest.",
+    characteristics: [
+      "Decorative half-timber patterns over stucco or brick",
+      "Steeply pitched cross-gable roofs with prominent front-facing gables",
+      "Tall, narrow windows with multiple panes, often casement style",
+      "Massive chimneys, sometimes with decorative chimney pots",
+      "Round-arched or flattened Tudor-arched doorways",
+      "Asymmetrical facades with varied materials and textures"
+    ],
+    famous_examples: [
+      { name: "Stan Hywet Hall", city: "Akron, Ohio", year: "1915" },
+      { name: "Meadowbrook Hall", city: "Rochester, Michigan", year: "1929" },
+      { name: "Coe Hall", city: "Oyster Bay, New York", year: "1921" }
+    ],
+    why_it_matters: "Tudor Revival homes remain among the most popular and enduring residential styles in America and Britain. Their crafted quality, warm materials, and romantic appeal demonstrate architecture's ability to create emotional connections to idealized pasts.",
+    related_styles: ["Tudor", "Gothic Revival", "Craftsman", "Colonial Revival"]
+  },
+  "Victorian" => {
+    era: "1837–1901",
+    origin: "United Kingdom",
+    tagline: "An era of ornament and invention",
+    intro: "Victorian architecture is less a single style than an entire era of architectural experimentation, encompassing Gothic Revival, Italianate, Second Empire, Queen Anne, Romanesque Revival, and more. What unites these diverse approaches is a shared love of ornament, a delight in new materials and technologies, and a Victorian confidence that more — more decoration, more color, more complexity — was always better.",
+    history: "Queen Victoria's long reign (1837–1901) coincided with Britain's industrial revolution, imperial expansion, and unprecedented prosperity. New materials (cast iron, plate glass, machine-made terracotta) and new technologies (railways, prefabrication) enabled architects to build faster, taller, and with more decorative complexity than ever before. The era produced everything from the Crystal Palace to Gothic Revival churches to elaborate painted-lady row houses, reflecting a society that valued progress, propriety, and visual richness.",
+    characteristics: [
+      "Elaborate ornamental detail — millwork, brackets, finials, and cresting",
+      "Asymmetrical facades with complex rooflines and varied textures",
+      "Rich use of color, often in polychrome schemes",
+      "Bay windows, turrets, towers, and verandas",
+      "Eclectic mixing of historical styles and periods",
+      "New materials: cast iron, pressed metal, encaustic tiles"
+    ],
+    famous_examples: [
+      { name: "Crystal Palace", city: "London", year: "1851" },
+      { name: "St Pancras Station", city: "London", year: "1868" },
+      { name: "Painted Ladies", city: "San Francisco", year: "1890s" },
+      { name: "Royal Albert Hall", city: "London", year: "1871" }
+    ],
+    why_it_matters: "The Victorian era demonstrated that architectural innovation and ornamental richness are not opposites. Its buildings — beloved for their character, craftsmanship, and individuality — remind us that architecture can be simultaneously progressive and decorative, functional and delightful.",
+    related_styles: ["Queen Anne", "Gothic Revival", "Italianate", "Second Empire"]
+  }
+}
+
+style_info = STYLE_CONTENT[@style_name] || {}
+hero_building = @analyzed_buildings.first
+%>
+
+<% if style_info.present? %>
+  <% content_for :head do %>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "<%= request.base_url %>" },
+        { "@type": "ListItem", "position": 2, "name": "Architectural Styles", "item": "<%= request.base_url %>/styles" },
+        { "@type": "ListItem", "position": 3, "name": "<%= @style_name %>", "item": "<%= request.base_url %><%= request.path %>" }
+      ]
+    }
+    </script>
+  <% end %>
+<% end %>
+
+<style>
+  .style-hero {
+    position: relative;
+    min-height: 340px;
+    display: flex;
+    align-items: flex-end;
+    background: #1a1a2e;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+  .style-hero-bg {
+    position: absolute; inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.4);
+  }
+  .style-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 48px 32px 36px;
+    max-width: 900px;
+  }
+  .style-hero h1 {
+    color: #fff;
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .style-hero .tagline {
+    color: rgba(255,255,255,0.85);
+    font-size: 1.15rem;
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+  .style-hero .meta-pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .style-hero .meta-pill {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    backdrop-filter: blur(4px);
+  }
+  .breadcrumb-bar {
+    background: #f8f9fa;
+    padding: 10px 32px;
+    font-size: 0.85rem;
+  }
+  .breadcrumb-bar a { color: #495057; }
+  .breadcrumb-bar span { color: #adb5bd; margin: 0 6px; }
+
+  .style-page-layout {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 16px;
+    gap: 40px;
+  }
+  .style-main { flex: 1; min-width: 0; }
+  .style-sidebar { width: 260px; flex-shrink: 0; }
+
+  .style-main h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 40px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e9ecef;
+    color: #212529;
+  }
+  .style-main h2:first-of-type { margin-top: 0; }
+  .style-main p { font-size: 1.05rem; line-height: 1.75; color: #343a40; margin-bottom: 16px; }
+
+  .char-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px;
+  }
+  .char-list li {
+    padding: 8px 0 8px 28px;
+    position: relative;
+    font-size: 1rem;
+    color: #495057;
+    line-height: 1.6;
+  }
+  .char-list li::before {
+    content: "▸";
+    position: absolute;
+    left: 6px;
+    color: #6c63ff;
+    font-weight: bold;
+  }
+
+  .famous-examples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .famous-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  .famous-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .famous-card img { width: 100%; height: 140px; object-fit: cover; }
+  .famous-card .fc-body { padding: 12px 14px; }
+  .famous-card .fc-body h4 { margin: 0 0 4px; font-size: 0.95rem; font-weight: 600; }
+  .famous-card .fc-body p { margin: 0; font-size: 0.82rem; color: #6c757d; }
+  .famous-card .fc-body a { font-size: 0.82rem; color: #6c63ff; text-decoration: none; }
+
+  .building-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  .building-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  .building-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); text-decoration: none; color: inherit; }
+  .building-card img { width: 100%; height: 160px; object-fit: cover; }
+  .building-card .bc-body { padding: 12px 14px; }
+  .building-card .bc-body h4 { margin: 0 0 4px; font-size: 0.9rem; font-weight: 600; }
+  .building-card .bc-body p { margin: 0; font-size: 0.8rem; color: #6c757d; }
+
+  .cities-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .city-tag {
+    background: #f1f3f5;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    color: #495057;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .city-tag:hover { background: #dee2e6; text-decoration: none; color: #212529; }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .related-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.2s, transform 0.15s;
+    display: block;
+  }
+  .related-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); text-decoration: none; color: inherit; }
+  .related-card h4 { margin: 0 0 6px; font-size: 0.95rem; font-weight: 600; color: #6c63ff; }
+  .related-card p { margin: 0; font-size: 0.8rem; color: #6c757d; }
+
+  .sidebar-styles {
+    position: sticky;
+    top: 20px;
+  }
+  .sidebar-styles h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #212529;
+  }
+  .sidebar-styles ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .sidebar-styles li a {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #495057;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .sidebar-styles li a:hover { background: #f1f3f5; }
+  .sidebar-styles li a.active { background: #6c63ff; color: #fff; }
+  .sidebar-styles .count { font-size: 0.75rem; color: #adb5bd; }
+  .sidebar-styles li a.active .count { color: rgba(255,255,255,0.7); }
+
+  .why-matters {
+    background: #f8f9fa;
+    border-left: 4px solid #6c63ff;
+    padding: 20px 24px;
+    border-radius: 0 8px 8px 0;
+    margin: 24px 0;
+  }
+  .why-matters p { margin: 0; font-size: 1.05rem; line-height: 1.7; color: #343a40; }
+
+  @media (max-width: 768px) {
+    .style-hero h1 { font-size: 1.6rem; }
+    .style-page-layout { flex-direction: column; padding: 20px 12px; gap: 24px; }
+    .style-sidebar { width: 100%; }
+    .sidebar-styles ul { max-height: none; }
+    .famous-examples-grid, .building-grid, .related-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  }
+</style>
+
+<!-- Hero -->
+<div class="style-hero">
+  <% if hero_building&.image_url.present? %>
+    <div class="style-hero-bg" style="background-image: url('<%= hero_building.image_url %>');"></div>
+  <% end %>
+  <div class="style-hero-content">
+    <h1><%= @style_name %> Architecture — A Guide</h1>
+    <% if style_info[:tagline].present? %>
+      <div class="tagline"><%= style_info[:tagline] %></div>
+    <% end %>
+    <div class="meta-pills">
+      <% if style_info[:era].present? %><span class="meta-pill"><%= style_info[:era] %></span><% end %>
+      <% if style_info[:origin].present? %><span class="meta-pill"><%= style_info[:origin] %></span><% end %>
+      <span class="meta-pill"><%= @analyzed_buildings.size %> buildings in library</span>
+    </div>
+  </div>
+</div>
+
+<!-- Breadcrumbs -->
+<div class="breadcrumb-bar">
+  <a href="/">Home</a><span>›</span>
+  <a href="/styles">Architectural Styles</a><span>›</span>
+  <strong><%= @style_name %></strong>
+</div>
+
+<div class="style-page-layout">
+  <!-- Main Content -->
+  <div class="style-main">
+
+    <% if style_info.present? %>
+      <!-- Overview -->
+      <h2>Overview</h2>
+      <p><%= style_info[:intro] %></p>
+      <p><%= style_info[:history] %></p>
+
+      <!-- Key Characteristics -->
+      <% if style_info[:characteristics].present? %>
+        <h2>Key Characteristics</h2>
+        <ul class="char-list">
+          <% style_info[:characteristics].each do |c| %>
+            <li><%= c %></li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <!-- Famous Examples -->
+      <% if style_info[:famous_examples].present? %>
+        <h2>Famous Examples Worldwide</h2>
+        <div class="famous-examples-grid">
+          <% style_info[:famous_examples].each do |ex| %>
+            <%
+              matched = @analyzed_buildings.detect { |b|
+                name_match = b.respond_to?(:name) && b.name.to_s.downcase.include?(ex[:name].downcase)
+                addr_match = b.address.to_s.downcase.include?(ex[:name].downcase)
+                name_match || addr_match
+              }
+            %>
+            <div class="famous-card">
+              <% if matched&.image_url.present? %>
+                <img src="<%= matched.image_url %>" alt="<%= ex[:name] %>">
+              <% end %>
+              <div class="fc-body">
+                <h4><%= ex[:name] %></h4>
+                <p><%= ex[:city] %>, <%= ex[:year] %></p>
+                <% if matched %>
+                  <a href="<%= architecture_explorer_show_path(id: matched.id) %>">View Analysis →</a>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <h2>About <%= @style_name %> Architecture</h2>
+      <p>Explore buildings in the <%= @style_name %> architectural style from our library.</p>
+    <% end %>
+
+    <!-- Buildings in Our Library -->
+    <% if @analyzed_buildings.any? %>
+      <h2>Buildings in Our Library (<%= @analyzed_buildings.size %>)</h2>
+      <div class="building-grid">
+        <% @analyzed_buildings.limit(24).each do |building| %>
+          <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
+            <% if building.image_url.present? %>
+              <img src="<%= building.image_url %>" alt="<%= building.name || building.address || 'Building' %>" loading="lazy">
+            <% end %>
+            <div class="bc-body">
+              <h4><%= building.name.presence || building.address.to_s.split(',').first || 'Building' %></h4>
+              <p><%= building.address.to_s.truncate(60) %></p>
+            </div>
+          </a>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Cities -->
+    <% if @cities.any? %>
+      <h2>Where to Find <%= @style_name %> Architecture</h2>
+      <div class="cities-list">
+        <% @cities.first(15).each do |city, count| %>
+          <%
+            place = @places.respond_to?(:detect) ? @places.detect { |p| p.name.to_s.downcase == city.downcase } : nil
+          %>
+          <% if place %>
+            <a href="<%= place_path(place) %>" class="city-tag"><%= city %> (<%= count %>)</a>
+          <% else %>
+            <span class="city-tag"><%= city %> (<%= count %>)</span>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Related Styles -->
+    <% if @related_styles.any? %>
+      <h2>Related Styles</h2>
+      <div class="related-grid">
+        <% @related_styles.each do |style, count| %>
+          <% rs_info = STYLE_CONTENT[style] %>
+          <a href="<%= buildings_by_style_path(style_name: style.parameterize) %>" class="related-card">
+            <h4><%= style %></h4>
+            <% if rs_info %>
+              <p><%= rs_info[:tagline] %> · <%= rs_info[:era] %></p>
+            <% else %>
+              <p><%= count %> buildings in library</p>
+            <% end %>
+          </a>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Why It Matters -->
+    <% if style_info[:why_it_matters].present? %>
+      <h2>Why <%= @style_name %> Matters Today</h2>
+      <div class="why-matters">
+        <p><%= style_info[:why_it_matters] %></p>
+      </div>
+    <% end %>
+
+  </div>
+
+  <!-- Sidebar -->
+  <div class="style-sidebar">
+    <div class="sidebar-styles">
+      <h3>Explore More Styles</h3>
+      <ul>
+        <% @all_styles.each do |style, count| %>
+          <li>
+            <a href="<%= buildings_by_style_path(style_name: style.parameterize) %>" class="<%= 'active' if style == @style_name %>">
+              <span><%= style %></span>
+              <span class="count"><%= count %></span>
+            </a>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
