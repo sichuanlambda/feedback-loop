@@ -14,13 +14,27 @@ class ProcessBuildingAnalysisJob < ApplicationJob
     gpt_response = GptService.new.send_building_analysis(image_url)
 
     if gpt_response.present?
-      html_content = gpt_response["analysis"]
-      html_content = CGI.unescapeHTML(html_content)
-      cleaned_html_content = remove_code_block_markers(html_content)
-      h3_contents = extract_h3s(cleaned_html_content)
+      # New structured JSON response from GPT
+      if gpt_response.is_a?(Hash) && gpt_response.key?("styles")
+        # Store the structured JSON as html_content
+        structured_json = gpt_response.to_json
+        # Extract style names for h3_contents
+        style_names = gpt_response["styles"].map { |s| s["name"] }
 
-      # Model's before_save :normalize_styles handles style normalization automatically
-      building_analysis.update!(html_content: cleaned_html_content, h3_contents: h3_contents.to_json)
+        building_analysis.update!(
+          html_content: structured_json,
+          h3_contents: style_names.to_json
+        )
+      else
+        # Legacy format fallback (in case old response format)
+        html_content = gpt_response["analysis"] || gpt_response.to_s
+        html_content = CGI.unescapeHTML(html_content)
+        cleaned_html_content = remove_code_block_markers(html_content)
+        h3_contents = extract_h3s(cleaned_html_content)
+
+        building_analysis.update!(html_content: cleaned_html_content, h3_contents: h3_contents.to_json)
+      end
+
       Rails.logger.info "[ProcessBuildingAnalysisJob] Completed analysis for BuildingAnalysis ##{building_analysis_id}"
     else
       Rails.logger.error "[ProcessBuildingAnalysisJob] GPT returned empty response for BuildingAnalysis ##{building_analysis_id}"
