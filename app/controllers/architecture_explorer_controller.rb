@@ -105,8 +105,21 @@ class ArchitectureExplorerController < ApplicationController
       .where(visible_in_library: true)
       .where(conditions.join(' OR '), *values)
       .order(created_at: :desc)
+      .page(params[:page]).per(24)
 
     @style_name = canonical  # Display the canonical name
+
+    # Set user stats (required by building_library view)
+    if user_signed_in?
+      style_frequency = BuildingAnalysis.style_frequency(current_user.id)
+      @style_frequency = style_frequency.sort_by { |_style, frequency| -frequency }
+      @unique_style_count = @style_frequency.length
+      @buildings_submitted_count = BuildingAnalysis.where(user: current_user).count
+    else
+      @style_frequency = nil
+      @unique_style_count = nil
+      @buildings_submitted_count = nil
+    end
 
     @architecture_styles = BuildingAnalysis.pluck(:h3_contents).compact.flat_map do |h3_content|
       begin
