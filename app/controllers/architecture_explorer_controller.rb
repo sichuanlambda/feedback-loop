@@ -223,7 +223,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def new
-    # Renders the form for uploading an image
+    @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
   end
 
   def create
@@ -284,12 +284,16 @@ class ArchitectureExplorerController < ApplicationController
         latitude: analysis.latitude,
         longitude: analysis.longitude,
         address: analysis.address,
+        city: analysis.city,
         h3_contents: JSON.parse(analysis.h3_contents || '[]'),
         street_view_url: analysis.street_view_url,
         image_url: analysis.image_url,
         user_id: analysis.user_id,
         created_at: analysis.created_at
       }
+    end
+    @places = Place.published.select(:name, :slug, :latitude, :longitude, :zoom_level).map do |place|
+      { name: place.name, slug: place.slug, latitude: place.latitude.to_f, longitude: place.longitude.to_f, zoom_level: place.zoom_level }
     end
   end
 
