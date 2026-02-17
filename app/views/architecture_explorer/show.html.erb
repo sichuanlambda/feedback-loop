@@ -24,7 +24,15 @@
   /* Hero row */
   .hero-row { margin-bottom: 32px; }
   .hero-image { border-radius: 12px; overflow: hidden; }
-  .hero-image img { width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .hero-image img { width: 100%; height: auto; display: block; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); cursor: zoom-in; }
+  .hero-image { position: relative; }
+  .hero-image::after { content: "🔍"; position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.5); color: #fff; font-size: 1rem; padding: 4px 8px; border-radius: 6px; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+  .hero-image:hover::after { opacity: 1; }
+
+  /* Lightbox */
+  .lightbox-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; cursor: zoom-out; }
+  .lightbox-overlay.active { display: flex; }
+  .lightbox-overlay img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
 
   /* Style badges with confidence */
   .style-badge-list { list-style: none; padding: 0; margin: 0; }
@@ -319,17 +327,29 @@
     </div>
   <% end %>
 
-  <%# === ADD TO MAP === %>
-  <div class="address-container">
-    <div class="address-title">📍 Add Building to Map</div>
-    <%= form_with model: @building_analysis, url: architecture_explorer_update_path(@building_analysis), method: :patch do |form| %>
-      <div class="form-group mb-0">
-        <%= form.label :address, "Address or City", style: "font-size: 0.9rem; color: #666;" %>
-        <%= form.text_field :address, class: "form-control", placeholder: "e.g. 350 Fifth Avenue, New York" %>
-        <%= form.submit "Add Location", class: 'btn-address-update' %>
-      </div>
-    <% end %>
-  </div>
+  <%# === ADD THIS BUILDING TO THE MAP (combined section) === %>
+  <% unless @building_analysis.latitude.present? && @building_analysis.longitude.present? %>
+    <div class="address-container" style="margin-top: 32px;">
+      <div class="address-title">📍 Add This Building to the Map</div>
+      <p style="color: #666; font-size: 0.9rem; margin-bottom: 12px;">Add the address to discover nearby architecture and connect this building to its city.</p>
+      <%= form_with model: @building_analysis, url: architecture_explorer_update_path(@building_analysis), method: :patch do |form| %>
+        <div class="form-group mb-0">
+          <%= form.text_field :address, class: "form-control", placeholder: "e.g. 350 Fifth Avenue, New York" %>
+          <%= form.submit "Add Location", class: 'btn-address-update' %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="address-container" style="margin-top: 32px;">
+      <div class="address-title">📍 Update Location</div>
+      <%= form_with model: @building_analysis, url: architecture_explorer_update_path(@building_analysis), method: :patch do |form| %>
+        <div class="form-group mb-0">
+          <%= form.text_field :address, class: "form-control", placeholder: "e.g. 350 Fifth Avenue, New York", value: @building_analysis.address %>
+          <%= form.submit "Update Location", class: 'btn-address-update' %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
   <%# === SIMILAR STYLE BUILDINGS === %>
   <% if @similar_buildings.present? && @similar_buildings.any? %>
@@ -354,32 +374,26 @@
     </div>
   <% end %>
 
-  <%# === NEARBY BUILDINGS === %>
-  <% if @building_analysis.latitude.present? && @building_analysis.longitude.present? %>
-    <% if @nearby_buildings.present? && @nearby_buildings.any? %>
-      <h2 class="section-title">Buildings in the Same Area</h2>
-      <div class="scroll-row">
-        <% @nearby_buildings.each do |building| %>
-          <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
-            <% if building.image_url.present? %>
-              <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>">
-            <% else %>
-              <div style="width:100%;height:140px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
-            <% end %>
-            <div class="building-card-body">
-              <h5><%= building.name || building.address || "Building ##{building.id}" %></h5>
-              <% begin %>
-                <% top_style = JSON.parse(building.h3_contents || '[]').first %>
-                <% if top_style %><span class="building-card-badge"><%= top_style %></span><% end %>
-              <% rescue; end %>
-            </div>
-          </a>
-        <% end %>
-      </div>
-    <% end %>
-  <% else %>
-    <div class="no-location-prompt" style="margin-top: 32px;">
-      <p style="margin: 0;">📍 Know where this building is? Add the address above to discover nearby architecture.</p>
+  <%# === NEARBY BUILDINGS (only if location exists) === %>
+  <% if @building_analysis.latitude.present? && @building_analysis.longitude.present? && @nearby_buildings.present? && @nearby_buildings.any? %>
+    <h2 class="section-title">Buildings in the Same Area</h2>
+    <div class="scroll-row">
+      <% @nearby_buildings.each do |building| %>
+        <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
+          <% if building.image_url.present? %>
+            <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>">
+          <% else %>
+            <div style="width:100%;height:140px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+          <% end %>
+          <div class="building-card-body">
+            <h5><%= building.name || building.address || "Building ##{building.id}" %></h5>
+            <% begin %>
+              <% top_style = JSON.parse(building.h3_contents || '[]').first %>
+              <% if top_style %><span class="building-card-badge"><%= top_style %></span><% end %>
+            <% rescue; end %>
+          </div>
+        </a>
+      <% end %>
     </div>
   <% end %>
 
@@ -510,6 +524,29 @@
   }
 
   document.addEventListener('DOMContentLoaded', checkAnalysisStatus);
+
+  // Lightbox
+  document.addEventListener('DOMContentLoaded', function() {
+    var overlay = document.getElementById('lightbox-overlay');
+    var lbImg = document.getElementById('lightbox-img');
+    document.querySelectorAll('.hero-image img').forEach(function(img) {
+      img.addEventListener('click', function() {
+        lbImg.src = this.src;
+        lbImg.alt = this.alt;
+        overlay.classList.add('active');
+      });
+    });
+    if (overlay) {
+      overlay.addEventListener('click', function() { overlay.classList.remove('active'); });
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && overlay) overlay.classList.remove('active');
+    });
+  });
 </script>
+
+<div id="lightbox-overlay" class="lightbox-overlay">
+  <img id="lightbox-img" src="" alt="">
+</div>
 </body>
 </html>

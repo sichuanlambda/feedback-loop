@@ -692,6 +692,18 @@ class ArchitectureExplorerController < ApplicationController
 
     # Matching places
     @places = Place.where("LOWER(name) IN (?)", @cities.map { |c, _| c.downcase }).limit(12) if defined?(Place)
+
+    # Co-occurring styles
+    style_tally = Hash.new(0)
+    @analyzed_buildings.each do |b|
+      begin
+        styles = StyleNormalizer.normalize_array(JSON.parse(b.h3_contents || '[]'))
+        styles.each { |s| style_tally[s] += 1 unless s == @style_name }
+      rescue JSON::ParserError
+        next
+      end
+    end
+    @related_styles = style_tally.sort_by { |_s, c| -c }.first(6)
   end
 
   def calculate_style_metrics

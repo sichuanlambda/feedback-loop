@@ -1,0 +1,161 @@
+<% content_for :title, "#{@style_name} Architecture — Buildings, History & Examples | Architecture Helper" %>
+<% content_for :meta_description, "Explore #{@analyzed_buildings.size} examples of #{@style_name} architecture. Discover buildings, cities, and related styles." %>
+
+<%
+STYLE_INFO = {
+  "Art Deco" => "Emerged in the 1920s–1930s, Art Deco is characterized by bold geometric patterns, rich colors, and lavish ornamentation. Drawing from diverse influences including ancient Egyptian art, Cubism, and the Machine Age, it represents luxury and modernity. Notable examples include the Chrysler Building and Miami Beach's Historic District.",
+  "Art Nouveau" => "Flourishing from the 1890s to 1910, Art Nouveau embraced organic, flowing lines inspired by natural forms — curving tendrils, floral motifs, and sinuous ironwork. The movement sought to dissolve the boundary between fine and applied arts. Icons include Gaudí's Casa Batlló and Hector Guimard's Paris Métro entrances.",
+  "Baroque" => "Originating in late 16th-century Italy, Baroque architecture is defined by grandeur, drama, and movement. Ornate facades, bold curves, and theatrical use of light create an overwhelming sensory experience. Masterworks include St. Peter's Basilica and the Palace of Versailles.",
+  "Bauhaus" => "Founded in 1919 Weimar Germany by Walter Gropius, Bauhaus unified art, craft, and technology. Its architecture features flat roofs, smooth facades, and open floor plans with an emphasis on function. The movement profoundly shaped modernist design worldwide before the school's closure in 1933.",
+  "Beaux-Arts" => "Taught at Paris's prestigious École des Beaux-Arts, this style combines classical Greek and Roman forms with Renaissance ideas. Grand staircases, sculptural decoration, and symmetrical plans define its opulent character. Notable examples include the Palais Garnier and Grand Central Terminal.",
+  "Brutalism" => "Prominent from the 1950s to 1970s, Brutalism celebrates raw concrete (béton brut), massive geometric forms, and an honest expression of structure and materials. Often used for civic and institutional buildings, it remains polarizing. The Barbican Centre and Habitat 67 are iconic examples.",
+  "Byzantine" => "Rooted in the Eastern Roman Empire from the 4th century onward, Byzantine architecture features grand domes, rich mosaics, and elaborately decorated interiors. The Hagia Sophia in Istanbul is its supreme achievement, blending engineering innovation with spiritual grandeur.",
+  "Chicago School" => "Born in 1880s Chicago after the Great Fire, this movement pioneered steel-frame construction enabling taller buildings with large windows. Architects like Louis Sullivan developed restrained ornamental facades. The style laid the groundwork for the modern skyscraper.",
+  "Classical" => "Rooted in the architecture of ancient Greece and Rome, Classical design emphasizes symmetry, proportion, and the columnar orders (Doric, Ionic, Corinthian). These timeless principles have influenced Western architecture for over two millennia, from the Parthenon to countless government buildings worldwide.",
+  "Colonial" => "Brought to the Americas by European settlers from the 16th through 18th centuries, Colonial architecture features symmetrical facades, central doorways, and practical construction suited to local climates. Variations include Spanish Colonial, Dutch Colonial, and New England Colonial styles.",
+  "Contemporary" => "Contemporary architecture describes current-era design that emphasizes sustainability, innovative materials, and expressive, site-responsive forms. It draws freely from multiple traditions while pushing boundaries with digital fabrication, green building technologies, and adaptive reuse.",
+  "Craftsman" => "Popular from 1900 to 1930 in the American Arts and Crafts movement, Craftsman homes feature low-pitched roofs with wide eaves, exposed rafters, tapered columns on stone piers, and handcrafted woodwork. The style championed honest materials and skilled workmanship over industrial mass production.",
+  "Deconstructivism" => "Emerging in the late 1980s, Deconstructivism challenges architectural conventions with fragmented forms, unexpected angles, and apparent instability. Architects like Frank Gehry, Zaha Hadid, and Daniel Libeskind create buildings that seem to defy gravity and logic. The Guggenheim Bilbao is a landmark example.",
+  "Edwardian" => "Dominant in Britain during King Edward VII's reign (1901–1910), Edwardian architecture is lighter and airier than its Victorian predecessor. It blends classical proportions with Arts and Crafts details, featuring wider hallways, larger windows, and simpler decoration.",
+  "Federal" => "America's first homegrown style (1780–1830), Federal architecture refined Georgian forms with delicate neoclassical ornament — fanlights, elliptical windows, and attenuated columns. It expressed the young republic's democratic ideals through elegant simplicity.",
+  "Georgian" => "Dominant in Britain and its colonies throughout the 18th century, Georgian architecture features symmetrical brick or stone facades, sash windows, and classical proportions derived from Palladio and ancient Rome. It epitomizes orderly, restrained elegance.",
+  "Gothic" => "The great medieval European style spanning the 12th to 16th centuries, Gothic architecture is defined by pointed arches, ribbed vaults, flying buttresses, and vast stained-glass windows. Cathedrals like Notre-Dame and Chartres embody its aspiration toward heavenly light and height.",
+  "Gothic Revival" => "A 19th-century movement that revived medieval Gothic forms — pointed arches, ribbed vaults, flying buttresses, and ornate tracery. Popular for churches, universities, and civic buildings, it represents a romantic nostalgia for the craftsmanship of the Middle Ages.",
+  "Greek Revival" => "Inspired by ancient Greek temples and fueled by archaeological discoveries, Greek Revival architecture (1820s–1860s) features prominent Doric or Ionic columns, triangular pediments, and white-painted facades. It became the dominant style for American public buildings in the antebellum era.",
+  "Industrial" => "Drawing from factories, warehouses, and infrastructure, Industrial architecture celebrates exposed structural elements — steel beams, ductwork, brick walls, and large multi-pane windows. Today it influences loft conversions, breweries, and creative workspaces worldwide.",
+  "International Style" => "Codified in a 1932 MoMA exhibition, the International Style features glass curtain walls, open floor plans, and a complete rejection of ornament. Architects like Mies van der Rohe and Le Corbusier championed a universal modern aesthetic of steel, glass, and concrete.",
+  "Islamic" => "Spanning over a millennium across a vast geography, Islamic architecture features geometric patterns, arabesques, muqarnas (honeycomb vaulting), minarets, and serene courtyards with fountains. The Alhambra, the Great Mosque of Córdoba, and the Taj Mahal are among its masterpieces.",
+  "Italianate" => "Popular from the 1840s to 1880s, Italianate architecture drew inspiration from Italian Renaissance villas. Defining features include low-pitched roofs with wide overhanging eaves, decorative brackets, tall narrow windows, and sometimes a cupola or tower.",
+  "Mediterranean Revival" => "Flourishing in 1920s–1930s America, Mediterranean Revival blends Spanish, Italian, and Moorish elements — stucco walls, red clay tile roofs, arched openings, wrought iron balconies, and interior courtyards. It evokes the sun-drenched warmth of Southern Europe.",
+  "Mid-Century Modern" => "Spanning the 1940s–1960s, Mid-Century Modern design features clean lines, gentle organic curves, and seamless integration with nature through walls of glass. Architects like Eero Saarinen and Richard Neutra created iconic homes and public buildings that remain highly sought after today.",
+  "Minimalist" => "Minimalist architecture strips design to its essentials — pure geometry, monochrome palettes, and an emphasis on space, light, and materiality. Influenced by Japanese aesthetics and De Stijl, architects like Tadao Ando and John Pawson create spaces of contemplative simplicity.",
+  "Mission Revival" => "Inspired by the Spanish missions of California and the American Southwest, Mission Revival (1890s–1920s) features smooth stucco walls, red tile roofs, curved parapets, and bell towers. It romanticized the colonial heritage of the Western United States.",
+  "Modern" => "A broad 20th-century movement rejecting historical ornamentation in favor of function, simplicity, and new materials like reinforced concrete, steel, and glass. Modernism encompasses many sub-movements and remains the foundation of contemporary architectural practice.",
+  "Moorish Revival" => "Drawing from the architecture of Islamic Iberia, Moorish Revival features horseshoe arches, intricate geometric tilework, ornamental stucco, and polychrome decoration. Popular in 19th-century Europe and America for synagogues, theaters, and exotic pavilions.",
+  "Neoclassical" => "Inspired by the architecture of ancient Greece and Rome, Neoclassical design emerged in the mid-18th century as a response to the excesses of Baroque and Rococo. Defined by symmetry, grand columns, pediments, and clean geometric forms. Found worldwide in government buildings, museums, and cultural institutions.",
+  "Neo-Gothic" => "A continuation of Gothic Revival ideals into the 20th century and beyond, Neo-Gothic architecture employs pointed arches, tracery, and soaring verticality in modern contexts. Many of the world's greatest university buildings and cathedrals — including the Cathedral of Learning and Washington National Cathedral — are Neo-Gothic.",
+  "Neo-Renaissance" => "A 19th-century revival of Renaissance architectural principles, featuring rusticated ground floors, arched windows, classical balustrades, and elaborate cornices. Popular for banks, clubs, and civic buildings, it conveyed stability and cultural refinement.",
+  "Organic" => "Pioneered by Frank Lloyd Wright, organic architecture seeks harmony between human habitation and the natural environment. Buildings use local materials, follow the contours of the land, and blur the boundary between interior and exterior. Fallingwater is its most celebrated example.",
+  "Parametric" => "Enabled by computational design tools, Parametric architecture produces algorithmically generated forms — flowing curves, complex surfaces, and intricate lattices that would be impossible to design by hand. Firms like Zaha Hadid Architects and BIG lead this 21st-century movement.",
+  "Postmodern" => "Emerging in the 1970s–1980s as a reaction to Modernist austerity, Postmodern architecture embraces historical references, bright colors, playful forms, and ironic quotation. Buildings by Michael Graves, Robert Venturi, and Philip Johnson brought wit and populism back to design.",
+  "Prairie School" => "Developed by Frank Lloyd Wright and his contemporaries in early 1900s Chicago, the Prairie style features strong horizontal lines, flat or hipped roofs with broad overhangs, bands of windows, and open floor plans that echo the Midwestern landscape.",
+  "Queen Anne" => "The most exuberant Victorian substyle (1880s–1900s), Queen Anne houses feature asymmetrical facades, turrets, wrap-around porches, patterned shingles, and richly varied textures. Each building is a unique composition of forms, colors, and materials.",
+  "Renaissance" => "Originating in 15th-century Florence, Renaissance architecture revived classical Greek and Roman forms with mathematical precision. Symmetry, proportion, columns, rounded arches, and domes define a style that spread from Brunelleschi's Florence Cathedral dome across all of Europe.",
+  "Renaissance Revival" => "A 19th-century reinterpretation of Italian Renaissance ideals, featuring grand symmetrical facades, rusticated stonework, round-arched windows, and elaborate cornices. Widely used for cultural institutions, government buildings, and palatial residences.",
+  "Richardsonian Romanesque" => "Named for American architect H.H. Richardson, this 1880s style features heavy rough-cut stone, dramatic round arches, squat columns, and a powerful sense of mass. Trinity Church in Boston is its defining masterwork.",
+  "Rococo" => "An 18th-century evolution of Baroque, Rococo architecture features lighter, more playful ornamentation — pastel colors, gilding, curved forms, and asymmetric decorative motifs. Its interiors, such as those at Sanssouci Palace, are among the most exquisite ever created.",
+  "Romanesque" => "Prevalent in medieval Europe from the 10th to 12th centuries, Romanesque architecture features thick walls, round arches, sturdy pillars, barrel vaults, and fortress-like towers. It preceded and influenced the Gothic style.",
+  "Romanesque Revival" => "A 19th-century revival of medieval Romanesque forms, featuring round arches, heavy masonry, and fortress-like solidity. Used extensively for churches, libraries, and civic buildings, it conveyed permanence and strength.",
+  "Second Empire" => "Named for Napoleon III's French Second Empire (1852–1870), this style is instantly recognized by its distinctive mansard roof with dormer windows. Richly ornamented facades and Parisian elegance made it fashionable for public buildings and grand homes worldwide.",
+  "Spanish Colonial Revival" => "Popular in the 1920s–1930s American Southwest and Florida, this style features white stucco walls, red clay tile roofs, wrought iron details, arched colonnades, and interior courtyards inspired by Spain's colonial architectural heritage.",
+  "Streamline Moderne" => "A late Art Deco variant from the 1930s–1940s, Streamline Moderne features aerodynamic curves, smooth stucco or metal surfaces, horizontal speed lines, and porthole windows. It reflects the era's fascination with aviation, ocean liners, and speed.",
+  "Tudor" => "Originating in England during the Tudor dynasty (1485–1603), this style features steeply pitched roofs, half-timbered exteriors with decorative patterns, tall ornamental chimneys, and mullioned windows with leaded glass.",
+  "Tudor Revival" => "An early 20th-century revival of medieval English Tudor forms, featuring half-timber patterns over stucco, steeply pitched cross gables, prominent chimneys, and leaded casement windows. It became a popular suburban residential style in America and Britain.",
+  "Victorian" => "Spanning Queen Victoria's reign (1837–1901), Victorian architecture encompasses many substyles — Gothic Revival, Italianate, Queen Anne, Second Empire, and more. Characterized by ornate decoration, asymmetry, vivid colors, and eclectic mixing of historical influences.",
+}
+%>
+
+<div class="container" style="max-width: 960px; margin: 0 auto; padding: 24px 16px;">
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb" style="background: none; padding: 0; font-size: 0.9rem;">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/styles">Styles</a></li>
+      <li class="breadcrumb-item active" aria-current="page"><%= @style_name %></li>
+    </ol>
+  </nav>
+
+  <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 12px;"><%= @style_name %> Architecture</h1>
+
+  <% if STYLE_INFO[@style_name] %>
+    <p style="color: #444; font-size: 1.05rem; line-height: 1.7; margin-bottom: 24px;"><%= STYLE_INFO[@style_name] %></p>
+  <% end %>
+
+  <%# Stats bar %>
+  <div style="display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; padding: 16px 20px; background: #f8f9fa; border-radius: 10px;">
+    <div>
+      <strong style="font-size: 1.3rem; color: #0056b3;"><%= @analyzed_buildings.size %></strong>
+      <span style="color: #666; font-size: 0.9rem;"> buildings in our library</span>
+    </div>
+    <% if @cities.present? %>
+      <div>
+        <strong style="font-size: 1.3rem; color: #0056b3;"><%= @cities.size %></strong>
+        <span style="color: #666; font-size: 0.9rem;"> cities</span>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Buildings grid %>
+  <% if @analyzed_buildings.any? %>
+    <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 16px;"><%= @style_name %> Buildings</h2>
+    <div class="row">
+      <% @analyzed_buildings.each do |building| %>
+        <div class="col-md-4 col-sm-6 mb-4">
+          <a href="<%= architecture_explorer_show_path(id: building.id) %>" style="text-decoration: none; color: inherit; display: block; border: 1px solid #e9ecef; border-radius: 12px; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s;">
+            <% if building.image_url.present? %>
+              <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>" style="width: 100%; height: 160px; object-fit: cover;">
+            <% else %>
+              <div style="width:100%;height:160px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+            <% end %>
+            <div style="padding: 12px 14px;">
+              <h5 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; color: #1a1a1a;"><%= building.name || building.address || "Building ##{building.id}" %></h5>
+              <% if building.address.present? && building.address != "N/A" %>
+                <p style="font-size: 0.8rem; color: #888; margin: 0;"><%= building.address %></p>
+              <% end %>
+            </div>
+          </a>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# Cities section %>
+  <% if @cities.present? && @cities.any? %>
+    <h2 style="font-size: 1.4rem; font-weight: 700; margin-top: 40px; margin-bottom: 16px;">Find <%= @style_name %> Architecture In</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+      <% @cities.each do |city_name, count| %>
+        <%
+          place = @places&.find { |p| p.name.downcase == city_name.downcase }
+        %>
+        <% if place %>
+          <a href="/places/<%= place.slug %>" style="display: inline-block; padding: 8px 16px; background: #f0f4ff; border: 1px solid #d0d8e8; border-radius: 8px; color: #0056b3; text-decoration: none; font-size: 0.9rem;">
+            <%= city_name %> <span style="color: #888;">(<%= count %>)</span>
+          </a>
+        <% else %>
+          <span style="display: inline-block; padding: 8px 16px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; color: #444; font-size: 0.9rem;">
+            <%= city_name %> <span style="color: #888;">(<%= count %>)</span>
+          </span>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# Related styles %>
+  <% if @related_styles.present? && @related_styles.any? %>
+    <h2 style="font-size: 1.4rem; font-weight: 700; margin-top: 40px; margin-bottom: 16px;">Related Styles</h2>
+    <div class="row">
+      <% @related_styles.each do |style_name, count| %>
+        <div class="col-md-4 col-sm-6 mb-3">
+          <% slug = style_name.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+$/, '') %>
+          <a href="/styles/<%= slug %>" style="display: block; padding: 16px; border: 1px solid #e9ecef; border-radius: 12px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, transform 0.2s;">
+            <h5 style="font-size: 1rem; font-weight: 700; color: #0056b3; margin-bottom: 4px;"><%= style_name %></h5>
+            <span style="font-size: 0.85rem; color: #888;">Also found in <%= count %> of these buildings</span>
+          </a>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://app.architecturehelper.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Styles", "item": "https://app.architecturehelper.com/styles" },
+    { "@type": "ListItem", "position": 3, "name": "<%= @style_name %>", "item": "https://app.architecturehelper.com/styles/<%= @style_name.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+$/, '') %>" }
+  ]
+}
+</script>
