@@ -37,10 +37,11 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav mr-auto">
-        <a class="nav-item nav-link" href="/architecture_explorer/address_search">Design Analysis</a>
-        <a class="nav-item nav-link" href="/architecture_designer/step1">Generate with AI</a>
-        <a class="nav-item nav-link" href="/user_creations">Community Creations</a>
-        <a class="nav-item nav-link" href="/style-finder">Learn my style</a>
+        <a class="nav-item nav-link" href="<%= places_path %>">Places</a>
+        <a class="nav-item nav-link" href="/architecture_explorer/map">Map</a>
+        <a class="nav-item nav-link" href="<%= styles_index_path %>">Styles</a>
+        <a class="nav-item nav-link" href="/building_library">Building Library</a>
+        <a class="nav-item nav-link" href="/architecture_explorer/new">Analyze</a>
       </div>
       <div class="navbar-nav ml-auto">
           <% if user_signed_in? %>

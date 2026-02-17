@@ -647,7 +647,47 @@
         </div>
     </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    <!-- Map & Style Explorer Preview -->
+</script>
+<div class="container" style="margin-bottom: 40px;">
+  <div class="feature-card d-flex" style="overflow:hidden;">
+    <div class="col-md-3" style="padding:0; min-height:180px; position:relative; background:#e8edf2;">
+      <img src="https://api.mapbox.com/styles/v1/mapbox/streets-v9/static/-40,42,1.5,0/400x250?access_token=<%= Rails.application.credentials.dig(:mapbox, :access_token) %>" alt="Architecture Map" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'text-align:center;padding:40px;font-size:48px\'>🗺️</div>'">
+    </div>
+    <div class="card-content col-md-5 text-center" style="display:flex;flex-direction:column;justify-content:center;padding:20px;">
+      <h3><span class="emoji-icon">🗺️</span> Architecture Map</h3>
+      <p>Explore <%= BuildingAnalysis.count %> buildings across the US and Europe on an interactive map.</p>
+      <a href="/architecture_explorer/map" class="btn btn-primary" style="width:auto;margin:0 auto;">Explore the Map →</a>
+    </div>
+    <div class="stat col-md-3 text-center" style="display:flex;flex-direction:column;justify-content:center;padding:20px;">
+      <div class="metric-number" style="font-size:1.5rem;font-weight:700;"><%= BuildingAnalysis.count %></div>
+      <div class="metric-description" style="font-size:0.9rem;color:#666;">Buildings Mapped</div>
+    </div>
+  </div>
+
+  <div class="feature-card d-flex" style="overflow:hidden; margin-top:20px;">
+    <div class="col-md-3" style="padding:0; min-height:180px; background:#1a252f; display:flex; align-items:center; justify-content:center;">
+      <span style="font-size:64px;">🏛️</span>
+    </div>
+    <div class="card-content col-md-5 text-center" style="display:flex;flex-direction:column;justify-content:center;padding:20px;">
+      <h3>Browse Architectural Styles</h3>
+      <p>From Art Deco to Brutalism — discover buildings by their architectural style.</p>
+      <a href="/styles" class="btn btn-primary" style="width:auto;margin:0 auto;">Browse Styles →</a>
+    </div>
+    <div class="stat col-md-3 text-center" style="display:flex;flex-direction:column;justify-content:center;padding:20px;">
+      <div class="metric-number" style="font-size:1.5rem;font-weight:700;">
+        <%
+          _sc = Hash.new(0)
+          BuildingAnalysis.where(visible_in_library: true).pluck(:h3_contents).compact.each { |h| (JSON.parse(h) rescue []).each { |s| _sc[s] += 1 } }
+        %>
+        <%= _sc.keys.size %>
+      </div>
+      <div class="metric-description" style="font-size:0.9rem;color:#666;">Unique Styles</div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
         var optionButtons = document.querySelectorAll('.option-btn');
         optionButtons.forEach(function (btn) {
             btn.addEventListener('click', function () {

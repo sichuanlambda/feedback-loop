@@ -1,0 +1,141 @@
+<%
+STYLE_DESCRIPTIONS = {
+  "Art Deco" => "Art Deco emerged in the 1920s–30s, characterized by bold geometric forms, rich colors, and lavish ornamentation. It celebrates modernity, luxury, and craftsmanship with zigzag patterns, chevrons, and stylized motifs drawn from Egyptian, Aztec, and machine-age aesthetics.",
+  "Art Nouveau" => "Art Nouveau (1890–1910) draws from natural forms — sinuous curves, floral motifs, and organic lines. Buildings feature flowing ironwork, stained glass, and asymmetric facades that blur the line between structure and decoration.",
+  "Baroque" => "Baroque architecture (17th–18th century) is grand, dramatic, and richly decorated. It uses bold massing, curved forms, gilded ornament, and theatrical effects of light and shadow to create awe-inspiring spaces.",
+  "Bauhaus" => "The Bauhaus movement (1919–1933) championed functionalism and minimalism. Buildings feature flat roofs, smooth facades, open floor plans, and an honest expression of materials — form follows function at its purest.",
+  "Beaux-Arts" => "Beaux-Arts architecture (1880s–1920s) combines classical Greek and Roman forms with Renaissance ideals. Grand symmetrical facades, ornate sculptural decoration, columns, and monumental staircases define the style.",
+  "Brutalism" => "Brutalist architecture (1950s–1970s) celebrates raw concrete ('béton brut'), massive geometric forms, and bold structural expression. Often controversial, it conveys power, honesty, and an uncompromising modernist vision.",
+  "Classical" => "Classical architecture draws from ancient Greek and Roman traditions — symmetry, proportion, columns (Doric, Ionic, Corinthian), pediments, and entablatures. It has influenced Western building for over two millennia.",
+  "Colonial" => "Colonial architecture reflects European building traditions transplanted to the Americas, Africa, and Asia. Symmetrical facades, multi-pane windows, central entrances, and pitched roofs characterize the style.",
+  "Contemporary" => "Contemporary architecture encompasses current design trends — sustainable materials, fluid forms, large glass expanses, and innovative structural systems. It prioritizes context, experience, and environmental responsibility.",
+  "Dutch Renaissance" => "Dutch Renaissance architecture (late 16th–17th century) features ornate stepped gables, red brick with stone trim, classical pilasters, and decorative scrollwork. Amsterdam's canal houses are iconic examples.",
+  "Federal" => "Federal style (1780–1830) refined Georgian proportions with neoclassical elegance. Hallmarks include fan-shaped windows, elliptical rooms, delicate moldings, and a restrained, symmetrical aesthetic inspired by Roman ideals.",
+  "Georgian" => "Georgian architecture (1714–1830) emphasizes symmetry, proportion, and classical detailing. Red brick facades, sash windows, columned doorways, and hipped roofs create dignified, orderly streetscapes.",
+  "Gothic" => "Gothic architecture (12th–16th century) reaches heavenward with pointed arches, ribbed vaults, flying buttresses, and vast stained glass windows. Its spiritual ambition produced some of history's most breathtaking buildings.",
+  "Gothic Revival" => "Gothic Revival (19th century) reinterpreted medieval Gothic for the modern era. Pointed arches, tracery windows, steep roofs, and ornamental stonework brought romantic historicism to churches, universities, and public buildings.",
+  "Industrial" => "Industrial architecture celebrates the raw aesthetics of manufacturing — exposed steel, brick, large windows, and open floor plans. Converted warehouses and factories have become iconic urban spaces.",
+  "Mediterranean" => "Mediterranean architecture draws from Spanish, Italian, and Greek traditions — stucco walls, red clay tile roofs, arched openings, courtyards, and warm earth tones that evoke sun-drenched coastal living.",
+  "Modernism" => "Modernist architecture (early–mid 20th century) rejected ornament in favor of clean lines, open plans, glass curtain walls, and structural honesty. Pioneers like Le Corbusier and Mies van der Rohe redefined what buildings could be.",
+  "Neoclassical" => "Neoclassical architecture (18th–19th century) revived the grandeur of ancient Greece and Rome. Monumental columns, pediments, domes, and symmetrical plans express civic virtue and timeless beauty.",
+  "Postmodern" => "Postmodern architecture (1960s–1990s) rejected modernist austerity with playful color, historical references, ironic ornamentation, and contextual design. It restored symbolism and humor to the built environment.",
+  "Renaissance" => "Renaissance architecture (15th–17th century) rediscovered classical antiquity's principles — symmetry, proportion, geometry, and the classical orders. Domes, pilasters, and harmonious facades reflect humanist ideals.",
+  "Romanesque" => "Romanesque architecture (10th–12th century) features thick walls, round arches, sturdy pillars, barrel vaults, and fortress-like solidity. It preceded Gothic and established the template for medieval European churches.",
+  "Tudor" => "Tudor architecture (late 15th–17th century) is defined by half-timbered facades, steeply pitched roofs, tall chimneys, and leaded glass windows. It evokes the picturesque charm of medieval English villages.",
+  "Victorian" => "Victorian architecture (1837–1901) encompasses eclectic substyles — Italianate, Queen Anne, Second Empire — united by elaborate ornamentation, asymmetry, colorful paint schemes, and expressive craftsmanship.",
+  "Amsterdam School" => "The Amsterdam School (1910–1930) is an expressionist movement featuring rounded brick facades, decorative sculptural elements, and organic flowing forms. It gave Amsterdam's social housing blocks their distinctive artistic character.",
+}
+
+style_desc = STYLE_DESCRIPTIONS[@style_name] || "Explore buildings designed in the #{@style_name} architectural style, featuring examples from cities across our database."
+%>
+
+<% content_for :head do %>
+  <title><%= @style_name %> Architecture — Buildings, History & Examples | Architecture Helper</title>
+  <meta name="description" content="<%= truncate(style_desc, length: 160) %>">
+  <meta property="og:title" content="<%= @style_name %> Architecture — Buildings & Examples | Architecture Helper" />
+  <meta property="og:description" content="<%= truncate(style_desc, length: 160) %>" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="<%= request.original_url %>" />
+  <% if @analyzed_buildings.first&.image_url.present? %>
+    <meta property="og:image" content="<%= @analyzed_buildings.first.image_url %>" />
+  <% end %>
+  <meta name="twitter:card" content="summary_large_image" />
+<% end %>
+
+<style>
+  .breadcrumb-bar { padding: 12px 0; font-size: 0.9rem; }
+  .breadcrumb-bar a { color: #0056b3; text-decoration: none; }
+  .breadcrumb-bar span { color: #999; margin: 0 6px; }
+  .style-hero { padding: 50px 0 30px; text-align: center; background: linear-gradient(135deg, #1a252f 0%, #2d3e50 100%); color: #fff; margin: -24px -15px 40px; }
+  .style-hero h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 12px; }
+  .style-hero .desc { max-width: 700px; margin: 0 auto; font-size: 1.1rem; line-height: 1.6; opacity: 0.9; }
+  .style-hero .count-badge { display: inline-block; margin-top: 16px; background: rgba(255,255,255,0.15); padding: 6px 18px; border-radius: 20px; font-size: 0.95rem; }
+  .cities-section { margin-bottom: 40px; }
+  .cities-section h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 16px; color: #1a252f; }
+  .city-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .city-chip { background: #f0f4f8; border: 1px solid #dee2e6; border-radius: 20px; padding: 6px 16px; font-size: 0.9rem; color: #1a252f; text-decoration: none; transition: background 0.2s; }
+  .city-chip:hover { background: #e2e8f0; text-decoration: none; color: inherit; }
+  .city-chip .chip-count { color: #6c757d; margin-left: 4px; }
+
+  /* Reuse building card grid from Places */
+  .buildings-grid-section { padding: 20px 0 60px; }
+  .section-header { text-align: center; margin-bottom: 40px; }
+  .section-header h2 { font-size: 2rem; font-weight: 700; color: #1a252f; margin-bottom: 10px; }
+  .section-header p { font-size: 1.1rem; color: #6c757d; }
+  .buildings-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+  .building-grid-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: transform 0.2s ease, box-shadow 0.2s ease; text-decoration: none; color: inherit; display: block; border: 1px solid #e9ecef; }
+  .building-grid-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); text-decoration: none; color: inherit; }
+  .building-card-image { position: relative; height: 200px; overflow: hidden; background: #f0f0f0; }
+  .building-card-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+  .building-grid-card:hover .building-card-image img { transform: scale(1.05); }
+  .building-card-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e9ecef; color: #adb5bd; font-size: 2rem; }
+  .building-card-styles { position: absolute; bottom: 10px; left: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .style-chip { background: rgba(0,0,0,0.6); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; backdrop-filter: blur(4px); }
+  .building-card-info { padding: 16px; }
+  .building-card-info h4 { margin: 0 0 4px; font-size: 1rem; font-weight: 600; color: #1a252f; line-height: 1.3; }
+  .building-card-address { margin: 0; font-size: 0.85rem; color: #6c757d; }
+  @media (max-width: 768px) {
+    .buildings-card-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+    .style-hero h1 { font-size: 1.8rem; }
+  }
+</style>
+
+<div class="breadcrumb-bar">
+  <a href="/">Home</a><span>›</span><a href="<%= styles_index_path %>">Styles</a><span>›</span><strong><%= @style_name %></strong>
+</div>
+
+<div class="style-hero">
+  <h1><%= @style_name %> Architecture</h1>
+  <p class="desc"><%= style_desc %></p>
+  <span class="count-badge"><%= @analyzed_buildings.count %> <%= @analyzed_buildings.count == 1 ? 'building' : 'buildings' %></span>
+</div>
+
+<% if @cities.any? %>
+  <div class="cities-section">
+    <h2>Cities with <%= @style_name %> buildings</h2>
+    <div class="city-chips">
+      <% @cities.first(20).each do |city, count| %>
+        <% place = @places&.find { |p| p.name.downcase == city.downcase } %>
+        <% if place %>
+          <%= link_to place_path(place.slug), class: "city-chip" do %>
+            <%= city %><span class="chip-count">(<%= count %>)</span>
+          <% end %>
+        <% else %>
+          <span class="city-chip"><%= city %><span class="chip-count">(<%= count %>)</span></span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<div class="buildings-grid-section">
+  <div class="section-header">
+    <h2><%= @style_name %> Buildings</h2>
+    <p><%= @analyzed_buildings.count %> examples from our database</p>
+  </div>
+  <div class="buildings-card-grid">
+    <% @analyzed_buildings.limit(48).each do |building| %>
+      <% styles = begin; JSON.parse(building.h3_contents || '[]').first(3); rescue; []; end %>
+      <%= link_to architecture_explorer_show_path(building), class: "building-grid-card" do %>
+        <div class="building-card-image">
+          <% if building.image_url.present? %>
+            <%= image_tag building.image_url, alt: building.name.presence || building.address, loading: "lazy" %>
+          <% else %>
+            <div class="building-card-placeholder"><i class="fas fa-building"></i></div>
+          <% end %>
+          <div class="building-card-styles">
+            <% styles.each do |style| %>
+              <span class="style-chip"><%= style %></span>
+            <% end %>
+          </div>
+        </div>
+        <div class="building-card-info">
+          <h4><%= building.name.presence || building.address.to_s.split(',').first %></h4>
+          <% if building.name.present? && building.address.present? %>
+            <p class="building-card-address"><%= building.address.to_s.split(',').first(2).join(', ') %></p>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
