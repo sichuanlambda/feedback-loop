@@ -2,6 +2,26 @@ class PlacesController < ApplicationController
   before_action :set_custom_nav
   layout 'application'
 
+  def subscribe
+    @place = Place.find_by(slug: params[:slug])
+    if @place.nil?
+      redirect_to root_path, alert: "Place not found"
+      return
+    end
+
+    subscription = PlaceSubscription.new(
+      email: params[:email],
+      place_id: @place.id,
+      subscribed_at: Time.current
+    )
+
+    if subscription.save
+      redirect_to place_path(@place.slug), notice: "Thanks! We'll notify you when new buildings are added to #{@place.name}."
+    else
+      redirect_to place_path(@place.slug), alert: subscription.errors.full_messages.first || "Could not subscribe. Please try again."
+    end
+  end
+
   def show
     @place = Place.find_by(slug: params[:slug])
     

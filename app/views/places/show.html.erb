@@ -207,6 +207,27 @@
           </a>
         </div>
       </div>
+
+      <!-- PDF Download Button -->
+      <div class="text-center mt-4 mb-4 no-print">
+        <button onclick="window.print()" class="btn btn-primary" style="font-size: 16px; padding: 12px 28px;">
+          <i class="fas fa-file-pdf"></i> Download PDF City Guide
+        </button>
+      </div>
+
+      <!-- Email Capture -->
+      <div class="no-print" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 16px; padding: 32px; margin-top: 24px; text-align: center;">
+        <h3 style="font-size: 20px; margin-bottom: 8px; color: #1a1a1a;">📬 Get notified when we add more buildings</h3>
+        <p style="color: #666; margin-bottom: 20px;">Be the first to know when new architectural analyses are added to <%= @place.name %>.</p>
+        <% if flash[:notice]&.include?("notify") %>
+          <div class="alert alert-success"><%= flash[:notice] %></div>
+        <% else %>
+          <%= form_with url: subscribe_place_path(@place.slug), method: :post, local: true, style: "display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center;" do |f| %>
+            <input type="email" name="email" required placeholder="your@email.com" style="padding: 10px 16px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; min-width: 250px;">
+            <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 16px;">Notify Me</button>
+          <% end %>
+        <% end %>
+      </div>
     </div>
   <% end %>
 
@@ -2326,6 +2347,83 @@ ${window.location.origin}
 
 .modal-header {
   position: relative;
+}
+
+/* Print styles for PDF City Guide */
+@media print {
+  .no-print,
+  nav, .navbar, footer,
+  .map-container, .map-header,
+  .tour-actions, .tour-component, .compact-tour-component,
+  .buildings-sidebar,
+  #plan-route-btn-compact, #virtual-tour-btn-compact,
+  .btn-outline-primary, .btn-outline-secondary,
+  .address-container,
+  .building-card-styles {
+    display: none !important;
+  }
+
+  body, .place-page {
+    background: white !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hero-section {
+    background: white !important;
+    padding: 20px 0 !important;
+    border-bottom: 2px solid #333;
+    margin-bottom: 20px;
+  }
+
+  .place-title {
+    font-size: 28pt !important;
+    color: black !important;
+  }
+
+  .article-content {
+    font-size: 11pt;
+    line-height: 1.6;
+    color: black !important;
+  }
+
+  .article-content h2, .article-content h3 {
+    color: black !important;
+    page-break-after: avoid;
+  }
+
+  .building-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+    page-break-inside: avoid;
+  }
+
+  .building-grid-card {
+    break-inside: avoid;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .building-card-image img {
+    max-height: 150px !important;
+    object-fit: cover;
+  }
+
+  .building-card-info {
+    padding: 8px !important;
+    font-size: 9pt;
+  }
+
+  .hero-image-img {
+    max-height: 200px !important;
+    object-fit: cover;
+  }
+
+  a[href]:after {
+    content: none !important;
+  }
 }
 </style>
 
