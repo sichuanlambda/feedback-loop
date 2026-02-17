@@ -2,7 +2,7 @@
 <% content_for :meta_description, "Explore #{@analyzed_buildings.size} examples of #{@style_name} architecture. Discover buildings, cities, and related styles." %>
 
 <%
-STYLE_INFO = {
+style_info_hash = {
   "Art Deco" => "Emerged in the 1920s–1930s, Art Deco is characterized by bold geometric patterns, rich colors, and lavish ornamentation. Drawing from diverse influences including ancient Egyptian art, Cubism, and the Machine Age, it represents luxury and modernity. Notable examples include the Chrysler Building and Miami Beach's Historic District.",
   "Art Nouveau" => "Flourishing from the 1890s to 1910, Art Nouveau embraced organic, flowing lines inspired by natural forms — curving tendrils, floral motifs, and sinuous ironwork. The movement sought to dissolve the boundary between fine and applied arts. Icons include Gaudí's Casa Batlló and Hector Guimard's Paris Métro entrances.",
   "Baroque" => "Originating in late 16th-century Italy, Baroque architecture is defined by grandeur, drama, and movement. Ornate facades, bold curves, and theatrical use of light create an overwhelming sensory experience. Masterworks include St. Peter's Basilica and the Palace of Versailles.",
@@ -67,8 +67,8 @@ STYLE_INFO = {
 
   <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 12px;"><%= @style_name %> Architecture</h1>
 
-  <% if STYLE_INFO[@style_name] %>
-    <p style="color: #444; font-size: 1.05rem; line-height: 1.7; margin-bottom: 24px;"><%= STYLE_INFO[@style_name] %></p>
+  <% if style_info_hash[@style_name] %>
+    <p style="color: #444; font-size: 1.05rem; line-height: 1.7; margin-bottom: 24px;"><%= style_info_hash[@style_name] %></p>
   <% end %>
 
   <%# Stats bar %>

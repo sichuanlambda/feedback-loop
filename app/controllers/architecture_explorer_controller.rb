@@ -127,7 +127,7 @@ class ArchitectureExplorerController < ApplicationController
     # All styles for sidebar navigation
     @all_styles = BuildingAnalysis.where(visible_in_library: true).pluck(:h3_contents).compact.flat_map { |h|
       begin; StyleNormalizer.normalize_array(JSON.parse(h)); rescue; []; end
-    }.tally.sort_by { |_s, c| -c }.first(30)
+    }.reject(&:blank?).tally.sort_by { |_s, c| -c }.first(30)
 
     render 'architecture_explorer/by_style', layout: 'application'
   end
