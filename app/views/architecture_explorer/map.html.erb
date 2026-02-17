@@ -13,326 +13,197 @@
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css">
     <script src="https://unpkg.com/supercluster@7.1.2/dist/supercluster.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 60px; bottom: 0; left: 0; right: 0; width: 100%; height: calc(100% - 60px); }
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+        /* Top toolbar */
+        #map-toolbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 54px; z-index: 20;
+            background: #fff; border-bottom: 1px solid #e1e5e9;
+            display: flex; align-items: center; padding: 0 12px; gap: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            overflow-x: auto; white-space: nowrap;
+        }
+        #map-toolbar .brand { font-weight: 700; font-size: 15px; color: #333; margin-right: 8px; flex-shrink: 0; }
+        #map-toolbar .brand a { color: inherit; text-decoration: none; }
+
+        /* Search bar */
+        #search-bar {
+            flex: 0 1 220px; min-width: 140px;
+            padding: 6px 10px; border: 1px solid #dee2e6; border-radius: 20px;
+            font-size: 13px; outline: none; transition: border-color 0.2s;
+        }
+        #search-bar:focus { border-color: #007bff; }
+
+        /* City pill buttons */
+        .city-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 5px 14px; border-radius: 20px; border: 1px solid #dee2e6;
+            background: #f8f9fa; font-size: 12px; font-weight: 500; cursor: pointer;
+            transition: all 0.2s; white-space: nowrap; flex-shrink: 0; text-decoration: none; color: #333;
+        }
+        .city-pill:hover { background: #007bff; color: #fff; border-color: #007bff; }
+        .city-pill.active { background: #007bff; color: #fff; border-color: #007bff; }
+
+        /* Near Me button */
+        .near-me-btn {
+            padding: 5px 14px; border-radius: 20px; border: 1px solid #28a745;
+            background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
+            transition: all 0.2s; white-space: nowrap; flex-shrink: 0; color: #28a745;
+        }
+        .near-me-btn:hover { background: #28a745; color: #fff; }
+
+        /* Map */
+        #map { position: absolute; top: 54px; bottom: 0; left: 0; right: 0; }
+
+        /* Sidebar */
         #sidebar {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            bottom: 0;
-            width: 400px;
-            background: white;
-            overflow-y: auto;
-            padding: 0;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-            height: calc(100% - 60px);
-            transition: right 0.3s ease;
-            z-index: 10;
+            position: absolute; top: 54px; right: 0; bottom: 0; width: 380px;
+            background: white; overflow-y: auto; padding: 0;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 10;
         }
-        
-        #sidebar.closed {
-            right: -400px;
-        }
-        
+        #sidebar.closed { right: -380px; }
+
         .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 20px 15px 20px;
-            border-bottom: 1px solid #e9ecef;
-            background: #f8f9fa;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 16px 12px; border-bottom: 1px solid #e9ecef; background: #f8f9fa;
         }
-        
-        .sidebar-header h2 {
-            margin: 0;
-            font-size: 18px;
-            color: #333;
-        }
-        
+        .sidebar-header h2 { margin: 0; font-size: 16px; color: #333; }
+
         .sidebar-toggle {
-            background: #6c757d;
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
+            background: #6c757d; color: white; border: none; width: 28px; height: 28px;
+            border-radius: 50%; font-size: 14px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
         }
-        
-        .sidebar-toggle:hover {
-            background: #5a6268;
-        }
-        
+        .sidebar-toggle:hover { background: #5a6268; }
+
         .sidebar-open-btn {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            transition: all 0.2s;
-            z-index: 5;
+            position: absolute; top: 66px; right: 12px;
+            background: #6c757d; color: white; border: none; width: 44px; height: 44px;
+            border-radius: 50%; font-size: 18px; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 5;
         }
-        
-        .sidebar-open-btn:hover {
-            background: #5a6268;
-            transform: scale(1.1);
-        }
-        
-        .sidebar-open-btn.hidden {
-            display: none;
-        }
-        
-        #building-list {
-            list-style-type: none;
-            padding: 20px;
-            margin: 0;
-        }
+        .sidebar-open-btn:hover { background: #5a6268; }
+        .sidebar-open-btn.hidden { display: none; }
+
+        #building-list { list-style: none; padding: 12px; margin: 0; }
         .building-item {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px;
+            margin-bottom: 12px; background: #f9f9f9;
         }
-        .building-item h4 {
-            margin: 0 0 15px 0;
-            font-size: 18px;
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
+        .building-item h4 { margin: 0 0 10px; font-size: 15px; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 8px; }
+
+        /* Popup styles */
+        .mapboxgl-popup-content { padding: 0; max-width: 300px; border-radius: 10px; overflow: hidden; }
+        .popup-content { padding: 0; }
+        .popup-img { width: 100%; height: 140px; object-fit: cover; display: block; }
+        .popup-body { padding: 12px; }
+        .popup-body h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+        .popup-body .popup-address { font-size: 12px; color: #666; margin-bottom: 8px; }
+        .popup-body .popup-place { font-size: 11px; color: #007bff; margin-bottom: 6px; }
+        .popup-body .popup-place a { color: #007bff; text-decoration: none; }
+        .popup-body .popup-place a:hover { text-decoration: underline; }
+        .style-chip {
+            display: inline-block; padding: 2px 8px; margin: 2px; border-radius: 10px;
+            font-size: 11px; font-weight: 500; color: #fff;
         }
-        .mapboxgl-popup-content {
-            padding: 20px;
-            max-width: 600px;
-            width: 300px;
+        .popup-body .popup-actions { margin-top: 8px; }
+        .popup-body .popup-actions a {
+            display: inline-block; padding: 5px 14px; background: #007bff; color: #fff;
+            border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 500;
         }
-        .popup-content h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-        .styles-container {
-            margin: 15px 0;
-        }
+        .popup-body .popup-actions a:hover { background: #0056b3; }
+
+        /* Style badges */
         .badge {
-            display: inline-block;
-            padding: 5px 10px;
-            margin: 3px;
-            background-color: #007bff;
-            color: white;
-            border-radius: 15px;
-            font-size: 14px;
+            display: inline-block; padding: 3px 8px; margin: 2px; background: #007bff;
+            color: white; border-radius: 12px; font-size: 12px;
         }
-        .popup-content img, .building-item img {
-            margin-top: 15px;
-            margin-bottom: 15px;
-            width: 100%;
-            height: auto;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .button-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .view-details-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-        .view-details-btn:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-            color: white;
-        }
-        .cluster-marker {
-            background-color: #007bff;
-            border-radius: 50%;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-        }
+
+        /* Filter container */
         #filter-container {
-            position: absolute;
-            top: 70px;
-            left: 10px;
-            z-index: 1;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 400px;
-            border: 1px solid #e1e5e9;
+            position: absolute; top: 64px; left: 10px; z-index: 5;
+            background: white; padding: 14px; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 320px; border: 1px solid #e1e5e9;
         }
-        
-        .filter-section {
-            margin-bottom: 15px;
-        }
-        
-        .filter-section h4 {
-            margin: 0 0 15px 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: #555;
-        }
-        
-        .filter-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            max-height: 120px;
-            overflow-y: auto;
-        }
-        
+        .filter-section { margin-bottom: 10px; }
+        .filter-section h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: #555; }
+        .filter-options { display: flex; flex-wrap: wrap; gap: 6px; max-height: 100px; overflow-y: auto; }
         .style-option {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
-            white-space: nowrap;
+            background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 16px;
+            padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all 0.2s; user-select: none;
         }
-        
-        .style-option:hover {
-            background: #e9ecef;
-            border-color: #adb5bd;
-        }
-        
-        .style-option.selected {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.2s;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-        
-        .filter-results {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #e9ecef;
-            text-align: center;
-        }
-        
-        #results-count {
-            font-size: 12px;
-            color: #6c757d;
-        }
+        .style-option:hover { background: #e9ecef; }
+        .style-option.selected { background: #007bff; color: white; border-color: #007bff; }
+
+        /* Satellite toggle */
         #style-switcher {
-            position: absolute;
-            top: 200px;
-            left: 10px;
-            z-index: 1;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
+            position: absolute; bottom: 30px; left: 10px; z-index: 5;
+            background: white; padding: 8px 12px; border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px;
         }
-        
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-            margin-right: 10px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .3s; border-radius: 24px;
         }
-
         .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
+            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #2196F3; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        #style-label { font-size: 12px; font-weight: 500; }
+
+        /* Legend */
+        #legend {
+            position: absolute; bottom: 30px; right: 10px; z-index: 5;
+            background: white; padding: 10px 14px; border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12); font-size: 11px; max-height: 240px; overflow-y: auto;
+        }
+        #legend h4 { margin: 0 0 6px; font-size: 12px; font-weight: 600; }
+        .legend-item { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+        /* Tour route */
+        .tour-marker {
+            width: 26px; height: 26px; border-radius: 50%; background: #e74c3c; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 13px; border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
-        input:checked + .slider {
-            background-color: #2196F3;
-        }
-        
-        input:focus + .slider {
-            box-shadow: 0 0 1px #2196F3;
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
+        /* Cluster markers */
+        .cluster-marker {
+            background-color: #007bff; border-radius: 50%; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 13px; border: 2px solid #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
-        .slider.round {
-            border-radius: 34px;
-        }
-
-        .slider.round:before {
-            border-radius: 50%;
-        }
-        
-        #style-label {
-            vertical-align: middle;
-            line-height: 34px;
-            font-size: 14px;
-            font-weight: 500;
+        /* Mobile */
+        @media (max-width: 768px) {
+            #sidebar { width: 100%; }
+            #sidebar.closed { right: -100%; }
+            #filter-container { width: calc(100% - 20px); }
+            #legend { bottom: 70px; right: 10px; max-width: 160px; }
+            .city-pill { padding: 4px 10px; font-size: 11px; }
+            #search-bar { flex: 0 1 120px; min-width: 100px; }
         }
     </style>
 </head>
 <body>
+    <!-- Toolbar with search, city pills, near me -->
+    <div id="map-toolbar">
+        <span class="brand"><a href="/">🏛 Architecture Explorer</a></span>
+        <input type="text" id="search-bar" placeholder="Search buildings...">
+        <div id="city-buttons"></div>
+        <button class="near-me-btn" id="near-me-btn">📍 Near Me</button>
+    </div>
+
     <div id="map"></div>
+
+    <!-- Sidebar -->
     <div id="sidebar">
         <div class="sidebar-header">
             <h2>Buildings in View</h2>
@@ -340,266 +211,432 @@
         </div>
         <ul id="building-list"></ul>
     </div>
+    <button id="sidebar-open-btn" class="sidebar-open-btn">☰</button>
+
+    <!-- Filter container -->
     <div id="filter-container">
         <div class="filter-section">
-            <h4>Architectural Styles</h4>
-            <div class="filter-options" id="style-options">
-                <!-- Style options will be dynamically populated -->
-            </div>
+            <h4>Filter by Style</h4>
+            <div class="filter-options" id="style-options"></div>
         </div>
+        <div id="results-count" style="font-size:11px;color:#6c757d;margin-top:6px;"></div>
     </div>
+
+    <!-- Satellite toggle -->
     <div id="style-switcher">
         <label class="switch">
             <input type="checkbox" id="style-toggle">
-            <span class="slider round"></span>
+            <span class="slider"></span>
         </label>
         <span id="style-label">Streets</span>
     </div>
-    <button id="sidebar-open-btn" class="sidebar-open-btn">☰</button>
-    <div id="loading" style="position: absolute; top: 70px; left: 10px; background: white; padding: 5px;">Loading...</div>
+
+    <!-- Legend -->
+    <div id="legend">
+        <h4>Styles</h4>
+        <div id="legend-items"></div>
+    </div>
+
+    <div id="loading" style="position:absolute;top:64px;left:10px;background:white;padding:5px;z-index:6;">Loading...</div>
 
     <script>
   document.addEventListener("DOMContentLoaded", function () {
-    console.log("DOM Content Loaded");
-
     try {
       const mapboxAccessToken = '<%= @mapbox_access_token %>';
-      console.log("Mapbox Access Token:", mapboxAccessToken);
-
-      if (!mapboxAccessToken) {
-        throw new Error("Mapbox Access Token is not set");
-      }
-
+      if (!mapboxAccessToken) throw new Error("Mapbox Access Token is not set");
       mapboxgl.accessToken = mapboxAccessToken;
 
-      console.log("Creating map");
-      const map = new mapboxgl.Map({
-          container: 'map',
-          style: 'mapbox://styles/mapbox/streets-v9', // Initial style: streets view
-          center: [-104.9903, 39.7392], // Denver coordinates
-          zoom: 12 // A good initial zoom level for a city view
+      // Style color mapping
+      const STYLE_COLORS = {
+        'Art Deco': '#D4A017',
+        'Gothic': '#7B2D8B',
+        'Gothic Revival': '#8E44AD',
+        'Victorian': '#DC143C',
+        'Queen Anne': '#C0392B',
+        'Modernism': '#607D8B',
+        'Mid-Century Modern': '#78909C',
+        'Beaux-Arts': '#1B3A5C',
+        'Neoclassical': '#2C3E50',
+        'Brutalism': '#757575',
+        'Art Nouveau': '#E67E22',
+        'Colonial Revival': '#8B4513',
+        'Romanesque Revival': '#A0522D',
+        'International Style': '#37474F',
+        'Postmodernism': '#E91E63',
+        'Prairie Style': '#6D7B0D',
+        'Craftsman': '#795548',
+        'Tudor Revival': '#4A0E0E',
+        'Dutch Renaissance': '#FF8C00',
+        'Amsterdam School': '#D35400',
+        'Mediterranean Revival': '#C8553D',
+        'Streamline Moderne': '#4682B4'
+      };
+      const DEFAULT_COLOR = '#3B82F6';
+
+      function getStyleColor(styles) {
+        if (!styles || !styles.length) return DEFAULT_COLOR;
+        for (const s of styles) {
+          if (STYLE_COLORS[s]) return STYLE_COLORS[s];
+        }
+        return DEFAULT_COLOR;
+      }
+
+      // Places data
+      const places = <%= raw (@places || []).to_json %>;
+
+      // Hardcoded city fallback coordinates (in case no Places exist)
+      const CITY_COORDS = {
+        'Denver': { lat: 39.7392, lng: -104.9903, zoom: 12 },
+        'Den Haag': { lat: 52.0705, lng: 4.3007, zoom: 12 },
+        'San Francisco': { lat: 37.7749, lng: -122.4194, zoom: 12 },
+        'Chicago': { lat: 41.8781, lng: -87.6298, zoom: 12 },
+        'New Orleans': { lat: 29.9511, lng: -90.0715, zoom: 12 },
+        'New York City': { lat: 40.7128, lng: -74.0060, zoom: 12 }
+      };
+
+      // Build city list from places or fallback
+      const cities = places.length > 0
+        ? places.map(p => ({ name: p.name, slug: p.slug, lat: p.latitude, lng: p.longitude, zoom: p.zoom_level || 12 }))
+        : Object.entries(CITY_COORDS).map(([name, c]) => ({ name, slug: name.toLowerCase().replace(/\s+/g, '-'), lat: c.lat, lng: c.lng, zoom: c.zoom }));
+
+      // Render city pills
+      const cityContainer = document.getElementById('city-buttons');
+      cities.forEach(city => {
+        const btn = document.createElement('a');
+        btn.className = 'city-pill';
+        btn.textContent = city.name;
+        btn.href = '#';
+        btn.title = 'Fly to ' + city.name;
+        if (places.length > 0) {
+          btn.href = '/places/' + city.slug;
+        }
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.city-pill').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          map.flyTo({ center: [city.lng, city.lat], zoom: city.zoom, essential: true });
+        });
+        cityContainer.appendChild(btn);
       });
 
-      console.log("Map created");
+      // Create map — center on Atlantic to show US + EU
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v9',
+        center: [-30, 40],
+        zoom: 2.5
+      });
 
       const buildings = <%= raw @building_analyses.to_json %>;
       const markers = [];
+      let tourMarkers = [];
       const buildingList = document.getElementById('building-list');
       const styleOptions = document.getElementById('style-options');
       const sidebar = document.getElementById('sidebar');
       const sidebarToggle = document.getElementById('sidebar-toggle');
       const sidebarOpenBtn = document.getElementById('sidebar-open-btn');
-
       const styleToggle = document.getElementById('style-toggle');
       const styleLabel = document.getElementById('style-label');
+      const searchBar = document.getElementById('search-bar');
+      const resultsCount = document.getElementById('results-count');
 
-      // Filter state
-      let activeFilters = {
-        styles: []
-      };
+      let activeFilters = { styles: [] };
+      let searchQuery = '';
 
-      // Populate style filter options as clickable buttons
-      const allStyles = new Set();
-      buildings.forEach(building => {
-          building.h3_contents.forEach(style => allStyles.add(style));
+      // Build legend
+      const legendItems = document.getElementById('legend-items');
+      const usedStyles = new Set();
+      buildings.forEach(b => (b.h3_contents || []).forEach(s => usedStyles.add(s)));
+      Object.entries(STYLE_COLORS).forEach(([style, color]) => {
+        if (usedStyles.has(style)) {
+          const item = document.createElement('div');
+          item.className = 'legend-item';
+          item.innerHTML = '<span class="legend-dot" style="background:' + color + '"></span>' + style;
+          legendItems.appendChild(item);
+        }
       });
-      
-      allStyles.forEach(style => {
-          const option = document.createElement('div');
-          option.className = 'style-option';
-          option.textContent = style;
-          option.dataset.style = style;
-          option.addEventListener('click', function() {
-              this.classList.toggle('selected');
-              updateActiveFilters();
-              updateMarkers();
-              updateBuildingList();
-          });
-          styleOptions.appendChild(option);
+      // Add default
+      const defItem = document.createElement('div');
+      defItem.className = 'legend-item';
+      defItem.innerHTML = '<span class="legend-dot" style="background:' + DEFAULT_COLOR + '"></span>Other';
+      legendItems.appendChild(defItem);
+
+      // Populate style filter options
+      const allStyles = new Set();
+      buildings.forEach(b => (b.h3_contents || []).forEach(s => allStyles.add(s)));
+      Array.from(allStyles).sort().forEach(style => {
+        const option = document.createElement('div');
+        option.className = 'style-option';
+        option.textContent = style;
+        option.dataset.style = style;
+        option.addEventListener('click', function() {
+          this.classList.toggle('selected');
+          updateActiveFilters();
+          updateMarkers();
+          updateBuildingList();
+        });
+        styleOptions.appendChild(option);
       });
 
       function updateActiveFilters() {
-          activeFilters.styles = Array.from(document.querySelectorAll('.style-option.selected'))
-              .map(option => option.dataset.style);
+        activeFilters.styles = Array.from(document.querySelectorAll('.style-option.selected')).map(o => o.dataset.style);
       }
 
-      function filterBuildings(buildings) {
-          return buildings.filter(building => {
-              // Style filter
-              if (activeFilters.styles.length > 0) {
-                  const buildingStyles = building.h3_contents || [];
-                  if (!activeFilters.styles.some(style => buildingStyles.includes(style))) {
-                      return false;
-                  }
-              }
-
-              return true;
-          });
-      }
-
-      styleToggle.addEventListener('change', function() {
-          if (this.checked) {
-              map.setStyle('mapbox://styles/mapbox/satellite-v9');
-              styleLabel.textContent = 'Satellite';
-          } else {
-              map.setStyle('mapbox://styles/mapbox/streets-v9');
-              styleLabel.textContent = 'Streets';
+      function filterBuildings(list) {
+        return list.filter(b => {
+          if (activeFilters.styles.length > 0) {
+            const bs = b.h3_contents || [];
+            if (!activeFilters.styles.some(s => bs.includes(s))) return false;
           }
+          if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const addr = (b.address || '').toLowerCase();
+            const city = (b.city || '').toLowerCase();
+            const styles = (b.h3_contents || []).join(' ').toLowerCase();
+            if (!addr.includes(q) && !city.includes(q) && !styles.includes(q)) return false;
+          }
+          return true;
+        });
+      }
+
+      // Search
+      searchBar.addEventListener('input', function() {
+        searchQuery = this.value.trim();
+        updateMarkers();
+        updateBuildingList();
       });
 
-      // Create a new supercluster instance
-      const supercluster = new Supercluster({
-          radius: 40,
-          maxZoom: 16
+      // Satellite toggle
+      styleToggle.addEventListener('change', function() {
+        if (this.checked) {
+          map.setStyle('mapbox://styles/mapbox/satellite-v9');
+          styleLabel.textContent = 'Satellite';
+        } else {
+          map.setStyle('mapbox://styles/mapbox/streets-v9');
+          styleLabel.textContent = 'Streets';
+        }
       });
+
+      // Re-render markers when style changes (map.setStyle removes all layers)
+      map.on('style.load', function() {
+        updateMarkers();
+        renderTourRoute();
+      });
+
+      // Near Me
+      document.getElementById('near-me-btn').addEventListener('click', function() {
+        if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+        this.textContent = '⏳ Locating...';
+        const btn = this;
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            map.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 14, essential: true });
+            btn.textContent = '📍 Near Me';
+          },
+          err => { alert('Could not get location: ' + err.message); btn.textContent = '📍 Near Me'; }
+        );
+      });
+
+      // Supercluster
+      const supercluster = new Supercluster({ radius: 40, maxZoom: 16 });
+
+      // Find place for a building's city
+      function findPlaceForBuilding(building) {
+        if (!building.city) return null;
+        const cityLower = building.city.toLowerCase();
+        return cities.find(c => c.name.toLowerCase() === cityLower) || null;
+      }
 
       function updateMarkers() {
-          const newMarkers = [];
-          const bounds = map.getBounds();
-          const zoom = map.getZoom();
-          const filteredBuildings = filterBuildings(buildings);
-          
-          // Create points from filtered buildings
-          const points = filteredBuildings.map(building => ({
-              type: 'Feature',
-              properties: { id: building.id, ...building },
-              geometry: {
-                  type: 'Point',
-                  coordinates: [building.longitude, building.latitude]
-              }
-          })).filter(point => point.geometry.coordinates[0] && point.geometry.coordinates[1]);
+        const bounds = map.getBounds();
+        const zoom = map.getZoom();
+        const filtered = filterBuildings(buildings);
 
-          // Load the points into the supercluster
-          supercluster.load(points);
-          
-          const clusters = supercluster.getClusters(
-              [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
-              Math.floor(zoom)
-          );
+        resultsCount.textContent = filtered.length + ' of ' + buildings.length + ' buildings';
 
-          // Remove existing markers
-          markers.forEach(marker => marker.remove());
-          markers.length = 0;
+        const points = filtered.filter(b => b.longitude && b.latitude).map(b => ({
+          type: 'Feature',
+          properties: { id: b.id, ...b },
+          geometry: { type: 'Point', coordinates: [b.longitude, b.latitude] }
+        }));
 
-          clusters.forEach(cluster => {
-              const [longitude, latitude] = cluster.geometry.coordinates;
+        supercluster.load(points);
+        const clusters = supercluster.getClusters(
+          [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
+          Math.floor(zoom)
+        );
 
-              if (cluster.properties.cluster) {
-                  // Create a cluster marker
-                  const el = document.createElement('div');
-                  el.className = 'cluster-marker';
-                  el.style.width = el.style.height = `${30 + (cluster.properties.point_count / points.length) * 20}px`;
-                  el.innerText = cluster.properties.point_count;
+        markers.forEach(m => m.remove());
+        markers.length = 0;
 
-                  const marker = new mapboxgl.Marker(el)
-                      .setLngLat([longitude, latitude])
-                      .addTo(map);
+        clusters.forEach(cluster => {
+          const [lng, lat] = cluster.geometry.coordinates;
 
-                  newMarkers.push(marker);
-              } else {
-                  // Create a single building marker
-                  const building = cluster.properties;
-                  const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
+          if (cluster.properties.cluster) {
+            const el = document.createElement('div');
+            el.className = 'cluster-marker';
+            const size = 28 + Math.min((cluster.properties.point_count / points.length) * 30, 30);
+            el.style.width = el.style.height = size + 'px';
+            el.innerText = cluster.properties.point_count;
 
-                  const marker = new mapboxgl.Marker()
-                      .setLngLat([longitude, latitude])
-                      .setPopup(new mapboxgl.Popup().setHTML(`
-                          <div class="popup-content">
-                              <h3>${building.address || 'No address'}</h3>
-                              <img src="${building.image_url}" alt="Building Analysis" width="100%">
-                              <div class="styles-container">
-                                  <strong>Architectural Styles:</strong><br>
-                                  ${stylesHtml || '<span>Unknown</span>'}
-                              </div>
-                              <div class="button-container">
-                                  <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
-                              </div>
-                          </div>
-                      `))
-                      .addTo(map);
+            const marker = new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map);
+            el.addEventListener('click', () => {
+              const expansionZoom = supercluster.getClusterExpansionZoom(cluster.properties.cluster_id);
+              map.flyTo({ center: [lng, lat], zoom: expansionZoom });
+            });
+            markers.push(marker);
+          } else {
+            const b = cluster.properties;
+            const color = getStyleColor(b.h3_contents);
 
-                  newMarkers.push(marker);
-              }
-          });
+            // Custom colored marker
+            const el = document.createElement('div');
+            el.style.cssText = 'width:14px;height:14px;border-radius:50%;background:' + color + ';border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;';
 
-          markers.push(...newMarkers);
+            const stylesChips = (b.h3_contents || []).slice(0, 3).map(s => {
+              const c = STYLE_COLORS[s] || DEFAULT_COLOR;
+              return '<span class="style-chip" style="background:' + c + '">' + s + '</span>';
+            }).join('');
+
+            const place = findPlaceForBuilding(b);
+            const placeHtml = place
+              ? '<div class="popup-place">📍 <a href="/places/' + place.slug + '">' + place.name + '</a></div>'
+              : (b.city ? '<div class="popup-place">📍 ' + b.city + '</div>' : '');
+
+            const imgHtml = b.image_url
+              ? '<img class="popup-img" src="' + b.image_url + '" alt="Building" onerror="this.style.display=\'none\'">'
+              : '';
+
+            const popupHtml = '<div class="popup-content">' +
+              imgHtml +
+              '<div class="popup-body">' +
+                '<h3>' + (b.address || 'Unknown address') + '</h3>' +
+                placeHtml +
+                '<div style="margin:6px 0">' + (stylesChips || '<span style="color:#999;font-size:11px">No styles</span>') + '</div>' +
+                '<div class="popup-actions"><a href="/architecture_explorer/' + b.id + '">View Details →</a></div>' +
+              '</div></div>';
+
+            const marker = new mapboxgl.Marker(el)
+              .setLngLat([lng, lat])
+              .setPopup(new mapboxgl.Popup({ offset: 10, maxWidth: '300px' }).setHTML(popupHtml))
+              .addTo(map);
+
+            markers.push(marker);
+          }
+        });
       }
 
       function updateBuildingList() {
         const bounds = map.getBounds();
         buildingList.innerHTML = '';
-        const filteredBuildings = filterBuildings(buildings);
-        
-        filteredBuildings.forEach((building) => {
-          if (building.latitude && building.longitude &&
-              bounds.contains([building.longitude, building.latitude])) {
+        const filtered = filterBuildings(buildings);
+
+        filtered.forEach(b => {
+          if (b.latitude && b.longitude && bounds.contains([b.longitude, b.latitude])) {
             const li = document.createElement('li');
             li.className = 'building-item';
-            const stylesHtml = building.h3_contents.map(style => `<span class="badge">${style}</span>`).join('');
-            li.innerHTML = `
-              <h4>${building.address || 'No address'}</h4>
-              <img src="${building.image_url}" alt="Building Analysis" width="100%">
-              <div class="styles-container">
-                <strong>Architectural Styles:</strong><br>
-                ${stylesHtml || '<span>No styles available</span>'}
-              </div>
-              <div class="button-container">
-                <a href="/architecture_explorer/${building.id}" class="view-details-btn">View Full Analysis</a>
-              </div>
-            `;
+            const stylesHtml = (b.h3_contents || []).map(s => '<span class="badge">' + s + '</span>').join('');
+            const place = findPlaceForBuilding(b);
+            const placeLink = place ? '<div style="margin-bottom:6px;font-size:12px">📍 <a href="/places/' + place.slug + '">' + place.name + '</a></div>' : '';
+            li.innerHTML =
+              '<h4>' + (b.address || 'No address') + '</h4>' +
+              placeLink +
+              (b.image_url ? '<img src="' + b.image_url + '" alt="Building" width="100%" style="border-radius:6px;max-height:160px;object-fit:cover;" onerror="this.style.display=\'none\'">' : '') +
+              '<div style="margin:8px 0">' + (stylesHtml || '<span style="color:#999">No styles</span>') + '</div>' +
+              '<div style="text-align:center"><a href="/architecture_explorer/' + b.id + '" style="display:inline-block;padding:6px 16px;background:#007bff;color:#fff;border-radius:4px;text-decoration:none;font-size:13px">View Details</a></div>';
             buildingList.appendChild(li);
           }
         });
       }
 
-      map.on('load', function () {
-        console.log("Map loaded, adding building markers...");
-        
-        updateMarkers();
-        updateBuildingList();
+      // Tour route visualization
+      let tourRouteRendered = false;
+      function renderTourRoute() {
+        const params = new URLSearchParams(window.location.search);
+        const tourParam = params.get('tour');
+        if (!tourParam) return;
 
-        document.getElementById('loading').style.display = 'none';
+        const tourIds = tourParam.split(',').map(Number);
+        const tourBuildings = tourIds.map(id => buildings.find(b => b.id === id)).filter(Boolean);
+        if (tourBuildings.length < 2) return;
 
-        // Focus on Denver
-        const denverCenter = [-104.9903, 39.7392];
-        const denverZoom = 12;
+        // Remove old tour markers
+        tourMarkers.forEach(m => m.remove());
+        tourMarkers = [];
 
-        map.flyTo({
-          center: denverCenter,
-          zoom: denverZoom,
-          essential: true
+        // Add numbered markers
+        tourBuildings.forEach((b, i) => {
+          const el = document.createElement('div');
+          el.className = 'tour-marker';
+          el.textContent = i + 1;
+          const m = new mapboxgl.Marker(el).setLngLat([b.longitude, b.latitude]).addTo(map);
+          tourMarkers.push(m);
         });
 
+        // Draw polyline
+        const coords = tourBuildings.map(b => [b.longitude, b.latitude]);
+
+        if (map.getSource('tour-route')) {
+          map.getSource('tour-route').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: coords } });
+        } else {
+          map.addSource('tour-route', {
+            type: 'geojson',
+            data: { type: 'Feature', geometry: { type: 'LineString', coordinates: coords } }
+          });
+          map.addLayer({
+            id: 'tour-route-line',
+            type: 'line',
+            source: 'tour-route',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#e74c3c', 'line-width': 3, 'line-dasharray': [2, 1] }
+          });
+        }
+
+        // Fit bounds to tour
+        if (!tourRouteRendered) {
+          const tourBounds = new mapboxgl.LngLatBounds();
+          coords.forEach(c => tourBounds.extend(c));
+          map.fitBounds(tourBounds, { padding: 80 });
+          tourRouteRendered = true;
+        }
+      }
+
+      // Map load
+      map.on('load', function () {
+        updateMarkers();
+        updateBuildingList();
+        document.getElementById('loading').style.display = 'none';
+
+        // If no tour, fit to all building bounds
+        const params = new URLSearchParams(window.location.search);
+        if (!params.get('tour')) {
+          const validBuildings = buildings.filter(b => b.longitude && b.latitude);
+          if (validBuildings.length > 0) {
+            const bounds = new mapboxgl.LngLatBounds();
+            validBuildings.forEach(b => bounds.extend([b.longitude, b.latitude]));
+            map.fitBounds(bounds, { padding: 60, maxZoom: 14 });
+          }
+        }
+
+        renderTourRoute();
+
         map.on('moveend', () => {
-            updateMarkers();
-            updateBuildingList();
+          updateMarkers();
+          updateBuildingList();
         });
       });
 
-      // Sidebar toggle functionality
-      function openSidebar() {
-          sidebar.classList.remove('closed');
-          sidebarOpenBtn.classList.add('hidden');
-      }
-
-      function closeSidebar() {
-          sidebar.classList.add('closed');
-          sidebarOpenBtn.classList.remove('hidden');
-      }
-
-      sidebarToggle.addEventListener('click', closeSidebar);
-      sidebarOpenBtn.addEventListener('click', openSidebar);
-
-      // Set sidebar to default expanded state
+      // Sidebar toggle
+      sidebarToggle.addEventListener('click', () => { sidebar.classList.add('closed'); sidebarOpenBtn.classList.remove('hidden'); });
+      sidebarOpenBtn.addEventListener('click', () => { sidebar.classList.remove('closed'); sidebarOpenBtn.classList.add('hidden'); });
       sidebar.classList.remove('closed');
       sidebarOpenBtn.classList.add('hidden');
 
     } catch (error) {
-      console.error("An error occurred:", error);
+      console.error("Map error:", error);
       document.getElementById('loading').innerHTML = "Error loading map: " + error.message;
     }
   });
 </script>
-
 </body>
 </html>
