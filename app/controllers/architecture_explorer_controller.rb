@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'open-uri'
 
 class ArchitectureExplorerController < ApplicationController
-  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map]
+  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map, :styles_index, :style_show, :by_style]
   before_action :set_custom_nav
   before_action :check_analysis_view_limit, only: [:show]
   # include BuildingAnalysisProcessor
