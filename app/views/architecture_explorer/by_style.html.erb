@@ -2,7 +2,7 @@
 <% content_for :meta_description do %>Explore <%= @style_name %> architecture: history, key characteristics, famous examples, and <%= @analyzed_buildings.size %> buildings in our library. A comprehensive guide to <%= @style_name %> design.<% end %>
 
 <%
-STYLE_CONTENT = {
+style_content = {
   "Art Deco" => {
     era: "1920s–1940s",
     origin: "France, United States",
@@ -888,7 +888,7 @@ STYLE_CONTENT = {
   }
 }
 
-style_info = STYLE_CONTENT[@style_name] || {}
+style_info = style_content[@style_name] || {}
 hero_building = @analyzed_buildings.first
 %>
 
@@ -1248,7 +1248,7 @@ hero_building = @analyzed_buildings.first
       <h2>Related Styles</h2>
       <div class="related-grid">
         <% @related_styles.each do |style, count| %>
-          <% rs_info = STYLE_CONTENT[style] %>
+          <% rs_info = style_content[style] %>
           <a href="<%= buildings_by_style_path(style_name: style.parameterize) %>" class="related-card">
             <h4><%= style %></h4>
             <% if rs_info %>
