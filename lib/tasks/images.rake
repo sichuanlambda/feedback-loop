@@ -1,3 +1,6 @@
+require 'aws-sdk-s3'
+require 'open-uri'
+
 namespace :images do
   desc "Download external image URLs to S3 for buildings that reference non-S3 images"
   task migrate_external: :environment do
