@@ -42,4 +42,26 @@ namespace :images do
 
     puts "Done!"
   end
+
+  desc "Re-run GPT analysis for buildings missing analysis content"
+  task reanalyze_missing: :environment do
+    buildings = BuildingAnalysis.where(visible_in_library: true)
+                                .where(html_content: [nil, ''])
+                                .where.not(image_url: [nil, ''])
+
+    puts "Found #{buildings.count} buildings missing analysis"
+
+    buildings.find_each do |building|
+      print "  ##{building.id} #{building.name || 'unnamed'}: "
+      begin
+        ProcessBuildingAnalysisJob.perform_later(building.id, building.image_url, building.address)
+        puts "✅ enqueued"
+      rescue => e
+        puts "❌ #{e.message}"
+      end
+      sleep 2 # Space out to avoid Sidekiq overload
+    end
+
+    puts "Done! Jobs will process in background via Sidekiq."
+  end
 end
