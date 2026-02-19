@@ -173,7 +173,7 @@
             <%= link_to architecture_explorer_show_path(building), class: "building-grid-card" do %>
               <div class="building-card-image">
                 <% if building.image_url.present? %>
-                  <%= image_tag thumbnail_url(building.image_url, width: 400) || building.image_url, alt: building.name.presence || building.address, loading: "lazy", width: 400, height: 267, style: "object-fit:cover" %>
+                  <%= image_tag thumbnail_url(building.image_url, width: 400) || building.image_url, alt: building.name.presence || building.address, loading: "lazy", width: 400, height: 267, style: "object-fit:cover", onerror: "this.onerror=null;this.src='#{building.image_url}'" %>
                 <% else %>
                   <div class="building-card-placeholder">
                     <i class="fas fa-building"></i>
@@ -243,7 +243,7 @@
           <% @building_analyses.each do |building| %>
             <div class="building-item" data-building-id="<%= building.id %>">
               <% if building.image_url.present? %>
-                <img src="<%= thumbnail_url(building.image_url, width: 400) || building.image_url %>" alt="Building" class="building-image" loading="lazy" width="400">
+                <img src="<%= thumbnail_url(building.image_url, width: 400) || building.image_url %>" alt="Building" class="building-image" loading="lazy" width="400" onerror="this.onerror=null;this.src='<%= building.image_url %>'">
               <% end %>
               <div class="building-info">
                 <h4><%= building.address.present? ? building.address : "Building ##{building.id}" %></h4>
