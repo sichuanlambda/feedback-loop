@@ -7,19 +7,8 @@ module ArchitectureExplorerHelper
   #   uploads/building_123_456.jpg -> uploads/thumbs/building_123_456_400w.jpg
   #
   def thumbnail_url(image_url, width: 400)
-    return nil if image_url.blank?
-    return image_url unless image_url.include?('architecture-explorer.s3')
-
-    # Build thumbnail key from original
-    uri = URI.parse(image_url)
-    path = uri.path # e.g. /uploads/building_123_456.jpg
-    ext = File.extname(path)
-    base = File.basename(path, ext)
-    thumb_path = "/uploads/thumbs/#{base}_#{width}w#{ext}"
-
-    # Return thumbnail URL (same host)
-    "#{uri.scheme}://#{uri.host}#{thumb_path}"
-  rescue
+    # Thumbnails not yet generated for all buildings — return original URL for now.
+    # Once rake images:generate_thumbnails has run, re-enable thumbnail logic.
     image_url
   end
 end
