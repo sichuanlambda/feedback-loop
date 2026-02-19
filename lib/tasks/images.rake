@@ -200,7 +200,7 @@ namespace :images do
 
         # Upload thumbnail
         obj = bucket.object(thumb_key)
-        obj.upload_file(temp.path, content_type: "image/jpeg", acl: "public-read")
+        obj.upload_file(temp.path, content_type: "image/jpeg")
 
         generated += 1
         puts "##{building.id} #{building.name}: ✅ #{thumb_key}"
@@ -242,7 +242,7 @@ namespace :images do
     temp.rewind
 
     obj = bucket.object(key)
-    obj.upload_file(temp.path, content_type: "image/jpeg", acl: "public-read")
+    obj.upload_file(temp.path, content_type: "image/jpeg")
 
     building.update!(image_url: obj.public_url)
     puts "✅ Updated to #{obj.public_url}"
@@ -281,7 +281,7 @@ namespace :images do
         temp.rewind
 
         obj = bucket.object(key)
-        obj.upload_file(temp.path, content_type: "image/jpeg", acl: "public-read")
+        obj.upload_file(temp.path, content_type: "image/jpeg")
         building.update!(image_url: obj.public_url)
 
         puts "##{bid} #{building.name}: ✅ #{obj.public_url}"
