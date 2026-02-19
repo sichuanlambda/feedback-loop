@@ -173,7 +173,7 @@
             <%= link_to architecture_explorer_show_path(building), class: "building-grid-card" do %>
               <div class="building-card-image">
                 <% if building.image_url.present? %>
-                  <%= image_tag building.image_url, alt: building.name.presence || building.address, loading: "lazy" %>
+                  <%= image_tag thumbnail_url(building.image_url, width: 400) || building.image_url, alt: building.name.presence || building.address, loading: "lazy", width: 400, height: 267, style: "object-fit:cover" %>
                 <% else %>
                   <div class="building-card-placeholder">
                     <i class="fas fa-building"></i>
@@ -243,7 +243,7 @@
           <% @building_analyses.each do |building| %>
             <div class="building-item" data-building-id="<%= building.id %>">
               <% if building.image_url.present? %>
-                <img src="<%= building.image_url %>" alt="Building" class="building-image">
+                <img src="<%= thumbnail_url(building.image_url, width: 400) || building.image_url %>" alt="Building" class="building-image" loading="lazy" width="400">
               <% end %>
               <div class="building-info">
                 <h4><%= building.address.present? ? building.address : "Building ##{building.id}" %></h4>
@@ -283,6 +283,16 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+function thumbUrl(url, width) {
+  if (!url || !url.includes('architecture-explorer.s3')) return url;
+  try {
+    var u = new URL(url);
+    var path = u.pathname;
+    var ext = path.substring(path.lastIndexOf('.'));
+    var base = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
+    return u.origin + '/uploads/thumbs/' + base + '_' + (width||400) + 'w' + ext;
+  } catch(e) { return url; }
+}
 document.addEventListener('DOMContentLoaded', function() {
   const mapboxAccessToken = '<%= @mapbox_access_token %>';
   const initialCenter = <%= raw @initial_center.to_json %>;
@@ -449,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </label>
           </div>
         </div>
-        ${building.image_url ? `<img src="${building.image_url}" alt="Building" class="building-thumbnail">` : ''}
+        ${building.image_url ? `<img src="${thumbUrl(building.image_url, 400)}" alt="Building" class="building-thumbnail" loading="lazy">` : ''}
         <div class="building-styles">
           ${styles.map(style => `<span class="style-tag">${style}</span>`).join('')}
         </div>
@@ -1032,7 +1042,7 @@ ${window.location.origin}
               .setHTML(`
                 <div class="popup-content">
                   <h6>Stop ${index + 1}: ${building.address || 'Building'}</h6>
-                  ${building.image_url ? `<img src="${building.image_url}" alt="Building" style="width: 100%; max-height: 100px; object-fit: cover; margin: 5px 0;">` : ''}
+                  ${building.image_url ? `<img src="${thumbUrl(building.image_url, 400)}" alt="Building" style="width: 100%; max-height: 100px; object-fit: cover; margin: 5px 0;" loading="lazy">` : ''}
                   <a href="/architecture_explorer/${building.id}" class="btn btn-sm btn-primary">View Details</a>
                 </div>
               `)
@@ -1173,7 +1183,7 @@ ${window.location.origin}
                 .setHTML(`
                   <div class="popup-content">
                     <h4>${building.address || 'Building'}</h4>
-                    ${building.image_url ? `<img src="${building.image_url}" alt="Building" style="width: 100%; max-height: 150px; object-fit: cover; margin: 10px 0;">` : ''}
+                    ${building.image_url ? `<img src="${thumbUrl(building.image_url, 400)}" alt="Building" style="width: 100%; max-height: 150px; object-fit: cover; margin: 10px 0;" loading="lazy">` : ''}
                     <a href="/architecture_explorer/${building.id}" class="btn btn-sm btn-primary">View Details</a>
                   </div>
                 `)

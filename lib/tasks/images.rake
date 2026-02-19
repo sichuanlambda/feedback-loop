@@ -153,4 +153,67 @@ namespace :images do
 
     puts "Done! Jobs will process in background via Sidekiq."
   end
+
+  desc "Generate thumbnails (400w) for all S3 building images"
+  task generate_thumbnails: :environment do
+    require 'mini_magick'
+    require 'open-uri'
+    require 'tempfile'
+
+    s3 = Aws::S3::Resource.new(region: 'us-east-2')
+    bucket = s3.bucket('architecture-explorer')
+    width = 400
+
+    buildings = BuildingAnalysis.where(visible_in_library: true)
+                                .where("image_url LIKE '%architecture-explorer.s3%'")
+                                .where("image_url IS NOT NULL AND image_url != ''")
+
+    puts "Found #{buildings.count} buildings with S3 images"
+    generated = 0
+    skipped = 0
+    failed = 0
+
+    buildings.find_each do |building|
+      begin
+        uri = URI.parse(building.image_url)
+        path = uri.path.sub(/^\//, '') # e.g. uploads/building_123_456.jpg
+        ext = File.extname(path)
+        base = File.basename(path, ext)
+        thumb_key = "uploads/thumbs/#{base}_#{width}w#{ext}"
+
+        # Skip if thumbnail already exists
+        if bucket.object(thumb_key).exists?
+          skipped += 1
+          next
+        end
+
+        # Download original
+        temp = Tempfile.new(['thumb', ext])
+        temp.binmode
+        URI.open(building.image_url) { |f| temp.write(f.read) }
+        temp.rewind
+
+        # Resize with MiniMagick
+        image = MiniMagick::Image.new(temp.path)
+        image.resize "#{width}x#{width}>"  # Shrink to fit, maintain aspect ratio
+        image.quality "85"
+
+        # Upload thumbnail
+        obj = bucket.object(thumb_key)
+        obj.upload_file(temp.path, content_type: "image/jpeg", acl: "public-read")
+
+        generated += 1
+        puts "##{building.id} #{building.name}: ✅ #{thumb_key}"
+
+        temp.close
+        temp.unlink
+        sleep 1 # Rate limit
+      rescue => e
+        failed += 1
+        puts "##{building.id} #{building.name}: ❌ #{e.message}"
+      end
+    end
+
+    puts "\nDone! Generated: #{generated}, Skipped: #{skipped}, Failed: #{failed}"
+  end
 end

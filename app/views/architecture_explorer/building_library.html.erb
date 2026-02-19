@@ -441,7 +441,7 @@
                 data-tags="<%= JSON.parse(building.h3_contents || '[]').join(', ') rescue [] %>"
                 data-link="<%= architecture_explorer_show_path(id: building.id) %>"> <!-- Ensure this is correctly placed -->
                 <% if building.image_url.present? %>
-                <%= image_tag building.image_url, alt: "Building Image", class: "submission-image", loading: "lazy" %>
+                <%= image_tag thumbnail_url(building.image_url, width: 400) || building.image_url, alt: "Building Image", class: "submission-image", loading: "lazy", width: 400, height: 267 %>
                 <% else %>
                 <!-- Display a placeholder image or message if the image_url is missing -->
                 <p>No image available</p>
