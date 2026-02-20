@@ -667,7 +667,7 @@
             </div>
             <div class="city-guide-info">
               <h3><%= place.name %></h3>
-              <% count = place.building_analyses.where(visible_in_library: true).count %>
+              <% count = place.building_analyses_in_place.count %>
               <span class="city-guide-count"><%= count %> building<%= count == 1 ? '' : 's' %></span>
             </div>
           <% end %>
