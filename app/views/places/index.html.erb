@@ -1,5 +1,5 @@
 <% content_for :title, "City Architecture Guides — Explore #{@places.count} Cities Worldwide" %>
-<% content_for :meta_description, "Explore architecture guides for #{@places.count} cities across #{@places.map { |p| p.country || 'worldwide' }.uniq.count} countries. #{@places.sum { |p| p.building_analyses_in_place.count }} buildings analyzed with style breakdowns, history, and walking tours." %>
+<% content_for :meta_description, "Explore architecture guides for #{@places.count} cities worldwide. #{@places.sum { |p| p.building_analyses_in_place.count }} buildings analyzed with style breakdowns, history, and walking tours." %>
 
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
