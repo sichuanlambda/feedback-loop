@@ -110,50 +110,55 @@
           </div>
         </div>
 
-        <!-- Tour Planning Component -->
+        <!-- Sidebar: Map + Tour Planning (sticky on desktop) -->
         <div class="col-lg-4">
-          <% if @building_analyses.any? %>
-            <div class="compact-tour-component">
-              <div class="tour-header">
-                <h4><i class="fas fa-route"></i> Plan Your Self-Guided Tour</h4>
-                <p>Create a custom walking route to explore the analyzed buildings in <%= @place.name %>. Select the buildings you'd like to visit and we'll generate an optimized route for you.</p>
+          <div class="place-sidebar-sticky">
+            <!-- Map Section (above tour buttons) -->
+            <div class="map-container">
+              <div class="map-header">
+                <h3>Interactive Map</h3>
+                <p>Explore analyzed buildings in <%= @place.name %></p>
               </div>
-              
-              <div class="tour-stats-compact">
-                <div class="stat-compact">
-                  <span class="stat-number-compact"><%= @building_analyses.count %></span>
-                  <span class="stat-label-compact">Buildings</span>
-                </div>
-                <div class="stat-compact">
-                  <span class="stat-number-compact"><%= @unique_style_count %></span>
-                  <span class="stat-label-compact">Architectural Styles</span>
-                </div>
-              </div>
-              
-              <div class="tour-actions">
-                <button id="plan-route-btn-compact" class="btn btn-primary">
-                  <i class="fas fa-map-marked-alt"></i> Plan Route
-                </button>
-                <button id="virtual-tour-btn-compact" class="btn btn-outline-primary">
-                  <i class="fas fa-vr-cardboard"></i> Virtual Tour
-                </button>
-              </div>
+              <div id="place-map" class="place-map"></div>
             </div>
-          <% end %>
 
-          <!-- Map Section -->
-          <div class="map-container">
-            <div class="map-header">
-              <h3>Interactive Map</h3>
-              <p>Explore analyzed buildings in <%= @place.name %></p>
-            </div>
-            <div id="place-map" class="place-map"></div>
-            <div class="map-controls">
-              <button id="virtual-tour-map-btn" class="btn btn-primary btn-sm">
-                Explore
+            <% if @building_analyses.any? %>
+              <!-- Tour Planning Component (below map) -->
+              <div class="compact-tour-component">
+                <div class="tour-stats-compact">
+                  <div class="stat-compact">
+                    <span class="stat-number-compact"><%= @building_analyses.count %></span>
+                    <span class="stat-label-compact">Buildings</span>
+                  </div>
+                  <div class="stat-compact">
+                    <span class="stat-number-compact"><%= @unique_style_count %></span>
+                    <span class="stat-label-compact">Architectural Styles</span>
+                  </div>
+                </div>
+                
+                <div class="tour-actions">
+                  <button id="plan-route-btn-compact" class="btn btn-primary">
+                    <i class="fas fa-map-marked-alt"></i> Plan Route
+                  </button>
+                  <button id="virtual-tour-btn-compact" class="btn btn-outline-primary">
+                    <i class="fas fa-vr-cardboard"></i> Virtual Tour
+                  </button>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Mobile-only sticky tour buttons -->
+          <% if @building_analyses.any? %>
+            <div class="mobile-sticky-tour">
+              <button id="plan-route-btn-mobile" class="btn btn-primary btn-sm">
+                <i class="fas fa-map-marked-alt"></i> Plan Route
+              </button>
+              <button id="virtual-tour-btn-mobile" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-vr-cardboard"></i> Virtual Tour
               </button>
             </div>
-          </div>
+          <% end %>
         </div>
       </div>
     </div>
@@ -350,13 +355,29 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Open tour planning modal for route planning
-  planRouteBtn.addEventListener('click', function() {
+  function openRouteMode() {
     isVirtualTourMode = false;
     initializeBuildingArrays();
     populateBuildingsGrid();
     updateModalUI();
     tourPlanningModal.show();
-  });
+  }
+
+  function openVirtualTourMode() {
+    isVirtualTourMode = true;
+    initializeBuildingArrays();
+    populateBuildingsGrid();
+    updateModalUI();
+    tourPlanningModal.show();
+  }
+
+  planRouteBtn.addEventListener('click', openRouteMode);
+
+  // Mobile sticky buttons
+  const planRouteMobile = document.getElementById('plan-route-btn-mobile');
+  const virtualTourMobile = document.getElementById('virtual-tour-btn-mobile');
+  if (planRouteMobile) planRouteMobile.addEventListener('click', openRouteMode);
+  if (virtualTourMobile) virtualTourMobile.addEventListener('click', openVirtualTourMode);
 
   // Handle virtual tour button
   virtualTourBtn.addEventListener('click', function() {
@@ -2357,6 +2378,67 @@ ${window.location.origin}
 
 .modal-header {
   position: relative;
+}
+
+/* Sticky sidebar on desktop */
+.place-sidebar-sticky {
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.place-sidebar-sticky .map-container {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.place-sidebar-sticky .compact-tour-component {
+  margin-top: 0;
+}
+
+/* Mobile sticky tour buttons */
+.mobile-sticky-tour {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .place-sidebar-sticky {
+    position: static;
+    max-height: none;
+  }
+  
+  .mobile-sticky-tour {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 12px 16px;
+    gap: 10px;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #e9ecef;
+  }
+
+  .mobile-sticky-tour .btn {
+    flex: 1;
+    font-size: 0.85rem;
+    padding: 10px 12px;
+    white-space: nowrap;
+  }
+  
+  /* Hide the sidebar tour buttons on mobile (using sticky bar instead) */
+  .compact-tour-component .tour-actions {
+    display: none;
+  }
+
+  /* Add bottom padding to page so content isn't hidden behind sticky bar */
+  .place-page {
+    padding-bottom: 70px;
+  }
 }
 
 /* Print styles for PDF City Guide */
