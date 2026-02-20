@@ -523,6 +523,109 @@
             white-space: nowrap;
             z-index: 2; /* Ensure it's above other elements */
         }
+
+        /* City Guides Section */
+        .city-guides-section {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .city-guides-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .city-guides-header h2 {
+            font-size: 32px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+        .city-guides-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+            margin: 0;
+        }
+        .city-guides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .city-guide-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.25s, box-shadow 0.25s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .city-guide-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            text-decoration: none;
+            color: inherit;
+        }
+        .city-guide-image {
+            position: relative;
+            height: 160px;
+            overflow: hidden;
+            background: #e8edf2;
+        }
+        .city-guide-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        .city-guide-card:hover .city-guide-image img {
+            transform: scale(1.05);
+        }
+        .city-guide-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.3));
+        }
+        .city-guide-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 48px;
+            background: #e8edf2;
+        }
+        .city-guide-info {
+            padding: 14px 16px;
+        }
+        .city-guide-info h3 {
+            margin: 0 0 4px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        .city-guide-count {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .city-guides-cta {
+            text-align: center;
+        }
+        .city-guides-cta .btn-primary {
+            width: auto;
+            padding: 12px 32px;
+            font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .city-guides-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .city-guide-image { height: 120px; }
+            .city-guides-header h2 { font-size: 24px; }
+        }
     </style>
 </head>
     <body>
@@ -544,6 +647,38 @@
         </div>
     </div>
     <% end %>
+    <!-- City Guides Section -->
+    <% if @places&.any? %>
+    <div class="city-guides-section">
+      <div class="city-guides-header">
+        <h2>Explore City Architecture Guides</h2>
+        <p class="city-guides-subtitle">Discover notable buildings, architectural styles, and design history across <%= @places.count %> cities worldwide</p>
+      </div>
+      <div class="city-guides-grid">
+        <% @places.each do |place| %>
+          <%= link_to place_path(place), class: "city-guide-card" do %>
+            <div class="city-guide-image">
+              <% if place.best_representative_image.present? %>
+                <img src="<%= place.best_representative_image %>" alt="<%= place.name %> architecture" loading="lazy">
+              <% else %>
+                <div class="city-guide-placeholder">🏛️</div>
+              <% end %>
+              <div class="city-guide-overlay"></div>
+            </div>
+            <div class="city-guide-info">
+              <h3><%= place.name %></h3>
+              <% count = place.building_analyses.where(visible_in_library: true).count %>
+              <span class="city-guide-count"><%= count %> building<%= count == 1 ? '' : 's' %></span>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+      <div class="city-guides-cta">
+        <%= link_to "View All City Guides →", places_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+    <% end %>
+
     <h2>AI-Powered Architecture Design Analysis</h2>
         <div class="container architecture-identifier">
         <div class="row">
