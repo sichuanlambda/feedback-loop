@@ -527,104 +527,247 @@
         /* City Guides Section */
         .city-guides-section {
             max-width: 1100px;
-            margin: 40px auto;
+            margin: 60px auto 40px;
             padding: 0 20px;
         }
         .city-guides-header {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 36px;
+        }
+        .city-guides-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #0056b3;
+            text-transform: uppercase;
+            margin-bottom: 10px;
         }
         .city-guides-header h2 {
-            font-size: 32px;
+            font-size: 36px;
+            font-weight: 800;
             color: #1a1a2e;
-            margin-bottom: 8px;
+            margin: 0 0 10px;
         }
         .city-guides-subtitle {
             font-size: 16px;
             color: #6b7280;
             margin: 0;
         }
+
+        /* Featured City */
+        .city-featured-card {
+            display: block;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .city-featured-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+            text-decoration: none;
+            color: inherit;
+        }
+        .city-featured-image {
+            position: relative;
+            height: 340px;
+            overflow: hidden;
+        }
+        .city-featured-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        .city-featured-card:hover .city-featured-image img {
+            transform: scale(1.03);
+        }
+        .city-featured-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 50%, transparent 100%);
+        }
+        .city-featured-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 32px;
+            color: white;
+        }
+        .city-featured-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.25);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .city-featured-content h3 {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 8px;
+            color: white;
+        }
+        .city-featured-stats {
+            font-size: 15px;
+            color: rgba(255,255,255,0.85);
+            margin: 0 0 12px;
+        }
+        .city-featured-sep { margin: 0 8px; }
+        .city-featured-cta {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+        .city-featured-card:hover .city-featured-cta { opacity: 1; }
+
+        /* City Grid */
         .city-guides-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
             margin-bottom: 32px;
+        }
+        .city-guide-card-wide {
+            grid-column: span 2;
         }
         .city-guide-card {
             background: white;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: transform 0.25s, box-shadow 0.25s;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
             text-decoration: none;
             color: inherit;
             display: block;
         }
         .city-guide-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.12);
             text-decoration: none;
             color: inherit;
         }
         .city-guide-image {
             position: relative;
-            height: 160px;
+            height: 140px;
             overflow: hidden;
             background: #e8edf2;
+        }
+        .city-guide-card-wide .city-guide-image {
+            height: 180px;
         }
         .city-guide-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s;
+            transition: transform 0.4s;
         }
         .city-guide-card:hover .city-guide-image img {
-            transform: scale(1.05);
+            transform: scale(1.06);
         }
         .city-guide-overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 40%;
-            background: linear-gradient(transparent, rgba(0,0,0,0.3));
+            height: 50%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.15));
         }
-        .city-guide-placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            font-size: 48px;
-            background: #e8edf2;
+        .city-guide-count-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 10px;
         }
         .city-guide-info {
-            padding: 14px 16px;
+            padding: 14px 16px 16px;
         }
         .city-guide-info h3 {
-            margin: 0 0 4px;
+            margin: 0 0 8px;
             font-size: 17px;
             font-weight: 700;
             color: #1a1a2e;
         }
-        .city-guide-count {
-            font-size: 13px;
-            color: #6b7280;
+        .city-guide-styles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
         }
+        .city-style-tag {
+            font-size: 11px;
+            font-weight: 600;
+            color: #4b5563;
+            background: #f3f4f6;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .city-guide-explore {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0056b3;
+            transition: letter-spacing 0.2s;
+        }
+        .city-guide-card:hover .city-guide-explore {
+            letter-spacing: 0.5px;
+        }
+
+        /* CTA Button */
         .city-guides-cta {
             text-align: center;
+            margin-top: 8px;
         }
-        .city-guides-cta .btn-primary {
-            width: auto;
-            padding: 12px 32px;
-            font-size: 16px;
+        .city-guides-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 14px 32px;
+            background: #1a1a2e;
+            color: white;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.25s, transform 0.25s;
+        }
+        .city-guides-cta-btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white;
+        }
+
+        @media (max-width: 1024px) {
+            .city-guides-grid { grid-template-columns: repeat(3, 1fr); }
+            .city-guide-card-wide { grid-column: span 1; }
+            .city-guide-card-wide .city-guide-image { height: 140px; }
         }
         @media (max-width: 768px) {
-            .city-guides-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-            .city-guide-image { height: 120px; }
-            .city-guides-header h2 { font-size: 24px; }
+            .city-guides-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .city-guide-card-wide { grid-column: span 1; }
+            .city-featured-image { height: 240px; }
+            .city-featured-content h3 { font-size: 24px; }
+            .city-featured-content { padding: 20px; }
+            .city-guides-header h2 { font-size: 28px; }
+            .city-guide-image, .city-guide-card-wide .city-guide-image { height: 120px; }
         }
     </style>
 </head>
@@ -649,32 +792,71 @@
     <% end %>
     <!-- City Guides Section -->
     <% if @places&.any? %>
+    <% featured = @places.first %>
+    <% rest = @places.drop(1) %>
     <div class="city-guides-section">
       <div class="city-guides-header">
-        <h2>Explore City Architecture Guides</h2>
-        <p class="city-guides-subtitle">Discover notable buildings, architectural styles, and design history across <%= @places.count %> cities worldwide</p>
+        <div class="city-guides-label">🌍 CITY GUIDES</div>
+        <h2>Architecture Around the World</h2>
+        <p class="city-guides-subtitle"><%= @places.sum { |p| p.building_analyses_in_place.count } %> buildings analyzed across <%= @places.count %> cities</p>
       </div>
+
+      <!-- Featured City -->
+      <% if featured %>
+      <%= link_to place_path(featured), class: "city-featured-card" do %>
+        <div class="city-featured-image">
+          <% if featured.best_representative_image.present? %>
+            <img src="<%= featured.best_representative_image %>" alt="<%= featured.name %> architecture" loading="lazy">
+          <% end %>
+          <div class="city-featured-overlay"></div>
+          <div class="city-featured-content">
+            <span class="city-featured-badge">Most Explored</span>
+            <h3><%= featured.name %></h3>
+            <p class="city-featured-stats">
+              <%= featured.building_analyses_in_place.count %> buildings
+              <% top_styles = featured.architectural_styles_summary.first(3) %>
+              <% if top_styles.any? %>
+                <span class="city-featured-sep">&middot;</span>
+                <%= top_styles.map { |s, _| s.gsub(/\s*\d+%$/, '') }.join(', ') %>
+              <% end %>
+            </p>
+            <span class="city-featured-cta">Explore Guide →</span>
+          </div>
+        </div>
+      <% end %>
+      <% end %>
+
+      <!-- City Grid -->
       <div class="city-guides-grid">
-        <% @places.each do |place| %>
-          <%= link_to place_path(place), class: "city-guide-card" do %>
+        <% rest.each_with_index do |place, i| %>
+          <% count = place.building_analyses_in_place.count %>
+          <% top_styles = place.architectural_styles_summary.first(2) %>
+          <%= link_to place_path(place), class: "city-guide-card #{'city-guide-card-wide' if i < 2}" do %>
             <div class="city-guide-image">
               <% if place.best_representative_image.present? %>
                 <img src="<%= place.best_representative_image %>" alt="<%= place.name %> architecture" loading="lazy">
-              <% else %>
-                <div class="city-guide-placeholder">🏛️</div>
               <% end %>
               <div class="city-guide-overlay"></div>
+              <div class="city-guide-count-badge"><%= count %></div>
             </div>
             <div class="city-guide-info">
               <h3><%= place.name %></h3>
-              <% count = place.building_analyses_in_place.count %>
-              <span class="city-guide-count"><%= count %> building<%= count == 1 ? '' : 's' %></span>
+              <div class="city-guide-styles">
+                <% top_styles.each do |style, _| %>
+                  <span class="city-style-tag"><%= style.gsub(/\s*\d+%$/, '') %></span>
+                <% end %>
+              </div>
+              <span class="city-guide-explore">Explore →</span>
             </div>
           <% end %>
         <% end %>
       </div>
+
       <div class="city-guides-cta">
-        <%= link_to "View All City Guides →", places_path, class: "btn btn-primary" %>
+        <%= link_to places_path, class: "city-guides-cta-btn" do %>
+          View All <%= @places.count %> City Guides
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-left:6px;"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <% end %>
       </div>
     </div>
     <% end %>

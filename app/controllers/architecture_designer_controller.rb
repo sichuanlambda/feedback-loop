@@ -6,7 +6,7 @@ class ArchitectureDesignerController < ApplicationController
   def step1
     @latest_images = ArchImageGen.order(created_at: :desc).limit(5)
     @building_library = BuildingAnalysis.where(visible_in_library: true).order(created_at: :desc).limit(5)
-    @places = Place.where(published: true).order(:name)
+    @places = Place.where(published: true).to_a.sort_by { |p| -p.building_analyses_in_place.count }
       Rails.logger.debug "Latest Images: #{@latest_images}"
     # other code...
   end
