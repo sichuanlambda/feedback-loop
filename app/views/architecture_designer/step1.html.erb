@@ -882,10 +882,7 @@
           <h2>City Architecture Guides</h2>
           <p class="cg-subtitle">Notable buildings, styles, and design history in every city</p>
         </div>
-        <div class="cg-stats">
-          <div class="cg-stat"><span class="cg-stat-val"><%= sorted_places.count %></span><span class="cg-stat-label">Cities</span></div>
-          <div class="cg-stat"><span class="cg-stat-val"><%= total_buildings %></span><span class="cg-stat-label">Buildings</span></div>
-        </div>
+
       </div>
 
       <!-- Featured + 2 Stacked -->
@@ -965,7 +962,7 @@
 
       <div class="cg-view-all">
         <%= link_to places_path do %>
-          View All <%= sorted_places.count %> City Guides
+          View All City Guides
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <% end %>
       </div>
