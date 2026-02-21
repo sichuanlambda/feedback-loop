@@ -526,105 +526,325 @@
 
         /* City Guides Section */
         .city-guides-section {
-            max-width: 1100px;
-            margin: 40px auto;
+            max-width: 1200px;
+            margin: 60px auto 40px;
             padding: 0 20px;
         }
-        .city-guides-header {
-            text-align: center;
-            margin-bottom: 32px;
+        .city-guides-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 28px;
         }
-        .city-guides-header h2 {
-            font-size: 32px;
+        .city-guides-top h2 {
+            font-size: 28px;
+            font-weight: 800;
             color: #1a1a2e;
-            margin-bottom: 8px;
+            margin: 0 0 6px;
         }
-        .city-guides-subtitle {
-            font-size: 16px;
+        .city-guides-top .cg-subtitle {
+            font-size: 15px;
             color: #6b7280;
             margin: 0;
         }
-        .city-guides-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        .city-guides-top .cg-stats {
+            display: flex;
             gap: 20px;
-            margin-bottom: 32px;
+            align-items: center;
         }
-        .city-guide-card {
-            background: white;
+        .cg-stat {
+            text-align: center;
+        }
+        .cg-stat-val {
+            display: block;
+            font-size: 22px;
+            font-weight: 800;
+            color: #1a1a2e;
+        }
+        .cg-stat-label {
+            font-size: 11px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* Featured + Grid Layout */
+        .cg-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        /* Featured Card */
+        .cg-featured {
+            grid-row: span 2;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            text-decoration: none;
+            color: white;
+            display: block;
+            min-height: 420px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .cg-featured:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+            text-decoration: none;
+            color: white;
+        }
+        .cg-featured img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+            transition: transform 0.5s;
+        }
+        .cg-featured:hover img { transform: scale(1.03); }
+        .cg-featured-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.1) 100%);
+        }
+        .cg-featured-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 32px;
+        }
+        .cg-featured-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .cg-featured-content h3 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0 0 8px;
+            color: white;
+        }
+        .cg-featured-meta {
+            font-size: 14px;
+            color: rgba(255,255,255,0.75);
+            margin-bottom: 12px;
+        }
+        .cg-featured-styles {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .cg-style-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Stacked Cards (right side) */
+        .cg-stacked-card {
+            display: flex;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            background: white;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid #f0f0f0;
             transition: transform 0.25s, box-shadow 0.25s;
-            text-decoration: none;
-            color: inherit;
-            display: block;
         }
-        .city-guide-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        .cg-stacked-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
             text-decoration: none;
             color: inherit;
         }
-        .city-guide-image {
+        .cg-stacked-img {
+            width: 180px;
+            flex-shrink: 0;
             position: relative;
-            height: 160px;
             overflow: hidden;
-            background: #e8edf2;
         }
-        .city-guide-image img {
+        .cg-stacked-img img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s;
         }
-        .city-guide-card:hover .city-guide-image img {
-            transform: scale(1.05);
+        .cg-stacked-card:hover .cg-stacked-img img { transform: scale(1.05); }
+        .cg-stacked-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
         }
-        .city-guide-overlay {
+        .cg-stacked-body h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin: 0 0 6px;
+        }
+        .cg-stacked-body .cg-card-meta {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+        .cg-stacked-body .cg-card-styles {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .cg-card-pill {
+            font-size: 11px;
+            font-weight: 600;
+            color: #4b5563;
+            background: #f3f4f6;
+            padding: 3px 8px;
+            border-radius: 5px;
+        }
+
+        /* Bottom Scroll Row */
+        .cg-scroll-wrapper {
+            position: relative;
+            margin-bottom: 28px;
+        }
+        .cg-scroll-row {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 8px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .cg-scroll-row::-webkit-scrollbar { display: none; }
+        .cg-scroll-card {
+            flex: 0 0 200px;
+            border-radius: 14px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #f0f0f0;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .cg-scroll-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+        }
+        .cg-scroll-card-img {
+            height: 130px;
+            position: relative;
+            overflow: hidden;
+        }
+        .cg-scroll-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        .cg-scroll-card:hover .cg-scroll-card-img img { transform: scale(1.05); }
+        .cg-scroll-card-img .cg-count-badge {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 40%;
-            background: linear-gradient(transparent, rgba(0,0,0,0.3));
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
         }
-        .city-guide-placeholder {
+        .cg-scroll-card-body {
+            padding: 12px 14px;
+        }
+        .cg-scroll-card-body h5 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin: 0 0 4px;
+        }
+        .cg-scroll-card-body .cg-scroll-meta {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        .cg-scroll-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100%;
-            font-size: 48px;
-            background: #e8edf2;
+            cursor: pointer;
+            z-index: 5;
+            font-size: 18px;
+            color: #374151;
+            transition: all 0.2s;
         }
-        .city-guide-info {
-            padding: 14px 16px;
-        }
-        .city-guide-info h3 {
-            margin: 0 0 4px;
-            font-size: 17px;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
-        .city-guide-count {
-            font-size: 13px;
-            color: #6b7280;
-        }
-        .city-guides-cta {
+        .cg-scroll-arrow:hover { background: #0056b3; color: white; border-color: #0056b3; }
+        .cg-scroll-arrow.left { left: -18px; }
+        .cg-scroll-arrow.right { right: -18px; }
+
+        .cg-view-all {
             text-align: center;
         }
-        .city-guides-cta .btn-primary {
-            width: auto;
-            padding: 12px 32px;
-            font-size: 16px;
+        .cg-view-all a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: #1a1a2e;
+            color: white;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.25s, transform 0.2s;
         }
-        @media (max-width: 768px) {
-            .city-guides-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-            }
-            .city-guide-image { height: 120px; }
-            .city-guides-header h2 { font-size: 24px; }
+        .cg-view-all a:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white;
+        }
+
+        @media (max-width: 900px) {
+            .cg-layout { grid-template-columns: 1fr; }
+            .cg-featured { min-height: 280px; grid-row: span 1; }
+            .cg-stacked-img { width: 140px; }
+            .city-guides-top { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .cg-featured-content h3 { font-size: 22px; }
+        }
+        @media (max-width: 600px) {
+            .cg-stacked-card { flex-direction: column; }
+            .cg-stacked-img { width: 100%; height: 160px; }
+            .cg-scroll-card { flex: 0 0 170px; }
         }
     </style>
 </head>
@@ -649,32 +869,105 @@
     <% end %>
     <!-- City Guides Section -->
     <% if @places&.any? %>
+    <%
+      sorted_places = @places.sort_by { |p| -p.building_analyses_in_place.count }
+      featured_place = sorted_places.first
+      stacked_places = sorted_places[1..2] || []
+      scroll_places = sorted_places[3..] || []
+      total_buildings = sorted_places.sum { |p| p.building_analyses_in_place.count }
+    %>
     <div class="city-guides-section">
-      <div class="city-guides-header">
-        <h2>Explore City Architecture Guides</h2>
-        <p class="city-guides-subtitle">Discover notable buildings, architectural styles, and design history across <%= @places.count %> cities worldwide</p>
+      <div class="city-guides-top">
+        <div>
+          <h2>City Architecture Guides</h2>
+          <p class="cg-subtitle">Notable buildings, styles, and design history in every city</p>
+        </div>
+        <div class="cg-stats">
+          <div class="cg-stat"><span class="cg-stat-val"><%= sorted_places.count %></span><span class="cg-stat-label">Cities</span></div>
+          <div class="cg-stat"><span class="cg-stat-val"><%= total_buildings %></span><span class="cg-stat-label">Buildings</span></div>
+        </div>
       </div>
-      <div class="city-guides-grid">
-        <% @places.each do |place| %>
-          <%= link_to place_path(place), class: "city-guide-card" do %>
-            <div class="city-guide-image">
-              <% if place.best_representative_image.present? %>
-                <img src="<%= place.best_representative_image %>" alt="<%= place.name %> architecture" loading="lazy">
-              <% else %>
-                <div class="city-guide-placeholder">🏛️</div>
+
+      <!-- Featured + 2 Stacked -->
+      <div class="cg-layout">
+        <% if featured_place %>
+          <% fc = featured_place.building_analyses_in_place.count %>
+          <% fstyles = featured_place.architectural_styles_summary.first(4) %>
+          <%= link_to place_path(featured_place), class: "cg-featured" do %>
+            <% if featured_place.best_representative_image.present? %>
+              <img src="<%= featured_place.best_representative_image %>" alt="<%= featured_place.name %>" loading="lazy">
+            <% end %>
+            <div class="cg-featured-overlay"></div>
+            <div class="cg-featured-content">
+              <span class="cg-featured-badge">Most Explored</span>
+              <h3><%= featured_place.name %></h3>
+              <p class="cg-featured-meta"><%= fc %> buildings analyzed</p>
+              <% if fstyles.any? %>
+                <div class="cg-featured-styles">
+                  <% fstyles.each do |style, _| %>
+                    <span class="cg-style-tag"><%= style.gsub(/\s*\d+%$/, '') %></span>
+                  <% end %>
+                </div>
               <% end %>
-              <div class="city-guide-overlay"></div>
             </div>
-            <div class="city-guide-info">
-              <h3><%= place.name %></h3>
-              <% count = place.building_analyses_in_place.count %>
-              <span class="city-guide-count"><%= count %> building<%= count == 1 ? '' : 's' %></span>
+          <% end %>
+        <% end %>
+
+        <% stacked_places.each do |place| %>
+          <% sc = place.building_analyses_in_place.count %>
+          <% sstyles = place.architectural_styles_summary.first(3) %>
+          <%= link_to place_path(place), class: "cg-stacked-card" do %>
+            <div class="cg-stacked-img">
+              <% if place.best_representative_image.present? %>
+                <img src="<%= place.best_representative_image %>" alt="<%= place.name %>" loading="lazy">
+              <% end %>
+            </div>
+            <div class="cg-stacked-body">
+              <h4><%= place.name %></h4>
+              <p class="cg-card-meta"><%= sc %> buildings analyzed</p>
+              <% if sstyles.any? %>
+                <div class="cg-card-styles">
+                  <% sstyles.each do |style, _| %>
+                    <span class="cg-card-pill"><%= style.gsub(/\s*\d+%$/, '') %></span>
+                  <% end %>
+                </div>
+              <% end %>
             </div>
           <% end %>
         <% end %>
       </div>
-      <div class="city-guides-cta">
-        <%= link_to "View All City Guides →", places_path, class: "btn btn-primary" %>
+
+      <!-- Scrollable Row -->
+      <% if scroll_places.any? %>
+      <div class="cg-scroll-wrapper">
+        <div class="cg-scroll-arrow left" onclick="document.getElementById('cg-scroll').scrollBy({left:-440,behavior:'smooth'})">&#8249;</div>
+        <div class="cg-scroll-row" id="cg-scroll">
+          <% scroll_places.each do |place| %>
+            <% rc = place.building_analyses_in_place.count %>
+            <% rstyle = place.architectural_styles_summary.first(1) %>
+            <%= link_to place_path(place), class: "cg-scroll-card" do %>
+              <div class="cg-scroll-card-img">
+                <% if place.best_representative_image.present? %>
+                  <img src="<%= place.best_representative_image %>" alt="<%= place.name %>" loading="lazy">
+                <% end %>
+                <span class="cg-count-badge"><%= rc %></span>
+              </div>
+              <div class="cg-scroll-card-body">
+                <h5><%= place.name %></h5>
+                <span class="cg-scroll-meta"><%= rstyle.any? ? rstyle.first[0].gsub(/\s*\d+%$/, '') : '' %></span>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+        <div class="cg-scroll-arrow right" onclick="document.getElementById('cg-scroll').scrollBy({left:440,behavior:'smooth'})">&#8250;</div>
+      </div>
+      <% end %>
+
+      <div class="cg-view-all">
+        <%= link_to places_path do %>
+          View All <%= sorted_places.count %> City Guides
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <% end %>
       </div>
     </div>
     <% end %>
