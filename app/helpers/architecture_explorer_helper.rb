@@ -7,8 +7,15 @@ module ArchitectureExplorerHelper
   #   uploads/building_123_456.jpg -> uploads/thumbs/building_123_456_400w.jpg
   #
   def thumbnail_url(image_url, width: 400)
-    # Thumbnails not yet generated for all buildings — return original URL for now.
-    # Once rake images:generate_thumbnails has run, re-enable thumbnail logic.
+    return image_url if image_url.blank?
+    return image_url unless image_url.include?('architecture-explorer.s3')
+
+    uri = URI.parse(image_url)
+    path = uri.path.sub(/^\//, '')
+    ext = File.extname(path)
+    base = File.basename(path, ext)
+    "https://architecture-explorer.s3.us-east-2.amazonaws.com/uploads/thumbs/#{base}_#{width}w#{ext}"
+  rescue URI::InvalidURIError
     image_url
   end
 end
