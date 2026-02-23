@@ -45,7 +45,13 @@ class ArchitectureExplorerController < ApplicationController
     else
       @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
     end
-    @analyzed_buildings = @analyzed_buildings.order(created_at: :desc).page(params[:page]).per(24)
+    # Mix buildings from different cities instead of showing newest first
+    # (batch imports cause walls of same-city buildings otherwise)
+    if params[:search].present?
+      @analyzed_buildings = @analyzed_buildings.order(created_at: :desc).page(params[:page]).per(24)
+    else
+      @analyzed_buildings = @analyzed_buildings.order(Arel.sql("md5(id::text || '#{Date.today}')")).page(params[:page]).per(24)
+    end
 
     # Extract all styles from h3_contents, clean them, and assign to @architecture_styles
     all_styles = BuildingAnalysis.pluck(:h3_contents).compact.map do |h3_content|
