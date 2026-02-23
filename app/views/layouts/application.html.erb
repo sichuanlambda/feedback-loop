@@ -15,7 +15,28 @@
   <% if content_for?(:og_image) %>
     <meta property="og:image" content="<%= content_for(:og_image) %>">
   <% end %>
-  <link rel="canonical" href="<%= request.original_url.split('?').first %>">
+  <% if content_for?(:og_url) %>
+    <meta property="og:url" content="<%= content_for(:og_url) %>">
+  <% else %>
+    <meta property="og:url" content="<%= request.original_url.split('?').first %>">
+  <% end %>
+  <link rel="canonical" href="<%= content_for?(:canonical_url) ? content_for(:canonical_url) : request.original_url.split('?').first %>">
+  
+  <!-- Preconnect to external resources for performance -->
+  <link rel="preconnect" href="https://architecture-explorer.s3.us-east-2.amazonaws.com">
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://plausible.io">
+  <link rel="preconnect" href="https://app.posthog.com">
+  <link rel="preconnect" href="https://stackpath.bootstrapcdn.com">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="dns-prefetch" href="//unpkg.com">
+  <link rel="dns-prefetch" href="//code.jquery.com">
+  
+  <!-- JSON-LD Structured Data -->
+  <% if content_for?(:structured_data) %>
+    <%= content_for(:structured_data).html_safe %>
+  <% end %>
+  
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   
