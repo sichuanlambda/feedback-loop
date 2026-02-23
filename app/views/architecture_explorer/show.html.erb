@@ -74,6 +74,11 @@
   .btn-action { background: #f8f9fa; color: #0056b3; border: 1px solid #0056b3; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; text-decoration: none; text-align: center; transition: all 0.2s; cursor: pointer; }
   .btn-action:hover { background: #0056b3; color: #fff; text-decoration: none; }
   .btn-action.active { background: #0056b3; color: #fff; }
+  .btn-library-toggle { display: inline-flex; align-items: center; gap: 6px; }
+  .btn-library-toggle.active { background: #28a745; border-color: #28a745; color: #fff; }
+  .btn-library-toggle.active:hover { background: #dc3545; border-color: #dc3545; }
+  .btn-library-toggle.active:hover i::before { content: "\f005"; }
+  .btn-library-toggle.active:hover .btn-text { display: none; }
 
   /* Horizontal scroll rows */
   .scroll-row { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
@@ -172,14 +177,19 @@
               <img src="<%= @image_url %>" alt="<%= @building_data['building_name'] %>" width="500" height="375" loading="lazy">
             <% end %>
           </div>
-          <div class="action-buttons">
-            <%= link_to 'Building Library', '/building_library', class: 'btn-action' %>
-            <% if @is_shared %>
-              <%= button_to '✅ In Library', remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action active' %>
-            <% else %>
-              <%= button_to '➕ Add to Library', add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action' %>
-            <% end %>
-          </div>
+          <% if @is_owner %>
+            <div class="action-buttons">
+              <% if @is_shared %>
+                <%= button_to remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action btn-library-toggle active', title: 'Remove from Building Library' do %>
+                  <i class="fas fa-star"></i> Saved to Library
+                <% end %>
+              <% else %>
+                <%= button_to add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action btn-library-toggle', title: 'Add to Building Library' do %>
+                  <i class="far fa-star"></i> Save to Library
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
         </div>
         <div class="col-md-7">
           <% if @building_data['styles'].present? %>
@@ -270,14 +280,19 @@
               <img src="<%= @image_url %>" alt="Building Image" width="500" height="375" loading="lazy">
             <% end %>
           </div>
-          <div class="action-buttons">
-            <%= link_to 'Building Library', '/building_library', class: 'btn-action' %>
-            <% if @is_shared %>
-              <%= button_to '✅ In Library', remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action active' %>
-            <% else %>
-              <%= button_to '➕ Add to Library', add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action' %>
-            <% end %>
-          </div>
+          <% if @is_owner %>
+            <div class="action-buttons">
+              <% if @is_shared %>
+                <%= button_to remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action btn-library-toggle active', title: 'Remove from Building Library' do %>
+                  <i class="fas fa-star"></i> Saved to Library
+                <% end %>
+              <% else %>
+                <%= button_to add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action btn-library-toggle', title: 'Add to Building Library' do %>
+                  <i class="far fa-star"></i> Save to Library
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
           <% if @h3_contents.present? %>
             <div class="mt-3">
               <% @h3_contents.each do |h3_content| %>

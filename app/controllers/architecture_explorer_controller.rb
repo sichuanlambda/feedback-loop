@@ -190,6 +190,7 @@ class ArchitectureExplorerController < ApplicationController
 
     if @building_analysis
       @is_shared = @building_analysis.visible_in_library
+      @is_owner = user_signed_in? && @building_analysis.user_id == current_user.id
       @html_content = @building_analysis.html_content
       @image_url = @building_analysis.image_url
 
