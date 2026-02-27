@@ -376,6 +376,103 @@
         .style-pill {
             margin: 5px; /* Adjust the margin value as needed */
         }
+
+        /* Turbo Frame Loading States */
+        .load-more-btn {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .load-more-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .load-more-btn.loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Skeleton Loading for Grid Items */
+        .skeleton-grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 200px;
+            margin-bottom: 20px;
+            height: auto;
+        }
+
+        .skeleton-image {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-badges {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            padding: 6px;
+        }
+
+        .skeleton-badge {
+            width: 60px;
+            height: 20px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 12px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Turbo Frame targeting */
+        turbo-frame[loading] {
+            opacity: 0.7;
+        }
+
+        /* Enhanced pagination */
+        .pagination-container {
+            padding: 24px 0;
+        }
+
+        .traditional-pagination {
+            display: none;
+        }
+
+        /* Show traditional pagination if JavaScript fails */
+        .no-js .traditional-pagination {
+            display: block;
+        }
+
+        .no-js .load-more-btn {
+            display: none;
+        }
 </style>
 
 <!-- Modal Structure -->
@@ -477,37 +574,52 @@
         <% end %>
         </div>
 
-    <!-- Image Grid for Community Building Library -->
-    <div class="image-grid">
-        <% if @analyzed_buildings.present? %>
-            <% @analyzed_buildings.each do |building| %>
-            <div class="grid-item" data-toggle="modal" data-target="#imagePreviewModal"
-                data-image="<%= building.image_url %>"
-                data-tags="<%= JSON.parse(building.h3_contents || '[]').join(', ') rescue [] %>"
-                data-link="<%= architecture_explorer_show_path(id: building.id) %>"> <!-- Ensure this is correctly placed -->
-                <% if building.image_url.present? %>
-                <%= image_tag thumbnail_url(building.image_url, width: 400) || building.image_url, alt: "Building Image", class: "submission-image", loading: "lazy", width: 400, height: 267, onerror: "this.onerror=null;this.src='#{building.image_url}'" %>
-                <% else %>
-                <!-- Display a placeholder image or message if the image_url is missing -->
-                <p>No image available</p>
-                <% end %>
-                <!-- Architecture styles container -->
-                <div class="architecture-styles-container">
-                    <% styles = JSON.parse(building.h3_contents || '[]') rescue [] %>
-                    <% styles.first(3).each do |style| %>
-                        <span class="badge badge-primary style-pill"><%= style %></span>
-                    <% end %>
-                    <% if styles.length > 3 %>
-                        <span class="badge style-pill" style="background-color: rgba(255,255,255,0.25);">+<%= styles.length - 3 %></span>
-                    <% end %>
-                </div>
-            </div>
-            <% end %>
-        <% else %>
-            <p>No analyzed buildings found in the community library.</p>
+    <!-- Image Grid for Community Building Library with Turbo Frame -->
+    <%= turbo_frame_tag "building_grid", data: { turbo_action: "advance" } do %>
+      <div class="image-grid">
+          <% if @analyzed_buildings.present? %>
+              <% @analyzed_buildings.each do |building| %>
+              <div class="grid-item" data-toggle="modal" data-target="#imagePreviewModal"
+                  data-image="<%= building.image_url %>"
+                  data-tags="<%= JSON.parse(building.h3_contents || '[]').join(', ') rescue [] %>"
+                  data-link="<%= architecture_explorer_show_path(id: building.id) %>"> <!-- Ensure this is correctly placed -->
+                  <% if building.image_url.present? %>
+                  <%= image_tag thumbnail_url(building.image_url, width: 400) || building.image_url, alt: "Building Image", class: "submission-image", loading: "lazy", width: 400, height: 267, onerror: "this.onerror=null;this.src='#{building.image_url}'" %>
+                  <% else %>
+                  <!-- Display a placeholder image or message if the image_url is missing -->
+                  <p>No image available</p>
+                  <% end %>
+                  <!-- Architecture styles container -->
+                  <div class="architecture-styles-container">
+                      <% styles = JSON.parse(building.h3_contents || '[]') rescue [] %>
+                      <% styles.first(3).each do |style| %>
+                          <span class="badge badge-primary style-pill"><%= style %></span>
+                      <% end %>
+                      <% if styles.length > 3 %>
+                          <span class="badge style-pill" style="background-color: rgba(255,255,255,0.25);">+<%= styles.length - 3 %></span>
+                      <% end %>
+                  </div>
+              </div>
+              <% end %>
+          <% else %>
+              <p>No analyzed buildings found in the community library.</p>
+          <% end %>
+      </div>
+      
+      <!-- Turbo-enabled pagination -->
+      <div class="pagination-container text-center mt-4">
+        <% if @analyzed_buildings.respond_to?(:next_page) && @analyzed_buildings.next_page %>
+          <%= link_to "Load More Buildings", building_library_path(page: @analyzed_buildings.next_page, search: params[:search]), 
+                      class: "btn btn-primary load-more-btn", 
+                      data: { turbo_frame: "building_grid", turbo_action: "advance" } %>
         <% end %>
-    </div>
-    <%= paginate @analyzed_buildings %>
+        
+        <!-- Traditional pagination as fallback -->
+        <div class="traditional-pagination" style="margin-top: 16px;">
+          <%= paginate @analyzed_buildings, theme: 'twitter_bootstrap_4', params: { turbo_frame: "building_grid" } %>
+        </div>
+      </div>
+    <% end %>
     </div>
     </div>
 <script>
@@ -575,5 +687,33 @@
             // Update the 'View Full Analysis' button's href attribute
             modal.find('#viewFullAnalysis').attr('href', analysisLink);
         });
+
+        // Turbo Frame loading state management
+        document.addEventListener('turbo:frame-load', function(event) {
+            // Remove loading class when frame loads
+            const loadBtn = document.querySelector('.load-more-btn');
+            if (loadBtn) {
+                loadBtn.classList.remove('loading');
+                loadBtn.textContent = 'Load More Buildings';
+            }
+        });
+
+        // Add loading state when clicking load more
+        $(document).on('click', '.load-more-btn', function() {
+            $(this).addClass('loading').text('Loading...');
+        });
+
+        // Handle search form with turbo frames
+        $('form[action*="building_library"]').on('submit', function(e) {
+            $(this).find('input[type="submit"]').prop('disabled', true).text('Searching...');
+        });
+
+        // Progressive enhancement: hide traditional pagination in favor of load more
+        if (window.history && window.history.pushState) {
+            $('.traditional-pagination').hide();
+        } else {
+            $('.load-more-btn').hide();
+            $('.traditional-pagination').show();
+        }
     });
 </script>

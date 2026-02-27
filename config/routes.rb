@@ -95,6 +95,8 @@ Rails.application.routes.draw do
   post '/process_building_image', to: 'architecture_explorer#process_building_image', as: 'analyze_building'
   patch 'architecture_explorer/:id', to: 'architecture_explorer#update', as: :architecture_explorer_update
   get 'architecture_explorer/:id/status', to: 'architecture_explorer#status', as: :architecture_explorer_status
+  get 'architecture_explorer/:id/similar', to: 'architecture_explorer#similar', as: :architecture_explorer_similar
+  get 'architecture_explorer/:id/nearby', to: 'architecture_explorer#nearby', as: :architecture_explorer_nearby
   get 'style-finder', to: 'architecture_explorer#style_finder', as: :style_finder
   post 'architecture_explorer/analyze_style_preferences', to: 'architecture_explorer#analyze_style_preferences'
   get 'architecture_explorer/:id/building_data', to: 'architecture_explorer#building_data', as: :building_data

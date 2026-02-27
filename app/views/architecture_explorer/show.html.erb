@@ -119,6 +119,44 @@
   .legacy-content { padding: 0 16px; }
   .legacy-content h3 { margin: 20px 0 10px; }
 
+  /* Turbo Frame Tabs */
+  .detail-tabs { margin: 32px 0 24px 0; border-bottom: 2px solid #e9ecef; display: flex; gap: 0; }
+  .detail-tab { background: none; border: none; padding: 12px 24px; color: #666; text-decoration: none; font-weight: 600; font-size: 1rem; border-bottom: 3px solid transparent; transition: all 0.2s ease; cursor: pointer; flex: 1; text-align: center; }
+  .detail-tab:hover { color: #0056b3; text-decoration: none; }
+  .detail-tab.active { color: #0056b3; border-bottom-color: #0056b3; background: rgba(0, 86, 179, 0.05); }
+  .detail-tab-content { min-height: 200px; padding: 16px 0; }
+
+  /* Loading skeleton for tab content */
+  .tab-skeleton { display: none; }
+  .tab-skeleton.loading { display: block; }
+  .tab-skeleton .skeleton-card { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; height: 120px; margin-bottom: 16px; }
+  .tab-skeleton .skeleton-text { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; height: 16px; margin-bottom: 8px; }
+  .tab-skeleton .skeleton-text.short { width: 60%; }
+  .tab-skeleton .skeleton-text.medium { width: 80%; }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* No results message */
+  .no-results-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+  }
+
+  .no-results-message h3 {
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .no-results-message p {
+    font-size: 1rem;
+    margin: 0;
+  }
+
   @media (max-width: 768px) {
     .building-header h1 { font-size: 1.6rem; }
     .hero-row .col-md-5, .hero-row .col-md-7 { margin-bottom: 20px; order: unset; }
@@ -367,50 +405,54 @@
     </div>
   <% end %>
 
-  <%# === SIMILAR STYLE BUILDINGS === %>
-  <% if @similar_buildings.present? && @similar_buildings.any? %>
-    <h2 class="section-title">Similar Style Buildings</h2>
-    <div class="scroll-row">
-      <% @similar_buildings.each do |building| %>
-        <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
-          <% if building.image_url.present? %>
-            <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>" width="220" height="140" loading="lazy">
-          <% else %>
-            <div style="width:100%;height:140px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
-          <% end %>
-          <div class="building-card-body">
-            <h5><%= building.name || building.address || "Building ##{building.id}" %></h5>
-            <% begin %>
-              <% top_style = JSON.parse(building.h3_contents || '[]').first %>
-              <% if top_style %><span class="building-card-badge"><%= top_style %></span><% end %>
-            <% rescue; end %>
-          </div>
-        </a>
-      <% end %>
+  <%# === TURBO FRAME TABS === %>
+  <% if @building_analysis.latitude.present? && @building_analysis.longitude.present? %>
+    <div class="detail-tabs" data-controller="building-detail-tabs">
+      <%= link_to "Analysis", "#analysis", class: "detail-tab active", data: { 
+            turbo_frame: "building_detail_content", 
+            action: "click->building-detail-tabs#switchTab" 
+          } %>
+      <%= link_to "Similar Style", architecture_explorer_similar_path(@building_analysis.id), class: "detail-tab", data: { 
+            turbo_frame: "building_detail_content", 
+            action: "click->building-detail-tabs#switchTab" 
+          } %>
+      <%= link_to "Nearby", architecture_explorer_nearby_path(@building_analysis.id), class: "detail-tab", data: { 
+            turbo_frame: "building_detail_content", 
+            action: "click->building-detail-tabs#switchTab" 
+          } %>
     </div>
-  <% end %>
 
-  <%# === NEARBY BUILDINGS (only if location exists) === %>
-  <% if @building_analysis.latitude.present? && @building_analysis.longitude.present? && @nearby_buildings.present? && @nearby_buildings.any? %>
-    <h2 class="section-title">Buildings in the Same Area</h2>
-    <div class="scroll-row">
-      <% @nearby_buildings.each do |building| %>
-        <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
-          <% if building.image_url.present? %>
-            <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>" width="220" height="140" loading="lazy">
-          <% else %>
-            <div style="width:100%;height:140px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
-          <% end %>
-          <div class="building-card-body">
-            <h5><%= building.name || building.address || "Building ##{building.id}" %></h5>
-            <% begin %>
-              <% top_style = JSON.parse(building.h3_contents || '[]').first %>
-              <% if top_style %><span class="building-card-badge"><%= top_style %></span><% end %>
-            <% rescue; end %>
-          </div>
-        </a>
-      <% end %>
-    </div>
+    <%= turbo_frame_tag "building_detail_content", 
+          class: "detail-tab-content",
+          data: { action: "turbo:frame-load->building-detail-tabs#frameLoaded" } do %>
+      <%# Analysis tab (default) %>
+      <div id="analysis">
+        <p class="section-text">🏛️ Analysis complete! Use the tabs above to explore similar buildings and nearby architecture.</p>
+      </div>
+    <% end %>
+  <% else %>
+    <%# === SIMILAR STYLE BUILDINGS (fallback for no location) === %>
+    <% if @similar_buildings.present? && @similar_buildings.any? %>
+      <h2 class="section-title">Similar Style Buildings</h2>
+      <div class="scroll-row">
+        <% @similar_buildings.each do |building| %>
+          <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
+            <% if building.image_url.present? %>
+              <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>" width="220" height="140" loading="lazy">
+            <% else %>
+              <div style="width:100%;height:140px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
+            <% end %>
+            <div class="building-card-body">
+              <h5><%= building.name || building.address || "Building ##{building.id}" %></h5>
+              <% begin %>
+                <% top_style = JSON.parse(building.h3_contents || '[]').first %>
+                <% if top_style %><span class="building-card-badge"><%= top_style %></span><% end %>
+              <% rescue; end %>
+            </div>
+          </a>
+        <% end %>
+      </div>
+    <% end %>
   <% end %>
 
   <%# === EXPLORE THIS CITY === %>

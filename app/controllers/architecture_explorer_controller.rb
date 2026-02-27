@@ -704,6 +704,62 @@ class ArchitectureExplorerController < ApplicationController
     @architecture_styles = style_counts.keys.sort
   end
 
+  def similar
+    @building_analysis = BuildingAnalysis.find(params[:id])
+    
+    # Get similar buildings based on styles
+    if @building_analysis.h3_contents.present?
+      styles = JSON.parse(@building_analysis.h3_contents) rescue []
+      if styles.any?
+        @similar_buildings = BuildingAnalysis.joins(
+          "CROSS JOIN json_array_elements_text(h3_contents::json) AS style"
+        ).where(
+          "LOWER(style.value) IN (?) AND id != ? AND visible_in_library = true",
+          styles.map(&:downcase),
+          @building_analysis.id
+        ).limit(12)
+      else
+        @similar_buildings = []
+      end
+    else
+      @similar_buildings = []
+    end
+    
+    render layout: false if request.xhr?
+  end
+  
+  def nearby
+    @building_analysis = BuildingAnalysis.find(params[:id])
+    
+    # Get nearby buildings if location exists
+    if @building_analysis.latitude.present? && @building_analysis.longitude.present?
+      @nearby_buildings = BuildingAnalysis.where(visible_in_library: true)
+                                          .where.not(id: @building_analysis.id)
+                                          .joins(
+                                            <<-SQL
+                                              CROSS JOIN (
+                                                SELECT 
+                                                  3959 * acos(
+                                                    cos(radians(#{@building_analysis.latitude})) * 
+                                                    cos(radians(latitude)) * 
+                                                    cos(radians(longitude) - radians(#{@building_analysis.longitude})) + 
+                                                    sin(radians(#{@building_analysis.latitude})) * 
+                                                    sin(radians(latitude))
+                                                  ) AS distance
+                                              ) AS distances
+                                            SQL
+                                          )
+                                          .where("3959 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude))) < 50", 
+                                                 @building_analysis.latitude, @building_analysis.longitude, @building_analysis.latitude)
+                                          .order("distances.distance")
+                                          .limit(12)
+    else
+      @nearby_buildings = []
+    end
+    
+    render layout: false if request.xhr?
+  end
+
   def call_gpt_with_image(prompt, image_url)
     # Implement your GPT API call here
     # Similar to your existing GPT integration
