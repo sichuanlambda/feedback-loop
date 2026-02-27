@@ -299,14 +299,8 @@
 
 <script>
 function thumbUrl(url, width) {
-  if (!url || !url.includes('architecture-explorer.s3')) return url;
-  try {
-    var u = new URL(url);
-    var path = u.pathname;
-    var ext = path.substring(path.lastIndexOf('.'));
-    var base = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
-    return u.origin + '/uploads/thumbs/' + base + '_' + (width||400) + 'w' + ext;
-  } catch(e) { return url; }
+  // Thumbnail system disabled — just return original URL
+  return url;
 }
 document.addEventListener('DOMContentLoaded', function() {
   const mapboxAccessToken = '<%= @mapbox_access_token %>';
