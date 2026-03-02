@@ -531,6 +531,24 @@ class ArchitectureExplorerController < ApplicationController
     end
   end
 
+  def styles_index
+    style_counts = Hash.new(0)
+    BuildingAnalysis.where(visible_in_library: true).pluck(:h3_contents).compact.each do |h3_content|
+      begin
+        styles = StyleNormalizer.normalize_array(JSON.parse(h3_content))
+        styles.each { |style| style_counts[style] += 1 }
+      rescue JSON::ParserError
+        next
+      end
+    end
+    @styles_with_counts = style_counts.sort_by { |_style, count| -count }
+    @total_buildings = BuildingAnalysis.where(visible_in_library: true).count
+  end
+
+  def style_show
+    redirect_to buildings_by_style_path(style_name: params[:style_name]), status: :moved_permanently
+  end
+
   private
 
   def calculate_style_frequency(building_analyses)
@@ -672,23 +690,7 @@ class ArchitectureExplorerController < ApplicationController
     StyleNormalizer.normalize_array(h3_contents)
   end
 
-  def styles_index
-    style_counts = Hash.new(0)
-    BuildingAnalysis.where(visible_in_library: true).pluck(:h3_contents).compact.each do |h3_content|
-      begin
-        styles = StyleNormalizer.normalize_array(JSON.parse(h3_content))
-        styles.each { |style| style_counts[style] += 1 }
-      rescue JSON::ParserError
-        next
-      end
-    end
-    @styles_with_counts = style_counts.sort_by { |_style, count| -count }
-    @total_buildings = BuildingAnalysis.where(visible_in_library: true).count
-  end
-
-  def style_show
-    redirect_to buildings_by_style_path(style_name: params[:style_name]), status: :moved_permanently
-  end
+  # styles_index and style_show moved to public section above `private`
 
   def calculate_style_metrics
     style_counts = Hash.new(0)

@@ -616,7 +616,7 @@
         
         <!-- Traditional pagination as fallback -->
         <div class="traditional-pagination" style="margin-top: 16px;">
-          <%= paginate @analyzed_buildings, theme: 'twitter_bootstrap_4', params: { turbo_frame: "building_grid" } %>
+          <%= paginate @analyzed_buildings, params: { turbo_frame: "building_grid" } %>
         </div>
       </div>
     <% end %>
