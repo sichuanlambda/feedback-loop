@@ -188,7 +188,7 @@
             <%= link_to architecture_explorer_show_path(building), class: "building-grid-card" do %>
               <div class="building-card-image">
                 <% if building.image_url.present? %>
-                  <%= image_tag thumbnail_url(building.image_url, width: 400) || building.image_url, alt: building.name.presence || building.address, loading: "lazy", width: 400, height: 267, style: "object-fit:cover", onerror: "this.onerror=null;this.src='#{building.image_url}'" %>
+                  <%= image_tag thumbnail_url(building.image_url, width: 400) || building.image_url, alt: building.display_name || building.display_address || "Architecture", loading: "lazy", width: 400, height: 267, style: "object-fit:cover", onerror: "this.onerror=null;this.src='#{building.image_url}'" %>
                 <% else %>
                   <div class="building-card-placeholder">
                     <i class="fas fa-building"></i>
@@ -201,9 +201,11 @@
                 </div>
               </div>
               <div class="building-card-info">
-                <h4><%= building.name.presence || building.address.to_s.split(',').first %></h4>
-                <% if building.name.present? && building.address.present? %>
-                  <p class="building-card-address"><%= building.address.to_s.split(',').first(2).join(', ') %></p>
+                <% if building.display_name || building.display_address %>
+                  <h4><%= building.display_name || building.display_address.to_s.split(',').first %></h4>
+                  <% if building.display_name && building.display_address %>
+                    <p class="building-card-address"><%= building.display_address.split(',').first(2).join(', ') %></p>
+                  <% end %>
                 <% end %>
               </div>
             <% end %>
@@ -261,7 +263,7 @@
                 <img src="<%= thumbnail_url(building.image_url, width: 400) || building.image_url %>" alt="Building" class="building-image" loading="lazy" width="400" onerror="this.onerror=null;this.src='<%= building.image_url %>'">
               <% end %>
               <div class="building-info">
-                <h4><%= building.address.present? ? building.address : "Building ##{building.id}" %></h4>
+                <h4><%= building.display_address || building.display_name %></h4>
                 <% if building.h3_contents.present? %>
                   <div class="building-styles">
                     <% begin %>
