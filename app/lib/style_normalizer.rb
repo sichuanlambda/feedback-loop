@@ -95,7 +95,7 @@ module StyleNormalizer
     cleaned = cleaned.gsub(/[:\-–—]?\s*\d+\s*%?\s*$/, '').strip  # Remove trailing percentages
     cleaned = cleaned.gsub(/\A[\s:]+|[\s:]+\z/, '')               # Remove leading/trailing colons
 
-    lookup = cleaned.downcase.strip
+    lookup = cleaned.downcase.strip.tr('-', ' ').gsub(/\s+/, ' ')
 
     # Direct match
     return VARIANT_TO_CANONICAL[lookup] if VARIANT_TO_CANONICAL.key?(lookup)
