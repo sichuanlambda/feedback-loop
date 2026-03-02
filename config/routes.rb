@@ -137,7 +137,12 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   namespace :api do
-    resources :building_analyses, only: [:index]
+    resources :building_analyses, only: [:index] do
+      collection do
+        get :nearby
+        post :camera_upload
+      end
+    end
   end
 
   # New Research Prompt Route

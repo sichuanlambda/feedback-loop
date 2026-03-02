@@ -1,6 +1,9 @@
 class BuildingAnalysis < ApplicationRecord
   belongs_to :user
 
+  # Virtual attribute for distance calculations (used in API)
+  attr_accessor :distance
+
   # Use the 'address' attribute for geocoding
   geocoded_by :address
   # Auto-fetch coordinates after validation, if address changed

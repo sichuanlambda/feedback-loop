@@ -21,4 +21,22 @@ class ApplicationController < ActionController::Base
     # Specify the path you want to redirect users to after sign-out
     root_path
   end
+
+  # Mobile app detection helpers
+  def native_app?
+    params[:native] == '1' || user_agent_native?
+  end
+
+  def user_agent_native?
+    user_agent = request.user_agent.to_s.downcase
+    user_agent.include?('architecture-helper') || 
+    user_agent.include?('turbo-native') ||
+    user_agent.include?('ah-mobile')
+  end
+
+  def mobile_browser?
+    request.user_agent.to_s.match(/(Mobile|webOS|rv:1.1|Opera Mini|Android|BlackBerry|iPhone|iPad)/)
+  end
+
+  helper_method :native_app?, :mobile_browser?
 end
