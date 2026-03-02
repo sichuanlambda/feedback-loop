@@ -103,5 +103,3 @@ gem 'dotenv-rails', groups: [:development, :test]
 gem 'ruby-openai', '~> 6.3.0'
 
 gem 'sitemap_generator'
-
-gem 'exifr'

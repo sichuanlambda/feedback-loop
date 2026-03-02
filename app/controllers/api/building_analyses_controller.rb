@@ -1,5 +1,3 @@
-require 'exifr/jpeg'
-
 module Api
   class BuildingAnalysesController < ApplicationController
     protect_from_forgery with: :null_session
@@ -98,17 +96,25 @@ module Api
       return { extracted: false, lat: nil, lng: nil } unless uploaded_file.respond_to?(:tempfile)
       
       begin
-        exif = EXIFR::JPEG.new(uploaded_file.tempfile.path)
-        return { extracted: false, lat: nil, lng: nil } unless exif&.gps
+        # Use exiftool command line tool if available (commonly installed)
+        result = `exiftool -GPSLatitude -GPSLongitude -n #{uploaded_file.tempfile.path} 2>/dev/null`
         
-        lat = exif.gps.latitude
-        lng = exif.gps.longitude
-        
-        if lat && lng
-          { extracted: true, lat: lat, lng: lng }
-        else
-          { extracted: false, lat: nil, lng: nil }
+        if $?.success? && result.present?
+          lines = result.strip.split("\n")
+          lat_line = lines.find { |line| line.include?('GPS Latitude') }
+          lng_line = lines.find { |line| line.include?('GPS Longitude') }
+          
+          if lat_line && lng_line
+            lat = lat_line.split(':').last.strip.to_f
+            lng = lng_line.split(':').last.strip.to_f
+            
+            if lat != 0.0 && lng != 0.0
+              return { extracted: true, lat: lat, lng: lng }
+            end
+          end
         end
+        
+        { extracted: false, lat: nil, lng: nil }
       rescue => e
         Rails.logger.warn "EXIF GPS extraction failed: #{e.message}"
         { extracted: false, lat: nil, lng: nil }
