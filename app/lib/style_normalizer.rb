@@ -1,6 +1,6 @@
 module StyleNormalizer
-  # Canonical style taxonomy with synonyms/variants that map to each canonical name.
-  # When GPT or user input produces a variant, we normalize to the canonical form.
+  # Canonical style taxonomy — the SINGLE SOURCE OF TRUTH.
+  # GPT prompt, normalizer, and style pages all derive from this list.
   # Ordered roughly chronologically within each era.
   CANONICAL_STYLES = {
     # Ancient & Classical
@@ -15,14 +15,20 @@ module StyleNormalizer
     "Rococo"                    => ["rococo"],
     "Palladian"                 => ["palladian", "adam style"],
 
+    # Islamic & South/Southeast Asian
+    "Islamic"                   => ["islamic", "islamic architecture", "moorish", "moorish revival", "moorish influence", "neo-moorish", "mudejar", "mudjar", "neo-mudejar", "andalusian", "ottoman", "persian", "saracen"],
+    "Mughal"                    => ["mughal", "mughal architecture", "indo-islamic"],
+    "Hindu Temple"              => ["hindu temple", "hindu temple architecture", "dravidian", "nagara"],
+    "Rajasthani"                => ["rajasthani", "rajasthani architecture", "rajput", "rajput architecture"],
+
     # 18th-19th Century Revival & Classical
     "Neoclassical"              => ["neoclassical", "neoclassicism", "classical revival", "greek revival", "federal", "federal style", "stripped classicism", "new classical"],
-    "Beaux-Arts"                => ["beaux-arts", "beaux arts", "city beautiful", "city beautiful movement"],
-    "Victorian"                 => ["victorian", "folk victorian", "queen anne", "second empire", "edwardian"],
+    "Beaux-Arts"                => ["beaux-arts", "beaux arts", "city beautiful", "city beautiful movement", "haussmann"],
+    "Victorian"                 => ["victorian", "folk victorian", "queen anne", "second empire", "edwardian", "regency", "regency architecture"],
     "Colonial Revival"          => ["colonial", "colonial revival", "dutch colonial", "dutch colonial revival", "georgian", "georgian revival", "cape cod"],
-    "Tudor Revival"             => ["tudor", "tudor revival", "jacobean", "elizabethan", "scottish baronial"],
+    "Tudor Revival"             => ["tudor", "tudor revival", "jacobean", "elizabethan", "scottish baronial", "norman"],
     "Italianate"                => ["italianate"],
-    "Romanesque Revival"        => ["romanesque revival", "richardsonian romanesque"],
+    "Romanesque Revival"        => ["romanesque revival"],
 
     # Arts & Crafts / Early 20th Century
     "Arts and Crafts"           => ["arts and crafts", "arts & crafts", "art & crafts", "craftsman", "shingle style", "american foursquare"],
@@ -32,7 +38,7 @@ module StyleNormalizer
     # Mission / Spanish / Mediterranean
     "Mediterranean Revival"     => ["mediterranean", "mediterranean revival", "spanish colonial", "spanish colonial revival", "spanish revival", "mission", "mission revival", "pueblo", "pueblo revival", "territorial revival"],
 
-    # Modernism (the big bucket — this is where most overlap happens)
+    # Modernism
     "Modernism"                 => [
       "modern", "modern movement", "modernism", "modernist",
       "international style", "international",
@@ -70,18 +76,20 @@ module StyleNormalizer
     # Minimalism
     "Minimalism"                => ["minimalism", "minimalist", "minimalistic"],
 
-    # Regional / Other
+    # Eclectic / Industrial / Other
+    "Eclectic"                  => ["eclectic", "eclecticism", "eclectic style"],
+    "Industrial"                => ["industrial", "industrial architecture", "post-industrial", "warehouse"],
+    "Skyscraper"                => ["skyscraper", "skyscraper style", "skyscraper design"],
     "Chicago School"            => ["chicago school"],
     "Chateauesque"              => ["chateauesque"],
-    "Indo-Saracenic"            => ["indo-saracenic", "saracen"],
+    "Indo-Saracenic"            => ["indo-saracenic"],
     "Mayan Revival"             => ["mayan revival"],
   }.freeze
 
-  # Build a reverse lookup: lowercase variant → canonical name
+  # Build a reverse lookup: lowercase variant -> canonical name
   VARIANT_TO_CANONICAL = {}.tap do |map|
     CANONICAL_STYLES.each do |canonical, variants|
       variants.each { |v| map[v.downcase.strip] = canonical }
-      # Also map the canonical name itself
       map[canonical.downcase.strip] = canonical
     end
   end.freeze
@@ -92,30 +100,29 @@ module StyleNormalizer
 
     cleaned = style.to_s.strip
     cleaned = remove_percentage(cleaned)
-    cleaned = cleaned.gsub(/[:\-–—]?\s*\d+\s*%?\s*$/, '').strip  # Remove trailing percentages
-    cleaned = cleaned.gsub(/\A[\s:]+|[\s:]+\z/, '')               # Remove leading/trailing colons
+    cleaned = cleaned.gsub(/[:\-–—]?\s*\d+\s*%?\s*$/, '').strip
+    cleaned = cleaned.gsub(/\A[\s:]+|[\s:]+\z/, '')
 
     lookup = cleaned.downcase.strip.tr('-', ' ').gsub(/\s+/, ' ')
 
     # Direct match
     return VARIANT_TO_CANONICAL[lookup] if VARIANT_TO_CANONICAL.key?(lookup)
 
-    # Try progressively looser matching
-    # 1. Remove common suffixes/prefixes
+    # Remove common suffixes/prefixes
     simplified = lookup
-      .gsub(/\s*(style|architecture|design|movement|school|revival)\s*/i, ' ')
+      .gsub(/\s*(style|architecture|design|movement|school|revival|influence|influences|instances|in real life)\s*/i, ' ')
       .strip
       .gsub(/\s+/, ' ')
 
     return VARIANT_TO_CANONICAL[simplified] if VARIANT_TO_CANONICAL.key?(simplified)
 
-    # 2. Check if any canonical variant is contained in the input
+    # Check if any canonical variant is contained in the input
     VARIANT_TO_CANONICAL.each do |variant, canonical|
-      next if variant.length < 4 # Skip very short variants to avoid false positives
+      next if variant.length < 4
       return canonical if lookup.include?(variant)
     end
 
-    # 3. If no match, return cleaned-up title case
+    # If no match, return cleaned-up title case
     cleaned.split.map(&:capitalize).join(' ')
   end
 
@@ -128,15 +135,19 @@ module StyleNormalizer
       .map { |style| normalize(style) }
       .compact
       .reject(&:blank?)
-      .uniq  # Remove duplicates after normalization
+      .uniq
   end
 
-  # Returns all canonical style names (useful for dropdowns, filters)
+  # The canonical style list formatted for GPT prompts.
+  # This is the ONLY place styles should be defined — prompt derives from here.
+  def self.style_list_for_prompt
+    CANONICAL_STYLES.keys.sort.join(", ")
+  end
+
   def self.all_canonical_styles
     CANONICAL_STYLES.keys.sort
   end
 
-  # Check if a style string would normalize to a known canonical style
   def self.known?(style)
     normalized = normalize(style)
     CANONICAL_STYLES.key?(normalized)
