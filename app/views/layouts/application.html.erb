@@ -32,6 +32,25 @@
   <link rel="dns-prefetch" href="//unpkg.com">
   <link rel="dns-prefetch" href="//code.jquery.com">
   
+  <!-- PWA Manifest and Mobile App Meta Tags -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#336699">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Architecture Helper">
+  <meta name="application-name" content="Architecture Helper">
+  <meta name="msapplication-TileColor" content="#336699">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  
+  <!-- Universal Links for iOS and Android Deep Linking -->
+  <meta property="al:ios:url" content="architecturehelper://building/<%= params[:id] if params[:id] %>">
+  <meta property="al:ios:app_store_id" content="TBD">
+  <meta property="al:ios:app_name" content="Architecture Helper">
+  <meta property="al:android:url" content="architecturehelper://building/<%= params[:id] if params[:id] %>">
+  <meta property="al:android:package" content="com.architecturehelper.app">
+  <meta property="al:android:app_name" content="Architecture Helper">
+  
   <!-- JSON-LD Structured Data -->
   <% if content_for?(:structured_data) %>
     <%= content_for(:structured_data).html_safe %>
@@ -59,6 +78,35 @@
   <%= stylesheet_link_tag 'application', 'data-turbo-track': 'reload' %>
   <%= stylesheet_link_tag 'mobile_responsive', 'data-turbo-track': 'reload' %>
   <%= javascript_importmap_tags %>
+  
+  <!-- Service Worker Registration for PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+    
+    // Handle deep links for native apps
+    function handleDeepLink(url) {
+      const buildingMatch = url.match(/\/architecture_explorer\/(\d+)/);
+      if (buildingMatch && window.webkit?.messageHandlers?.bridge) {
+        // iOS Turbo Native bridge
+        window.webkit.messageHandlers.bridge.postMessage({
+          type: 'navigate',
+          url: url
+        });
+        return true;
+      }
+      return false;
+    }
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <%= yield :head %>
 </head>

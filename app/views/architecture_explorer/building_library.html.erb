@@ -717,3 +717,12 @@
         }
     });
 </script>
+
+<% if mobile_browser? || native_app? %>
+  <!-- Floating Action Button for Camera -->
+  <a href="/architecture_explorer/address_search" class="fab-camera" 
+     aria-label="Analyze building with camera"
+     data-turbo="false">
+    <i class="fas fa-camera"></i>
+  </a>
+<% end %>
