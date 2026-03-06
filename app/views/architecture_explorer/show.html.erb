@@ -260,6 +260,7 @@
         </div>
       </div>
 
+      <div id="section-analysis"></div>
       <%# Overview %>
       <% if @building_data['overview'].present? %>
         <p class="section-text" style="font-size: 1.05rem;"><%= @building_data['overview'] %></p>
@@ -381,6 +382,24 @@
     </div>
   <% end %>
 
+  <%# === SECTION TAB NAVIGATION === %>
+  <% has_analysis = @is_structured && @building_data || @html_content.present? %>
+  <% has_similar = @similar_buildings.present? && @similar_buildings.any? %>
+  <% has_nearby = @nearby_buildings.present? && @nearby_buildings.any? %>
+  <% if has_analysis || has_similar || has_nearby %>
+    <nav class="detail-tabs" id="section-tabs">
+      <% if has_analysis %>
+        <a href="#section-analysis" class="detail-tab active" data-section="section-analysis">Analysis</a>
+      <% end %>
+      <% if has_similar %>
+        <a href="#section-similar" class="detail-tab" data-section="section-similar">Similar Style</a>
+      <% end %>
+      <% if has_nearby %>
+        <a href="#section-nearby" class="detail-tab" data-section="section-nearby">Nearby</a>
+      <% end %>
+    </nav>
+  <% end %>
+
   <%# === ADD THIS BUILDING TO THE MAP (combined section) === %>
   <% unless @building_analysis.latitude.present? && @building_analysis.longitude.present? %>
     <div class="address-container" style="margin-top: 32px;">
@@ -407,6 +426,7 @@
 
   <%# === SIMILAR STYLE BUILDINGS === %>
   <% if @similar_buildings.present? && @similar_buildings.any? %>
+    <div id="section-similar"></div>
     <h2 class="section-title">Similar Style Buildings</h2>
     <div class="scroll-row">
       <% @similar_buildings.each do |building| %>
@@ -430,6 +450,7 @@
 
   <%# === NEARBY BUILDINGS === %>
   <% if @nearby_buildings.present? && @nearby_buildings.any? %>
+    <div id="section-nearby"></div>
     <h2 class="section-title">Nearby Buildings</h2>
     <div class="scroll-row">
       <% @nearby_buildings.each do |building| %>
@@ -584,6 +605,36 @@
   }
 
   document.addEventListener('DOMContentLoaded', checkAnalysisStatus);
+
+  // Section tab navigation
+  document.addEventListener('DOMContentLoaded', function() {
+    var tabs = document.querySelectorAll('#section-tabs .detail-tab');
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        var target = document.getElementById(tab.getAttribute('data-section'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Update active tab on scroll
+    var sectionIds = Array.from(tabs).map(function(t) { return t.getAttribute('data-section'); });
+    window.addEventListener('scroll', function() {
+      var scrollPos = window.scrollY + 120;
+      var activeId = sectionIds[0];
+      sectionIds.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollPos) activeId = id;
+      });
+      tabs.forEach(function(t) {
+        t.classList.toggle('active', t.getAttribute('data-section') === activeId);
+      });
+    });
+  });
 
   // Lightbox
   document.addEventListener('DOMContentLoaded', function() {
