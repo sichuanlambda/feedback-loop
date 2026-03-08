@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Handle virtual tour button from map section
   const virtualTourMapBtn = document.getElementById('virtual-tour-map-btn');
-  virtualTourMapBtn.addEventListener('click', function() {
+  if (virtualTourMapBtn) virtualTourMapBtn.addEventListener('click', function() {
     isVirtualTourMode = true;
     initializeBuildingArrays();
     populateBuildingsGrid();
