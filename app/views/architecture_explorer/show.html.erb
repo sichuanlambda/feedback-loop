@@ -212,8 +212,8 @@
       <div class="building-header">
         <h1><%= @building_data['building_name'] || @building_analysis.name || "Building Analysis" %></h1>
         <div class="building-meta">
-          <% if @building_data['architect'] %><span><%= @building_data['architect'] %></span><% end %>
-          <% if @building_data['year_built'] %><span>Built <%= @building_data['year_built'] %></span><% end %>
+          <% if @building_data['architect'].present? && @building_data['architect'] != 'null' %><span><%= @building_data['architect'] %></span><% end %>
+          <% if @building_data['year_built'].present? && @building_data['year_built'] != 'null' %><span>Built <%= @building_data['year_built'] %></span><% end %>
           <% if @building_analysis.address.present? && @building_analysis.address != "N/A" %><span><%= @building_analysis.address %></span><% end %>
         </div>
       </div>
