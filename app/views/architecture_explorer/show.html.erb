@@ -609,31 +609,52 @@
   // Section tab navigation
   document.addEventListener('DOMContentLoaded', function() {
     var tabs = document.querySelectorAll('#section-tabs .detail-tab');
+    var scrollingFromClick = false;
+    var scrollTimer = null;
+
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function(e) {
         e.preventDefault();
         tabs.forEach(function(t) { t.classList.remove('active'); });
         tab.classList.add('active');
+        scrollingFromClick = true;
+        clearTimeout(scrollTimer);
         var target = document.getElementById(tab.getAttribute('data-section'));
         if (target) {
           target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+        // Re-enable scroll-based updates after scroll settles
+        scrollTimer = setTimeout(function() { scrollingFromClick = false; }, 1000);
       });
     });
 
-    // Update active tab on scroll
+    // Update active tab on scroll (only when user scrolls, not programmatic)
     var sectionIds = Array.from(tabs).map(function(t) { return t.getAttribute('data-section'); });
     window.addEventListener('scroll', function() {
-      var scrollPos = window.scrollY + 120;
+      if (scrollingFromClick) return;
       var activeId = sectionIds[0];
       sectionIds.forEach(function(id) {
         var el = document.getElementById(id);
-        if (el && el.offsetTop <= scrollPos) activeId = id;
+        if (el) {
+          var rect = el.getBoundingClientRect();
+          if (rect.top <= 140) activeId = id;
+        }
       });
       tabs.forEach(function(t) {
         t.classList.toggle('active', t.getAttribute('data-section') === activeId);
       });
     });
+
+    // Handle initial hash in URL
+    var hash = window.location.hash.replace('#', '');
+    if (hash) {
+      tabs.forEach(function(t) {
+        if (t.getAttribute('data-section') === hash) {
+          tabs.forEach(function(t2) { t2.classList.remove('active'); });
+          t.classList.add('active');
+        }
+      });
+    }
   });
 
   // Lightbox
