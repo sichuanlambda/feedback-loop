@@ -7,8 +7,8 @@ class ApplicationController < ActionController::Base
     if user_signed_in?
       response.headers['Cache-Control'] = 'private, no-cache'
     elsif request.get? && !devise_controller?
-      # 5 min browser cache, 1 hour CDN/proxy cache, serve stale while revalidating
-      response.headers['Cache-Control'] = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+      # 5 min browser cache, stale-while-revalidate for perceived speed
+      expires_in 5.minutes, public: true, stale_while_revalidate: 1.day
     end
   end
 
