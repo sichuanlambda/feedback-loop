@@ -1,5 +1,16 @@
 class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :set_cache_headers
+
+  def set_cache_headers
+    # Public pages get browser + CDN caching; user-specific pages stay private
+    if user_signed_in?
+      response.headers['Cache-Control'] = 'private, no-cache'
+    elsif request.get? && !devise_controller?
+      # 5 min browser cache, 1 hour CDN/proxy cache, serve stale while revalidating
+      response.headers['Cache-Control'] = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+    end
+  end
 
   def account
     # Any specific logic for the account page (likely none for a static page)
