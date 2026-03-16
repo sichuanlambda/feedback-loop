@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'open-uri'
 
 class ArchitectureExplorerController < ApplicationController
-  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map, :styles_index, :style_show, :by_style]
+  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map, :styles_index, :style_show, :by_style, :style_in_city]
   before_action :set_custom_nav
   before_action :check_analysis_view_limit, only: [:show]
   # include BuildingAnalysisProcessor
@@ -547,6 +547,48 @@ class ArchitectureExplorerController < ApplicationController
 
   def style_show
     redirect_to buildings_by_style_path(style_name: params[:style_name]), status: :moved_permanently
+  end
+
+  def style_in_city
+    @style_name = StyleNormalizer.normalize(params[:style_name])
+    @city_slug = params[:city_slug]
+    @place = Place.find_by("LOWER(REPLACE(name, ' ', '-')) = ?", @city_slug.downcase)
+    @city_name = @place&.name || @city_slug.titleize
+
+    variants = StyleNormalizer::CANONICAL_STYLES[@style_name] || [@style_name.downcase]
+    conditions = variants.map { |v| "LOWER(h3_contents) LIKE ?" }
+    values = variants.map { |v| "%#{v}%" }
+
+    @buildings = BuildingAnalysis
+      .where(visible_in_library: true)
+      .where(city: @city_name)
+      .where(conditions.join(' OR '), *values)
+      .order(created_at: :desc)
+
+    @total_count = @buildings.count
+
+    # Get same style in other cities for cross-linking
+    @other_cities = BuildingAnalysis
+      .where(visible_in_library: true)
+      .where(conditions.join(' OR '), *values)
+      .where.not(city: [nil, '', @city_name])
+      .group(:city).count
+      .sort_by { |_, c| -c }.first(10)
+
+    # Related styles in this city
+    style_tally = Hash.new(0)
+    BuildingAnalysis.where(visible_in_library: true).where(city: @city_name)
+      .pluck(:h3_contents).compact.each do |h|
+        begin
+          styles = StyleNormalizer.normalize_array(JSON.parse(h))
+          styles.each { |s| style_tally[s] += 1 unless s == @style_name }
+        rescue JSON::ParserError
+          next
+        end
+      end
+    @related_styles_in_city = style_tally.sort_by { |_, c| -c }.first(8)
+
+    render 'architecture_explorer/style_in_city'
   end
 
   private

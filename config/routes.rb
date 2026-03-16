@@ -155,6 +155,7 @@ Rails.application.routes.draw do
   # Style pages (programmatic SEO)
   get 'styles', to: 'architecture_explorer#styles_index', as: 'styles_index'
   get 'styles/:style_name', to: 'architecture_explorer#style_show', as: 'style_show'
+  get 'styles/:style_name/in/:city_slug', to: 'architecture_explorer#style_in_city', as: 'style_in_city'
 
   # Places routes
   resources :places, only: [:index, :show], param: :slug do
