@@ -1,6 +1,7 @@
 module ArchitectureExplorerHelper
   def thumbnail_url(image_url, width: 400)
     return image_url unless image_url.present? && image_url.include?('architecture-explorer.s3')
+    return image_url if image_url.match?(/\.(php|pdf|tif|svg)(\?|$)/i)
 
     # Extract filename and build thumb path
     uri = URI.parse(image_url)

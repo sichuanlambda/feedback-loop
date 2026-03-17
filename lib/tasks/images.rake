@@ -181,6 +181,12 @@ namespace :images do
         base = File.basename(path, ext)
         thumb_key = "uploads/thumbs/#{base}_#{width}w#{ext}"
 
+        # Skip non-image extensions
+        if %w[.php .pdf .tif .svg].include?(ext.downcase)
+          skipped += 1
+          next
+        end
+
         # Skip if thumbnail already exists
         if bucket.object(thumb_key).exists?
           skipped += 1
@@ -207,7 +213,6 @@ namespace :images do
 
         temp.close
         temp.unlink
-        sleep 1 # Rate limit
       rescue => e
         failed += 1
         puts "##{building.id} #{building.name}: ❌ #{e.message}"
