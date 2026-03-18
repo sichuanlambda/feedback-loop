@@ -13,7 +13,7 @@ class CreateBuildingContributions < ActiveRecord::Migration[7.0]
     end
 
     add_index :building_contributions, [:user_id, :contribution_type]
-    add_index :building_contributions, :building_analysis_id
+    add_index :building_contributions, :building_analysis_id, name: 'idx_building_contributions_building_analysis_alt'
     add_index :building_contributions, :contributed_at
     add_index :building_contributions, :points_awarded
   end
