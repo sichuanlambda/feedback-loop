@@ -220,7 +220,7 @@
               <% end %>
             </div>
 
-            <%= link_to "View Collection", profile_style_collection_path(@user, collection.style_name), 
+            <%= link_to "View Collection", "/users/#{@user.handle}/profile", 
                         class: "collection-link" %>
           </div>
         <% end %>
@@ -228,7 +228,7 @@
         <div class="empty-collections">
           <h3>No Style Collections Yet</h3>
           <p>Start analyzing buildings to automatically collect different architectural styles!</p>
-          <%= link_to "Analyze Your First Building", architecture_explorer_index_path, class: "cta-button" %>
+          <%= link_to "Analyze Your First Building", "/architecture_explorer/new", class: "cta-button" %>
         </div>
       <% end %>
     </div>
@@ -236,12 +236,12 @@
 
   <!-- Achievements Tab -->
   <div class="tab-content" id="achievements">
-    <%= link_to "View Detailed Achievement Progress", profile_achievements_path(@user), class: "achievements-link" %>
+    <%= link_to "View Detailed Achievement Progress", "/users/#{@user.handle}/profile", class: "achievements-link" %>
   </div>
 
   <!-- Leaderboard Tab -->
   <div class="tab-content" id="leaderboard">
-    <%= link_to "View Full Rankings", profile_leaderboard_position_path(@user), class: "leaderboard-link" %>
+    <%= link_to "View Full Rankings", "/users/#{@user.handle}/profile", class: "leaderboard-link" %>
   </div>
 </div>
 
