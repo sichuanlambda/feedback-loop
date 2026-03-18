@@ -166,10 +166,10 @@ Rails.application.routes.draw do
 
   # Profile and Gamification routes
   resources :users, only: [] do
-    get 'profile', to: 'profile#show', as: 'profile'
-    get 'profile/style/:style_name', to: 'profile#style_collection', as: 'profile_style_collection'
-    get 'profile/achievements', to: 'profile#achievements', as: 'profile_achievements'
-    get 'profile/leaderboard', to: 'profile#leaderboard_position', as: 'profile_leaderboard_position'
+    get 'profile', to: 'profile#show', as: 'user_profile_page'
+    get 'profile/style/:style_name', to: 'profile#style_collection', as: 'user_profile_style_collection'
+    get 'profile/achievements', to: 'profile#achievements', as: 'user_profile_achievements'
+    get 'profile/leaderboard', to: 'profile#leaderboard_position', as: 'user_profile_leaderboard_position'
   end
   
   # Default profile route for current user
