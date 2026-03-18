@@ -6,6 +6,12 @@ class User < ApplicationRecord
   has_many :screenshot_analyses
   has_many :building_analyses
 
+  # Gamification associations
+  has_many :user_achievements, dependent: :destroy
+  has_many :user_style_collections, dependent: :destroy
+  has_many :building_contributions, dependent: :destroy
+  has_one :user_level, dependent: :destroy
+
   # Adjust the validations to be conditional
   validates :handle, presence: true, uniqueness: true, if: :enforce_profile_completion?
   validates :public_name, presence: true, if: :enforce_profile_completion?
