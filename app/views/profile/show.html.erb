@@ -4,8 +4,7 @@
   <!-- Header Section -->
   <div class="profile-header">
     <div class="user-avatar">
-      <%= image_tag(@user.avatar.present? ? @user.avatar : "default-avatar.png", 
-                    alt: @user.public_name || @user.handle, class: "avatar-large") %>
+      <div class="avatar-placeholder"><%= (@user.public_name || @user.handle || "?")[0].upcase %></div>
     </div>
     
     <div class="user-info">
@@ -229,7 +228,7 @@
         <div class="empty-collections">
           <h3>No Style Collections Yet</h3>
           <p>Start analyzing buildings to automatically collect different architectural styles!</p>
-          <%= link_to "Analyze Your First Building", new_screenshot_analysis_path, class: "cta-button" %>
+          <%= link_to "Analyze Your First Building", architecture_explorer_index_path, class: "cta-button" %>
         </div>
       <% end %>
     </div>

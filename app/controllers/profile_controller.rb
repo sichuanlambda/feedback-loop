@@ -16,7 +16,7 @@ class ProfileController < ApplicationController
     @collection = @user.user_style_collections.find_by(style_name: @style_name)
     
     if @collection
-      @buildings = @collection.buildings.includes(:screenshot_analysis).limit(50)
+      @buildings = @collection.buildings.limit(50)
       @collection_stats = calculate_collection_stats(@collection)
     else
       redirect_to profile_path, alert: "Style collection not found."
@@ -92,7 +92,7 @@ class ProfileController < ApplicationController
 
   def load_recent_analyses
     @user.building_analyses
-         .includes(:screenshot_analysis)
+         
          .order(created_at: :desc)
          .limit(6)
   end
