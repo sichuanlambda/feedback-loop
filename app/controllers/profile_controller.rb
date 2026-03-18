@@ -1,5 +1,5 @@
 class ProfileController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, only: []
   before_action :set_user
 
   def show
@@ -41,7 +41,16 @@ class ProfileController < ApplicationController
   private
 
   def set_user
-    @user = params[:user_id] ? User.find(params[:user_id]) : current_user
+    if params[:user_id]
+      @user = User.find_by(id: params[:user_id]) || User.find_by(handle: params[:user_id])
+    else
+      @user = current_user
+    end
+    
+    unless @user
+      redirect_to root_path, alert: "User not found."
+      return
+    end
     
     # Redirect Atlas admin to prevent profile access
     if @user.email == 'atlas@architecturehelper.com'
