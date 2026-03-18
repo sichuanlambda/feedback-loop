@@ -1,15 +1,15 @@
-<% content_for :title, "#{@user.name}'s Architecture Profile" %>
+<% content_for :title, "#{@user.public_name || @user.handle}'s Architecture Profile" %>
 
 <div class="profile-container">
   <!-- Header Section -->
   <div class="profile-header">
     <div class="user-avatar">
       <%= image_tag(@user.avatar.present? ? @user.avatar : "default-avatar.png", 
-                    alt: @user.name, class: "avatar-large") %>
+                    alt: @user.public_name || @user.handle, class: "avatar-large") %>
     </div>
     
     <div class="user-info">
-      <h1><%= @user.name %></h1>
+      <h1><%= @user.public_name || @user.handle %></h1>
       <p class="user-title">Architecture Enthusiast</p>
       
       <!-- Level Display -->
