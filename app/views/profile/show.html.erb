@@ -148,7 +148,7 @@
                 
                 <div class="activity-info">
                   <h4><%= analysis.name || "Building Analysis" %></h4>
-                  <p><%= analysis.ai_description&.truncate(100) %></p>
+                  <p><%= analysis.details&.truncate(100) %></p>
                   <span class="activity-date"><%= time_ago_in_words(analysis.created_at) %> ago</span>
                 </div>
                 
