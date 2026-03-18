@@ -92,7 +92,6 @@ class ProfileController < ApplicationController
 
   def load_recent_analyses
     @user.building_analyses
-         
          .order(created_at: :desc)
          .limit(6)
   end
