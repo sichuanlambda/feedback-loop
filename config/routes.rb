@@ -173,6 +173,8 @@ Rails.application.routes.draw do
     get 'profile/leaderboard', to: 'profile#leaderboard_position', as: 'user_profile_leaderboard_position'
   end
   
-  # Default profile route for current user
+  # Default profile routes for current user
   get 'profile', to: 'profile#show', as: 'current_user_profile'
+  get 'profile/achievements', to: 'profile#achievements', as: 'current_user_achievements'
+  get 'profile/leaderboard', to: 'profile#leaderboard_position', as: 'current_user_leaderboard'
 end
