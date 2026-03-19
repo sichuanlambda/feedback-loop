@@ -1,387 +1,54 @@
+<% profile_url = request.original_url %>
+<% share_text = "Check out #{@user.public_name || @user.handle}'s architecture profile on Architecture Helper!" %>
+<% encoded_url = ERB::Util.url_encode(profile_url) %>
+<% encoded_text = ERB::Util.url_encode(share_text) %>
+
 <div class="profile-share-section">
   <div class="share-header">
-    <span class="share-icon">📤</span>
     <span class="share-title">Share This Profile</span>
   </div>
   
   <div class="share-buttons-container">
-    <!-- Copy Link Button -->
     <button class="share-button share-copy" onclick="copyProfileLink()" title="Copy link">
-      <span class="share-btn-icon">🔗</span>
-      <span class="share-btn-text">Copy Link</span>
+      <span class="share-btn-text">🔗 Copy Link</span>
     </button>
 
-    <!-- Twitter/X Share -->
-    <a href="<%= twitter_share_url %>" class="share-button share-twitter" target="_blank" title="Share on X (Twitter)">
-      <span class="share-btn-icon">𝕏</span>
-      <span class="share-btn-text">Share on X</span>
+    <a href="https://twitter.com/intent/tweet?text=<%= encoded_text %>&url=<%= encoded_url %>" class="share-button share-twitter" target="_blank" title="Share on X">
+      <span class="share-btn-text">𝕏 Share</span>
     </a>
 
-    <!-- Facebook Share -->
-    <a href="<%= facebook_share_url %>" class="share-button share-facebook" target="_blank" title="Share on Facebook">
-      <span class="share-btn-icon">f</span>
+    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encoded_url %>" class="share-button share-facebook" target="_blank" title="Share on Facebook">
       <span class="share-btn-text">Facebook</span>
     </a>
 
-    <!-- LinkedIn Share -->
-    <a href="<%= linkedin_share_url %>" class="share-button share-linkedin" target="_blank" title="Share on LinkedIn">
-      <span class="share-btn-icon">in</span>
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url=<%= encoded_url %>" class="share-button share-linkedin" target="_blank" title="Share on LinkedIn">
       <span class="share-btn-text">LinkedIn</span>
     </a>
-
-    <!-- WhatsApp Share (Mobile) -->
-    <a href="<%= whatsapp_share_url %>" class="share-button share-whatsapp mobile-only" target="_blank" title="Share on WhatsApp">
-      <span class="share-btn-icon">💬</span>
-      <span class="share-btn-text">WhatsApp</span>
-    </a>
-
-    <!-- Email Share -->
-    <a href="<%= email_share_url %>" class="share-button share-email" title="Share via Email">
-      <span class="share-btn-icon">✉️</span>
-      <span class="share-btn-text">Email</span>
-    </a>
-  </div>
-
-  <!-- Copy Success Message -->
-  <div class="copy-success-message" style="display: none;">
-    <span class="success-icon">✅</span>
-    <span class="success-text">Profile link copied to clipboard!</span>
   </div>
 </div>
 
-<style>
-  .profile-share-section {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 12px;
-    padding: 20px;
-    margin: 24px 0;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
-  .share-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .share-icon {
-    font-size: 18px;
-  }
-
-  .share-title {
-    font-weight: 600;
-    color: #495057;
-    font-size: 16px;
-  }
-
-  .share-buttons-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .share-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    text-decoration: none;
-    color: #495057;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
-
-  .share-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    text-decoration: none;
-    color: #495057;
-  }
-
-  .share-btn-icon {
-    font-size: 16px;
-    width: 20px;
-    text-align: center;
-  }
-
-  .share-btn-text {
-    flex: 1;
-    text-align: center;
-  }
-
-  /* Platform-specific colors */
-  .share-copy {
-    background: linear-gradient(135deg, #6c757d, #495057);
-    color: white;
-    border-color: #6c757d;
-  }
-
-  .share-copy:hover {
-    color: white;
-    background: linear-gradient(135deg, #5a6268, #343a40);
-  }
-
-  .share-twitter {
-    background: linear-gradient(135deg, #1da1f2, #0d8bd9);
-    color: white;
-    border-color: #1da1f2;
-  }
-
-  .share-twitter:hover {
-    color: white;
-    background: linear-gradient(135deg, #0d8bd9, #0c7cd5);
-  }
-
-  .share-facebook {
-    background: linear-gradient(135deg, #1877f2, #166fe5);
-    color: white;
-    border-color: #1877f2;
-  }
-
-  .share-facebook:hover {
-    color: white;
-    background: linear-gradient(135deg, #166fe5, #1464d6);
-  }
-
-  .share-linkedin {
-    background: linear-gradient(135deg, #0077b5, #005885);
-    color: white;
-    border-color: #0077b5;
-  }
-
-  .share-linkedin:hover {
-    color: white;
-    background: linear-gradient(135deg, #005885, #004d73);
-  }
-
-  .share-whatsapp {
-    background: linear-gradient(135deg, #25d366, #20ba5a);
-    color: white;
-    border-color: #25d366;
-  }
-
-  .share-whatsapp:hover {
-    color: white;
-    background: linear-gradient(135deg, #20ba5a, #1ca64c);
-  }
-
-  .share-email {
-    background: linear-gradient(135deg, #6f42c1, #5a359a);
-    color: white;
-    border-color: #6f42c1;
-  }
-
-  .share-email:hover {
-    color: white;
-    background: linear-gradient(135deg, #5a359a, #4e2d87);
-  }
-
-  .copy-success-message {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px;
-    background: linear-gradient(135deg, #d1edff, #b6e2ff);
-    border: 1px solid #0077b5;
-    border-radius: 8px;
-    color: #005885;
-    font-weight: 500;
-    animation: slideInUp 0.3s ease-out;
-  }
-
-  @keyframes slideInUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Mobile optimizations */
-  @media (max-width: 768px) {
-    .profile-share-section {
-      padding: 16px;
-      margin: 20px 0;
-    }
-
-    .share-buttons-container {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    .share-button {
-      padding: 12px 8px;
-      font-size: 13px;
-    }
-
-    .share-btn-text {
-      font-size: 12px;
-    }
-
-    .mobile-only {
-      display: flex;
-    }
-  }
-
-  @media (min-width: 769px) {
-    .mobile-only {
-      display: none;
-    }
-  }
-
-  /* High contrast mode */
-  @media (prefers-contrast: high) {
-    .share-button {
-      border-width: 2px;
-    }
-    
-    .profile-share-section {
-      border-width: 2px;
-    }
-  }
-
-  /* Reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    .share-button {
-      transition: none;
-    }
-
-    .share-button:hover {
-      transform: none;
-    }
-
-    .copy-success-message {
-      animation: none;
-    }
-  }
-</style>
-
 <script>
-  function copyProfileLink() {
-    const url = '<%= @canonical_url || request.original_url %>';
-    
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => {
-        showCopySuccess();
-      }).catch(() => {
-        fallbackCopyToClipboard(url);
-      });
-    } else {
-      fallbackCopyToClipboard(url);
-    }
+function copyProfileLink() {
+  var url = window.location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url);
+  } else {
+    var t = document.createElement('textarea');
+    t.value = url;
+    document.body.appendChild(t);
+    t.select();
+    document.execCommand('copy');
+    document.body.removeChild(t);
   }
-
-  function fallbackCopyToClipboard(text) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    
-    try {
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
-      if (successful) {
-        showCopySuccess();
-      } else {
-        showCopyError();
-      }
-    } catch (err) {
-      document.body.removeChild(textArea);
-      showCopyError();
-    }
-  }
-
-  function showCopySuccess() {
-    const successMessage = document.querySelector('.copy-success-message');
-    const copyButton = document.querySelector('.share-copy');
-    
-    successMessage.style.display = 'flex';
-    copyButton.style.opacity = '0.7';
-    
-    setTimeout(() => {
-      successMessage.style.display = 'none';
-      copyButton.style.opacity = '1';
-    }, 3000);
-
-    // Track copy event
-    if (window.gtag) {
-      gtag('event', 'share', {
-        'method': 'copy_link',
-        'content_type': 'profile',
-        'content_id': '<%= @user.id %>'
-      });
-    }
-  }
-
-  function showCopyError() {
-    alert('Unable to copy link. Please copy manually: ' + window.location.href);
-  }
-
-  // Track share button clicks
-  document.addEventListener('click', function(e) {
-    if (e.target.closest('.share-button') && !e.target.closest('.share-copy')) {
-      const button = e.target.closest('.share-button');
-      let method = 'unknown';
-      
-      if (button.classList.contains('share-twitter')) method = 'twitter';
-      else if (button.classList.contains('share-facebook')) method = 'facebook';
-      else if (button.classList.contains('share-linkedin')) method = 'linkedin';
-      else if (button.classList.contains('share-whatsapp')) method = 'whatsapp';
-      else if (button.classList.contains('share-email')) method = 'email';
-
-      if (window.gtag && method !== 'unknown') {
-        gtag('event', 'share', {
-          'method': method,
-          'content_type': 'profile',
-          'content_id': '<%= @user.id %>'
-        });
-      }
-    }
-  });
+  alert('Profile link copied!');
+}
 </script>
 
-<%
-  # Helper methods for share URLs
-  def twitter_share_url
-    text = "Check out #{@user.public_name || @user.handle}'s architecture profile on Architecture Helper! #{@share_description}"
-    url = @canonical_url || request.original_url
-    "https://twitter.com/intent/tweet?text=#{URI.encode_www_form_component(text)}&url=#{URI.encode_www_form_component(url)}"
-  end
-
-  def facebook_share_url
-    url = @canonical_url || request.original_url
-    "https://www.facebook.com/sharer/sharer.php?u=#{URI.encode_www_form_component(url)}"
-  end
-
-  def linkedin_share_url
-    url = @canonical_url || request.original_url
-    title = @share_title
-    summary = @share_description
-    "https://www.linkedin.com/sharing/share-offsite/?url=#{URI.encode_www_form_component(url)}"
-  end
-
-  def whatsapp_share_url
-    text = "#{@share_title} - #{@share_description} #{@canonical_url || request.original_url}"
-    "https://wa.me/?text=#{URI.encode_www_form_component(text)}"
-  end
-
-  def email_share_url
-    subject = "Check out #{@user.public_name || @user.handle}'s Architecture Profile"
-    body = "#{@share_description}\n\nView their profile: #{@canonical_url || request.original_url}"
-    "mailto:?subject=#{URI.encode_www_form_component(subject)}&body=#{URI.encode_www_form_component(body)}"
-  end
-%>
+<style>
+.profile-share-section { margin-bottom: 30px; text-align: center; }
+.share-header { margin-bottom: 12px; }
+.share-title { font-size: 0.9em; color: #888; }
+.share-buttons-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.share-button { display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #333; text-decoration: none; font-size: 0.9em; cursor: pointer; transition: background 0.2s; }
+.share-button:hover { background: #f5f5f5; }
+</style>
