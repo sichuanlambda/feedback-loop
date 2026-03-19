@@ -77,8 +77,9 @@ Rails.application.routes.draw do
   post 'designs/submit', to: 'designs#submit'
   get 'architecture_explorer/map', to: 'architecture_explorer#map'
 
-  # Route for public user profiles
+  # Route for public user profiles (enhanced for sharing)
   get '/users/:handle', to: 'users#show', as: 'user_profile'
+  get '/profile/:username', to: 'profile#public_profile', as: 'public_profile'
 
   get 'proxy/fetch_street_view', to: 'proxy#fetch_street_view'
   get 'proxy/fetch_satellite_view', to: 'proxy#fetch_satellite_view'

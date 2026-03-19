@@ -49,5 +49,37 @@ class ApplicationController < ActionController::Base
     request.user_agent.to_s.match(/(Mobile|webOS|rv:1.1|Opera Mini|Android|BlackBerry|iPhone|iPad)/)
   end
 
+  # Gamification helpers
+  def check_and_notify_achievements(trigger = nil)
+    return unless user_signed_in?
+    
+    newly_earned = AchievementCheckingService.check_achievements(current_user, trigger)
+    
+    if newly_earned.any?
+      @achievement_notifications = newly_earned.map do |achievement|
+        metadata = JSON.parse(achievement.metadata)
+        {
+          name: metadata['name'],
+          description: metadata['description'],
+          icon: metadata['icon'],
+          category: metadata['category'],
+          points: metadata['points'],
+          badge_count: achievement.badge_count
+        }
+      end
+    end
+
+    # Check for level up
+    current_level = current_user.user_level
+    if current_level && current_level.updated_at > 5.minutes.ago
+      @level_up_notification = {
+        level: current_level.level,
+        points_required: current_level.points_required,
+        previous_points: current_level.points_required - 100, # Simplified
+        badge_count: current_user.user_achievements.sum(:badge_count)
+      }
+    end
+  end
+
   helper_method :native_app?, :mobile_browser?
 end

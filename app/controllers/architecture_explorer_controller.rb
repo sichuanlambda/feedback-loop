@@ -258,6 +258,17 @@ class ArchitectureExplorerController < ApplicationController
         end
       end
 
+      # Track building view and check achievements
+      if user_signed_in? && @building_analysis.user_id != current_user.id
+        BuildingViewTrackingService.track_view(current_user, @building_analysis)
+        check_and_notify_achievements('building_view')
+      end
+
+      # Generate proximity nudges for logged-in users
+      if user_signed_in?
+        @proximity_nudges = ProximityNudgeService.get_nudges_for_building(current_user, @building_analysis)
+      end
+
       Rails.logger.debug "Normalized H3 contents for show: #{@h3_contents.inspect}"
     else
       redirect_to root_path, alert: "Analysis not found"
@@ -330,6 +341,21 @@ class ArchitectureExplorerController < ApplicationController
 
       # Enqueue background job for GPT analysis (avoids R12 timeouts)
       ProcessBuildingAnalysisJob.perform_later(@building_analysis.id, image_url, address)
+
+      # Track building view and check achievements
+      BuildingViewTrackingService.track_view(current_user, @building_analysis) if user_signed_in?
+      
+      # Add submission provenance
+      submission_context = {
+        method: SubmissionProvenanceService.detect_submission_method(params, request),
+        user_agent: request.user_agent,
+        source: 'web_form',
+        file_size: params[:image]&.size,
+        ip: request.remote_ip
+      }
+      SubmissionProvenanceService.add_submission_metadata(@building_analysis, submission_context)
+      
+      check_and_notify_achievements('building_submission')
 
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: "Analysis started! Results will appear shortly."
     rescue => e

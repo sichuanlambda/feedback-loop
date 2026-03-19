@@ -29,6 +29,39 @@ class ProfileController < ApplicationController
     @achievements_by_category = group_achievements_by_category(@achievement_progress)
   end
 
+  def public_profile
+    # Public profile view for sharing
+    @user = User.find_by(handle: params[:username]) || User.find_by(id: params[:username])
+    
+    unless @user
+      redirect_to root_path, alert: "Profile not found."
+      return
+    end
+
+    # Skip Atlas admin from public profiles
+    if @user.email == 'atlas@architecturehelper.com'
+      redirect_to root_path, alert: "Profile not available."
+      return
+    end
+
+    @user_level = UserLevel.find_or_create_for_user(@user)
+    @style_collections = load_style_collections
+    @achievements = load_achievements
+    @recent_analyses = load_recent_analyses.limit(6) # Limit for sharing view
+    @level_progress = calculate_level_progress
+    @achievement_stats = calculate_achievement_stats
+
+    # Generate share metadata
+    @share_title = "#{@user.public_name || @user.handle}'s Architecture Profile"
+    @share_description = generate_share_description
+    @share_image = generate_profile_share_image
+
+    # Set meta tags for social sharing
+    set_profile_meta_tags
+
+    render 'show'
+  end
+
   def leaderboard_position
     @level_rank = LevelCalculationService.get_user_rank(@user, type: :level)
     @points_rank = LevelCalculationService.get_user_rank(@user, type: :points)
@@ -165,5 +198,37 @@ class ProfileController < ApplicationController
       average_collection_size: all_collections.average(:building_count)&.round(1) || 0,
       top_collection_size: all_collections.maximum(:building_count) || 0
     }
+  end
+
+  def generate_share_description
+    stats = []
+    stats << "Level #{@user_level.level}" if @user_level&.level
+    stats << "#{@achievements.count} achievements" if @achievements&.any?
+    stats << "#{@style_collections.count} style collections" if @style_collections&.any?
+    stats << "#{@user.building_analyses.count} buildings analyzed"
+
+    description = "#{@user.public_name || @user.handle} is an architecture enthusiast on Architecture Helper"
+    description += " - #{stats.join(', ')}" if stats.any?
+    description += ". Discover their architectural journey and style collections!"
+
+    description
+  end
+
+  def generate_profile_share_image
+    # Use the user's most recent building analysis image, or a default profile image
+    recent_with_image = @user.building_analyses
+                            .where.not(image_url: [nil, ''])
+                            .order(created_at: :desc)
+                            .first
+
+    recent_with_image&.image_url || '/assets/default-profile-share.jpg'
+  end
+
+  def set_profile_meta_tags
+    # Set meta tags for social media sharing
+    @meta_title = @share_title
+    @meta_description = @share_description
+    @meta_image = @share_image
+    @canonical_url = public_profile_url(username: @user.handle || @user.id)
   end
 end

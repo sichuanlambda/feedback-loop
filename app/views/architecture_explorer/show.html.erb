@@ -216,6 +216,10 @@
           <% if @building_data['year_built'].present? && @building_data['year_built'] != 'null' %><span>Built <%= @building_data['year_built'] %></span><% end %>
           <% if @building_analysis.address.present? && @building_analysis.address != "N/A" %><span><%= @building_analysis.address %></span><% end %>
         </div>
+        
+        <%# Building Provenance %>
+        <% show_provenance = true %>
+        <%= render 'shared/building_provenance' %>
       </div>
 
       <%# Hero row: image + style badges %>
@@ -259,6 +263,9 @@
           <% end %>
         </div>
       </div>
+
+      <%# Proximity Nudges for Gamification %>
+      <%= render 'shared/proximity_nudges' %>
 
       <div id="section-analysis"></div>
       <%# Overview %>

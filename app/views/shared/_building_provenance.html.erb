@@ -1,0 +1,161 @@
+<% if @building_analysis && defined?(show_provenance) && show_provenance %>
+  <% provenance_summary = SubmissionProvenanceService.get_provenance_summary(@building_analysis) %>
+  <% if provenance_summary %>
+    <div class="building-provenance">
+      <div class="provenance-header">
+        <span class="provenance-label">Source</span>
+        <div class="provenance-badge-main">
+          <span class="provenance-icon" style="color: <%= provenance_summary[:primary_color] %>;">
+            <%= provenance_summary[:primary_icon] %>
+          </span>
+          <span class="provenance-name" style="color: <%= provenance_summary[:primary_color] %>;">
+            <%= provenance_summary[:primary_name] %>
+          </span>
+          <% if provenance_summary[:total_entries] > 1 %>
+            <span class="provenance-count" 
+                  title="<%= provenance_summary[:total_entries] %> provenance entries"
+                  style="color: <%= provenance_summary[:primary_color] %>;">
+              +<%= provenance_summary[:total_entries] - 1 %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+      
+      <% if provenance_summary[:timestamp] %>
+        <div class="provenance-timestamp">
+          <%= time_ago_in_words(Time.parse(provenance_summary[:timestamp])) %> ago
+        </div>
+      <% end %>
+    </div>
+
+    <style>
+      .building-provenance {
+        margin: 8px 0;
+        padding: 0;
+      }
+
+      .provenance-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+
+      .provenance-label {
+        font-size: 12px;
+        color: #6c757d;
+        font-weight: 500;
+        min-width: 40px;
+      }
+
+      .provenance-badge-main {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: white;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 13px;
+        font-weight: 500;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .provenance-icon {
+        font-size: 14px;
+      }
+
+      .provenance-name {
+        font-weight: 600;
+      }
+
+      .provenance-count {
+        font-size: 11px;
+        opacity: 0.8;
+        font-weight: 400;
+      }
+
+      .provenance-timestamp {
+        font-size: 11px;
+        color: #8a8a8a;
+        margin-left: 48px;
+        font-style: italic;
+      }
+
+      /* Mobile adjustments */
+      @media (max-width: 768px) {
+        .building-provenance {
+          margin: 6px 0;
+        }
+
+        .provenance-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
+        }
+
+        .provenance-label {
+          min-width: auto;
+          margin-bottom: 2px;
+        }
+
+        .provenance-timestamp {
+          margin-left: 0;
+          margin-top: 2px;
+        }
+
+        .provenance-badge-main {
+          font-size: 12px;
+          padding: 5px 8px;
+        }
+      }
+
+      /* High contrast mode */
+      @media (prefers-contrast: high) {
+        .provenance-badge-main {
+          border-width: 2px;
+        }
+      }
+    </style>
+  <% end %>
+<% end %>
+
+<%# Compact version for building cards/lists %>
+<% if @building_analysis && defined?(show_provenance_compact) && show_provenance_compact %>
+  <% provenance_summary = SubmissionProvenanceService.get_provenance_summary(@building_analysis) %>
+  <% if provenance_summary %>
+    <div class="provenance-compact">
+      <span class="provenance-icon-compact" style="color: <%= provenance_summary[:primary_color] %>;">
+        <%= provenance_summary[:primary_icon] %>
+      </span>
+      <span class="provenance-text-compact" style="color: <%= provenance_summary[:primary_color] %>;">
+        <%= provenance_summary[:primary_name] %>
+      </span>
+    </div>
+
+    <style>
+      .provenance-compact {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        opacity: 0.8;
+        margin: 0 0 4px 0;
+      }
+
+      .provenance-icon-compact {
+        font-size: 12px;
+      }
+
+      .provenance-text-compact {
+        font-weight: 600;
+      }
+    </style>
+  <% end %>
+<% end %>
+
+<%# Raw HTML version (for use in Rails helper methods) %>
+<% if defined?(provenance_html_only) && provenance_html_only && @building_analysis %>
+  <%= SubmissionProvenanceService.generate_provenance_badge_html(@building_analysis).html_safe %>
+<% end %>
