@@ -128,12 +128,14 @@
           <a class="nav-item nav-link" href="/architecture_designer/step1">Generate with AI</a>
           <a class="nav-item nav-link" href="/user_creations">Community Creations</a>
           <a class="nav-item nav-link" href="/style-finder">Learn my style</a>
+          <%= link_to '🏆 Leaderboards', leaderboards_path, class: 'nav-item nav-link' %>
         </div>
         <div class="navbar-nav ml-auto">
             <% if user_signed_in? %>
               <% if current_user.admin? %>
                 <%= link_to 'Admin Panel', admin_dashboard_path, class: 'nav-item nav-link text-warning' %>
               <% end %>
+              <%= link_to '👤 Profile', profile_path, class: 'nav-item nav-link' %>
               <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
               <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
             <% else %>

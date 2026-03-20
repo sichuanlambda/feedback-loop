@@ -177,4 +177,12 @@ Rails.application.routes.draw do
   get 'profile', to: 'profile#show', as: 'current_user_profile'
   get 'profile/achievements', to: 'profile#achievements', as: 'current_user_achievements'
   get 'profile/leaderboard', to: 'profile#leaderboard_position', as: 'current_user_leaderboard'
+
+  # Leaderboards routes
+  resources :leaderboards, only: [:index] do
+    collection do
+      get 'weekly', to: 'leaderboards#weekly'
+      get 'collection-map', to: 'leaderboards#collection_map'
+    end
+  end
 end
