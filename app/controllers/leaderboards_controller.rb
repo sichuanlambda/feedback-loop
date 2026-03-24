@@ -39,9 +39,8 @@ class LeaderboardsController < ApplicationController
     week_start = 1.week.ago.beginning_of_week
     
     case category
-    when 'level'
+    when 'level', 'points'
       UserLevel.joins(:user)
-              .where(users: { email: ['', nil] })  # Exclude Atlas admin
               .where.not(users: { email: 'atlas@architecturehelper.com' })
               .where('user_levels.last_activity_at >= ?', week_start)
               .includes(:user)
