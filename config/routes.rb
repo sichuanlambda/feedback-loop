@@ -9,6 +9,7 @@ Rails.application.routes.draw do
 
   # Admin routes
   namespace :admin do
+    root to: 'dashboard#index'
     get 'users/index'
     get 'users/show'
     get 'users/edit'

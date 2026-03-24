@@ -261,7 +261,7 @@ class ArchitectureExplorerController < ApplicationController
       # Track building view and check achievements
       if user_signed_in? && @building_analysis.user_id != current_user.id
         BuildingViewTrackingService.track_view(current_user, @building_analysis)
-        check_and_notify_achievements('building_view')
+        check_and_notify_achievements('building_analyzed')
       end
 
       # Generate proximity nudges for logged-in users
@@ -355,7 +355,7 @@ class ArchitectureExplorerController < ApplicationController
       }
       SubmissionProvenanceService.add_submission_metadata(@building_analysis, submission_context)
       
-      check_and_notify_achievements('building_submission')
+      check_and_notify_achievements('building_analyzed')
 
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: "Analysis started! Results will appear shortly."
     rescue => e

@@ -26,10 +26,6 @@
                   class: "nav-tab #{'active' if @timeframe == 'all-time'}" do %>
         All Time
       <% end %>
-      <%= link_to leaderboards_path(timeframe: 'weekly', category: @category), 
-                  class: "nav-tab #{'active' if @timeframe == 'weekly'}" do %>
-        This Week
-      <% end %>
       <%= link_to leaderboards_path(action: 'collection-map'), 
                   class: "nav-tab collection-map-tab" do %>
         🗺️ Collection Map
