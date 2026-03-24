@@ -19,7 +19,7 @@ class ProfileController < ApplicationController
       @buildings = @collection.buildings.limit(50)
       @collection_stats = calculate_collection_stats(@collection)
     else
-      redirect_to profile_path, alert: "Style collection not found."
+      redirect_to '/profile', alert: "Style collection not found."
     end
   end
 
