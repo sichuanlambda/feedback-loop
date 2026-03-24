@@ -1,5 +1,5 @@
 class ProfileController < ApplicationController
-  before_action :authenticate_user!, only: []
+  before_action :authenticate_user!, only: [:show, :achievements, :leaderboard_position, :style_collection]
   before_action :set_user
 
   def show
