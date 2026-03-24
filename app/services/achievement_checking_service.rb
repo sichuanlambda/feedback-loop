@@ -155,11 +155,13 @@ class AchievementCheckingService
   end
 
   def count_buildings_in_city(city)
-    # Simplified city matching - in production would use proper geocoding
+    # Match buildings by address field containing city name
     @user.building_analyses
-         .joins('LEFT JOIN screenshot_analyses ON building_analyses.screenshot_analysis_id = screenshot_analyses.id')
-         .where('LOWER(screenshot_analyses.location_text) LIKE ?', "%#{city.downcase}%")
+         .where('LOWER(COALESCE(address, \'\')) LIKE ?', "%#{city.downcase}%")
          .count
+  rescue => e
+    Rails.logger.warn("Achievement city check failed for #{city}: #{e.message}")
+    0
   end
 
   def calculate_weekend_streak
