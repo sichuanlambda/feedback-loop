@@ -135,7 +135,7 @@
               <% if current_user.admin? %>
                 <%= link_to 'Admin Panel', admin_dashboard_path, class: 'nav-item nav-link text-warning' %>
               <% end %>
-              <%= link_to '👤 Profile', profile_path, class: 'nav-item nav-link' %>
+              <%= link_to '👤 Profile', '/profile', class: 'nav-item nav-link' %>
               <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
               <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
             <% else %>
