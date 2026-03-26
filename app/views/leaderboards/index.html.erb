@@ -26,7 +26,7 @@
                   class: "nav-tab #{'active' if @timeframe == 'all-time'}" do %>
         All Time
       <% end %>
-      <%= link_to leaderboards_path(action: 'collection-map'), 
+      <%= link_to collection_map_leaderboards_path, 
                   class: "nav-tab collection-map-tab" do %>
         🗺️ Collection Map
       <% end %>
