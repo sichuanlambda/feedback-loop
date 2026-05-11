@@ -269,6 +269,8 @@ class ArchitectureExplorerController < ApplicationController
         @proximity_nudges = ProximityNudgeService.get_nudges_for_building(current_user, @building_analysis)
       end
 
+      track_event('building_view', { building_id: @building_analysis.id })
+
       Rails.logger.debug "Normalized H3 contents for show: #{@h3_contents.inspect}"
     else
       redirect_to root_path, alert: "Analysis not found"
@@ -356,6 +358,7 @@ class ArchitectureExplorerController < ApplicationController
       SubmissionProvenanceService.add_submission_metadata(@building_analysis, submission_context)
       
       check_and_notify_achievements('building_analyzed')
+      track_event('analysis_started', { building_id: @building_analysis.id })
 
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: "Analysis started! Results will appear shortly."
     rescue => e

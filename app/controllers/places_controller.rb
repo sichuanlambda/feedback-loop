@@ -39,6 +39,8 @@ class PlacesController < ApplicationController
     # This matches the Place model's building_analyses_in_place method
     @building_analyses = @place.building_analyses_in_place.order(created_at: :desc)
 
+    track_event('place_view', { place_id: @place.id })
+
     # Calculate style statistics for this place
     calculate_place_style_metrics
   end

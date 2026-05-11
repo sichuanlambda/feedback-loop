@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  include Trackable
+
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :set_cache_headers
 

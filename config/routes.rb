@@ -35,6 +35,7 @@ Rails.application.routes.draw do
         post :bulk_update
       end
     end
+    resources :analytics, only: [:index]
     resources :places do
       member do
         post :generate_content
