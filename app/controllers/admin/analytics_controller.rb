@@ -2,19 +2,25 @@ module Admin
   class AnalyticsController < ApplicationController
     include AdminAuthorization
 
+    ATLAS_USER_ID = 880
+
     def index
-      @events_per_day = UserEvent.where(created_at: 30.days.ago..)
+      @exclude_atlas = params[:exclude_atlas] != '0'
+      base = UserEvent.where(created_at: 30.days.ago..)
+      base = base.where.not(user_id: ATLAS_USER_ID) if @exclude_atlas
+
+      @events_per_day = base
         .group("DATE(created_at)")
         .order("DATE(created_at)")
         .count
 
-      @top_event_types = UserEvent.recent
+      @top_event_types = base
         .group(:event_type)
         .order("count_all DESC")
-        .limit(15)
+        .limit(20)
         .count
 
-      @top_buildings = UserEvent.recent
+      @top_buildings = base
         .by_type("building_view")
         .where("metadata->>'building_id' IS NOT NULL")
         .group("metadata->>'building_id'")
@@ -22,7 +28,7 @@ module Admin
         .limit(10)
         .count
 
-      @top_places = UserEvent.recent
+      @top_places = base
         .by_type("place_view")
         .where("metadata->>'place_id' IS NOT NULL")
         .group("metadata->>'place_id'")
@@ -30,131 +36,128 @@ module Admin
         .limit(10)
         .count
 
-      @recent_events = UserEvent.order(created_at: :desc).limit(100).includes(:user)
+      @top_pages = base
+        .by_type("page_view")
+        .where("metadata->>'path' IS NOT NULL")
+        .group("metadata->>'path'")
+        .order("count_all DESC")
+        .limit(20)
+        .count
 
-      @unique_visitors_per_day = UserEvent.where(created_at: 30.days.ago..)
+      @recent_events = UserEvent.order(created_at: :desc)
+      @recent_events = @recent_events.where.not(user_id: ATLAS_USER_ID) if @exclude_atlas
+      @recent_events = @recent_events.limit(100).includes(:user)
+
+      @unique_visitors_per_day = base
         .group("DATE(created_at)")
         .order("DATE(created_at)")
         .select("DATE(created_at) as date, COUNT(DISTINCT COALESCE(ip_hash, session_id)) as visitor_count")
         .map { |e| [e.date, e.visitor_count] }
         .to_h
 
-      # Enhanced analytics
-      @user_journey_funnels = calculate_user_journey_funnels
-      @most_active_users = get_most_active_users
-      @feature_adoption_rates = calculate_feature_adoption_rates
-      @client_vs_server_events = get_client_vs_server_breakdown
-      @conversion_metrics = calculate_conversion_metrics
+      @user_sessions = build_user_sessions(base)
+      @new_user_journeys = build_new_user_journeys(base)
+      @most_active_users = get_most_active_users(base)
+      @feature_adoption = calculate_feature_adoption(base)
+      @hourly_activity = base.group("EXTRACT(HOUR FROM created_at)::int").order("extract_hour_from_created_at_int").count
     end
 
     private
 
-    def calculate_user_journey_funnels
-      # Analyze user progression through key actions
-      recent_sessions = UserEvent.where(created_at: 30.days.ago..)
-        .distinct(:session_id)
+    def build_user_sessions(base)
+      # Get recent unique sessions with their full event timeline
+      recent_sessions = base
+        .select(:session_id)
+        .where.not(session_id: nil)
+        .group(:session_id)
+        .order("MAX(created_at) DESC")
+        .limit(30)
         .pluck(:session_id)
 
-      funnel_data = {}
-      
-      recent_sessions.each do |session_id|
-        events = UserEvent.where(session_id: session_id, created_at: 30.days.ago..)
-          .order(:created_at)
-          .pluck(:event_type)
-        
-        # Track key progression points
-        has_view = events.include?('building_view') || events.include?('place_view')
-        has_analyze = events.include?('analysis_started') || events.include?('screenshot_analyze')
-        has_submit = events.include?('building_submit') || events.include?('feedback_submit')
-        
-        stage = if has_submit
-                  'submit'
-                elsif has_analyze
-                  'analyze'
-                elsif has_view
-                  'view'
-                else
-                  'visitor'
-                end
-        
-        funnel_data[stage] = (funnel_data[stage] || 0) + 1
-      end
-      
-      funnel_data
+      recent_sessions.map do |sid|
+        events = UserEvent.where(session_id: sid, created_at: 30.days.ago..)
+        events = events.where.not(user_id: ATLAS_USER_ID) if @exclude_atlas
+        events = events.order(:created_at)
+          .pluck(:event_type, :created_at, :metadata, :user_id)
+
+        next if events.empty?
+
+        user_id = events.map { |e| e[3] }.compact.first
+        user = user_id ? User.find_by(id: user_id) : nil
+
+        {
+          session_id: sid.to_s.first(8),
+          user_email: user&.email || 'anonymous',
+          user_id: user_id,
+          started_at: events.first[1],
+          duration_min: ((events.last[1] - events.first[1]) / 60.0).round(1),
+          event_count: events.size,
+          events: events.map { |e| { type: e[0], time: e[1], meta: e[2] } }
+        }
+      end.compact
     end
 
-    def get_most_active_users
-      UserEvent.recent
+    def build_new_user_journeys(base)
+      # Find users who signed up in last 30 days and trace their first session
+      new_users = User.where(created_at: 30.days.ago..).order(created_at: :desc).limit(20)
+      
+      new_users.map do |user|
+        events = UserEvent.where(user_id: user.id)
+          .order(:created_at)
+          .limit(50)
+          .pluck(:event_type, :created_at, :metadata)
+
+        next if events.empty?
+
+        action_events = events.reject { |e| e[0] == 'page_view' }
+        page_events = events.select { |e| e[0] == 'page_view' }
+
+        {
+          email: user.email,
+          signed_up: user.created_at,
+          total_events: events.size,
+          pages_visited: page_events.map { |e| e[2]['path'] }.compact.uniq,
+          actions_taken: action_events.map { |e| e[0] }.tally.sort_by { |_, v| -v },
+          last_seen: events.last[1],
+          days_active: events.map { |e| e[1].to_date }.uniq.size
+        }
+      end.compact
+    end
+
+    def get_most_active_users(base)
+      base
         .where.not(user_id: nil)
         .joins(:user)
         .group(:user_id, 'users.email')
         .order("count_all DESC")
-        .limit(10)
+        .limit(15)
         .count
-        .map { |(user_id, email), count| { email: email, event_count: count } }
+        .map { |(user_id, email), count| { email: email, event_count: count, user_id: user_id } }
     end
 
-    def calculate_feature_adoption_rates
-      total_users = UserEvent.recent.distinct(:user_id).count(:user_id)
-      return {} if total_users == 0
+    def calculate_feature_adoption(base)
+      total_sessions = base.distinct.count(:session_id)
+      return {} if total_sessions == 0
 
-      feature_events = [
-        'building_submit',
-        'design_step1',
-        'screenshot_analyze',
-        'profile_view',
-        'style_browse',
-        'map_view'
-      ]
-
-      adoption_rates = {}
-      feature_events.each do |event_type|
-        users_using_feature = UserEvent.recent
-          .by_type(event_type)
-          .distinct(:user_id)
-          .count(:user_id)
-        
-        adoption_rates[event_type] = {
-          users: users_using_feature,
-          percentage: (users_using_feature.to_f / total_users * 100).round(1)
-        }
-      end
-
-      adoption_rates
-    end
-
-    def get_client_vs_server_breakdown
-      client_side = UserEvent.recent
-        .where("metadata->>'client_side' = 'true'")
-        .count
-
-      server_side = UserEvent.recent
-        .where("metadata->>'client_side' IS NULL OR metadata->>'client_side' != 'true'")
-        .count
-
-      {
-        client_side: client_side,
-        server_side: server_side,
-        total: client_side + server_side
+      features = {
+        'Building View' => 'building_view',
+        'Building Submit' => 'building_submit',
+        'Style Browse' => 'style_browse',
+        'Map View' => 'map_view',
+        'Screenshot Analyze' => 'screenshot_analyze',
+        'Design Flow' => 'design_step1',
+        'Place View' => 'place_view',
+        'Profile View' => 'profile_view',
+        'Search' => 'search',
+        'Library Browse' => 'building_library_view',
+        'Leaderboard' => 'leaderboard_view',
+        'Dev Estimation' => 'dev_estimation_view'
       }
-    end
 
-    def calculate_conversion_metrics
-      # Calculate conversion from views to submissions
-      building_views = UserEvent.recent.by_type('building_view').count
-      building_submissions = UserEvent.recent.by_type('building_submit').count
-      
-      place_views = UserEvent.recent.by_type('place_view').count
-      place_subscriptions = UserEvent.recent.by_type('place_subscribe').count
-
-      design_starts = UserEvent.recent.by_type('design_step1').count
-      design_completions = UserEvent.recent.by_type('design_submit').count
-
-      {
-        building_conversion: building_views > 0 ? (building_submissions.to_f / building_views * 100).round(2) : 0,
-        place_conversion: place_views > 0 ? (place_subscriptions.to_f / place_views * 100).round(2) : 0,
-        design_completion: design_starts > 0 ? (design_completions.to_f / design_starts * 100).round(2) : 0
-      }
+      features.map do |label, event_type|
+        sessions = base.by_type(event_type).distinct.count(:session_id)
+        [label, { sessions: sessions, pct: (sessions.to_f / total_sessions * 100).round(1) }]
+      end.to_h
     end
   end
 end
