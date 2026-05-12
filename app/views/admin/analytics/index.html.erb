@@ -33,6 +33,63 @@
     </div>
 
     <div class="container">
+        <!-- Summary Stats Row -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center border-primary">
+                    <div class="card-body">
+                        <h4 class="text-primary"><%= @client_vs_server_events[:total] %></h4>
+                        <small class="text-muted">Total Events (30d)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-success">
+                    <div class="card-body">
+                        <h4 class="text-success"><%= @unique_visitors_per_day.values.sum %></h4>
+                        <small class="text-muted">Unique Visitors (30d)</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-warning">
+                    <div class="card-body">
+                        <h4 class="text-warning"><%= @conversion_metrics[:building_conversion] %>%</h4>
+                        <small class="text-muted">Building View → Submit</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-info">
+                    <div class="card-body">
+                        <h4 class="text-info"><%= @conversion_metrics[:design_completion] %>%</h4>
+                        <small class="text-muted">Design Start → Complete</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client-side vs Server-side Events -->
+        <div class="card mb-4">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-code"></i> Event Source Breakdown</h5></div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h3 class="text-primary"><%= @client_vs_server_events[:server_side] %></h3>
+                        <small>Server-side Events</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-success"><%= @client_vs_server_events[:client_side] %></h3>
+                        <small>Client-side Events</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-info"><%= ((@client_vs_server_events[:client_side].to_f / @client_vs_server_events[:total] * 100).round(1) if @client_vs_server_events[:total] > 0) || 0 %>%</h3>
+                        <small>Client-side Ratio</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Events Per Day -->
         <div class="card">
             <div class="card-header"><h5 class="mb-0"><i class="fas fa-calendar-day"></i> Events Per Day (30 days)</h5></div>
@@ -117,6 +174,102 @@
                         <% end %>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- User Journey Funnels -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0"><i class="fas fa-funnel-dollar"></i> User Journey Funnel</h5></div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead><tr><th>Stage</th><th>Sessions</th><th>%</th></tr></thead>
+                            <tbody>
+                                <% if @user_journey_funnels.any? %>
+                                    <% total_sessions = @user_journey_funnels.values.sum %>
+                                    <% ['visitor', 'view', 'analyze', 'submit'].each do |stage| %>
+                                        <% count = @user_journey_funnels[stage] || 0 %>
+                                        <% percentage = total_sessions > 0 ? (count.to_f / total_sessions * 100).round(1) : 0 %>
+                                        <tr>
+                                            <td><%= stage.humanize %></td>
+                                            <td><%= count %></td>
+                                            <td><%= percentage %>%</td>
+                                        </tr>
+                                    <% end %>
+                                <% else %>
+                                    <tr><td colspan="3" class="text-muted">No funnel data available.</td></tr>
+                                <% end %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Adoption Rates -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0"><i class="fas fa-chart-pie"></i> Feature Adoption</h5></div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead><tr><th>Feature</th><th>Users</th><th>Adoption %</th></tr></thead>
+                            <tbody>
+                                <% @feature_adoption_rates.each do |event_type, data| %>
+                                    <tr>
+                                        <td><%= event_type.humanize %></td>
+                                        <td><%= data[:users] %></td>
+                                        <td><%= data[:percentage] %>%</td>
+                                    </tr>
+                                <% end %>
+                                <% if @feature_adoption_rates.empty? %>
+                                    <tr><td colspan="3" class="text-muted">No adoption data available.</td></tr>
+                                <% end %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Most Active Users -->
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-users"></i> Most Active Users (30 days)</h5></div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead><tr><th>User</th><th>Events</th></tr></thead>
+                    <tbody>
+                        <% @most_active_users.each do |user| %>
+                            <tr>
+                                <td><%= user[:email] %></td>
+                                <td><%= user[:event_count] %></td>
+                            </tr>
+                        <% end %>
+                        <% if @most_active_users.empty? %>
+                            <tr><td colspan="2" class="text-muted">No user activity data available.</td></tr>
+                        <% end %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Conversion Metrics -->
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-exchange-alt"></i> Conversion Metrics</h5></div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h4 class="text-primary"><%= @conversion_metrics[:building_conversion] %>%</h4>
+                        <small>Building View → Submit</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="text-success"><%= @conversion_metrics[:place_conversion] %>%</h4>
+                        <small>Place View → Subscribe</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="text-info"><%= @conversion_metrics[:design_completion] %>%</h4>
+                        <small>Design Start → Complete</small>
+                    </div>
+                </div>
             </div>
         </div>
 

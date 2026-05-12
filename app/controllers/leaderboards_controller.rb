@@ -3,6 +3,11 @@ class LeaderboardsController < ApplicationController
     @timeframe = params[:timeframe] || 'all-time'
     @category = params[:category] || 'level'
     
+    track_event('leaderboard_view', { 
+      timeframe: @timeframe,
+      category: @category
+    })
+    
     # Get leaderboard data based on timeframe and category
     @leaderboard_data = get_leaderboard_data(@timeframe, @category)
     
@@ -19,6 +24,7 @@ class LeaderboardsController < ApplicationController
   end
 
   def collection_map
+    track_event('collection_map_view')
     @style_collections = get_collection_map_data
     @top_collectors_by_style = get_top_collectors_by_style
   end

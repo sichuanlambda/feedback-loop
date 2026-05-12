@@ -9,6 +9,12 @@ class PlacesController < ApplicationController
       return
     end
 
+    track_event('place_subscribe', { 
+      place_id: @place.id,
+      place_name: @place.name,
+      email: params[:email]
+    })
+
     subscription = PlaceSubscription.new(
       email: params[:email],
       place_id: @place.id,
@@ -46,6 +52,7 @@ class PlacesController < ApplicationController
   end
 
   def index
+    track_event('places_index_view')
     @places = Place.where(published: true).order(:name)
   end
 

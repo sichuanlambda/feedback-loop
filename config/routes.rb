@@ -146,6 +146,7 @@ Rails.application.routes.draw do
         post :camera_upload
       end
     end
+    post 'events', to: 'events#create'
   end
 
   # New Research Prompt Route

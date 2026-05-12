@@ -16,14 +16,21 @@ class FeedbacksController < ApplicationController
   end
 
   def about
+    track_event('about_view')
     # Logic for the about page
   end
 
   def roastery
+    track_event('roastery_view')
     # any necessary logic for the Roastery page
   end
 
   def screenshot_searcher
+    track_event('screenshot_searcher_view', { 
+      search_query: params[:search],
+      has_search: params[:search].present?
+    })
+    
     if params[:search].present?
       # Search and filter records based on the search term for the current user
       @screenshot_analyses = current_user.screenshot_analyses.where("extracted_text LIKE ?", "%#{params[:search]}%")
@@ -40,6 +47,10 @@ class FeedbacksController < ApplicationController
 
   def analyze_screenshot
     uploaded_files = params[:screenshots]
+    
+    track_event('screenshot_analyze', { 
+      file_count: uploaded_files&.length || 0
+    })
 
     if uploaded_files.blank?
       render json: { error: "No file uploaded" }, status: :bad_request
@@ -79,6 +90,12 @@ class FeedbacksController < ApplicationController
 
   def create
     @feedback = Feedback.new(feedback_params)
+    
+    track_event('feedback_submit', { 
+      vote: feedback_params[:vote],
+      has_comment: feedback_params[:comment].present?,
+      has_screenshot: feedback_params[:screenshot].present?
+    })
 
     if @feedback.save
       # Handle successful feedback submission
@@ -138,11 +155,16 @@ class FeedbacksController < ApplicationController
   end
 
   def rate_my_dog
+    track_event('dog_rate_view')
     # Display the "Rate My Dog" form
   end
 
   def process_dog_image
     uploaded_image = params[:dog_image]
+    
+    track_event('dog_image_process', { 
+      has_image: uploaded_image.present?
+    })
 
     if uploaded_image.blank?
       render json: { error: "No image uploaded" }, status: :bad_request

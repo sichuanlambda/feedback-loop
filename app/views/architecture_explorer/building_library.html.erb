@@ -630,6 +630,11 @@
         }
         document.getElementById('showMore').style.display = 'none';
         document.getElementById('showLess').style.display = 'inline';
+        
+        // Track show more styles interaction
+        if (window.AHTrack) {
+            window.AHTrack('library_show_more_styles');
+        }
     }
 
     // Function to show less styles
@@ -669,6 +674,14 @@
             var imageUrl = button.data('image'); // Extract image URL
             var tagsString = button.data('tags'); // Extract tags
             var analysisLink = button.data('link'); // Extract link to the full analysis page
+            
+            // Track image preview modal open
+            if (window.AHTrack) {
+                window.AHTrack('library_image_preview', {
+                    image_url: imageUrl,
+                    tags: tagsString
+                });
+            }
 
             // Update the modal's content
             var modal = $(this);
@@ -705,6 +718,16 @@
 
         // Handle search form with turbo frames
         $('form[action*="building_library"]').on('submit', function(e) {
+            var searchQuery = $(this).find('input[name="search"]').val();
+            
+            // Track library search
+            if (window.AHTrack) {
+                window.AHTrack('library_search', {
+                    query: searchQuery,
+                    has_query: !!searchQuery
+                });
+            }
+            
             $(this).find('input[type="submit"]').prop('disabled', true).text('Searching...');
         });
 

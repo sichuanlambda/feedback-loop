@@ -3,6 +3,7 @@ class ProfileController < ApplicationController
   before_action :set_user
 
   def show
+    track_event('profile_view', { user_id: @user.id, is_own_profile: @user == current_user })
     @user_level = UserLevel.find_or_create_for_user(@user)
     @style_collections = load_style_collections
     @achievements = load_achievements
@@ -13,6 +14,11 @@ class ProfileController < ApplicationController
 
   def style_collection
     @style_name = params[:style_name]
+    track_event('profile_style_collection', { 
+      style_name: @style_name,
+      user_id: @user.id
+    })
+    
     @collection = @user.user_style_collections.find_by(style_name: @style_name)
     
     if @collection
@@ -24,6 +30,7 @@ class ProfileController < ApplicationController
   end
 
   def achievements
+    track_event('profile_achievements', { user_id: @user.id })
     @achievement_progress = AchievementCheckingService.get_achievement_progress(@user)
     @categories = load_achievement_categories
     @achievements_by_category = group_achievements_by_category(@achievement_progress)
@@ -43,6 +50,11 @@ class ProfileController < ApplicationController
       redirect_to root_path, alert: "Profile not available."
       return
     end
+    
+    track_event('profile_public_view', { 
+      viewed_user_id: @user.id,
+      viewer_user_id: current_user&.id
+    })
 
     @user_level = UserLevel.find_or_create_for_user(@user)
     @style_collections = load_style_collections

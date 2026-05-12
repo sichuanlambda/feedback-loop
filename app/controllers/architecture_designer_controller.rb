@@ -4,6 +4,7 @@ class ArchitectureDesignerController < ApplicationController
 
 
   def step1
+    track_event('design_step1')
     @latest_images = ArchImageGen.order(created_at: :desc).limit(5)
     @building_library = BuildingAnalysis.where(visible_in_library: true).order(Arel.sql("md5(id::text || '#{Date.today}')")).limit(5)
     @places = Place.where(published: true).order(:name)
@@ -11,12 +12,14 @@ class ArchitectureDesignerController < ApplicationController
     # other code...
   end
   def step2
+    track_event('design_step2', { selected_option: params[:selected_option] })
     # Store the user's selection from Step 1 in the session
     session[:architecture_type] = params[:selected_option]
     # ... rest of the step2 action ...
   end
 
   def step3
+    track_event('design_step3', { user_selections: params[:user_selections] })
     # Assuming Step 2 selections are passed here
     session[:step2_selections] = params[:user_selections]
     # ... rest of the step3 action ...

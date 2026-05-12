@@ -22,6 +22,8 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def building_library
+    track_event('building_library_view', { search: params[:search] })
+    
     # Adjust the method to fetch images for all users or a generic set if no user is logged in
     if user_signed_in?
       # Fetch images analyzed by the current user
@@ -69,6 +71,8 @@ class ArchitectureExplorerController < ApplicationController
 
   def remove_from_library
     building_analysis = BuildingAnalysis.find(params[:id])
+    track_event('building_remove_from_library', { building_id: building_analysis.id })
+    
     if building_analysis.update(visible_in_library: false)
       redirect_to architecture_explorer_show_path(id: building_analysis.id), notice: 'Removed from library successfully.'
     else
@@ -78,6 +82,7 @@ class ArchitectureExplorerController < ApplicationController
 
   def add_to_library
     @building_analysis = BuildingAnalysis.find(params[:id])
+    track_event('building_add_to_library', { building_id: @building_analysis.id })
 
     if @building_analysis.update(visible_in_library: true)
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: 'Building successfully shared in library.'
@@ -98,6 +103,7 @@ class ArchitectureExplorerController < ApplicationController
   def by_style
     @style_name = params[:style_name]
     canonical = StyleNormalizer.normalize(@style_name)
+    track_event('style_browse', { style_name: canonical })
 
     variants = StyleNormalizer::CANONICAL_STYLES[canonical] || [@style_name.downcase]
     conditions = variants.map { |v| "LOWER(h3_contents) LIKE ?" }
@@ -143,6 +149,8 @@ class ArchitectureExplorerController < ApplicationController
 
   def by_location
     @location_name = params[:location_name]&.downcase
+    track_event('location_browse', { location_name: @location_name })
+    
     @style_frequency = []
     @unique_style_count = 0
     @buildings_submitted_count = 0
@@ -359,6 +367,7 @@ class ArchitectureExplorerController < ApplicationController
       
       check_and_notify_achievements('building_analyzed')
       track_event('analysis_started', { building_id: @building_analysis.id })
+      track_event('building_submit', { building_id: @building_analysis.id, method: 'web_form' })
 
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: "Analysis started! Results will appear shortly."
     rescue => e
@@ -380,6 +389,7 @@ class ArchitectureExplorerController < ApplicationController
 
   # New map-based view actions
   def map
+    track_event('map_view')
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
     @building_analyses = BuildingAnalysis.all.map do |analysis|
       {
@@ -473,6 +483,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def development_estimations
+    track_event('dev_estimation_view')
     # Just renders the view
   end
 
@@ -481,6 +492,12 @@ class ArchitectureExplorerController < ApplicationController
     address = params[:address]
     custom_prompt = params[:custom_prompt]
     analysis_mode = params[:analysis_mode]
+    
+    track_event('dev_estimation_generate', { 
+      analysis_mode: analysis_mode,
+      has_custom_prompt: custom_prompt.present?,
+      address: address
+    })
 
     begin
       gpt_service = GptService.new
@@ -508,6 +525,11 @@ class ArchitectureExplorerController < ApplicationController
 
   def analyze_style_preferences
     styles = params[:styles]
+    
+    track_event('style_preferences_analyze', { 
+      styles: styles,
+      style_count: styles&.length || 0
+    })
     
     if styles.blank?
       render json: { success: false, error: "No styles provided" }
@@ -561,6 +583,8 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def styles_index
+    track_event('styles_index_view')
+    
     style_counts = Hash.new(0)
     BuildingAnalysis.where(visible_in_library: true).pluck(:h3_contents).compact.each do |h3_content|
       begin
@@ -583,6 +607,12 @@ class ArchitectureExplorerController < ApplicationController
     @city_slug = params[:city_slug]
     @place = Place.find_by("LOWER(REPLACE(name, ' ', '-')) = ?", @city_slug.downcase)
     @city_name = @place&.name || @city_slug.titleize
+    
+    track_event('style_in_city_view', { 
+      style_name: @style_name,
+      city_name: @city_name,
+      place_id: @place&.id
+    })
 
     variants = StyleNormalizer::CANONICAL_STYLES[@style_name] || [@style_name.downcase]
     conditions = variants.map { |v| "LOWER(h3_contents) LIKE ?" }

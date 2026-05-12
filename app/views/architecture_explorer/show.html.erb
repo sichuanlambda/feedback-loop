@@ -534,7 +534,7 @@
               html += '<ul>' + style.key_elements.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') + '</ul>';
             }
             const slug = style.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
-            html += '<a href="/building_library/styles/' + slug + '" class="explore-link">Explore more ' + escapeHtml(style.name) + ' buildings →</a>';
+            html += '<a href="/building_library/styles/' + slug + '" class="explore-link" onclick="window.AHTrack && window.AHTrack(\'style_explore_click\', {building_id: <%= @building_analysis.id %>, style_name: \'' + escapeHtml(style.name) + '\'})">Explore more ' + escapeHtml(style.name) + ' buildings →</a>';
             html += '</div>';
           });
         }
@@ -627,6 +627,15 @@
         scrollingFromClick = true;
         clearTimeout(scrollTimer);
         var target = document.getElementById(tab.getAttribute('data-section'));
+        
+        // Track tab switch
+        if (window.AHTrack) {
+          window.AHTrack('building_tab_switch', {
+            building_id: <%= @building_analysis.id %>,
+            section: tab.getAttribute('data-section')
+          });
+        }
+        
         if (target) {
           target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -673,6 +682,14 @@
         lbImg.src = this.src;
         lbImg.alt = this.alt;
         overlay.classList.add('active');
+        
+        // Track image lightbox open
+        if (window.AHTrack) {
+          window.AHTrack('image_lightbox_open', {
+            building_id: <%= @building_analysis.id %>,
+            image_url: this.src
+          });
+        }
       });
     });
     if (overlay) {

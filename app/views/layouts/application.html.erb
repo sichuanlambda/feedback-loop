@@ -175,5 +175,19 @@
 <!-- Toast Notifications for Gamification -->
 <%= render 'shared/toast_notifications' %>
 
+<!-- Client-side Analytics Tracker -->
+<script>
+  window.AHTrack = function(eventType, metadata) {
+    fetch('/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        event_type: eventType, 
+        metadata: metadata || {} 
+      })
+    }).catch(function() {}); // Silently fail to avoid breaking the page
+  };
+</script>
+
 </body>
 </html>

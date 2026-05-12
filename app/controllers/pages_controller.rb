@@ -3,9 +3,11 @@ class PagesController < ApplicationController
   before_action :set_user_stats, only: [:account]
 
   def home
+    track_event('home_view')
   end
 
   def account
+    track_event('account_view')
     @user = current_user
     @custom_nav = true
     # Any other setup needed for the account page can be added here
