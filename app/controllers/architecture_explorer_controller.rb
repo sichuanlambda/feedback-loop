@@ -318,6 +318,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def new
+    track_event('building_new_form')
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
   end
 
@@ -411,6 +412,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def dutch_architecture
+    track_event('map_city_view', { city: 'dutch_architecture' })
     @initial_center = [4.9041, 52.3676]  # Amsterdam coordinates
     @initial_zoom = 7  # Zoom level to show most of the Netherlands
     @preset_styles = ['Dutch Renaissance', 'Dutch Baroque', 'Amsterdam School']
@@ -419,6 +421,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def netherlands
+    track_event('map_city_view', { city: 'netherlands' })
     @initial_center = [5.2913, 52.1326]  # Center of the Netherlands
     @initial_zoom = 7
     @preset_styles = []  # Show all styles in the Netherlands
@@ -438,6 +441,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def denver
+    track_event('map_city_view', { city: 'denver' })
     @initial_center = [-104.9903, 39.7392]  # Denver coordinates
     @initial_zoom = 12
     @preset_styles = []  # No style filter, show all styles in Denver
@@ -446,6 +450,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def new_york_city
+    track_event('map_city_view', { city: 'new_york_city' })
     @initial_center = [-74.0060, 40.7128]  # NYC coordinates
     @initial_zoom = 12
     @preset_styles = []  # No style filter, show all styles in NYC
@@ -454,6 +459,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def washington_dc
+    track_event('map_city_view', { city: 'washington_dc' })
     @initial_center = [-77.0369, 38.9072]  # DC coordinates
     @initial_zoom = 12
     @preset_styles = []  # No style filter, show all styles in DC
@@ -462,6 +468,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def boston
+    track_event('map_city_view', { city: 'boston' })
     @initial_center = [-71.0589, 42.3601]  # Boston coordinates
     @initial_zoom = 12
     @preset_styles = []  # No style filter, show all styles in Boston
@@ -470,6 +477,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def brutalist_architecture
+    track_event('map_style_view', { style: 'brutalist' })
     @initial_center = [-3.4359, 55.3781]  # Roughly centered on Europe
     @initial_zoom = 4  # Zoomed out to show a large area
     @preset_styles = ['Brutalist']
@@ -478,6 +486,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def denver_architecture
+    track_event('map_city_view', { city: 'denver_architecture' })
     @places = []  # Temporary empty array
     render 'architecture_explorer/map_places_and_styles/denver_architecture'
   end
@@ -563,6 +572,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def building_data
+    track_event('building_data_fetch', { building_id: params[:id] })
     building_analysis = BuildingAnalysis.find_by(id: params[:id])
     
     if building_analysis
@@ -599,6 +609,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def style_show
+    track_event('style_show_redirect', { style_name: params[:style_name] })
     redirect_to buildings_by_style_path(style_name: params[:style_name]), status: :moved_permanently
   end
 
@@ -808,6 +819,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def similar
+    track_event('building_similar_view', { building_id: params[:id] })
     @building_analysis = BuildingAnalysis.find(params[:id])
     
     # Get similar buildings based on styles
@@ -832,6 +844,7 @@ class ArchitectureExplorerController < ApplicationController
   end
   
   def nearby
+    track_event('building_nearby_view', { building_id: params[:id] })
     @building_analysis = BuildingAnalysis.find(params[:id])
     
     # Get nearby buildings if location exists

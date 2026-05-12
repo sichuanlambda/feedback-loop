@@ -2,6 +2,14 @@ class Users::RegistrationsController < Devise::RegistrationsController
   before_action :set_custom_nav, only: [:new, :edit, :create]
   before_action :configure_account_update_params, only: [:update]
 
+  def create
+    super do |resource|
+      if resource.persisted?
+        track_event('user_signup', { user_id: resource.id, provider: 'email' })
+      end
+    end
+  end
+
   # Override the update resource method to allow users to update their profile
   # without providing a password
   def update_resource(resource, params)

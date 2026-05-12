@@ -4,15 +4,11 @@ class Users::SessionsController < Devise::SessionsController
   before_action :set_custom_nav
   # before_action :configure_sign_in_params, only: [:create]
 
-  # GET /resource/sign_in
-  # def new
-  #   super
-  # end
-
-  # POST /resource/sign_in
-  # def create
-  #   super
-  # end
+  def create
+    super do |resource|
+      track_event('user_login', { user_id: resource.id })
+    end
+  end
 
   # DELETE /resource/sign_out
   # def destroy
