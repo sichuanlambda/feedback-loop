@@ -33,7 +33,7 @@ class ProximityNudgeService
     end
 
     styles.each do |style|
-      normalized_style = StyleNormalizer.normalize_string(style)
+      normalized_style = StyleNormalizer.normalize(style)
       collection = @user.user_style_collections.find_by(style_name: normalized_style)
       
       if collection
