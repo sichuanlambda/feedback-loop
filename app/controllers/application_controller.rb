@@ -71,15 +71,20 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # Check for level up
-    current_level = current_user.user_level
-    if current_level && current_level.updated_at > 5.minutes.ago
-      @level_up_notification = {
-        level: current_level.level,
-        points_required: current_level.points_required,
-        previous_points: current_level.points_required - 100, # Simplified
-        badge_count: current_user.user_achievements.sum(:badge_count)
-      }
+    # Check for level up (safe: use total_points instead of missing points_required column)
+    begin
+      current_level = current_user.user_level
+      if current_level && current_level.updated_at > 5.minutes.ago
+        pts = current_level.total_points || 0
+        @level_up_notification = {
+          level: current_level.level,
+          points_required: pts,
+          previous_points: [pts - 100, 0].max,
+          badge_count: current_user.user_achievements.sum(:badge_count)
+        }
+      end
+    rescue => e
+      Rails.logger.warn("Level check skipped: #{e.message}")
     end
   end
 
