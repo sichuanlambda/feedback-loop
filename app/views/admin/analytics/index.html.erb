@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — Architecture Helper</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface-raised: #222536;
+      --border: #2a2d3a;
+      --text: #e4e6f0;
+      --text-muted: #8b8fa3;
+      --accent: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.15);
+      --green: #22c55e;
+      --green-soft: rgba(34, 197, 94, 0.15);
+      --orange: #f59e0b;
+      --orange-soft: rgba(245, 158, 11, 0.15);
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.15);
+      --cyan: #06b6d4;
+      --cyan-soft: rgba(6, 182, 212, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.5; }
+
+    /* === Header === */
+    .header { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+    .header h1 { font-size: 18px; font-weight: 600; }
+    .header h1 span { color: var(--text-muted); font-weight: 400; margin-left: 8px; font-size: 13px; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 13px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn:hover { background: var(--surface-raised); border-color: var(--accent); }
+    .btn-active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+    /* === Layout === */
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px 24px; }
+    .grid { display: grid; gap: 16px; }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-2-1 { grid-template-columns: 2fr 1fr; }
+    .grid-1-2 { grid-template-columns: 1fr 2fr; }
+    @media (max-width: 900px) { .grid-4, .grid-3, .grid-2, .grid-2-1, .grid-1-2 { grid-template-columns: 1fr; } }
+
+    /* === Cards === */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .card-header { padding: 14px 18px; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .card-body { padding: 18px; }
+    .card-body-flush { padding: 0; }
+
+    /* === Stat Cards === */
+    .stat { padding: 20px; }
+    .stat-value { font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-accent { color: var(--accent); }
+    .stat-green { color: var(--green); }
+    .stat-orange { color: var(--orange); }
+    .stat-cyan { color: var(--cyan); }
+
+    /* === Tables === */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 10px 18px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); background: var(--surface-raised); font-weight: 600; }
+    td { padding: 10px 18px; border-top: 1px solid var(--border); font-size: 13px; }
+    tr:hover td { background: rgba(99, 102, 241, 0.04); }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 12px; }
+    .text-right { text-align: right; }
+    .text-muted { color: var(--text-muted); }
+    .text-sm { font-size: 12px; }
+
+    /* === Badge === */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .badge-accent { background: var(--accent-soft); color: var(--accent); }
+    .badge-green { background: var(--green-soft); color: var(--green); }
+    .badge-orange { background: var(--orange-soft); color: var(--orange); }
+    .badge-red { background: var(--red-soft); color: var(--red); }
+    .badge-cyan { background: var(--cyan-soft); color: var(--cyan); }
+
+    /* === Bars === */
+    .bar-track { height: 6px; background: var(--surface-raised); border-radius: 3px; overflow: hidden; flex: 1; }
+    .bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.3s; }
+    .bar-fill-green { background: var(--green); }
+    .bar-fill-cyan { background: var(--cyan); }
+    .bar-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; }
+    .bar-label { width: 120px; font-size: 13px; flex-shrink: 0; }
+    .bar-value { width: 65px; text-align: right; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+
+    /* === Chart (simple CSS) === */
+    .chart-bars { display: flex; align-items: flex-end; gap: 2px; height: 120px; padding: 0 18px 8px; }
+    .chart-bar { flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; min-width: 4px; transition: all 0.2s; position: relative; cursor: crosshair; }
+    .chart-bar:hover { background: #818cf8; }
+    .chart-bar:hover::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--surface-raised); color: var(--text); padding: 4px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; border: 1px solid var(--border); z-index: 10; }
+    .chart-labels { display: flex; padding: 4px 18px 12px; }
+    .chart-labels span { flex: 1; font-size: 10px; color: var(--text-muted); text-align: center; }
+
+    /* === Hourly heatmap === */
+    .heatmap { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; padding: 18px; }
+    .heat-cell { aspect-ratio: 1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; cursor: crosshair; position: relative; }
+    .heat-cell:hover::after { content: attr(data-tip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); background: var(--surface-raised); padding: 3px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; border: 1px solid var(--border); z-index: 10; }
+    .heat-label { font-size: 10px; color: var(--text-muted); text-align: center; }
+
+    /* === Session / Journey cards === */
+    .journey { padding: 14px 18px; border-bottom: 1px solid var(--border); cursor: default; }
+    .journey:last-child { border-bottom: none; }
+    .journey-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .journey-email { font-weight: 600; font-size: 14px; }
+    .journey-meta { font-size: 12px; color: var(--text-muted); }
+    .journey-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+    .session { padding: 12px 18px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+    .session:hover { background: var(--surface-raised); }
+    .session:last-child { border-bottom: none; }
+    .session-timeline { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .session.open .session-timeline { display: block; }
+    .timeline-event { display: flex; gap: 10px; padding: 3px 0; font-size: 12px; }
+    .timeline-time { color: var(--text-muted); width: 60px; flex-shrink: 0; font-family: monospace; }
+    .timeline-detail { color: var(--text-muted); font-family: monospace; font-size: 11px; }
+
+    /* === Sections === */
+    .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin: 28px 0 12px; font-weight: 600; }
+    .section-title:first-child { margin-top: 0; }
+
+    /* === Empty state === */
+    .empty { padding: 40px; text-align: center; color: var(--text-muted); }
+
+    /* === Feed === */
+    .feed-row { display: flex; gap: 12px; padding: 8px 18px; border-bottom: 1px solid var(--border); font-size: 13px; align-items: center; }
+    .feed-row:last-child { border-bottom: none; }
+    .feed-time { color: var(--text-muted); font-family: monospace; font-size: 12px; width: 90px; flex-shrink: 0; }
+    .feed-user { width: 140px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .feed-detail { flex: 1; font-family: monospace; font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .no-data { color: var(--text-muted); font-size: 13px; padding: 12px 0; }
+
+    /* Timeframe tabs */
+    .tabs { display: flex; gap: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Analytics <span><%= @timeframe %>d · <%= @exclude_internal ? 'internal excluded' : 'all users' %></span></h1>
+  <div class="header-actions">
+    <div class="tabs">
+      <% [7, 30, 90].each do |d| %>
+        <%= link_to "#{d}d", admin_analytics_path(timeframe: d, exclude_internal: @exclude_internal ? nil : '0'), class: "btn btn-sm #{@timeframe == d ? 'btn-active' : ''}" %>
+      <% end %>
+    </div>
+    <% if @exclude_internal %>
+      <%= link_to "Show internal", admin_analytics_path(timeframe: @timeframe, exclude_internal: '0'), class: "btn btn-sm" %>
+    <% else %>
+      <%= link_to "Hide internal", admin_analytics_path(timeframe: @timeframe), class: "btn btn-sm btn-active" %>
+    <% end %>
+    <%= link_to "Admin", admin_root_path, class: "btn btn-sm" %>
+  </div>
+</div>
+
+<div class="container">
+  <!-- ===== SUMMARY ===== -->
+  <div class="grid grid-4">
+    <div class="card stat">
+      <div class="stat-value stat-accent"><%= number_with_delimiter(@total_events) %></div>
+      <div class="stat-label">Events</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value stat-green"><%= number_with_delimiter(@unique_visitors) %></div>
+      <div class="stat-label">Unique Visitors</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value stat-cyan"><%= number_with_delimiter(@unique_sessions) %></div>
+      <div class="stat-label">Sessions</div>
+    </div>
+    <div class="card stat">
+      <div class="stat-value stat-orange"><%= @registered_actors %></div>
+      <div class="stat-label">Registered Users Active</div>
+    </div>
+  </div>
+
+  <!-- ===== DAILY CHART ===== -->
+  <div class="section-title">Daily Activity</div>
+  <div class="card">
+    <% max_day = [@events_per_day.values.max || 1, 1].max %>
+    <div class="chart-bars">
+      <% @events_per_day.each do |date, count| %>
+        <% visitors = @visitors_per_day[date] || 0 %>
+        <div class="chart-bar" style="height: <%= (count.to_f / max_day * 100).round %>%" data-tooltip="<%= date %> · <%= count %> events · <%= visitors %> visitors"></div>
+      <% end %>
+      <% if @events_per_day.empty? %>
+        <div class="empty" style="width:100%">No activity yet</div>
+      <% end %>
+    </div>
+    <% if @events_per_day.any? %>
+      <div class="chart-labels">
+        <span><%= @events_per_day.keys.first %></span>
+        <span style="flex:2"></span>
+        <span><%= @events_per_day.keys.last %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- ===== MIDDLE SECTION ===== -->
+  <div class="section-title">Breakdown</div>
+  <div class="grid grid-3">
+    <!-- Event Types -->
+    <div class="card">
+      <div class="card-header">Event Types</div>
+      <div class="card-body-flush">
+        <table>
+          <thead><tr><th>Event</th><th class="text-right">Count</th></tr></thead>
+          <tbody>
+            <% @event_types.each do |type, count| %>
+              <tr>
+                <td><span class="badge badge-accent"><%= type %></span></td>
+                <td class="text-right mono"><%= count %></td>
+              </tr>
+            <% end %>
+            <% if @event_types.empty? %><tr><td colspan="2" class="text-muted">No events</td></tr><% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Feature Adoption -->
+    <div class="card">
+      <div class="card-header">Feature Adoption</div>
+      <div class="card-body">
+        <% @feature_adoption.each do |label, data| %>
+          <div class="bar-row">
+            <div class="bar-label"><%= label %></div>
+            <div class="bar-track"><div class="bar-fill bar-fill-green" style="width: <%= [data[:pct], 100].min %>%"></div></div>
+            <div class="bar-value"><%= data[:pct] %>%</div>
+          </div>
+        <% end %>
+        <% if @feature_adoption.empty? %><div class="no-data">No session data</div><% end %>
+      </div>
+    </div>
+
+    <!-- Most Active Users -->
+    <div class="card">
+      <div class="card-header">Top Users</div>
+      <div class="card-body-flush">
+        <table>
+          <thead><tr><th>User</th><th class="text-right">Events</th></tr></thead>
+          <tbody>
+            <% @top_users.each do |u| %>
+              <tr>
+                <td class="text-sm"><%= u[:email].split('@').first %></td>
+                <td class="text-right mono"><%= u[:count] %></td>
+              </tr>
+            <% end %>
+            <% if @top_users.empty? %><tr><td colspan="2" class="text-muted">No data</td></tr><% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOP CONTENT ===== -->
+  <div class="section-title">Top Content</div>
+  <div class="grid grid-3">
+    <!-- Top Pages -->
+    <div class="card">
+      <div class="card-header">Pages</div>
+      <div class="card-body-flush">
+        <table>
+          <thead><tr><th>Path</th><th class="text-right">Views</th></tr></thead>
+          <tbody>
+            <% @top_pages.first(12).each do |path, count| %>
+              <tr><td class="mono"><%= path.truncate(40) %></td><td class="text-right mono"><%= count %></td></tr>
+            <% end %>
+            <% if @top_pages.empty? %><tr><td colspan="2" class="text-muted">No page views tracked</td></tr><% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top Buildings -->
+    <div class="card">
+      <div class="card-header">Buildings</div>
+      <div class="card-body-flush">
+        <table>
+          <thead><tr><th>Building</th><th class="text-right">Views</th></tr></thead>
+          <tbody>
+            <% @top_buildings.each do |b| %>
+              <tr>
+                <td><%= link_to b[:name].truncate(35), "/architecture_explorer/#{b[:id]}", target: "_blank", style: "color: var(--accent); text-decoration: none;" %></td>
+                <td class="text-right mono"><%= b[:count] %></td>
+              </tr>
+            <% end %>
+            <% if @top_buildings.empty? %><tr><td colspan="2" class="text-muted">No data</td></tr><% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Top Places -->
+    <div class="card">
+      <div class="card-header">Places / Cities</div>
+      <div class="card-body-flush">
+        <table>
+          <thead><tr><th>Place</th><th class="text-right">Views</th></tr></thead>
+          <tbody>
+            <% @top_places.each do |p| %>
+              <tr><td><%= p[:name] %></td><td class="text-right mono"><%= p[:count] %></td></tr>
+            <% end %>
+            <% if @top_places.empty? %><tr><td colspan="2" class="text-muted">No data</td></tr><% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HOURLY HEATMAP ===== -->
+  <div class="section-title">Hourly Activity (UTC)</div>
+  <div class="card">
+    <% max_h = [@hourly.values.max || 1, 1].max %>
+    <div class="heatmap">
+      <% (0..23).each do |h| %>
+        <% count = @hourly[h] || 0 %>
+        <% intensity = (count.to_f / max_h) %>
+        <% bg = intensity == 0 ? 'var(--surface-raised)' : "rgba(99, 102, 241, #{(0.15 + intensity * 0.85).round(2)})" %>
+        <div class="heat-cell" style="background: <%= bg %>; color: <%= intensity > 0.4 ? '#fff' : 'var(--text-muted)' %>" data-tip="<%= format('%02d', h) %>:00 UTC · <%= count %> events"><%= count > 0 ? count : '' %></div>
+      <% end %>
+    </div>
+    <div class="heatmap" style="padding-top: 0; margin-top: -10px;">
+      <% (0..23).each do |h| %>
+        <div class="heat-label"><%= format('%02d', h) %></div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- ===== USER JOURNEYS ===== -->
+  <div class="section-title">New User Journeys</div>
+  <div class="card">
+    <div class="card-body-flush">
+      <% if @new_user_journeys.any? %>
+        <% @new_user_journeys.each do |j| %>
+          <div class="journey">
+            <div class="journey-header">
+              <div>
+                <span class="journey-email"><%= j[:email] %></span>
+                <span class="text-muted text-sm" style="margin-left: 8px;">signed up <%= time_ago_in_words(j[:signed_up]) %> ago</span>
+              </div>
+              <div class="journey-meta">
+                <%= j[:days_active] %> day<%= j[:days_active] != 1 ? 's' : '' %> active ·
+                <%= j[:total_events] %> events ·
+                last seen <%= time_ago_in_words(j[:last_seen]) %> ago
+              </div>
+            </div>
+            <div class="journey-tags">
+              <% j[:pages].first(8).each do |path| %>
+                <span class="badge badge-cyan"><%= path.truncate(30) %></span>
+              <% end %>
+              <% if j[:pages].size > 8 %><span class="badge" style="background: var(--border);">+<%= j[:pages].size - 8 %></span><% end %>
+              <% j[:actions].first(6).each do |action, count| %>
+                <span class="badge badge-green"><%= action %> ×<%= count %></span>
+              <% end %>
+              <% if j[:actions].empty? %>
+                <span class="text-muted text-sm">Page views only — no actions taken</span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="empty">No new users in this period</div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- ===== RECENT SESSIONS ===== -->
+  <div class="section-title">Recent Sessions</div>
+  <div class="card">
+    <div class="card-body-flush">
+      <% if @user_sessions.any? %>
+        <% @user_sessions.first(25).each_with_index do |sess, i| %>
+          <div class="session" onclick="this.classList.toggle('open')">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong><%= sess[:user_email] == 'anonymous' ? '👤 Anonymous' : sess[:user_email] %></strong>
+                <span class="text-muted text-sm" style="margin-left: 8px;"><%= sess[:started_at].strftime("%b %d, %H:%M") %></span>
+                <span class="badge badge-accent" style="margin-left: 6px;"><%= sess[:event_count] %> events</span>
+                <% if sess[:duration_min] > 0 %>
+                  <span class="text-muted text-sm" style="margin-left: 4px;"><%= sess[:duration_min] %>m</span>
+                <% end %>
+              </div>
+              <span class="text-muted text-sm">▾</span>
+            </div>
+            <div class="session-timeline">
+              <% sess[:events].each do |evt| %>
+                <div class="timeline-event">
+                  <span class="timeline-time"><%= evt[:time].strftime("%H:%M:%S") %></span>
+                  <span class="badge <%= evt[:type] =~ /submit|create/ ? 'badge-red' : evt[:type] == 'page_view' ? 'badge-cyan' : 'badge-green' %>"><%= evt[:type] %></span>
+                  <% if evt[:meta].present? %>
+                    <% display = evt[:meta].except('client_side', 'referrer') %>
+                    <% if display.present? %>
+                      <span class="timeline-detail"><%= display.map { |k,v| "#{k}: #{v}" }.join(' · ').truncate(80) %></span>
+                    <% end %>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="empty">No sessions recorded yet</div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- ===== LIVE FEED ===== -->
+  <div class="section-title">Live Feed</div>
+  <div class="card">
+    <div class="card-body-flush">
+      <% @recent_events.first(50).each do |event| %>
+        <div class="feed-row">
+          <span class="feed-time"><%= event.created_at.strftime("%m/%d %H:%M") %></span>
+          <span class="badge <%= event.event_type =~ /submit|create/ ? 'badge-red' : event.event_type == 'page_view' ? 'badge-cyan' : 'badge-green' %>"><%= event.event_type %></span>
+          <span class="feed-user"><%= event.user&.email&.split('@')&.first || '👤 anon' %></span>
+          <span class="feed-detail"><%= event.metadata&.except('client_side', 'referrer')&.map { |k,v| "#{k}=#{v}" }&.join(' ')&.truncate(80) %></span>
+        </div>
+      <% end %>
+      <% if @recent_events.empty? %>
+        <div class="empty">No events recorded yet</div>
+      <% end %>
+    </div>
+  </div>
+
+  <div style="height: 40px;"></div>
+</div>
+
+</body>
+</html>

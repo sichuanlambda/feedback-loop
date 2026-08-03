@@ -2,6 +2,7 @@ class SearchesController < ApplicationController
 
   def create
     @query = params[:query]
+    track_event('search', { query: @query })
     service = AutoGenService.new
 
     begin

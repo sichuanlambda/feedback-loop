@@ -39,14 +39,21 @@ class StripeEventsController < ApplicationController
   def update_subscription_status(object, status)
     customer_id = object["customer"]
     begin
-      customer = Stripe::Customer.retrieve(customer_id)
-      user_email = customer.email
-      user = User.find_by(email: user_email)
+      # First try matching by stripe_customer_id (most reliable)
+      user = User.find_by(stripe_customer_id: customer_id)
+
+      # Fall back to email matching (case-insensitive)
+      unless user
+        customer = Stripe::Customer.retrieve(customer_id)
+        user_email = customer.email
+        user = User.where('LOWER(email) = ?', user_email.to_s.downcase).first if user_email.present?
+      end
+
       if user
-        user.update_columns(subscription_status: status)  # Use update_columns here
-        Rails.logger.info "Updated user #{user.email} to #{status} subscription"
+        user.update_columns(subscription_status: status, stripe_customer_id: customer_id)
+        Rails.logger.info "Updated user #{user.email} to #{status} subscription (stripe: #{customer_id})"
       else
-        Rails.logger.error "User not found with email: #{user_email}"
+        Rails.logger.error "User not found for Stripe customer #{customer_id} (email: #{user_email})"
       end
     rescue => e
       Rails.logger.error "Failed to update subscription status for customer #{customer_id}: #{e.message}"

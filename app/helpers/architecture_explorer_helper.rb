@@ -1,14 +1,16 @@
 module ArchitectureExplorerHelper
-  # Returns a thumbnail URL for S3-hosted images.
-  # If a thumbnail version exists on S3, returns that URL.
-  # Otherwise returns the original URL (graceful fallback).
-  #
-  # Thumbnail naming convention:
-  #   uploads/building_123_456.jpg -> uploads/thumbs/building_123_456_400w.jpg
-  #
   def thumbnail_url(image_url, width: 400)
-    # Thumbnails not yet generated for all buildings — return original URL for now.
-    # Once rake images:generate_thumbnails has run, re-enable thumbnail logic.
-    image_url
+    return image_url unless image_url.present? && image_url.include?('architecture-explorer.s3')
+    return image_url if image_url.match?(/\.(php|pdf|tif|svg)(\?|$)/i)
+
+    # Extract filename and build thumb path
+    uri = URI.parse(image_url)
+    path = uri.path  # e.g. /uploads/building_123.jpg
+    ext = File.extname(path)
+    base = File.basename(path, ext)
+    dir = File.dirname(path)
+
+    thumb_path = "#{dir}/thumbs/#{base}_#{width}w.jpg"
+    "https://architecture-explorer.s3.us-east-2.amazonaws.com#{thumb_path}"
   end
 end

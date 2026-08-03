@@ -1,0 +1,569 @@
+<% content_for :title, "Architecture Helper Leaderboards" %>
+
+<div class="leaderboards-container">
+  <!-- Header Section -->
+  <div class="leaderboards-header">
+    <h1>🏆 Leaderboards</h1>
+    <p class="subtitle">See how you stack up against other architecture enthusiasts</p>
+    
+    <!-- Stats Section -->
+    <div class="community-stats">
+      <div class="stat-card">
+        <span class="stat-number"><%= number_with_delimiter(@total_users) %></span>
+        <span class="stat-label">Total Explorers</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number"><%= number_with_delimiter(@this_week_users) %></span>
+        <span class="stat-label">Active This Week</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="leaderboard-nav">
+    <div class="timeframe-tabs">
+      <%= link_to leaderboards_path(timeframe: 'all-time', category: @category), 
+                  class: "nav-tab #{'active' if @timeframe == 'all-time'}" do %>
+        All Time
+      <% end %>
+      <%= link_to collection_map_leaderboards_path, 
+                  class: "nav-tab collection-map-tab" do %>
+        🗺️ Collection Map
+      <% end %>
+    </div>
+    
+    <div class="category-tabs">
+      <%= link_to leaderboards_path(timeframe: @timeframe, category: 'level'), 
+                  class: "category-tab #{'active' if @category == 'level'}" do %>
+        📊 Level
+      <% end %>
+      <%= link_to leaderboards_path(timeframe: @timeframe, category: 'buildings'), 
+                  class: "category-tab #{'active' if @category == 'buildings'}" do %>
+        🏢 Buildings
+      <% end %>
+      <%= link_to leaderboards_path(timeframe: @timeframe, category: 'achievements'), 
+                  class: "category-tab #{'active' if @category == 'achievements'}" do %>
+        🏅 Achievements
+      <% end %>
+      <% if @timeframe == 'all-time' %>
+        <%= link_to leaderboards_path(timeframe: @timeframe, category: 'points'), 
+                    class: "category-tab #{'active' if @category == 'points'}" do %>
+          ⭐ Points
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- User's Position (if logged in and ranked) -->
+  <% if current_user && @user_position %>
+    <div class="user-position-card">
+      <div class="position-badge">
+        <span class="rank">#<%= @user_position %></span>
+      </div>
+      <div class="position-info">
+        <span class="label">Your Position</span>
+        <span class="timeframe-label"><%= @timeframe == 'weekly' ? 'This Week' : 'All Time' %></span>
+      </div>
+      <div class="position-action">
+        <%= link_to '/profile', class: "btn-view-profile" do %>
+          View Profile
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Leaderboard Table -->
+  <div class="leaderboard-table">
+    <div class="table-header">
+      <div class="rank-col">Rank</div>
+      <div class="user-col">Explorer</div>
+      <div class="level-col">Level</div>
+      <% if @category == 'level' || @category == 'points' %>
+        <div class="metric-col">Points</div>
+      <% elsif @category == 'buildings' %>
+        <div class="metric-col">
+          <%= @timeframe == 'weekly' ? 'This Week' : 'Buildings' %>
+        </div>
+      <% elsif @category == 'achievements' %>
+        <div class="metric-col">
+          <%= @timeframe == 'weekly' ? 'This Week' : 'Achievements' %>
+        </div>
+      <% end %>
+      <div class="buildings-col">Total Buildings</div>
+    </div>
+
+    <div class="leaderboard-entries">
+      <% @leaderboard_data.each do |entry| %>
+        <div class="leaderboard-entry <%= 'current-user' if current_user && entry[:user].id == current_user.id %>">
+          <div class="rank-col">
+            <span class="rank-number">#<%= entry[:rank] %></span>
+            <% if entry[:rank] <= 3 %>
+              <span class="trophy">
+                <%= entry[:rank] == 1 ? '🥇' : entry[:rank] == 2 ? '🥈' : '🥉' %>
+              </span>
+            <% end %>
+          </div>
+          
+          <div class="user-col">
+            <div class="user-info">
+              <div class="avatar">
+                <%= (entry[:user].public_name || entry[:user].handle || "?")[0].upcase %>
+              </div>
+              <div class="user-details">
+                <span class="username">
+                  <%= entry[:user].public_name || entry[:user].handle %>
+                </span>
+                <% if @timeframe == 'weekly' && entry[:this_week] %>
+                  <span class="weekly-badge">🔥 Active</span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          
+          <div class="level-col">
+            <div class="level-badge level-<%= entry[:level] %>">
+              Level <%= entry[:level] %>
+            </div>
+          </div>
+          
+          <div class="metric-col">
+            <% if @category == 'level' || @category == 'points' %>
+              <span class="points"><%= number_with_delimiter(entry[:total_points]) %></span>
+            <% elsif @category == 'buildings' %>
+              <span class="buildings"><%= number_with_delimiter(entry[:buildings_analyzed]) %></span>
+            <% elsif @category == 'achievements' %>
+              <span class="achievements"><%= number_with_delimiter(entry[:achievements_earned]) %></span>
+            <% end %>
+          </div>
+          
+          <div class="buildings-col">
+            <span class="total-buildings">
+              <%= number_with_delimiter(entry[:buildings_analyzed] || 0) %>
+            </span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <% if @leaderboard_data.empty? %>
+    <div class="empty-leaderboard">
+      <div class="empty-icon">📊</div>
+      <h3>No Rankings Yet</h3>
+      <p>
+        <% if @timeframe == 'weekly' %>
+          No activity this week. Be the first to explore some buildings!
+        <% else %>
+          The leaderboard is waiting for its first explorers.
+        <% end %>
+      </p>
+      <%= link_to "Start Exploring", architecture_explorer_new_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+
+  <!-- Call to Action -->
+  <div class="leaderboard-cta">
+    <h3>Ready to Climb the Ranks? 🚀</h3>
+    <p>Analyze buildings, collect architectural styles, and earn achievements to rise through the leaderboards!</p>
+    <div class="cta-buttons">
+      <%= link_to "Analyze a Building", architecture_explorer_new_path, class: "btn btn-primary" %>
+      <%= link_to "View Your Profile", "/profile", class: "btn btn-secondary" if current_user %>
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboards Styles -->
+<style>
+  .leaderboards-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .leaderboards-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .leaderboards-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+
+  .community-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    text-align: center;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+  }
+
+  .stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-weight: 500;
+  }
+
+  .leaderboard-nav {
+    margin-bottom: 2rem;
+  }
+
+  .timeframe-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .nav-tab {
+    padding: 0.75rem 1.5rem;
+    background: #f3f4f6;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #374151;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .nav-tab:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+  }
+
+  .nav-tab.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+  }
+
+  .collection-map-tab {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-color: #10b981;
+  }
+
+  .collection-map-tab:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    border-color: #059669;
+  }
+
+  .category-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .category-tab {
+    padding: 0.5rem 1rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .category-tab:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #374151;
+  }
+
+  .category-tab.active {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #374151;
+    font-weight: 600;
+  }
+
+  .user-position-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .position-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .position-info .label {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .timeframe-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+
+  .btn-view-profile {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .btn-view-profile:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .leaderboard-table {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+
+  .table-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 120px 120px;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+  }
+
+  .leaderboard-entry {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 120px 120px;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
+  }
+
+  .leaderboard-entry:hover {
+    background: #f9fafb;
+  }
+
+  .leaderboard-entry.current-user {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: 8px;
+    margin: 0.25rem 0;
+  }
+
+  .rank-col {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .rank-number {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #374151;
+  }
+
+  .trophy {
+    font-size: 1.5rem;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .username {
+    font-weight: 600;
+    color: #374151;
+    margin-right: 0.5rem;
+  }
+
+  .weekly-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .level-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  .level-badge.level-1, .level-badge.level-2, .level-badge.level-3 {
+    background: linear-gradient(135deg, #6ee7b7 0%, #10b981 100%);
+    color: white;
+  }
+
+  .level-badge.level-4, .level-badge.level-5, .level-badge.level-6 {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    color: white;
+  }
+
+  .level-badge.level-7, .level-badge.level-8, .level-badge.level-9 {
+    background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+    color: white;
+  }
+
+  .points, .buildings, .achievements, .total-buildings {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .empty-leaderboard {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  .leaderboard-cta {
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 16px;
+  }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .btn-primary {
+    background: white;
+    color: #667eea;
+  }
+
+  .btn-primary:hover {
+    background: #f3f4f6;
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .table-header, .leaderboard-entry {
+      grid-template-columns: 60px 1fr 80px 80px;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .buildings-col {
+      display: none;
+    }
+
+    .community-stats {
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .timeframe-tabs, .category-tabs {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .user-position-card {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .cta-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>

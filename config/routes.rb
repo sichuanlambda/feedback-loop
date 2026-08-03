@@ -9,13 +9,14 @@ Rails.application.routes.draw do
 
   # Admin routes
   namespace :admin do
+    root to: 'dashboard#index'
     get 'users/index'
     get 'users/show'
     get 'users/edit'
     get 'users/update'
     get 'users/destroy'
     get 'dashboard', to: 'dashboard#index'
-    get 'analytics', to: 'dashboard#analytics'
+    get 'analytics', to: 'analytics#index'
     resources :building_analyses do
       member do
         patch :toggle_visibility
@@ -34,6 +35,7 @@ Rails.application.routes.draw do
         post :bulk_update
       end
     end
+    resources :analytics, only: [:index]
     resources :places do
       member do
         post :generate_content
@@ -77,8 +79,9 @@ Rails.application.routes.draw do
   post 'designs/submit', to: 'designs#submit'
   get 'architecture_explorer/map', to: 'architecture_explorer#map'
 
-  # Route for public user profiles
+  # Route for public user profiles (enhanced for sharing)
   get '/users/:handle', to: 'users#show', as: 'user_profile'
+  get '/profile/:username', to: 'profile#public_profile', as: 'public_profile'
 
   get 'proxy/fetch_street_view', to: 'proxy#fetch_street_view'
   get 'proxy/fetch_satellite_view', to: 'proxy#fetch_satellite_view'
@@ -95,6 +98,8 @@ Rails.application.routes.draw do
   post '/process_building_image', to: 'architecture_explorer#process_building_image', as: 'analyze_building'
   patch 'architecture_explorer/:id', to: 'architecture_explorer#update', as: :architecture_explorer_update
   get 'architecture_explorer/:id/status', to: 'architecture_explorer#status', as: :architecture_explorer_status
+  get 'architecture_explorer/:id/similar', to: 'architecture_explorer#similar', as: :architecture_explorer_similar
+  get 'architecture_explorer/:id/nearby', to: 'architecture_explorer#nearby', as: :architecture_explorer_nearby
   get 'style-finder', to: 'architecture_explorer#style_finder', as: :style_finder
   post 'architecture_explorer/analyze_style_preferences', to: 'architecture_explorer#analyze_style_preferences'
   get 'architecture_explorer/:id/building_data', to: 'architecture_explorer#building_data', as: :building_data
@@ -135,7 +140,13 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   namespace :api do
-    resources :building_analyses, only: [:index]
+    resources :building_analyses, only: [:index] do
+      collection do
+        get :nearby
+        post :camera_upload
+      end
+    end
+    post 'events', to: 'events#create'
   end
 
   # New Research Prompt Route
@@ -148,11 +159,33 @@ Rails.application.routes.draw do
   # Style pages (programmatic SEO)
   get 'styles', to: 'architecture_explorer#styles_index', as: 'styles_index'
   get 'styles/:style_name', to: 'architecture_explorer#style_show', as: 'style_show'
+  get 'styles/:style_name/in/:city_slug', to: 'architecture_explorer#style_in_city', as: 'style_in_city'
 
   # Places routes
   resources :places, only: [:index, :show], param: :slug do
     member do
       post :subscribe
+    end
+  end
+
+  # Profile and Gamification routes
+  resources :users, only: [] do
+    get 'profile', to: 'profile#show', as: 'user_profile_page'
+    get 'profile/style/:style_name', to: 'profile#style_collection', as: 'user_profile_style_collection'
+    get 'profile/achievements', to: 'profile#achievements', as: 'user_profile_achievements'
+    get 'profile/leaderboard', to: 'profile#leaderboard_position', as: 'user_profile_leaderboard_position'
+  end
+  
+  # Default profile routes for current user
+  get 'profile', to: 'profile#show', as: 'current_user_profile'
+  get 'profile/achievements', to: 'profile#achievements', as: 'current_user_achievements'
+  get 'profile/leaderboard', to: 'profile#leaderboard_position', as: 'current_user_leaderboard'
+
+  # Leaderboards routes
+  resources :leaderboards, only: [:index] do
+    collection do
+      get 'weekly', to: 'leaderboards#weekly'
+      get 'collection-map', to: 'leaderboards#collection_map'
     end
   end
 end

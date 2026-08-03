@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'open-uri'
 
 class ArchitectureExplorerController < ApplicationController
-  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map, :styles_index, :style_show, :by_style]
+  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map, :styles_index, :style_show, :by_style, :style_in_city]
   before_action :set_custom_nav
   before_action :check_analysis_view_limit, only: [:show]
   # include BuildingAnalysisProcessor
@@ -22,6 +22,8 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def building_library
+    track_event('building_library_view', { search: params[:search] })
+    
     # Adjust the method to fetch images for all users or a generic set if no user is logged in
     if user_signed_in?
       # Fetch images analyzed by the current user
@@ -45,7 +47,13 @@ class ArchitectureExplorerController < ApplicationController
     else
       @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
     end
-    @analyzed_buildings = @analyzed_buildings.order(created_at: :desc).page(params[:page]).per(24)
+    # Mix buildings from different cities instead of showing newest first
+    # (batch imports cause walls of same-city buildings otherwise)
+    if params[:search].present?
+      @analyzed_buildings = @analyzed_buildings.order(created_at: :desc).page(params[:page]).per(24)
+    else
+      @analyzed_buildings = @analyzed_buildings.order(Arel.sql("md5(id::text || '#{Date.today}')")).page(params[:page]).per(24)
+    end
 
     # Extract all styles from h3_contents, clean them, and assign to @architecture_styles
     all_styles = BuildingAnalysis.pluck(:h3_contents).compact.map do |h3_content|
@@ -63,6 +71,8 @@ class ArchitectureExplorerController < ApplicationController
 
   def remove_from_library
     building_analysis = BuildingAnalysis.find(params[:id])
+    track_event('building_remove_from_library', { building_id: building_analysis.id })
+    
     if building_analysis.update(visible_in_library: false)
       redirect_to architecture_explorer_show_path(id: building_analysis.id), notice: 'Removed from library successfully.'
     else
@@ -72,6 +82,7 @@ class ArchitectureExplorerController < ApplicationController
 
   def add_to_library
     @building_analysis = BuildingAnalysis.find(params[:id])
+    track_event('building_add_to_library', { building_id: @building_analysis.id })
 
     if @building_analysis.update(visible_in_library: true)
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: 'Building successfully shared in library.'
@@ -92,6 +103,7 @@ class ArchitectureExplorerController < ApplicationController
   def by_style
     @style_name = params[:style_name]
     canonical = StyleNormalizer.normalize(@style_name)
+    track_event('style_browse', { style_name: canonical })
 
     variants = StyleNormalizer::CANONICAL_STYLES[canonical] || [@style_name.downcase]
     conditions = variants.map { |v| "LOWER(h3_contents) LIKE ?" }
@@ -137,6 +149,8 @@ class ArchitectureExplorerController < ApplicationController
 
   def by_location
     @location_name = params[:location_name]&.downcase
+    track_event('location_browse', { location_name: @location_name })
+    
     @style_frequency = []
     @unique_style_count = 0
     @buildings_submitted_count = 0
@@ -184,6 +198,7 @@ class ArchitectureExplorerController < ApplicationController
 
     if @building_analysis
       @is_shared = @building_analysis.visible_in_library
+      @is_owner = user_signed_in? && @building_analysis.user_id == current_user.id
       @html_content = @building_analysis.html_content
       @image_url = @building_analysis.image_url
 
@@ -251,6 +266,19 @@ class ArchitectureExplorerController < ApplicationController
         end
       end
 
+      # Track building view and check achievements
+      if user_signed_in? && @building_analysis.user_id != current_user.id
+        BuildingViewTrackingService.track_view(current_user, @building_analysis)
+        check_and_notify_achievements('building_analyzed')
+      end
+
+      # Generate proximity nudges for logged-in users
+      if user_signed_in?
+        @proximity_nudges = ProximityNudgeService.get_nudges_for_building(current_user, @building_analysis)
+      end
+
+      track_event('building_view', { building_id: @building_analysis.id })
+
       Rails.logger.debug "Normalized H3 contents for show: #{@h3_contents.inspect}"
     else
       redirect_to root_path, alert: "Analysis not found"
@@ -290,6 +318,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def new
+    track_event('building_new_form')
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
   end
 
@@ -324,6 +353,23 @@ class ArchitectureExplorerController < ApplicationController
       # Enqueue background job for GPT analysis (avoids R12 timeouts)
       ProcessBuildingAnalysisJob.perform_later(@building_analysis.id, image_url, address)
 
+      # Track building view and check achievements
+      BuildingViewTrackingService.track_view(current_user, @building_analysis) if user_signed_in?
+      
+      # Add submission provenance
+      submission_context = {
+        method: SubmissionProvenanceService.detect_submission_method(params, request),
+        user_agent: request.user_agent,
+        source: 'web_form',
+        file_size: params[:image]&.size,
+        ip: request.remote_ip
+      }
+      SubmissionProvenanceService.add_submission_metadata(@building_analysis, submission_context)
+      
+      check_and_notify_achievements('building_analyzed')
+      track_event('analysis_started', { building_id: @building_analysis.id })
+      track_event('building_submit', { building_id: @building_analysis.id, method: 'web_form' })
+
       redirect_to architecture_explorer_show_path(id: @building_analysis.id), notice: "Analysis started! Results will appear shortly."
     rescue => e
       Rails.logger.error "Error in create action: #{e.message}"
@@ -344,6 +390,7 @@ class ArchitectureExplorerController < ApplicationController
 
   # New map-based view actions
   def map
+    track_event('map_view')
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
     @building_analyses = BuildingAnalysis.where(visible_in_library: true)
                                          .where.not(latitude: nil)
@@ -368,6 +415,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def dutch_architecture
+    track_event('map_city_view', { city: 'dutch_architecture' })
     @initial_center = [4.9041, 52.3676]  # Amsterdam coordinates
     @initial_zoom = 7  # Zoom level to show most of the Netherlands
     @preset_styles = ['Dutch Renaissance', 'Dutch Baroque', 'Amsterdam School']
@@ -376,6 +424,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def netherlands
+    track_event('map_city_view', { city: 'netherlands' })
     @initial_center = [5.2913, 52.1326]  # Center of the Netherlands
     @initial_zoom = 7
     @preset_styles = []  # Show all styles in the Netherlands
@@ -395,6 +444,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def denver
+    track_event('map_city_view', { city: 'denver' })
     @initial_center = [-104.9903, 39.7392]  # Denver coordinates
     @initial_zoom = 12
     @preset_styles = []  # No style filter, show all styles in Denver
@@ -403,6 +453,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def new_york_city
+    track_event('map_city_view', { city: 'new_york_city' })
     @initial_center = [-74.0060, 40.7128]  # NYC coordinates
     @initial_zoom = 12
     @preset_styles = []  # No style filter, show all styles in NYC
@@ -411,6 +462,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def washington_dc
+    track_event('map_city_view', { city: 'washington_dc' })
     @initial_center = [-77.0369, 38.9072]  # DC coordinates
     @initial_zoom = 12
     @preset_styles = []  # No style filter, show all styles in DC
@@ -419,6 +471,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def boston
+    track_event('map_city_view', { city: 'boston' })
     @initial_center = [-71.0589, 42.3601]  # Boston coordinates
     @initial_zoom = 12
     @preset_styles = []  # No style filter, show all styles in Boston
@@ -427,6 +480,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def brutalist_architecture
+    track_event('map_style_view', { style: 'brutalist' })
     @initial_center = [-3.4359, 55.3781]  # Roughly centered on Europe
     @initial_zoom = 4  # Zoomed out to show a large area
     @preset_styles = ['Brutalist']
@@ -435,11 +489,13 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def denver_architecture
+    track_event('map_city_view', { city: 'denver_architecture' })
     @places = []  # Temporary empty array
     render 'architecture_explorer/map_places_and_styles/denver_architecture'
   end
 
   def development_estimations
+    track_event('dev_estimation_view')
     # Just renders the view
   end
 
@@ -448,6 +504,12 @@ class ArchitectureExplorerController < ApplicationController
     address = params[:address]
     custom_prompt = params[:custom_prompt]
     analysis_mode = params[:analysis_mode]
+    
+    track_event('dev_estimation_generate', { 
+      analysis_mode: analysis_mode,
+      has_custom_prompt: custom_prompt.present?,
+      address: address
+    })
 
     begin
       gpt_service = GptService.new
@@ -475,6 +537,11 @@ class ArchitectureExplorerController < ApplicationController
 
   def analyze_style_preferences
     styles = params[:styles]
+    
+    track_event('style_preferences_analyze', { 
+      styles: styles,
+      style_count: styles&.length || 0
+    })
     
     if styles.blank?
       render json: { success: false, error: "No styles provided" }
@@ -508,6 +575,7 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def building_data
+    track_event('building_data_fetch', { building_id: params[:id] })
     building_analysis = BuildingAnalysis.find_by(id: params[:id])
     
     if building_analysis
@@ -525,6 +593,75 @@ class ArchitectureExplorerController < ApplicationController
         error: "Building not found"
       }
     end
+  end
+
+  def styles_index
+    track_event('styles_index_view')
+    
+    style_counts = Hash.new(0)
+    BuildingAnalysis.where(visible_in_library: true).pluck(:h3_contents).compact.each do |h3_content|
+      begin
+        styles = StyleNormalizer.normalize_array(JSON.parse(h3_content))
+        styles.each { |style| style_counts[style] += 1 }
+      rescue JSON::ParserError
+        next
+      end
+    end
+    @styles_with_counts = style_counts.sort_by { |_style, count| -count }
+    @total_buildings = BuildingAnalysis.where(visible_in_library: true).count
+  end
+
+  def style_show
+    track_event('style_show_redirect', { style_name: params[:style_name] })
+    redirect_to buildings_by_style_path(style_name: params[:style_name]), status: :moved_permanently
+  end
+
+  def style_in_city
+    @style_name = StyleNormalizer.normalize(params[:style_name])
+    @city_slug = params[:city_slug]
+    @place = Place.find_by("LOWER(REPLACE(name, ' ', '-')) = ?", @city_slug.downcase)
+    @city_name = @place&.name || @city_slug.titleize
+    
+    track_event('style_in_city_view', { 
+      style_name: @style_name,
+      city_name: @city_name,
+      place_id: @place&.id
+    })
+
+    variants = StyleNormalizer::CANONICAL_STYLES[@style_name] || [@style_name.downcase]
+    conditions = variants.map { |v| "LOWER(h3_contents) LIKE ?" }
+    values = variants.map { |v| "%#{v}%" }
+
+    @buildings = BuildingAnalysis
+      .where(visible_in_library: true)
+      .where(city: @city_name)
+      .where(conditions.join(' OR '), *values)
+      .order(created_at: :desc)
+
+    @total_count = @buildings.count
+
+    # Get same style in other cities for cross-linking
+    @other_cities = BuildingAnalysis
+      .where(visible_in_library: true)
+      .where(conditions.join(' OR '), *values)
+      .where.not(city: [nil, '', @city_name])
+      .group(:city).count
+      .sort_by { |_, c| -c }.first(10)
+
+    # Related styles in this city
+    style_tally = Hash.new(0)
+    BuildingAnalysis.where(visible_in_library: true).where(city: @city_name)
+      .pluck(:h3_contents).compact.each do |h|
+        begin
+          styles = StyleNormalizer.normalize_array(JSON.parse(h))
+          styles.each { |s| style_tally[s] += 1 unless s == @style_name }
+        rescue JSON::ParserError
+          next
+        end
+      end
+    @related_styles_in_city = style_tally.sort_by { |_, c| -c }.first(8)
+
+    render 'architecture_explorer/style_in_city'
   end
 
   private
@@ -668,23 +805,7 @@ class ArchitectureExplorerController < ApplicationController
     StyleNormalizer.normalize_array(h3_contents)
   end
 
-  def styles_index
-    style_counts = Hash.new(0)
-    BuildingAnalysis.where(visible_in_library: true).pluck(:h3_contents).compact.each do |h3_content|
-      begin
-        styles = StyleNormalizer.normalize_array(JSON.parse(h3_content))
-        styles.each { |style| style_counts[style] += 1 }
-      rescue JSON::ParserError
-        next
-      end
-    end
-    @styles_with_counts = style_counts.sort_by { |_style, count| -count }
-    @total_buildings = BuildingAnalysis.where(visible_in_library: true).count
-  end
-
-  def style_show
-    redirect_to buildings_by_style_path(style_name: params[:style_name]), status: :moved_permanently
-  end
+  # styles_index and style_show moved to public section above `private`
 
   def calculate_style_metrics
     style_counts = Hash.new(0)
@@ -698,6 +819,64 @@ class ArchitectureExplorerController < ApplicationController
     @unique_style_count = style_counts.keys.count
     @buildings_submitted_count = @analyzed_buildings.count
     @architecture_styles = style_counts.keys.sort
+  end
+
+  def similar
+    track_event('building_similar_view', { building_id: params[:id] })
+    @building_analysis = BuildingAnalysis.find(params[:id])
+    
+    # Get similar buildings based on styles
+    if @building_analysis.h3_contents.present?
+      styles = JSON.parse(@building_analysis.h3_contents) rescue []
+      if styles.any?
+        @similar_buildings = BuildingAnalysis.joins(
+          "CROSS JOIN json_array_elements_text(h3_contents::json) AS style"
+        ).where(
+          "LOWER(style.value) IN (?) AND id != ? AND visible_in_library = true",
+          styles.map(&:downcase),
+          @building_analysis.id
+        ).limit(12)
+      else
+        @similar_buildings = []
+      end
+    else
+      @similar_buildings = []
+    end
+    
+    render layout: false if request.xhr?
+  end
+  
+  def nearby
+    track_event('building_nearby_view', { building_id: params[:id] })
+    @building_analysis = BuildingAnalysis.find(params[:id])
+    
+    # Get nearby buildings if location exists
+    if @building_analysis.latitude.present? && @building_analysis.longitude.present?
+      @nearby_buildings = BuildingAnalysis.where(visible_in_library: true)
+                                          .where.not(id: @building_analysis.id)
+                                          .joins(
+                                            <<-SQL
+                                              CROSS JOIN (
+                                                SELECT 
+                                                  3959 * acos(
+                                                    cos(radians(#{@building_analysis.latitude})) * 
+                                                    cos(radians(latitude)) * 
+                                                    cos(radians(longitude) - radians(#{@building_analysis.longitude})) + 
+                                                    sin(radians(#{@building_analysis.latitude})) * 
+                                                    sin(radians(latitude))
+                                                  ) AS distance
+                                              ) AS distances
+                                            SQL
+                                          )
+                                          .where("3959 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude))) < 50", 
+                                                 @building_analysis.latitude, @building_analysis.longitude, @building_analysis.latitude)
+                                          .order("distances.distance")
+                                          .limit(12)
+    else
+      @nearby_buildings = []
+    end
+    
+    render layout: false if request.xhr?
   end
 
   def call_gpt_with_image(prompt, image_url)

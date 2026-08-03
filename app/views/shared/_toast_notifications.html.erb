@@ -1,0 +1,33 @@
+<% if defined?(@achievement_notifications) && @achievement_notifications.present? %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      <% @achievement_notifications.each do |achievement| %>
+        setTimeout(function() {
+          window.showAchievementNotification({
+            name: "<%= j(achievement[:name]) %>",
+            description: "<%= j(achievement[:description]) %>",
+            icon: "<%= achievement[:icon] %>",
+            category: "<%= achievement[:category] %>",
+            points: <%= achievement[:points] %>,
+            badge_count: <%= achievement[:badge_count] %>
+          });
+        }, <%= rand(500..1500) %>); // Stagger notifications
+      <% end %>
+    });
+  </script>
+<% end %>
+
+<% if defined?(@level_up_notification) && @level_up_notification.present? %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        window.showLevelUpNotification({
+          level: <%= @level_up_notification[:level] %>,
+          points_required: <%= @level_up_notification[:points_required] %>,
+          previous_points: <%= @level_up_notification[:previous_points] %>,
+          badge_count: <%= @level_up_notification[:badge_count] %>
+        });
+      }, <%= (@achievement_notifications&.length || 0) * 800 + 1000 %>); // Show after achievements
+    });
+  </script>
+<% end %>

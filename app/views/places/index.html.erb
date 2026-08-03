@@ -22,8 +22,8 @@
   top_styles = all_styles.sort_by { |_, v| -v }.first(5).map(&:first)
   
   # Group by region
-  us_cities = @places.select { |p| %w[denver-colorado san-francisco chicago new-orleans new-york-city washington-dc philadelphia boston].include?(p.slug) }
-  eu_cities = @places.select { |p| %w[barcelona edinburgh bruges krakow den-haag].include?(p.slug) }
+  us_cities = @places.select { |p| %w[denver-colorado san-francisco chicago new-orleans new-york-city washington-dc philadelphia boston detroit miami savannah san-diego monterey].include?(p.slug) }
+  eu_cities = @places.select { |p| %w[barcelona edinburgh bruges krakow den-haag amsterdam-netherlands].include?(p.slug) }
   other_cities = @places - us_cities - eu_cities
   
   # Sort each group by building count desc
@@ -176,9 +176,9 @@
     <div class="cta-section">
       <div class="container cta-inner">
         <h2>More cities coming soon</h2>
-        <p>We're adding new city guides regularly. Next up: Detroit, Savannah, Los Angeles, Istanbul, and more.</p>
+        <p>We're adding new city guides regularly. Next up: Los Angeles, Istanbul, Rome, and more.</p>
         <div class="cta-upcoming">
-          <% %w[Detroit Savannah Istanbul Rome Tirana Miami Charleston Pittsburgh Nashville].each do |city| %>
+          <% %w[Los\ Angeles Istanbul Rome Tirana Charleston Pittsburgh Nashville].each do |city| %>
             <span class="upcoming-tag"><%= city %></span>
           <% end %>
         </div>

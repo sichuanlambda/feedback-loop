@@ -1,10 +1,22 @@
 class BuildingAnalysis < ApplicationRecord
   belongs_to :user
 
+  # Virtual attribute for distance calculations (used in API)
+  attr_accessor :distance
+
   # Use the 'address' attribute for geocoding
   geocoded_by :address
   # Auto-fetch coordinates after validation, if address changed
   after_validation :geocode, if: ->(obj){ obj.address.present? and obj.address_changed? }
+
+  # Clean display helpers — treat nil, blank, and "N/A" as absent
+  def display_name
+    name.presence&.then { |n| n == 'N/A' ? nil : n }
+  end
+
+  def display_address
+    address.presence&.then { |a| a == 'N/A' ? nil : a }
+  end
 
   # Method to generate Google Street View URL
   def street_view_url(size: "600x400")

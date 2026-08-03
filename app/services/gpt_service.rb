@@ -54,42 +54,46 @@ class GptService
   def send_building_analysis(image_url)
     Rails.logger.debug "GptService: Received image_url for building analysis: #{image_url}"
 
-    style_list = "Ancient Egyptian, Classical Greek, Classical Roman, Byzantine, Romanesque, Gothic, Renaissance, Baroque, Rococo, Neoclassical, Gothic Revival, Romanticism, Beaux-Arts, Victorian, Edwardian, Art Nouveau, Art Deco, Bauhaus, International Style, Streamline Moderne, Brutalism, Postmodernism, Deconstructivism, High-Tech, Sustainable Architecture, Parametricism, Minimalism, Expressionism, Futurism, Constructivism, Organic Architecture, Critical Regionalism, Metabolism, Neo-Futurism, Post-Structuralism, New Classical, Neo-vernacular, Neo-Byzantine, Neo-Gothic, Art & Crafts, Prairie Style, Usonian, Colonial Revival, Tudor Revival, Mediterranean Revival, Mission Revival, Spanish Colonial Revival, Pueblo Revival, Federal Style, American Foursquare, Chicago School, Italianate, Second Empire, Queen Anne, Shingle Style, Richardsonian Romanesque, Carpenter Gothic, Dutch Colonial Revival, Georgian Revival, Chateauesque, City Beautiful Movement, Modern Movement, Scandinavian Modern, Mid-Century Modern, Structuralism, Post-Industrial, High-tech, Blobitecture, De Stijl, Expressionist, Fascist, Nazi Architecture, Stalinist, Suprematism, Vorticism, Futurist, Metaphoric, New Objectivity, Rationalism, Rayonnant, Regionalism, Russian Revival, Saracen, Scottish Baronial, Sicilian Baroque, Stripped Classicism, Territorial Revival, Traditionalist School, Tropical Modernism, Vernacular, Vienna Secession, Zigzag Moderne, Anglo-Saxon, Ottonian, Carolingian, Merovingian, Norman, Salon Style, Jacobean, Elizabethan, Palladian, Adam Style, Regency, Japonism, Egyptian Revival, Mayan Revival, Indo-Saracenic"
+    # Style list derived from StyleNormalizer — single source of truth
+    style_list = StyleNormalizer.style_list_for_prompt
 
     prompt = <<~PROMPT
-      Analyze the architecture and design of this building. Return your response as a JSON object with the following structure:
+      Analyze this building's architecture. Return JSON only.
 
+      ALLOWED STYLES (use ONLY these exact names, never invent or modify):
+      #{style_list}
+
+      Return this structure:
       {
-        "building_name": "Name of the building if recognizable, otherwise a descriptive name",
-        "year_built": "Year or decade if identifiable, otherwise null",
-        "architect": "Architect name if known, otherwise null",
-        "overview": "A 2-3 sentence overview of the building and its architectural significance.",
+        "building_name": "Name if recognizable, else descriptive name",
+        "year_built": "Year/decade or null",
+        "architect": "Name or null",
+        "overview": "2-3 sentences on the building and its significance.",
         "styles": [
           {
-            "name": "Style Name",
+            "name": "Exact Style Name From List Above",
             "confidence": 85,
-            "description": "A paragraph explaining how this style manifests in the building — specific elements, details, and design choices that reflect this influence.",
+            "description": "How this style manifests in specific visible elements.",
             "key_elements": ["Element 1", "Element 2", "Element 3"]
           }
         ],
         "notable_features": ["Feature 1", "Feature 2", "Feature 3"],
-        "historical_context": "A paragraph about when and why it was built, its place in architectural history, and any significant events.",
+        "historical_context": "When/why built, place in architectural history.",
         "fun_facts": ["Fact 1", "Fact 2"]
       }
 
       Rules:
-      - Choose styles ONLY from this list: #{style_list}
-      - Include up to 4-5 styles maximum, sorted by confidence (highest first)
-      - Confidence is 0-100 representing how strongly the style is present
-      - Each style should have 3-5 key_elements
-      - Include 3-5 notable_features
-      - Include 2-3 fun_facts
-      - Return ONLY valid JSON, no other text
+      - styles[].name MUST be an exact match from the allowed list. No variations.
+      - 1-4 styles max, sorted by confidence (highest first). Only include styles with confidence >= 30.
+      - 3-5 key_elements per style
+      - 3-5 notable_features total
+      - 1-3 fun_facts
+      - Return ONLY valid JSON
     PROMPT
 
     body = {
       model: "gpt-4o-mini",
-      max_tokens: 1500,
+      max_tokens: 1200,
       response_format: { type: "json_object" },
       messages: [
         {

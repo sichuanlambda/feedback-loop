@@ -1,0 +1,42 @@
+<%
+# Extract SEO data
+building_name = @is_structured && @building_data ? @building_data['building_name'] : (@building_analysis.name || "Building Analysis")
+meta_title = @is_structured && @building_data ? "#{@building_data['building_name']} — Architecture Helper" : "Building Analysis — Architecture Helper"
+meta_description = @is_structured && @building_data && @building_data['overview'] ? 
+  "#{@building_data['overview'].truncate(150)}" : 
+  "Architectural analysis of #{building_name}. Discover the architectural styles, notable features, and design elements."
+  
+# Set SEO meta tags
+%>
+
+<% content_for :title, meta_title %>
+<% content_for :meta_description, meta_description %>
+
+<% if @image_url.present? %>
+  <% content_for :og_image, @image_url %>
+<% end %>
+
+<!-- JSON-LD Structured Data -->
+<% content_for :structured_data do %>
+  <%= building_structured_data(@building_analysis, @building_data) %>
+<% end %>
+
+<!-- Additional head content specific to building detail pages -->
+<% content_for :head do %>
+  <meta name="robots" content="index, follow">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<%= meta_title %>">
+  <meta name="twitter:description" content="<%= meta_description %>">
+  <% if @image_url.present? %>
+    <meta name="twitter:image" content="<%= @image_url %>">
+  <% end %>
+  
+  <!-- Additional Open Graph -->
+  <meta property="og:type" content="place">
+  <meta property="article:section" content="Architecture">
+  <% if @building_analysis.city.present? %>
+    <meta property="og:locality" content="<%= @building_analysis.city %>">
+  <% end %>
+<% end %>

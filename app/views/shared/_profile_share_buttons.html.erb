@@ -1,0 +1,54 @@
+<% profile_url = request.original_url %>
+<% share_text = "Check out #{@user.public_name || @user.handle}'s architecture profile on Architecture Helper!" %>
+<% encoded_url = ERB::Util.url_encode(profile_url) %>
+<% encoded_text = ERB::Util.url_encode(share_text) %>
+
+<div class="profile-share-section">
+  <div class="share-header">
+    <span class="share-title">Share This Profile</span>
+  </div>
+  
+  <div class="share-buttons-container">
+    <button class="share-button share-copy" onclick="copyProfileLink()" title="Copy link">
+      <span class="share-btn-text">🔗 Copy Link</span>
+    </button>
+
+    <a href="https://twitter.com/intent/tweet?text=<%= encoded_text %>&url=<%= encoded_url %>" class="share-button share-twitter" target="_blank" title="Share on X">
+      <span class="share-btn-text">𝕏 Share</span>
+    </a>
+
+    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encoded_url %>" class="share-button share-facebook" target="_blank" title="Share on Facebook">
+      <span class="share-btn-text">Facebook</span>
+    </a>
+
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url=<%= encoded_url %>" class="share-button share-linkedin" target="_blank" title="Share on LinkedIn">
+      <span class="share-btn-text">LinkedIn</span>
+    </a>
+  </div>
+</div>
+
+<script>
+function copyProfileLink() {
+  var url = window.location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url);
+  } else {
+    var t = document.createElement('textarea');
+    t.value = url;
+    document.body.appendChild(t);
+    t.select();
+    document.execCommand('copy');
+    document.body.removeChild(t);
+  }
+  alert('Profile link copied!');
+}
+</script>
+
+<style>
+.profile-share-section { margin-bottom: 30px; text-align: center; }
+.share-header { margin-bottom: 12px; }
+.share-title { font-size: 0.9em; color: #888; }
+.share-buttons-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.share-button { display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 8px; border: 1px solid #ddd; background: #fff; color: #333; text-decoration: none; font-size: 0.9em; cursor: pointer; transition: background 0.2s; }
+.share-button:hover { background: #f5f5f5; }
+</style>

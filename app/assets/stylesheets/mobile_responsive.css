@@ -1,0 +1,420 @@
+/* Mobile Responsive Foundation - Phase 1 */
+
+/* Touch-friendly targets and base improvements */
+@media (max-width: 768px) {
+  
+  /* Base touch-friendly targets */
+  .btn, .btn-primary, .btn-secondary, .btn-action, .navbar-toggler {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+  
+  /* Form inputs touch-friendly */
+  input[type="text"], input[type="email"], input[type="password"], 
+  input[type="search"], textarea, select {
+    min-height: 44px !important;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    padding: 12px 16px !important;
+  }
+  
+  /* Navigation improvements */
+  .navbar .nav-link {
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+  }
+  
+  .navbar-collapse {
+    margin-top: 10px;
+  }
+  
+  /* Container spacing improvements */
+  .container, .container-fluid {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  
+  /* Text scaling improvements */
+  body {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+  }
+  
+  h1 {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  h2 {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.875rem !important;
+  }
+  
+  h3 {
+    font-size: 1.5rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  h4 {
+    font-size: 1.25rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.625rem !important;
+  }
+  
+  p, li {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Card and content improvements */
+  .card, .feature-card, .style-card {
+    margin-bottom: 16px !important;
+    border-radius: 12px !important;
+  }
+  
+  .card-body {
+    padding: 16px !important;
+  }
+  
+  /* Grid improvements */
+  .row > div {
+    margin-bottom: 16px;
+  }
+  
+  /* Image responsive improvements */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Building detail page sticky sidebar fix */
+  .building-detail .sidebar {
+    position: static !important;
+    width: 100% !important;
+    margin-top: 20px !important;
+  }
+  
+  /* Modal improvements */
+  .modal-dialog {
+    margin: 16px !important;
+  }
+  
+  .modal-content {
+    border-radius: 12px !important;
+  }
+  
+  .modal-header, .modal-body, .modal-footer {
+    padding: 16px !important;
+  }
+  
+  /* Table improvements */
+  .table-responsive {
+    font-size: 14px;
+  }
+  
+  /* Badge improvements */
+  .badge, .style-pill {
+    font-size: 14px !important;
+    padding: 6px 12px !important;
+    margin: 2px !important;
+  }
+  
+  /* Scroll improvements */
+  .scroll-row, .horizontal-scroll {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .scroll-row::-webkit-scrollbar,
+  .horizontal-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Fix Bootstrap responsive utilities */
+  .d-md-flex {
+    display: block !important;
+  }
+  
+  /* Navbar brand improvement */
+  .navbar-brand {
+    font-size: 18px !important;
+    padding: 12px 0 !important;
+  }
+  
+  /* Spacing utilities for mobile */
+  .mt-mobile {
+    margin-top: 16px !important;
+  }
+  
+  .mb-mobile {
+    margin-bottom: 16px !important;
+  }
+  
+  .p-mobile {
+    padding: 16px !important;
+  }
+  
+  /* Hide elements that don't work well on mobile */
+  .d-none-mobile {
+    display: none !important;
+  }
+  
+  /* Architecture Explorer specific improvements */
+  .hero-row .col-md-5,
+  .hero-row .col-md-7 {
+    margin-bottom: 20px !important;
+  }
+  
+  .building-card {
+    min-width: 280px !important;
+    max-width: 300px !important;
+  }
+  
+  .building-card img {
+    height: 200px !important;
+  }
+  
+  /* Style badge improvements */
+  .style-badge-list {
+    margin: 16px 0 !important;
+  }
+  
+  .style-badge-item {
+    margin-bottom: 16px !important;
+  }
+  
+  .confidence-bar {
+    height: 10px !important;
+  }
+  
+  /* Action buttons improvements */
+  .action-buttons {
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-top: 16px !important;
+  }
+  
+  .btn-action {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  /* Address container improvements */
+  .address-container {
+    margin: 20px -16px 0 -16px !important;
+    border-radius: 0 !important;
+    padding: 16px !important;
+  }
+  
+  .address-container .form-control {
+    margin-bottom: 12px !important;
+  }
+  
+  .btn-address-update {
+    width: 100% !important;
+    padding: 12px !important;
+    font-size: 16px !important;
+  }
+  
+  /* Places index improvements */
+  .filter-bar-inner {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .search-box {
+    min-width: unset !important;
+    width: 100% !important;
+  }
+  
+  .filter-tabs {
+    justify-content: center !important;
+    overflow-x: auto !important;
+  }
+  
+  .sort-select {
+    width: 100% !important;
+  }
+  
+  .sort-select select {
+    width: 100% !important;
+  }
+  
+  /* Home page improvements */
+  .landing-section {
+    flex-direction: column !important;
+    text-align: center !important;
+    padding: 20px 0 !important;
+  }
+  
+  .landing-section img {
+    width: 50% !important;
+    margin-top: 20px !important;
+  }
+  
+  /* Building library improvements */
+  .image-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 16px !important;
+    padding: 0 !important;
+  }
+  
+  .stat-card {
+    width: 100% !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .parent-container {
+    flex-direction: column !important;
+    margin: 16px 0 !important;
+  }
+  
+  /* Search and filter improvements */
+  .form-inline .form-control {
+    width: 100% !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .form-inline .btn {
+    width: 100% !important;
+  }
+  
+  .button-container {
+    margin-bottom: 20px !important;
+  }
+  
+  /* Lightbox improvements */
+  .lightbox-overlay img {
+    max-width: 95vw !important;
+    max-height: 80vh !important;
+  }
+  
+}
+
+/* Extra small devices (phones in portrait) */
+@media (max-width: 576px) {
+  
+  .container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  
+  h1 {
+    font-size: 1.75rem !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Make cards full width with minimal margins */
+  .card, .feature-card, .style-card {
+    margin-left: -12px !important;
+    margin-right: -12px !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Building cards smaller */
+  .building-card {
+    min-width: 240px !important;
+    max-width: 260px !important;
+  }
+  
+  /* Reduce padding on small screens */
+  .p-mobile {
+    padding: 12px !important;
+  }
+  
+  /* Hero stats stack vertically on very small screens */
+  .hero-stats {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  .hero-stat-divider {
+    display: none !important;
+  }
+  
+  /* Featured cards smaller */
+  .featured-image {
+    height: 180px !important;
+  }
+  
+  .featured-content {
+    padding: 16px !important;
+  }
+  
+  .featured-content h3 {
+    font-size: 1.25rem !important;
+  }
+  
+}
+
+/* Landscape phones */
+@media (max-width: 768px) and (orientation: landscape) {
+  
+  /* Adjust hero section for landscape */
+  .hero-section {
+    padding: 40px 0 30px !important;
+  }
+  
+  .hero-section h1 {
+    font-size: 2rem !important;
+  }
+  
+  /* Make featured cards shorter in landscape */
+  .featured-image {
+    height: 200px !important;
+  }
+  
+}
+
+/* High DPI screens - make touch targets even larger */
+@media (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+  
+  .btn, .btn-primary, .btn-secondary, .btn-action {
+    min-height: 48px !important;
+    min-width: 48px !important;
+  }
+  
+  input[type="text"], input[type="email"], input[type="password"], 
+  input[type="search"], textarea, select {
+    min-height: 48px !important;
+  }
+  
+}
+
+/* Accessibility improvements for mobile */
+@media (max-width: 768px) {
+  
+  /* Focus states more visible on mobile */
+  .btn:focus, input:focus, select:focus, textarea:focus {
+    outline: 2px solid #0056b3 !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* Make sure links are touch-friendly */
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 0;
+  }
+  
+  /* Exception for links in paragraphs */
+  p a, li a {
+    min-height: unset;
+    display: inline;
+    padding: 0;
+  }
+  
+}

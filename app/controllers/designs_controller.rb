@@ -9,6 +9,7 @@ class DesignsController < ApplicationController
 
 
   def style_finder
+    track_event('design_style_finder')
     # Your existing style finder logic (if any)
   end
   # This action handles the final submission and API call
@@ -25,6 +26,12 @@ class DesignsController < ApplicationController
 
     # Extract the image style from the parameters
     image_style = params[:image_style] || 'photo-realistic style'
+    
+    track_event('design_submit', { 
+      architecture_type: step1_selection,
+      total_selections: all_selections.length,
+      image_style: image_style
+    })
 
     # Generate the prompt including the image style
     prompt = generate_prompt(step1_selection, all_selections, image_style)
@@ -52,17 +59,20 @@ class DesignsController < ApplicationController
 
   # This action might be used to handle Step 1 form submission
   def step1_process
+    track_event('design_step1_process', { selected_option: params[:selected_option] })
     session[:architecture_type] = params[:selected_option]
     redirect_to step2_path  # Redirect to Step 2
   end
 
   def step1
+    track_event('design_step1_view')
     @latest_images = ArchImageGen.order(created_at: :desc).limit(5)
     @building_library = BuildingAnalysis.where(visible_in_library: true).order(created_at: :desc).limit(5)
     Rails.logger.debug "Latest Images: #{@latest_images}"
   end
 
   def user_creations
+    track_event('design_user_creations')
     @submissions = ArchImageGen.order(created_at: :desc).limit(24)
   end
 

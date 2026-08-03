@@ -1,17 +1,8 @@
-<!-- app/views/architecture_explorer/show.html.erb -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= @is_structured && @building_data ? "#{@building_data['building_name']} — Architecture Helper" : "Building Analysis — Architecture Helper" %></title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M4TLZ8N6CC"></script>
-    <script defer data-domain="app.architecturehelper.com" src="https://plausible.io/js/script.js"></script>
-    <script>
-        !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-        posthog.init('phc_MltKSavY2s3FENOZhvocfU5qHx4f8xsJTAku0H0jVLH',{api_host:'https://app.posthog.com'})
-    </script>
+<!-- Include SEO head content -->
+<%= render 'building_show_head' %>
+
+<!-- Inline CSS specific to building detail pages -->
+<% content_for :head do %>
 <style>
   body { background-color: #fff; }
 
@@ -83,6 +74,11 @@
   .btn-action { background: #f8f9fa; color: #0056b3; border: 1px solid #0056b3; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; text-decoration: none; text-align: center; transition: all 0.2s; cursor: pointer; }
   .btn-action:hover { background: #0056b3; color: #fff; text-decoration: none; }
   .btn-action.active { background: #0056b3; color: #fff; }
+  .btn-library-toggle { display: inline-flex; align-items: center; gap: 6px; }
+  .btn-library-toggle.active { background: #28a745; border-color: #28a745; color: #fff; }
+  .btn-library-toggle.active:hover { background: #dc3545; border-color: #dc3545; }
+  .btn-library-toggle.active:hover i::before { content: "\f005"; }
+  .btn-library-toggle.active:hover .btn-text { display: none; }
 
   /* Horizontal scroll rows */
   .scroll-row { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
@@ -123,15 +119,63 @@
   .legacy-content { padding: 0 16px; }
   .legacy-content h3 { margin: 20px 0 10px; }
 
+  /* Turbo Frame Tabs */
+  .detail-tabs { margin: 32px 0 24px 0; border-bottom: 2px solid #e9ecef; display: flex; gap: 0; }
+  .detail-tab { background: none; border: none; padding: 12px 24px; color: #666; text-decoration: none; font-weight: 600; font-size: 1rem; border-bottom: 3px solid transparent; transition: all 0.2s ease; cursor: pointer; flex: 1; text-align: center; }
+  .detail-tab:hover { color: #0056b3; text-decoration: none; }
+  .detail-tab.active { color: #0056b3; border-bottom-color: #0056b3; background: rgba(0, 86, 179, 0.05); }
+  .detail-tab-content { min-height: 200px; padding: 16px 0; }
+
+  /* Loading skeleton for tab content */
+  .tab-skeleton { display: none; }
+  .tab-skeleton.loading { display: block; }
+  .tab-skeleton .skeleton-card { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; height: 120px; margin-bottom: 16px; }
+  .tab-skeleton .skeleton-text { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; height: 16px; margin-bottom: 8px; }
+  .tab-skeleton .skeleton-text.short { width: 60%; }
+  .tab-skeleton .skeleton-text.medium { width: 80%; }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* No results message */
+  .no-results-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+  }
+
+  .no-results-message h3 {
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .no-results-message p {
+    font-size: 1rem;
+    margin: 0;
+  }
+
   @media (max-width: 768px) {
     .building-header h1 { font-size: 1.6rem; }
-    .hero-row .col-md-5, .hero-row .col-md-7 { margin-bottom: 16px; }
-    .style-card { padding: 14px; }
-    .building-card { min-width: 160px; max-width: 180px; }
+    .hero-row .col-md-5, .hero-row .col-md-7 { margin-bottom: 20px; order: unset; }
+    .hero-row .col-md-7 { order: 1; } /* Content first on mobile */
+    .hero-row .col-md-5 { order: 2; } /* Image second on mobile */
+    .style-card { padding: 16px; margin-bottom: 20px; }
+    .building-card { min-width: 200px; max-width: 220px; }
+    .legacy-content { padding: 0; }
+    .style-badge-list { margin: 20px 0; }
+    .style-badge-item { margin-bottom: 16px; }
+    .confidence-bar { height: 10px; }
+    .action-buttons { flex-direction: column; gap: 12px; margin-top: 16px; }
+    .btn-action { width: 100%; justify-content: center; }
+    .address-container { margin: 20px 0; }
+    .section-title { font-size: 1.25rem; margin-top: 24px; }
+    .scroll-row { gap: 12px; padding-bottom: 16px; }
   }
 </style>
-</head>
-<body>
+<% end %>
 
 <div class="container" style="max-width: 960px; margin: 0 auto; padding: 24px 16px;">
 
@@ -168,10 +212,14 @@
       <div class="building-header">
         <h1><%= @building_data['building_name'] || @building_analysis.name || "Building Analysis" %></h1>
         <div class="building-meta">
-          <% if @building_data['architect'] %><span><%= @building_data['architect'] %></span><% end %>
-          <% if @building_data['year_built'] %><span>Built <%= @building_data['year_built'] %></span><% end %>
+          <% if @building_data['architect'].present? && @building_data['architect'] != 'null' %><span><%= @building_data['architect'] %></span><% end %>
+          <% if @building_data['year_built'].present? && @building_data['year_built'] != 'null' %><span>Built <%= @building_data['year_built'] %></span><% end %>
           <% if @building_analysis.address.present? && @building_analysis.address != "N/A" %><span><%= @building_analysis.address %></span><% end %>
         </div>
+        
+        <%# Building Provenance %>
+        <% show_provenance = true %>
+        <%= render 'shared/building_provenance' %>
       </div>
 
       <%# Hero row: image + style badges %>
@@ -179,17 +227,22 @@
         <div class="col-md-5">
           <div class="hero-image">
             <% if @image_url.present? %>
-              <img src="<%= @image_url %>" alt="<%= @building_data['building_name'] %>">
+              <img src="<%= @image_url %>" alt="<%= @building_data['building_name'] %>" width="500" height="375" loading="lazy">
             <% end %>
           </div>
-          <div class="action-buttons">
-            <%= link_to 'Building Library', '/building_library', class: 'btn-action' %>
-            <% if @is_shared %>
-              <%= button_to '✅ In Library', remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action active' %>
-            <% else %>
-              <%= button_to '➕ Add to Library', add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action' %>
-            <% end %>
-          </div>
+          <% if @is_owner %>
+            <div class="action-buttons">
+              <% if @is_shared %>
+                <%= button_to remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action btn-library-toggle active', title: 'Remove from Building Library' do %>
+                  <i class="fas fa-star"></i> Saved to Library
+                <% end %>
+              <% else %>
+                <%= button_to add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action btn-library-toggle', title: 'Add to Building Library' do %>
+                  <i class="far fa-star"></i> Save to Library
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
         </div>
         <div class="col-md-7">
           <% if @building_data['styles'].present? %>
@@ -211,6 +264,10 @@
         </div>
       </div>
 
+      <%# Proximity Nudges for Gamification %>
+      <%= render 'shared/proximity_nudges' %>
+
+      <div id="section-analysis"></div>
       <%# Overview %>
       <% if @building_data['overview'].present? %>
         <p class="section-text" style="font-size: 1.05rem;"><%= @building_data['overview'] %></p>
@@ -277,17 +334,22 @@
         <div class="col-md-5">
           <div class="hero-image">
             <% if @image_url.present? %>
-              <img src="<%= @image_url %>" alt="Building Image">
+              <img src="<%= @image_url %>" alt="Building Image" width="500" height="375" loading="lazy">
             <% end %>
           </div>
-          <div class="action-buttons">
-            <%= link_to 'Building Library', '/building_library', class: 'btn-action' %>
-            <% if @is_shared %>
-              <%= button_to '✅ In Library', remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action active' %>
-            <% else %>
-              <%= button_to '➕ Add to Library', add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action' %>
-            <% end %>
-          </div>
+          <% if @is_owner %>
+            <div class="action-buttons">
+              <% if @is_shared %>
+                <%= button_to remove_from_library_path(id: @building_analysis.id), method: :post, class: 'btn-action btn-library-toggle active', title: 'Remove from Building Library' do %>
+                  <i class="fas fa-star"></i> Saved to Library
+                <% end %>
+              <% else %>
+                <%= button_to add_to_library_path(id: @building_analysis.id), method: :post, class: 'btn-action btn-library-toggle', title: 'Add to Building Library' do %>
+                  <i class="far fa-star"></i> Save to Library
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
           <% if @h3_contents.present? %>
             <div class="mt-3">
               <% @h3_contents.each do |h3_content| %>
@@ -313,18 +375,36 @@
       <div class="col-md-5">
         <% if @image_url.present? %>
           <div class="hero-image">
-            <img src="<%= @image_url %>" alt="Building Image">
+            <img src="<%= @image_url %>" alt="Building Image" width="500" height="375" loading="lazy">
           </div>
         <% end %>
       </div>
       <div class="col-md-7">
         <div id="loader" class="text-center">
           <h2 class="loading-text">Hang tight, we're working on your analysis</h2>
-          <%= image_tag 'buildinganimation.gif', alt: 'Loading...', id: 'loading-animation', class: 'mx-auto d-block' %>
+          <%= image_tag 'buildinganimation.gif', alt: 'Loading...', id: 'loading-animation', class: 'mx-auto d-block', loading: 'lazy' %>
         </div>
         <div id="results" style="display:none;"></div>
       </div>
     </div>
+  <% end %>
+
+  <%# === SECTION TAB NAVIGATION === %>
+  <% has_analysis = @is_structured && @building_data || @html_content.present? %>
+  <% has_similar = @similar_buildings.present? && @similar_buildings.any? %>
+  <% has_nearby = @nearby_buildings.present? && @nearby_buildings.any? %>
+  <% if has_analysis || has_similar || has_nearby %>
+    <nav class="detail-tabs" id="section-tabs">
+      <% if has_analysis %>
+        <a href="#section-analysis" class="detail-tab active" data-section="section-analysis">Analysis</a>
+      <% end %>
+      <% if has_similar %>
+        <a href="#section-similar" class="detail-tab" data-section="section-similar">Similar Style</a>
+      <% end %>
+      <% if has_nearby %>
+        <a href="#section-nearby" class="detail-tab" data-section="section-nearby">Nearby</a>
+      <% end %>
+    </nav>
   <% end %>
 
   <%# === ADD THIS BUILDING TO THE MAP (combined section) === %>
@@ -353,12 +433,13 @@
 
   <%# === SIMILAR STYLE BUILDINGS === %>
   <% if @similar_buildings.present? && @similar_buildings.any? %>
+    <div id="section-similar"></div>
     <h2 class="section-title">Similar Style Buildings</h2>
     <div class="scroll-row">
       <% @similar_buildings.each do |building| %>
         <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
           <% if building.image_url.present? %>
-            <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>">
+            <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>" width="220" height="140" loading="lazy">
           <% else %>
             <div style="width:100%;height:140px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
           <% end %>
@@ -374,14 +455,15 @@
     </div>
   <% end %>
 
-  <%# === NEARBY BUILDINGS (only if location exists) === %>
-  <% if @building_analysis.latitude.present? && @building_analysis.longitude.present? && @nearby_buildings.present? && @nearby_buildings.any? %>
-    <h2 class="section-title">Buildings in the Same Area</h2>
+  <%# === NEARBY BUILDINGS === %>
+  <% if @nearby_buildings.present? && @nearby_buildings.any? %>
+    <div id="section-nearby"></div>
+    <h2 class="section-title">Nearby Buildings</h2>
     <div class="scroll-row">
       <% @nearby_buildings.each do |building| %>
         <a href="<%= architecture_explorer_show_path(id: building.id) %>" class="building-card">
           <% if building.image_url.present? %>
-            <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>">
+            <img src="<%= building.image_url %>" alt="<%= building.name || 'Building' %>" width="220" height="140" loading="lazy">
           <% else %>
             <div style="width:100%;height:140px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#999;">No image</div>
           <% end %>
@@ -424,6 +506,12 @@
 
 </div>
 
+<!-- Lightbox overlay -->
+<div id="lightbox-overlay" class="lightbox-overlay">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<!-- JavaScript for functionality -->
 <script>
   let checkCount = 0;
   const maxChecks = 12;
@@ -446,7 +534,7 @@
               html += '<ul>' + style.key_elements.map(function(e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') + '</ul>';
             }
             const slug = style.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
-            html += '<a href="/building_library/styles/' + slug + '" class="explore-link">Explore more ' + escapeHtml(style.name) + ' buildings →</a>';
+            html += '<a href="/building_library/styles/' + slug + '" class="explore-link" onclick="window.AHTrack && window.AHTrack(\'style_explore_click\', {building_id: <%= @building_analysis.id %>, style_name: \'' + escapeHtml(style.name) + '\'})">Explore more ' + escapeHtml(style.name) + ' buildings →</a>';
             html += '</div>';
           });
         }
@@ -525,6 +613,66 @@
 
   document.addEventListener('DOMContentLoaded', checkAnalysisStatus);
 
+  // Section tab navigation
+  document.addEventListener('DOMContentLoaded', function() {
+    var tabs = document.querySelectorAll('#section-tabs .detail-tab');
+    var scrollingFromClick = false;
+    var scrollTimer = null;
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        scrollingFromClick = true;
+        clearTimeout(scrollTimer);
+        var target = document.getElementById(tab.getAttribute('data-section'));
+        
+        // Track tab switch
+        if (window.AHTrack) {
+          window.AHTrack('building_tab_switch', {
+            building_id: <%= @building_analysis.id %>,
+            section: tab.getAttribute('data-section')
+          });
+        }
+        
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        // Re-enable scroll-based updates after scroll settles
+        scrollTimer = setTimeout(function() { scrollingFromClick = false; }, 1000);
+      });
+    });
+
+    // Update active tab on scroll (only when user scrolls, not programmatic)
+    var sectionIds = Array.from(tabs).map(function(t) { return t.getAttribute('data-section'); });
+    window.addEventListener('scroll', function() {
+      if (scrollingFromClick) return;
+      var activeId = sectionIds[0];
+      sectionIds.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          var rect = el.getBoundingClientRect();
+          if (rect.top <= 140) activeId = id;
+        }
+      });
+      tabs.forEach(function(t) {
+        t.classList.toggle('active', t.getAttribute('data-section') === activeId);
+      });
+    });
+
+    // Handle initial hash in URL
+    var hash = window.location.hash.replace('#', '');
+    if (hash) {
+      tabs.forEach(function(t) {
+        if (t.getAttribute('data-section') === hash) {
+          tabs.forEach(function(t2) { t2.classList.remove('active'); });
+          t.classList.add('active');
+        }
+      });
+    }
+  });
+
   // Lightbox
   document.addEventListener('DOMContentLoaded', function() {
     var overlay = document.getElementById('lightbox-overlay');
@@ -534,6 +682,14 @@
         lbImg.src = this.src;
         lbImg.alt = this.alt;
         overlay.classList.add('active');
+        
+        // Track image lightbox open
+        if (window.AHTrack) {
+          window.AHTrack('image_lightbox_open', {
+            building_id: <%= @building_analysis.id %>,
+            image_url: this.src
+          });
+        }
       });
     });
     if (overlay) {
@@ -544,9 +700,3 @@
     });
   });
 </script>
-
-<div id="lightbox-overlay" class="lightbox-overlay">
-  <img id="lightbox-img" src="" alt="">
-</div>
-</body>
-</html>

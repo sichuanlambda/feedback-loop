@@ -1,0 +1,204 @@
+<% content_for :title, "#{@style_name} Architecture in #{@city_name}" %>
+<% content_for :meta_description, "Explore #{@total_count} #{@style_name} buildings in #{@city_name}. Discover the #{@style_name.downcase} architectural heritage, notable examples, and design characteristics unique to #{@city_name}." %>
+<% content_for :canonical_url, request.original_url %>
+
+<script defer data-domain="app.architecturehelper.com" src="https://plausible.io/js/script.js"></script>
+
+<%= content_for :head do %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "<%= @style_name %> Architecture in <%= @city_name %>",
+  "description": "Explore <%= @total_count %> <%= @style_name.downcase %> buildings in <%= @city_name %>",
+  "url": "<%= request.original_url %>",
+  "numberOfItems": <%= @total_count %>,
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Architecture Helper",
+    "url": "https://app.architecturehelper.com"
+  }
+}
+</script>
+<% end %>
+
+<style>
+  .sic-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    padding: 60px 0;
+    margin-bottom: 40px;
+  }
+  .sic-hero h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+  .sic-hero .subtitle { font-size: 1.2rem; opacity: 0.8; }
+  .sic-hero .stats { margin-top: 20px; display: flex; gap: 30px; }
+  .sic-hero .stat { text-align: center; }
+  .sic-hero .stat-number { font-size: 2rem; font-weight: 700; color: #e8863a; }
+  .sic-hero .stat-label { font-size: 0.85rem; opacity: 0.7; text-transform: uppercase; }
+
+  .sic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .sic-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    background: white;
+  }
+  .sic-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+  .sic-card img { width: 100%; height: 200px; object-fit: cover; }
+  .sic-card-body { padding: 16px; }
+  .sic-card-body h3 { font-size: 1.1rem; margin: 0 0 8px; }
+  .sic-card-body .address { font-size: 0.85rem; color: #666; }
+  .sic-card-body .styles { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .sic-card-body .style-tag {
+    background: #f0f0f0; padding: 2px 10px; border-radius: 12px;
+    font-size: 0.75rem; color: #555;
+  }
+  .sic-card-body .style-tag.primary { background: #e8863a; color: white; }
+
+  .sic-sidebar {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+  .sic-sidebar-section h2 { font-size: 1.3rem; margin-bottom: 16px; color: #1a1a2e; }
+  .sic-sidebar-section a {
+    display: inline-block; padding: 6px 14px; margin: 4px;
+    background: #f5f5f5; border-radius: 20px; text-decoration: none;
+    color: #333; font-size: 0.9rem; transition: background 0.2s;
+  }
+  .sic-sidebar-section a:hover { background: #e8863a; color: white; }
+  .sic-sidebar-section .count { color: #999; font-size: 0.8rem; }
+
+  .sic-breadcrumb {
+    max-width: 1200px; margin: 20px auto; padding: 0 20px;
+    font-size: 0.9rem; color: #666;
+  }
+  .sic-breadcrumb a { color: #e8863a; text-decoration: none; }
+
+  @media (max-width: 768px) {
+    .sic-hero h1 { font-size: 1.8rem; }
+    .sic-hero .stats { flex-direction: column; gap: 15px; }
+    .sic-sidebar { grid-template-columns: 1fr; }
+    .sic-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="sic-breadcrumb">
+  <a href="/styles">Styles</a> &rsaquo;
+  <a href="/styles/<%= @style_name.parameterize %>"><%= @style_name %></a> &rsaquo;
+  <span><%= @city_name %></span>
+</div>
+
+<div class="sic-hero">
+  <div style="max-width:1200px;margin:0 auto;padding:0 20px">
+    <h1><%= @style_name %> Architecture in <%= @city_name %></h1>
+    <p class="subtitle">
+      Explore <%= @total_count %> <%= @style_name.downcase %> buildings that shape <%= @city_name %>'s architectural identity
+    </p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number"><%= @total_count %></div>
+        <div class="stat-label"><%= @style_name %> Buildings</div>
+      </div>
+      <% if @related_styles_in_city.any? %>
+      <div class="stat">
+        <div class="stat-number"><%= @related_styles_in_city.count %></div>
+        <div class="stat-label">Related Styles</div>
+      </div>
+      <% end %>
+      <% if @other_cities.any? %>
+      <div class="stat">
+        <div class="stat-number"><%= @other_cities.count %></div>
+        <div class="stat-label">Other Cities</div>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<% if @buildings.any? %>
+<div class="sic-grid">
+  <% @buildings.each do |building| %>
+    <a href="<%= architecture_explorer_show_path(building) %>" class="sic-card">
+      <% if building.image_url.present? %>
+        <img src="<%= building.image_url %>" alt="<%= building.name || building.address %>" loading="lazy" width="400" height="200">
+      <% end %>
+      <div class="sic-card-body">
+        <h3><%= building.name.present? ? building.name : building.address %></h3>
+        <% if building.address.present? && building.address != "N/A" && building.address != building.name %>
+          <p class="address"><%= building.address %></p>
+        <% end %>
+        <div class="styles">
+          <% begin %>
+            <% styles = building.h3_contents.present? ? JSON.parse(building.h3_contents) : [] %>
+            <% styles.first(4).each do |s| %>
+              <% normalized = s.gsub(/\s*\d+%$/, '').strip %>
+              <span class="style-tag <%= normalized.downcase == @style_name.downcase ? 'primary' : '' %>"><%= normalized %></span>
+            <% end %>
+          <% rescue JSON::ParserError %>
+          <% end %>
+        </div>
+      </div>
+    </a>
+  <% end %>
+</div>
+<% else %>
+<div style="text-align:center;padding:60px 20px;color:#666">
+  <h2>No <%= @style_name %> buildings found in <%= @city_name %> yet</h2>
+  <p>We're constantly adding new buildings. <a href="/styles/<%= @style_name.parameterize %>">See all <%= @style_name %> buildings →</a></p>
+</div>
+<% end %>
+
+<div class="sic-sidebar">
+  <% if @other_cities.any? %>
+  <div class="sic-sidebar-section">
+    <h2><%= @style_name %> in Other Cities</h2>
+    <% @other_cities.each do |city, count| %>
+      <a href="/styles/<%= @style_name.parameterize %>/in/<%= city.parameterize %>">
+        <%= city %> <span class="count">(<%= count %>)</span>
+      </a>
+    <% end %>
+  </div>
+  <% end %>
+
+  <% if @related_styles_in_city.any? %>
+  <div class="sic-sidebar-section">
+    <h2>Other Styles in <%= @city_name %></h2>
+    <% @related_styles_in_city.each do |style, count| %>
+      <a href="/styles/<%= style.parameterize %>/in/<%= @city_name.parameterize %>">
+        <%= style %> <span class="count">(<%= count %>)</span>
+      </a>
+    <% end %>
+  </div>
+  <% end %>
+</div>
+
+<div style="text-align:center;padding:40px 20px">
+  <a href="/styles/<%= @style_name.parameterize %>" style="color:#e8863a;text-decoration:none;font-size:1.1rem">
+    ← All <%= @style_name %> Buildings
+  </a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <% if @place %>
+    <a href="<%= place_path(@place) %>" style="color:#e8863a;text-decoration:none;font-size:1.1rem">
+      <%= @city_name %> City Guide →
+    </a>
+  <% else %>
+    <a href="/places" style="color:#e8863a;text-decoration:none;font-size:1.1rem">
+      All City Guides →
+    </a>
+  <% end %>
+</div>

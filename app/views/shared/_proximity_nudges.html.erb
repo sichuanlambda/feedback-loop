@@ -1,0 +1,312 @@
+<% if user_signed_in? && defined?(@proximity_nudges) && @proximity_nudges.present? %>
+  <div class="proximity-nudges">
+    <h5 class="nudges-title">
+      <span class="nudges-icon">💡</span>
+      Suggestions for You
+    </h5>
+    <div class="nudges-container">
+      <% @proximity_nudges.each_with_index do |nudge, index| %>
+        <div class="proximity-nudge nudge-<%= nudge[:type] %>" data-index="<%= index %>">
+          <div class="nudge-icon"><%= nudge[:icon] %></div>
+          <div class="nudge-content">
+            <div class="nudge-title"><%= nudge[:title] %></div>
+            <div class="nudge-message"><%= nudge[:message] %></div>
+            <% if nudge[:action_url].present? %>
+              <a href="<%= nudge[:action_url] %>" class="nudge-action">
+                <%= nudge[:action_text] %>
+                <span class="action-arrow">→</span>
+              </a>
+            <% end %>
+          </div>
+          <button class="nudge-dismiss" onclick="dismissNudge(this)" aria-label="Dismiss suggestion">×</button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <style>
+    .proximity-nudges {
+      margin: 20px 0;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 12px;
+      padding: 16px;
+      border-left: 4px solid #007bff;
+    }
+
+    .nudges-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px 0;
+      font-weight: 600;
+      color: #495057;
+      font-size: 16px;
+    }
+
+    .nudges-icon {
+      font-size: 18px;
+    }
+
+    .nudges-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .proximity-nudge {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .proximity-nudge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .nudge-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 123, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .nudge-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .nudge-title {
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .nudge-message {
+      color: #6c757d;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .nudge-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #007bff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .nudge-action:hover {
+      color: #0056b3;
+      text-decoration: none;
+    }
+
+    .action-arrow {
+      transition: transform 0.2s ease;
+    }
+
+    .nudge-action:hover .action-arrow {
+      transform: translateX(2px);
+    }
+
+    .nudge-dismiss {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      color: #6c757d;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      opacity: 0.7;
+    }
+
+    .nudge-dismiss:hover {
+      background: rgba(0, 0, 0, 0.2);
+      opacity: 1;
+    }
+
+    /* Type-specific styling */
+    .nudge-collection_expansion {
+      border-left: 3px solid #28a745;
+    }
+
+    .nudge-collection_expansion .nudge-icon {
+      background: rgba(40, 167, 69, 0.1);
+    }
+
+    .nudge-new_collection {
+      border-left: 3px solid #ffc107;
+    }
+
+    .nudge-new_collection .nudge-icon {
+      background: rgba(255, 193, 7, 0.1);
+    }
+
+    .nudge-city_exploration, .nudge-city_milestone {
+      border-left: 3px solid #17a2b8;
+    }
+
+    .nudge-city_exploration .nudge-icon, .nudge-city_milestone .nudge-icon {
+      background: rgba(23, 162, 184, 0.1);
+    }
+
+    .nudge-daily_streak, .nudge-daily_milestone {
+      border-left: 3px solid #fd7e14;
+    }
+
+    .nudge-daily_streak .nudge-icon, .nudge-daily_milestone .nudge-icon {
+      background: rgba(253, 126, 20, 0.1);
+    }
+
+    .nudge-weekly_first {
+      border-left: 3px solid #6f42c1;
+    }
+
+    .nudge-weekly_first .nudge-icon {
+      background: rgba(111, 66, 193, 0.1);
+    }
+
+    .nudge-style_diversity {
+      border-left: 3px solid #e83e8c;
+    }
+
+    .nudge-style_diversity .nudge-icon {
+      background: rgba(232, 62, 140, 0.1);
+    }
+
+    .nudge-sharing_encouragement {
+      border-left: 3px solid #20c997;
+    }
+
+    .nudge-sharing_encouragement .nudge-icon {
+      background: rgba(32, 201, 151, 0.1);
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .proximity-nudges {
+        margin: 16px 0;
+        padding: 12px;
+      }
+
+      .proximity-nudge {
+        padding: 10px;
+        gap: 10px;
+      }
+
+      .nudge-icon {
+        font-size: 20px;
+        width: 28px;
+        height: 28px;
+      }
+
+      .nudge-title {
+        font-size: 13px;
+      }
+
+      .nudge-message {
+        font-size: 12px;
+      }
+
+      .nudge-action {
+        font-size: 12px;
+      }
+    }
+
+    /* Animation for new nudges */
+    .proximity-nudge {
+      animation: slideInUp 0.3s ease-out;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Hide nudges animation */
+    .proximity-nudge.dismissed {
+      animation: slideOutDown 0.3s ease-in forwards;
+    }
+
+    @keyframes slideOutDown {
+      to {
+        opacity: 0;
+        transform: translateY(-10px);
+        height: 0;
+        padding: 0;
+        margin: 0;
+      }
+    }
+  </style>
+
+  <script>
+    function dismissNudge(button) {
+      const nudge = button.closest('.proximity-nudge');
+      nudge.classList.add('dismissed');
+      
+      setTimeout(() => {
+        nudge.remove();
+        
+        // Hide entire container if no nudges left
+        const container = document.querySelector('.proximity-nudges');
+        const remainingNudges = container.querySelectorAll('.proximity-nudge:not(.dismissed)');
+        if (remainingNudges.length === 0) {
+          container.style.display = 'none';
+        }
+      }, 300);
+
+      // Optional: Track dismissal for analytics
+      if (window.gtag) {
+        gtag('event', 'nudge_dismissed', {
+          'nudge_type': nudge.dataset.index,
+          'nudge_class': nudge.className
+        });
+      }
+    }
+
+    // Track nudge interactions
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.nudge-action')) {
+        const nudge = e.target.closest('.proximity-nudge');
+        if (window.gtag && nudge) {
+          gtag('event', 'nudge_clicked', {
+            'nudge_type': nudge.dataset.index,
+            'nudge_class': nudge.className
+          });
+        }
+      }
+    });
+  </script>
+<% end %>

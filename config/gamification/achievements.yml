@@ -1,0 +1,246 @@
+---
+# Achievement Definitions for Architecture Helper Gamification
+# Each achievement has: name, description, icon, badge_count, criteria
+
+achievements:
+  # Explorer Series - Building count milestones
+  first_building:
+    name: "First Steps"
+    description: "Analyzed your first building! Welcome to the world of architectural exploration."
+    icon: "first-step.svg"
+    badge_count: 1
+    category: "explorer"
+    criteria:
+      buildings_analyzed: 1
+    points: 10
+
+  explorer_bronze:
+    name: "Urban Explorer - Bronze"
+    description: "Analyzed 10 buildings. You're getting the hang of architectural analysis!"
+    icon: "explorer-bronze.svg"
+    badge_count: 1
+    category: "explorer"
+    criteria:
+      buildings_analyzed: 10
+    points: 25
+
+  explorer_silver:
+    name: "Urban Explorer - Silver"
+    description: "Analyzed 50 buildings. Your architectural eye is really developing!"
+    icon: "explorer-silver.svg"
+    badge_count: 1
+    category: "explorer"
+    criteria:
+      buildings_analyzed: 50
+    points: 75
+
+  explorer_gold:
+    name: "Urban Explorer - Gold"
+    description: "Analyzed 100 buildings. You're a true architectural enthusiast!"
+    icon: "explorer-gold.svg"
+    badge_count: 1
+    category: "explorer"
+    criteria:
+      buildings_analyzed: 100
+    points: 200
+
+  # Style Collection Series
+  first_style_collection:
+    name: "Style Collector"
+    description: "Started your first style collection! Every architectural journey begins with a single style."
+    icon: "collection-start.svg"
+    badge_count: 1
+    category: "collector"
+    criteria:
+      styles_collected: 1
+    points: 15
+
+  collector_bronze:
+    name: "Style Collector - Bronze"
+    description: "Collected 5 different architectural styles. You appreciate variety!"
+    icon: "collector-bronze.svg"
+    badge_count: 1
+    category: "collector"
+    criteria:
+      styles_collected: 5
+    points: 50
+
+  collector_silver:
+    name: "Style Collector - Silver"
+    description: "Collected 15 different architectural styles. You have a diverse taste!"
+    icon: "collector-silver.svg"
+    badge_count: 1
+    category: "collector"
+    criteria:
+      styles_collected: 15
+    points: 150
+
+  collector_gold:
+    name: "Style Collector - Gold"
+    description: "Collected 25+ different architectural styles. You're a true connoisseur!"
+    icon: "collector-gold.svg"
+    badge_count: 1
+    category: "collector"
+    criteria:
+      styles_collected: 25
+    points: 400
+
+  # Style Master Series - Deep dive into specific styles
+  style_master_art_deco:
+    name: "Art Deco Master"
+    description: "Collected 20+ Art Deco buildings. You understand the elegance of the machine age!"
+    icon: "master-art-deco.svg"
+    badge_count: 1
+    category: "master"
+    criteria:
+      style_collection:
+        style: "Art Deco"
+        count: 20
+    points: 100
+
+  style_master_modern:
+    name: "Modernist Master"
+    description: "Collected 20+ Modern/Contemporary buildings. Less is more!"
+    icon: "master-modern.svg"
+    badge_count: 1
+    category: "master"
+    criteria:
+      style_collection:
+        style: "Modern"
+        count: 20
+    points: 100
+
+  style_master_victorian:
+    name: "Victorian Master"
+    description: "Collected 20+ Victorian buildings. You appreciate ornate details!"
+    icon: "master-victorian.svg"
+    badge_count: 1
+    category: "master"
+    criteria:
+      style_collection:
+        style: "Victorian"
+        count: 20
+    points: 100
+
+  style_master_gothic:
+    name: "Gothic Master"
+    description: "Collected 15+ Gothic buildings. You love soaring heights and pointed arches!"
+    icon: "master-gothic.svg"
+    badge_count: 1
+    category: "master"
+    criteria:
+      style_collection:
+        style: "Gothic"
+        count: 15
+    points: 100
+
+  # City Expert Series - Regional achievements
+  city_expert_nyc:
+    name: "New York Expert"
+    description: "Analyzed 25+ buildings in New York City. You know the Big Apple!"
+    icon: "expert-nyc.svg"
+    badge_count: 1
+    category: "expert"
+    criteria:
+      location_analysis:
+        city: "New York"
+        count: 25
+    points: 150
+
+  city_expert_chicago:
+    name: "Chicago Expert"
+    description: "Analyzed 20+ buildings in Chicago. You appreciate the architectural birthplace!"
+    icon: "expert-chicago.svg"
+    badge_count: 1
+    category: "expert"
+    criteria:
+      location_analysis:
+        city: "Chicago"
+        count: 20
+    points: 150
+
+  city_expert_sf:
+    name: "San Francisco Expert"
+    description: "Analyzed 20+ buildings in San Francisco. You've conquered the hills!"
+    icon: "expert-sf.svg"
+    badge_count: 1
+    category: "expert"
+    criteria:
+      location_analysis:
+        city: "San Francisco"
+        count: 20
+    points: 150
+
+  # Special Achievement Series
+  diversity_champion:
+    name: "Diversity Champion"
+    description: "Collected at least 3 buildings each from 10+ different styles. You embrace architectural variety!"
+    icon: "diversity-champion.svg"
+    badge_count: 1
+    category: "special"
+    criteria:
+      diverse_collections:
+        min_styles: 10
+        min_per_style: 3
+    points: 250
+
+  speed_analyzer:
+    name: "Speed Analyzer"
+    description: "Analyzed 10 buildings in a single day. You're on fire!"
+    icon: "speed-analyzer.svg"
+    badge_count: 1
+    category: "special"
+    criteria:
+      daily_analysis: 10
+    points: 50
+
+  weekend_warrior:
+    name: "Weekend Warrior"
+    description: "Analyzed buildings on 5 consecutive weekends. Architecture never sleeps!"
+    icon: "weekend-warrior.svg"
+    badge_count: 1
+    category: "special"
+    criteria:
+      weekend_streak: 5
+    points: 75
+
+  early_bird:
+    name: "Early Bird"
+    description: "First to analyze 5 buildings in your city this week!"
+    icon: "early-bird.svg"
+    badge_count: 1
+    category: "special"
+    criteria:
+      weekly_first: 5
+    points: 40
+
+# Badge display configuration
+badge_display:
+  categories:
+    - name: "Explorer"
+      color: "#3498db"
+      description: "Building analysis milestones"
+    - name: "Collector" 
+      color: "#e74c3c"
+      description: "Style collection achievements"
+    - name: "Master"
+      color: "#9b59b6"
+      description: "Deep expertise in specific styles"
+    - name: "Expert"
+      color: "#2ecc71"
+      description: "Regional knowledge and specialization"
+    - name: "Special"
+      color: "#f39c12"
+      description: "Unique accomplishments and challenges"
+
+# Achievement checking schedule
+checking:
+  triggers:
+    - event: "building_analyzed"
+      checks: ["explorer", "collector", "master", "expert", "special"]
+    - event: "style_collected"
+      checks: ["collector", "master"]
+    - event: "daily_activity"
+      checks: ["special"]
+    - event: "weekly_activity"
+      checks: ["special", "expert"]
