@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_24_161047) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_17_121500) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -60,6 +60,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_24_161047) do
     t.float "latitude"
     t.float "longitude"
     t.string "city"
+    t.boolean "featured", default: false, null: false
+    t.integer "likes_count", default: 0, null: false
+    t.integer "views_count", default: 0, null: false
+    t.integer "featured_order"
+    t.string "famous_house_name"
+    t.string "name"
+    t.index ["featured", "featured_order"], name: "index_building_analyses_on_featured_and_featured_order"
+    t.index ["featured"], name: "index_building_analyses_on_featured"
+    t.index ["likes_count"], name: "index_building_analyses_on_likes_count"
     t.index ["user_id"], name: "index_building_analyses_on_user_id"
   end
 
@@ -85,6 +94,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_24_161047) do
     t.text "gpt_response"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "place_subscriptions", force: :cascade do |t|
+    t.string "email", null: false
+    t.integer "place_id", null: false
+    t.datetime "subscribed_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email", "place_id"], name: "index_place_subscriptions_on_email_and_place_id", unique: true
+    t.index ["place_id"], name: "index_place_subscriptions_on_place_id"
   end
 
   create_table "places", force: :cascade do |t|
@@ -114,12 +133,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_24_161047) do
     t.index ["slug"], name: "index_places_on_slug", unique: true
   end
 
-  create_table "products", force: :cascade do |t|
-    t.string "name"
-    t.decimal "price", precision: 10, scale: 2
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
+# Could not dump table "products" because of following StandardError
+#   Unknown type 'vector' for column 'embedding'
 
   create_table "screenshot_analyses", force: :cascade do |t|
     t.text "extracted_text"
@@ -149,6 +164,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_24_161047) do
     t.string "subscription_status"
     t.integer "credits", default: 3, null: false
     t.boolean "admin"
+    t.boolean "marketing_opt_in", default: false, null: false
+    t.datetime "marketing_opted_in_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider"], name: "index_users_on_provider"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

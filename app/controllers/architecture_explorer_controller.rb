@@ -345,7 +345,10 @@ class ArchitectureExplorerController < ApplicationController
   # New map-based view actions
   def map
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
-    @building_analyses = BuildingAnalysis.all.map do |analysis|
+    @building_analyses = BuildingAnalysis.where(visible_in_library: true)
+                                         .where.not(latitude: nil)
+                                         .where.not(longitude: nil)
+                                         .map do |analysis|
       {
         id: analysis.id,
         latitude: analysis.latitude,

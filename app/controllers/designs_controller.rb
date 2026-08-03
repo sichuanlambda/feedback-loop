@@ -32,21 +32,18 @@ class DesignsController < ApplicationController
     # Send the request to the image generation API
     gpt_response = send_image_generation_request(prompt)
 
-    # Extract the image URL from the response
-    @image_url = extract_image_url_from_gpt_response(gpt_response)
-    Rails.logger.debug "Image URL: #{@image_url}"
+    # gpt-image-1 returns the image as base64 rather than a hosted URL
+    image_b64 = gpt_response && gpt_response.dig("data", 0, "b64_json")
 
-    # Save the image URL in the ArchImageGen model
-    if @image_url.present?
-      file = URI.open(@image_url)
+    if image_b64.present?
       s3 = Aws::S3::Resource.new(region: 'us-east-2')
-      obj = s3.bucket('architecture-generated').object("path/to/store/#{SecureRandom.uuid}.jpg")
-      obj.upload_file(file)  # Removed the acl:'public-read'
+      obj = s3.bucket('architecture-generated').object("path/to/store/#{SecureRandom.uuid}.png")
+      obj.put(body: Base64.decode64(image_b64), content_type: 'image/png')
 
-      # Save the S3 URL instead of the GPT URL
-      ArchImageGen.create(image_url: obj.public_url)
+      @image_url = obj.public_url
+      ArchImageGen.create(image_url: @image_url)
     else
-      Rails.logger.debug "No image URL to save"
+      Rails.logger.error "Image generation failed, no image data in response"
     end
 
     # Render the show_image view directly with @image_url
@@ -92,7 +89,7 @@ class DesignsController < ApplicationController
 
   def send_image_generation_request(prompt)
     body = {
-      model: 'dall-e-3',
+      model: 'gpt-image-1',
       prompt: prompt,
       n: 1,  # Number of images to generate
       size: "1024x1024"  # Size of the generated images
@@ -101,15 +98,16 @@ class DesignsController < ApplicationController
     response = HTTParty.post(
       'https://api.openai.com/v1/images/generations',
       body: body,
-      headers: @gpt_api_options[:headers]
+      headers: @gpt_api_options[:headers],
+      timeout: 300  # image generation can take a couple of minutes
     )
-    Rails.logger.debug "API Response: #{response.body}"  # Log the entire response
 
-    response.code == 200 ? JSON.parse(response.body) : nil
-  end
+    unless response.code == 200
+      Rails.logger.error "Image generation API error (HTTP #{response.code}): #{response.body}"
+      return nil
+    end
 
-  def extract_image_url_from_gpt_response(response)
-    response["data"].first["url"] if response && response["data"]
+    JSON.parse(response.body)
   end
 
   def show_image
