@@ -24,6 +24,17 @@ class BuildingAnalysis < ApplicationRecord
     "https://maps.googleapis.com/maps/api/streetview?size=#{size}&location=#{latitude},#{longitude}&key=#{api_key}"
   end
 
+  # Deterministic shuffle that changes daily, so library pages mix cities
+  # instead of showing batch-imported walls of one city. Postgres in
+  # production; SQLite in development lacks md5(), so hash with what's there.
+  def self.daily_shuffle
+    if connection.adapter_name.match?(/postg/i)
+      order(Arel.sql("md5(id::text || '#{Date.today}')"))
+    else
+      order(Arel.sql("(id * 2654435761 + #{Date.today.jd}) % 1000000"))
+    end
+  end
+
   def self.total_count
     BuildingAnalysis.count
   end

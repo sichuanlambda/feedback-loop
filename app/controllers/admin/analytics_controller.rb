@@ -4,6 +4,43 @@ module Admin
 
     EXCLUDED_EMAILS = ['atlas@architecturehelper.com', 'cdnathan.robinson@gmail.com'].freeze
 
+    # DAU / WAU / MAU and per-activity engagement, driven by user_events
+    def engagement
+      @exclude_internal = params[:exclude_internal] != '0'
+      excluded_user_ids = @exclude_internal ? User.where(email: EXCLUDED_EMAILS).pluck(:id) : []
+
+      base = UserEvent.all
+      base = base.where.not(user_id: excluded_user_ids) if excluded_user_ids.any?
+      identified = base.where.not(user_id: nil)
+
+      today_start = Date.current.beginning_of_day
+      @dau = identified.where(created_at: today_start..).distinct.count(:user_id)
+      @wau = identified.where(created_at: 7.days.ago..).distinct.count(:user_id)
+      @mau = identified.where(created_at: 30.days.ago..).distinct.count(:user_id)
+      @stickiness = @mau.positive? ? (@dau * 100.0 / @mau).round(1) : 0
+
+      # Anonymous reach for context (sessions without sign-in)
+      @sessions_30d = base.where(created_at: 30.days.ago..).where.not(session_id: [nil, '']).distinct.count(:session_id)
+
+      # Daily series, last 30 days (keys normalized: Date on PG, String on SQLite)
+      window_start = 29.days.ago.to_date
+      normalize = ->(h) { h.transform_keys { |k| k.to_s[0, 10] } }
+      events_by_day = normalize.call(base.where('created_at >= ?', window_start.beginning_of_day).group('DATE(created_at)').count)
+      users_by_day = normalize.call(identified.where('created_at >= ?', window_start.beginning_of_day).group('DATE(created_at)').distinct.count(:user_id))
+      @daily_engagement = (window_start..Date.current).map do |d|
+        { date: d.strftime('%b %-d'), events: events_by_day[d.to_s] || 0, users: users_by_day[d.to_s] || 0 }
+      end
+
+      # Per-activity breakdown, last 30 days
+      window = base.where(created_at: 30.days.ago..)
+      totals = window.group(:event_type).count
+      uniq_users = window.group(:event_type).distinct.count(:user_id)
+      uniq_sessions = window.where.not(session_id: [nil, '']).group(:event_type).distinct.count(:session_id)
+      @activity_breakdown = totals.map do |type, count|
+        { type: type, events: count, users: uniq_users[type] || 0, sessions: uniq_sessions[type] || 0 }
+      end.sort_by { |row| -row[:users] }
+    end
+
     def index
       @exclude_internal = params[:exclude_internal] != '0'
       @timeframe = (params[:timeframe] || '30').to_i

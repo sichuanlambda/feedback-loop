@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_17_121500) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_04_082014) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -66,10 +66,30 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_121500) do
     t.integer "featured_order"
     t.string "famous_house_name"
     t.string "name"
+    t.json "provenance_data"
     t.index ["featured", "featured_order"], name: "index_building_analyses_on_featured_and_featured_order"
     t.index ["featured"], name: "index_building_analyses_on_featured"
     t.index ["likes_count"], name: "index_building_analyses_on_likes_count"
+    t.index ["provenance_data"], name: "index_building_analyses_on_provenance_data"
     t.index ["user_id"], name: "index_building_analyses_on_user_id"
+  end
+
+  create_table "building_contributions", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "building_analysis_id", null: false
+    t.string "contribution_type", null: false
+    t.integer "points_awarded", default: 0
+    t.datetime "contributed_at", null: false
+    t.text "description"
+    t.json "metadata"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["building_analysis_id"], name: "idx_building_contributions_building_analysis"
+    t.index ["building_analysis_id"], name: "idx_building_contributions_building_analysis_alt"
+    t.index ["contributed_at"], name: "index_building_contributions_on_contributed_at"
+    t.index ["points_awarded"], name: "index_building_contributions_on_points_awarded"
+    t.index ["user_id", "contribution_type"], name: "index_building_contributions_on_user_id_and_contribution_type"
+    t.index ["user_id"], name: "index_building_contributions_on_user_id"
   end
 
   create_table "dog_ratings", force: :cascade do |t|
@@ -144,6 +164,66 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_121500) do
     t.index ["user_id"], name: "index_screenshot_analyses_on_user_id"
   end
 
+  create_table "user_achievements", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "achievement_key", null: false
+    t.datetime "earned_at", null: false
+    t.integer "badge_count", default: 1
+    t.text "metadata"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["achievement_key"], name: "index_user_achievements_on_achievement_key"
+    t.index ["earned_at"], name: "index_user_achievements_on_earned_at"
+    t.index ["user_id", "achievement_key"], name: "index_user_achievements_on_user_id_and_achievement_key", unique: true
+    t.index ["user_id"], name: "index_user_achievements_on_user_id"
+  end
+
+  create_table "user_events", force: :cascade do |t|
+    t.integer "user_id"
+    t.string "session_id"
+    t.string "event_type"
+    t.json "metadata", default: {}
+    t.string "ip_hash"
+    t.string "user_agent"
+    t.datetime "created_at", null: false
+    t.index ["created_at"], name: "index_user_events_on_created_at"
+    t.index ["event_type", "created_at"], name: "index_user_events_on_event_type_and_created_at"
+    t.index ["session_id"], name: "index_user_events_on_session_id"
+    t.index ["user_id", "created_at"], name: "index_user_events_on_user_id_and_created_at"
+  end
+
+  create_table "user_levels", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "level", default: 1
+    t.integer "total_points", default: 0
+    t.integer "buildings_analyzed", default: 0
+    t.integer "styles_collected", default: 0
+    t.integer "achievements_earned", default: 0
+    t.datetime "last_activity_at"
+    t.datetime "level_reached_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["last_activity_at"], name: "index_user_levels_on_last_activity_at"
+    t.index ["level"], name: "index_user_levels_on_level"
+    t.index ["total_points"], name: "index_user_levels_on_total_points"
+    t.index ["user_id"], name: "index_user_levels_on_user_id", unique: true
+  end
+
+  create_table "user_style_collections", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "style_name", null: false
+    t.integer "building_count", default: 0
+    t.datetime "first_collected_at", null: false
+    t.datetime "last_updated_at", null: false
+    t.json "building_ids"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["building_count"], name: "index_user_style_collections_on_building_count"
+    t.index ["style_name"], name: "index_user_style_collections_on_style_name"
+    t.index ["user_id", "style_name"], name: "index_user_style_collections_on_user_id_and_style_name", unique: true
+    t.index ["user_id"], name: "index_user_style_collections_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -166,6 +246,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_121500) do
     t.boolean "admin"
     t.boolean "marketing_opt_in", default: false, null: false
     t.datetime "marketing_opted_in_at"
+    t.datetime "terms_accepted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider"], name: "index_users_on_provider"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -176,5 +257,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_17_121500) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "building_analyses", "users"
+  add_foreign_key "building_contributions", "building_analyses"
+  add_foreign_key "building_contributions", "users"
   add_foreign_key "screenshot_analyses", "users"
+  add_foreign_key "user_achievements", "users"
+  add_foreign_key "user_events", "users", on_delete: :nullify
+  add_foreign_key "user_levels", "users"
+  add_foreign_key "user_style_collections", "users"
 end

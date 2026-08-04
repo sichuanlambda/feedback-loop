@@ -8,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         .admin-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0056b3;
             color: white;
             padding: 2rem 0;
             margin-bottom: 2rem;
@@ -30,7 +30,7 @@
         
         .style-badge {
             display: inline-block;
-            background: #007bff;
+            background: #0056b3;
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;
@@ -203,7 +203,11 @@
                                 <tr>
                                     <td><strong>User:</strong></td>
                                     <td>
-                                        <%= link_to @building_analysis.user.email, user_profile_path(@building_analysis.user.handle) %>
+                                        <% if @building_analysis.user.handle.present? %>
+                                            <%= link_to @building_analysis.user.email, user_profile_path(@building_analysis.user.handle) %>
+                                        <% else %>
+                                            <%= @building_analysis.user.email %>
+                                        <% end %>
                                     </td>
                                 </tr>
                                 <tr>

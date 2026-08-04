@@ -75,6 +75,23 @@ class Admin::DashboardController < ApplicationController
     @buildings_last_7_days = BuildingAnalysis.where('created_at >= ?', seven_days_ago).count
     @buildings_previous_7_days = BuildingAnalysis.where('created_at >= ? AND created_at < ?', fourteen_days_ago, seven_days_ago).count
     @building_growth_rate = @buildings_previous_7_days > 0 ? ((@buildings_last_7_days - @buildings_previous_7_days).to_f / @buildings_previous_7_days * 100).round(1) : 0
+
+    # Audience segments (who we can market to)
+    @paying_users = User.where(subscription_status: 'active').count
+    @free_users = @total_users - @paying_users
+    @marketing_opt_ins = User.column_names.include?('marketing_opt_in') ? User.where(marketing_opt_in: true).count : 0
+
+    # Daily activity series for the 30-day trend chart (two group-by queries,
+    # not one query per day; DATE() keys come back as Date on PG, String on SQLite)
+    window_start = 29.days.ago.to_date
+    users_by_day = User.where('created_at >= ?', window_start.beginning_of_day).group('DATE(created_at)').count
+    buildings_by_day = BuildingAnalysis.where('created_at >= ?', window_start.beginning_of_day).group('DATE(created_at)').count
+    normalize = ->(h) { h.transform_keys { |k| k.to_s[0, 10] } }
+    users_by_day = normalize.call(users_by_day)
+    buildings_by_day = normalize.call(buildings_by_day)
+    @daily_activity = (window_start..Date.current).map do |d|
+      { date: d.strftime('%b %-d'), users: users_by_day[d.to_s] || 0, buildings: buildings_by_day[d.to_s] || 0 }
+    end
   end
 
   def analytics

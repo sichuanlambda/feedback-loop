@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="32" cy="32" r="30" fill="#0056b3" stroke="#004080" stroke-width="2"/>
+  <path d="M22 46 L22 30 Q22 18, 32 14 Q42 18, 42 30 L42 46 Z" fill="white"/>
+  <path d="M27 46 L27 32 Q27 24, 32 21 Q37 24, 37 32 L37 46 Z" fill="#0056b3"/>
+  <path d="M30 46 L30 34 Q30 30, 32 28.5 Q34 30, 34 34 L34 46 Z" fill="white"/>
+  <circle cx="32" cy="18.5" r="1.6" fill="#0056b3"/>
+  <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <text x="32" y="56" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="white" font-weight="bold">GOTHIC</text>
+</svg>

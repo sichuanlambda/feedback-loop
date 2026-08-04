@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="firstStepGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#4CAF50"/>
-      <stop offset="100%" style="stop-color:#45a049"/>
-    </linearGradient>
-  </defs>
-  
   <!-- Badge circle -->
-  <circle cx="32" cy="32" r="30" fill="url(#firstStepGradient)" stroke="#2e7d33" stroke-width="2"/>
+  <circle cx="32" cy="32" r="30" fill="#28a745" stroke="#1e7e34" stroke-width="2"/>
   
   <!-- Footprint icon -->
   <path d="M20 25 Q20 20, 25 20 Q30 20, 30 25 L30 35 Q30 40, 25 40 Q20 40, 20 35 Z" fill="white"/>

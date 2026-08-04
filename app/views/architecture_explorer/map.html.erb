@@ -32,7 +32,7 @@
             padding: 6px 10px; border: 1px solid #dee2e6; border-radius: 20px;
             font-size: 13px; outline: none; transition: border-color 0.2s;
         }
-        #search-bar:focus { border-color: #007bff; }
+        #search-bar:focus { border-color: #0056b3; }
 
         /* City pill buttons */
         .city-pill {
@@ -41,8 +41,8 @@
             background: #f8f9fa; font-size: 12px; font-weight: 500; cursor: pointer;
             transition: all 0.2s; white-space: nowrap; flex-shrink: 0; text-decoration: none; color: #333;
         }
-        .city-pill:hover { background: #007bff; color: #fff; border-color: #007bff; }
-        .city-pill.active { background: #007bff; color: #fff; border-color: #007bff; }
+        .city-pill:hover { background: #0056b3; color: #fff; border-color: #0056b3; }
+        .city-pill.active { background: #0056b3; color: #fff; border-color: #0056b3; }
 
         /* Near Me button */
         .near-me-btn {
@@ -90,7 +90,7 @@
             border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px;
             margin-bottom: 12px; background: #f9f9f9;
         }
-        .building-item h4 { margin: 0 0 10px; font-size: 15px; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 8px; }
+        .building-item h4 { margin: 0 0 10px; font-size: 15px; color: #333; border-bottom: 2px solid #0056b3; padding-bottom: 8px; }
 
         /* Popup styles */
         .mapboxgl-popup-content { padding: 0; max-width: 300px; border-radius: 10px; overflow: hidden; }
@@ -99,8 +99,8 @@
         .popup-body { padding: 12px; }
         .popup-body h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
         .popup-body .popup-address { font-size: 12px; color: #666; margin-bottom: 8px; }
-        .popup-body .popup-place { font-size: 11px; color: #007bff; margin-bottom: 6px; }
-        .popup-body .popup-place a { color: #007bff; text-decoration: none; }
+        .popup-body .popup-place { font-size: 11px; color: #0056b3; margin-bottom: 6px; }
+        .popup-body .popup-place a { color: #0056b3; text-decoration: none; }
         .popup-body .popup-place a:hover { text-decoration: underline; }
         .style-chip {
             display: inline-block; padding: 2px 8px; margin: 2px; border-radius: 10px;
@@ -108,14 +108,14 @@
         }
         .popup-body .popup-actions { margin-top: 8px; }
         .popup-body .popup-actions a {
-            display: inline-block; padding: 5px 14px; background: #007bff; color: #fff;
+            display: inline-block; padding: 5px 14px; background: #0056b3; color: #fff;
             border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 500;
         }
         .popup-body .popup-actions a:hover { background: #0056b3; }
 
         /* Style badges */
         .badge {
-            display: inline-block; padding: 3px 8px; margin: 2px; background: #007bff;
+            display: inline-block; padding: 3px 8px; margin: 2px; background: #0056b3;
             color: white; border-radius: 12px; font-size: 12px;
         }
 
@@ -133,7 +133,7 @@
             padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all 0.2s; user-select: none;
         }
         .style-option:hover { background: #e9ecef; }
-        .style-option.selected { background: #007bff; color: white; border-color: #007bff; }
+        .style-option.selected { background: #0056b3; color: white; border-color: #0056b3; }
 
         /* Satellite toggle */
         #style-switcher {
@@ -175,7 +175,7 @@
 
         /* Cluster markers */
         .cluster-marker {
-            background-color: #007bff; border-radius: 50%; color: white;
+            background-color: #0056b3; border-radius: 50%; color: white;
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; font-size: 13px; border: 2px solid #fff;
             box-shadow: 0 1px 4px rgba(0,0,0,0.2);
@@ -543,7 +543,7 @@
               placeLink +
               (b.image_url ? '<img src="' + b.image_url + '" alt="Building" width="100%" style="border-radius:6px;max-height:160px;object-fit:cover;" onerror="this.style.display=\'none\'">' : '') +
               '<div style="margin:8px 0">' + (stylesHtml || '<span style="color:#999">No styles</span>') + '</div>' +
-              '<div style="text-align:center"><a href="/architecture_explorer/' + b.id + '" style="display:inline-block;padding:6px 16px;background:#007bff;color:#fff;border-radius:4px;text-decoration:none;font-size:13px">View Details</a></div>';
+              '<div style="text-align:center"><a href="/architecture_explorer/' + b.id + '" style="display:inline-block;padding:6px 16px;background:#0056b3;color:#fff;border-radius:4px;text-decoration:none;font-size:13px">View Details</a></div>';
             buildingList.appendChild(li);
           }
         });

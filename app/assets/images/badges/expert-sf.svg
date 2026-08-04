@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="32" cy="32" r="30" fill="#0056b3" stroke="#004080" stroke-width="2"/>
+  <rect x="22" y="18" width="3" height="24" fill="white"/>
+  <rect x="39" y="18" width="3" height="24" fill="white"/>
+  <path d="M14 26 Q23.5 36, 32 36 Q40.5 36, 50 26" fill="none" stroke="white" stroke-width="2"/>
+  <line x1="14" y1="40" x2="50" y2="40" stroke="white" stroke-width="2.5"/>
+  <line x1="28" y1="35" x2="28" y2="40" stroke="white" stroke-width="1"/>
+  <line x1="32" y1="36" x2="32" y2="40" stroke="white" stroke-width="1"/>
+  <line x1="36" y1="35" x2="36" y2="40" stroke="white" stroke-width="1"/>
+  <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <text x="32" y="56" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" fill="white" font-weight="bold">SF</text>
+</svg>

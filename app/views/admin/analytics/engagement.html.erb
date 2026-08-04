@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engagement | Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #0056b3; --blue-dark: #004080; --blue-tint: #e8f0f9;
+            --green: #28a745; --green-dark: #1e7e34; --green-tint: #e9f6ec;
+            --ink: #1f2937; --ink-secondary: #4b5563; --ink-muted: #8a929e;
+            --surface: #ffffff; --page-bg: #f4f6f8; --border: #e5e7eb;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: var(--page-bg); color: var(--ink); font-size: 15px; line-height: 1.5; }
+        a { color: var(--blue); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .wrap { max-width: 1160px; margin: 0 auto; padding: 0 20px 48px; }
+        .admin-header { background: var(--surface); border-bottom: 3px solid var(--blue); padding: 20px 0; margin-bottom: 24px; }
+        .admin-header .wrap { padding-bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .admin-header h1 { font-size: 22px; margin: 0; font-weight: 700; }
+        .admin-header .subtitle { color: var(--ink-muted); font-size: 13px; margin: 2px 0 0; }
+        .btn { display: inline-block; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; border: 1px solid transparent; cursor: pointer; }
+        .btn:hover { text-decoration: none; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: var(--blue-dark); color: #fff; }
+        .btn-outline { background: var(--surface); color: var(--blue); border-color: var(--blue); }
+        .btn-outline:hover { background: var(--blue-tint); }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 20px; }
+        .card h2 { font-size: 15px; font-weight: 700; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+        .card h2 i { color: var(--blue); font-size: 14px; }
+        .card h2 .hint { font-weight: 400; color: var(--ink-muted); font-size: 12px; margin-left: auto; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; border-top: 3px solid var(--blue); }
+        .kpi.green-accent { border-top-color: var(--green); }
+        .kpi .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); }
+        .kpi .value { font-size: 30px; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+        .kpi .meta { font-size: 12.5px; color: var(--ink-secondary); }
+        .chart-legend { display: flex; gap: 18px; font-size: 13px; color: var(--ink-secondary); margin-bottom: 6px; }
+        .chart-legend .key { display: inline-flex; align-items: center; gap: 6px; }
+        .chart-legend .swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+        .chart-holder { position: relative; }
+        .chart-tooltip { position: absolute; pointer-events: none; background: var(--ink); color: #fff; border-radius: 6px; padding: 6px 10px; font-size: 12.5px; display: none; white-space: nowrap; z-index: 5; }
+        table.list { width: 100%; border-collapse: collapse; font-size: 14px; }
+        table.list th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); font-weight: 600; padding: 6px 10px; border-bottom: 2px solid var(--border); }
+        table.list th.num, table.list td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        table.list td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+        table.list tr:last-child td { border-bottom: none; }
+        .bar-cell { min-width: 140px; }
+        .bar-track { height: 8px; border-radius: 4px; background: var(--blue-tint); overflow: hidden; }
+        .bar-track .fill { height: 100%; background: var(--blue); border-radius: 4px; }
+        .toggle-note { font-size: 12.5px; color: var(--ink-muted); }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <div class="wrap">
+            <div>
+                <h1>User Engagement</h1>
+                <p class="subtitle">Who is using the platform, how often, and for what</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span class="toggle-note">
+                    <% if @exclude_internal %>
+                        Internal users excluded · <%= link_to 'include', admin_engagement_path(exclude_internal: '0') %>
+                    <% else %>
+                        Internal users included · <%= link_to 'exclude', admin_engagement_path %>
+                    <% end %>
+                </span>
+                <%= link_to 'Dashboard', admin_dashboard_path, class: 'btn btn-outline' %>
+                <%= link_to 'Full Analytics', admin_analytics_path, class: 'btn btn-primary' %>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <div class="kpi-grid">
+            <div class="kpi">
+                <div class="label">DAU</div>
+                <div class="value"><%= number_with_delimiter(@dau) %></div>
+                <div class="meta">signed-in users active today</div>
+            </div>
+            <div class="kpi">
+                <div class="label">WAU</div>
+                <div class="value"><%= number_with_delimiter(@wau) %></div>
+                <div class="meta">active in the last 7 days</div>
+            </div>
+            <div class="kpi">
+                <div class="label">MAU</div>
+                <div class="value"><%= number_with_delimiter(@mau) %></div>
+                <div class="meta">active in the last 30 days</div>
+            </div>
+            <div class="kpi green-accent">
+                <div class="label">Stickiness</div>
+                <div class="value"><%= @stickiness %>%</div>
+                <div class="meta">DAU ÷ MAU</div>
+            </div>
+            <div class="kpi green-accent">
+                <div class="label">Sessions (30d)</div>
+                <div class="value"><%= number_with_delimiter(@sessions_30d) %></div>
+                <div class="meta">incl. signed-out visitors</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-users"></i> Unique Active Users Per Day <span class="hint">signed-in users, last 30 days</span></h2>
+            <div class="chart-holder" id="users-chart-holder">
+                <svg id="users-chart" width="100%" height="190" role="img" aria-label="Unique active users per day"></svg>
+                <div class="chart-tooltip" id="users-tooltip"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-chart-line"></i> Activities Per Day <span class="hint">all tracked events, last 30 days</span></h2>
+            <div class="chart-holder" id="events-chart-holder">
+                <svg id="events-chart" width="100%" height="190" role="img" aria-label="Events per day"></svg>
+                <div class="chart-tooltip" id="events-tooltip"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-list"></i> What People Are Doing <span class="hint">last 30 days, sorted by unique users</span></h2>
+            <table class="list">
+                <thead>
+                    <tr>
+                        <th>Activity</th>
+                        <th class="num">Unique users</th>
+                        <th class="num">Sessions</th>
+                        <th class="num">Total events</th>
+                        <th class="bar-cell"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% max_users = [@activity_breakdown.map { |r| r[:users] }.max.to_i, 1].max %>
+                    <% @activity_breakdown.each do |row| %>
+                        <tr>
+                            <td><%= row[:type].to_s.humanize %></td>
+                            <td class="num"><%= number_with_delimiter(row[:users]) %></td>
+                            <td class="num"><%= number_with_delimiter(row[:sessions]) %></td>
+                            <td class="num"><%= number_with_delimiter(row[:events]) %></td>
+                            <td class="bar-cell">
+                                <div class="bar-track"><div class="fill" style="width: <%= (row[:users] * 100.0 / max_users).round %>%"></div></div>
+                            </td>
+                        </tr>
+                    <% end %>
+                    <% if @activity_breakdown.empty? %>
+                        <tr><td colspan="5" style="color: var(--ink-muted);">No tracked activity yet.</td></tr>
+                    <% end %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const DAILY = <%= raw @daily_engagement.to_json %>;
+        const BLUE = '#0056b3', GREEN = '#28a745';
+
+        function drawSeries(svgId, holderId, tooltipId, key, color, label) {
+            const svg = document.getElementById(svgId);
+            const holder = document.getElementById(holderId);
+            const tooltip = document.getElementById(tooltipId);
+            const W = holder.clientWidth, H = 190;
+            const pad = { top: 12, right: 12, bottom: 26, left: 34 };
+            svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+            svg.innerHTML = '';
+
+            const maxY = Math.max(1, ...DAILY.map(d => d[key]));
+            const x = i => pad.left + i * (W - pad.left - pad.right) / (DAILY.length - 1);
+            const y = v => pad.top + (H - pad.top - pad.bottom) * (1 - v / maxY);
+            const ns = 'http://www.w3.org/2000/svg';
+            const el = (tag, attrs) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); svg.appendChild(e); return e; };
+
+            for (let g = 0; g <= 3; g++) {
+                const v = Math.round(maxY * g / 3);
+                el('line', { x1: pad.left, x2: W - pad.right, y1: y(v), y2: y(v), stroke: '#e5e7eb', 'stroke-width': 1 });
+                const t = el('text', { x: pad.left - 8, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#8a929e' });
+                t.textContent = v;
+            }
+            DAILY.forEach((d, i) => {
+                if ((i % 7 === 0 && i < DAILY.length - 3) || i === DAILY.length - 1) {
+                    const t = el('text', { x: x(i), y: H - 8, 'text-anchor': 'middle', 'font-size': 11, fill: '#8a929e' });
+                    t.textContent = d.date;
+                }
+            });
+
+            el('polyline', { points: DAILY.map((d, i) => `${x(i)},${y(d[key])}`).join(' '), fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
+
+            const cross = el('line', { y1: pad.top, y2: H - pad.bottom, stroke: '#8a929e', 'stroke-width': 1, 'stroke-dasharray': '3,3', visibility: 'hidden' });
+            const dot = el('circle', { r: 4, fill: color, stroke: '#fff', 'stroke-width': 2, visibility: 'hidden' });
+
+            svg.addEventListener('mousemove', ev => {
+                const rect = svg.getBoundingClientRect();
+                const mx = (ev.clientX - rect.left) * (W / rect.width);
+                let i = Math.round((mx - pad.left) / ((W - pad.left - pad.right) / (DAILY.length - 1)));
+                i = Math.max(0, Math.min(DAILY.length - 1, i));
+                const d = DAILY[i];
+                cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('visibility', 'visible');
+                dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(d[key])); dot.setAttribute('visibility', 'visible');
+                tooltip.innerHTML = `<b>${d.date}</b> — ${d[key]} ${label}`;
+                tooltip.style.display = 'block';
+                const hRect = holder.getBoundingClientRect();
+                let left = (x(i) / W) * hRect.width + 12;
+                if (left + tooltip.offsetWidth > hRect.width) left -= tooltip.offsetWidth + 24;
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = '10px';
+            });
+            svg.addEventListener('mouseleave', () => {
+                cross.setAttribute('visibility', 'hidden');
+                dot.setAttribute('visibility', 'hidden');
+                tooltip.style.display = 'none';
+            });
+        }
+
+        function drawAll() {
+            drawSeries('users-chart', 'users-chart-holder', 'users-tooltip', 'users', BLUE, 'active users');
+            drawSeries('events-chart', 'events-chart-holder', 'events-tooltip', 'events', GREEN, 'events');
+        }
+        drawAll();
+        window.addEventListener('resize', drawAll);
+    </script>
+</body>
+</html>

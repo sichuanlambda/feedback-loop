@@ -4,7 +4,12 @@ class CreateUserEvents < ActiveRecord::Migration[7.1]
       t.integer :user_id, null: true
       t.string :session_id
       t.string :event_type
-      t.jsonb :metadata, default: {}
+      # jsonb on Postgres (production); SQLite dev falls back to json
+      if connection.adapter_name.match?(/postg/i)
+        t.jsonb :metadata, default: {}
+      else
+        t.json :metadata, default: {}
+      end
       t.string :ip_hash
       t.string :user_agent, null: true
       t.datetime :created_at, null: false

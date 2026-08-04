@@ -1,4 +1,17 @@
 module ApplicationHelper
+  # Renders an achievement badge, falling back to a default badge if the
+  # icon file doesn't exist so a missing asset can't 500 the page.
+  def badge_image_tag(icon, **options)
+    path = "badges/#{icon}"
+    resolvable = begin
+      resolve_asset_path(path, true).present?
+    rescue
+      false
+    end
+    path = 'badges/first-step.svg' unless resolvable
+    image_tag(path, **options)
+  end
+
   def json_ld(data)
     content_tag :script, data.to_json.html_safe, type: 'application/ld+json'
   end

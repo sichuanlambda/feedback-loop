@@ -203,7 +203,7 @@ class LeaderboardsController < ApplicationController
                                        .where.not(users: { email: 'atlas@architecturehelper.com' })
                                        .group(:style_name)
                                        .having('COUNT(*) > 1')
-                                       .order('COUNT(*) DESC')
+                                       .order(Arel.sql('COUNT(*) DESC'))
                                        .limit(10)
                                        .pluck(:style_name)
 

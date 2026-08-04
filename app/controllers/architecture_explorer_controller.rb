@@ -52,7 +52,7 @@ class ArchitectureExplorerController < ApplicationController
     if params[:search].present?
       @analyzed_buildings = @analyzed_buildings.order(created_at: :desc).page(params[:page]).per(24)
     else
-      @analyzed_buildings = @analyzed_buildings.order(Arel.sql("md5(id::text || '#{Date.today}')")).page(params[:page]).per(24)
+      @analyzed_buildings = @analyzed_buildings.daily_shuffle.page(params[:page]).per(24)
     end
 
     # Extract all styles from h3_contents, clean them, and assign to @architecture_styles

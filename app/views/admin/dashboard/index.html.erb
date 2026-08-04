@@ -4,258 +4,421 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --blue: #0056b3;
+            --blue-dark: #004080;
+            --blue-tint: #e8f0f9;
+            --green: #28a745;
+            --green-dark: #1e7e34;
+            --green-tint: #e9f6ec;
+            --ink: #1f2937;
+            --ink-secondary: #4b5563;
+            --ink-muted: #8a929e;
+            --surface: #ffffff;
+            --page-bg: #f4f6f8;
+            --border: #e5e7eb;
+            --red: #c62828;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--page-bg);
+            color: var(--ink);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        a { color: var(--blue); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .wrap { max-width: 1160px; margin: 0 auto; padding: 0 20px 48px; }
+
         .admin-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
+            background: var(--surface);
+            border-bottom: 3px solid var(--blue);
+            padding: 20px 0;
+            margin-bottom: 24px;
         }
-        
-        .quick-actions {
-            background: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
+        .admin-header .wrap {
+            padding-bottom: 0;
+            display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
         }
-        
-        .recent-activity {
-            background: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
+        .admin-header h1 { font-size: 22px; margin: 0; font-weight: 700; }
+        .admin-header .subtitle { color: var(--ink-muted); font-size: 13px; margin: 2px 0 0; }
+        .header-actions { display: flex; gap: 10px; }
+
+        .btn {
+            display: inline-block; padding: 8px 16px; border-radius: 6px; font-size: 14px;
+            font-weight: 600; border: 1px solid transparent; cursor: pointer; text-decoration: none;
         }
-        
-        .style-chart {
-            background: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
+        .btn:hover { text-decoration: none; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: var(--blue-dark); color: #fff; }
+        .btn-outline { background: var(--surface); color: var(--blue); border-color: var(--blue); }
+        .btn-outline:hover { background: var(--blue-tint); }
+        .btn-green { background: var(--green); color: #fff; }
+        .btn-green:hover { background: var(--green-dark); color: #fff; }
+        .btn-sm { padding: 5px 12px; font-size: 13px; }
+
+        .card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+            padding: 20px 22px; margin-bottom: 20px;
         }
-        
-        .progress-bar-custom {
-            height: 20px;
-            border-radius: 10px;
+        .card h2 {
+            font-size: 15px; font-weight: 700; margin: 0 0 14px; color: var(--ink);
+            display: flex; align-items: center; gap: 8px;
         }
+        .card h2 i { color: var(--blue); font-size: 14px; }
+        .card h2 .hint { font-weight: 400; color: var(--ink-muted); font-size: 12px; margin-left: auto; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .kpi {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+            padding: 16px 18px; border-top: 3px solid var(--blue);
+        }
+        .kpi.green-accent { border-top-color: var(--green); }
+        .kpi .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); }
+        .kpi .value { font-size: 30px; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+        .kpi .meta { font-size: 12.5px; color: var(--ink-secondary); }
+        .delta-up { color: var(--green-dark); font-weight: 700; }
+        .delta-down { color: var(--red); font-weight: 700; }
+
+        .cols { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start; }
+        @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+
+        .chart-legend { display: flex; gap: 18px; font-size: 13px; color: var(--ink-secondary); margin-bottom: 6px; }
+        .chart-legend .key { display: inline-flex; align-items: center; gap: 6px; }
+        .chart-legend .swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+        #trend-chart-holder { position: relative; }
+        #trend-tooltip {
+            position: absolute; pointer-events: none; background: var(--ink); color: #fff;
+            border-radius: 6px; padding: 6px 10px; font-size: 12.5px; display: none; white-space: nowrap; z-index: 5;
+        }
+        #trend-tooltip .tt-row { display: flex; align-items: center; gap: 6px; }
+        details.data-table summary { cursor: pointer; font-size: 12.5px; color: var(--ink-muted); margin-top: 8px; }
+        details.data-table table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+        details.data-table th, details.data-table td { text-align: right; padding: 3px 8px; border-bottom: 1px solid var(--border); }
+        details.data-table th:first-child, details.data-table td:first-child { text-align: left; }
+
+        .actions-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+
+        table.list { width: 100%; border-collapse: collapse; font-size: 14px; }
+        table.list th {
+            text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+            color: var(--ink-muted); font-weight: 600; padding: 6px 10px; border-bottom: 2px solid var(--border);
+        }
+        table.list td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+        table.list tr:last-child td { border-bottom: none; }
+        .pill {
+            display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 2px 10px;
+        }
+        .pill-green { background: var(--green-tint); color: var(--green-dark); }
+        .pill-gray { background: #eef0f2; color: var(--ink-secondary); }
+        .pill-blue { background: var(--blue-tint); color: var(--blue); }
+
+        .style-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; }
+        .style-row .name { font-size: 13.5px; color: var(--ink); }
+        .style-row .count { font-size: 13px; color: var(--ink-secondary); font-variant-numeric: tabular-nums; }
+        .style-bar { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: var(--blue-tint); overflow: hidden; }
+        .style-bar .fill { height: 100%; background: var(--blue); border-radius: 4px; }
+
+        .syslist { font-size: 13px; color: var(--ink-secondary); }
+        .syslist div { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); }
+        .syslist div:last-child { border-bottom: none; }
+        .syslist b { color: var(--ink); font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="admin-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
-                    <p class="mb-0">Welcome back, <%= current_user.email %></p>
-                </div>
-                <div class="col-md-4 text-right">
-                    <%= link_to 'Analytics', admin_analytics_path, class: 'btn btn-info mr-2' %>
-                    <%= link_to 'Back to Site', root_path, class: 'btn btn-outline-light' %>
-                </div>
+        <div class="wrap">
+            <div>
+                <h1>Admin Dashboard</h1>
+                <p class="subtitle">Signed in as <%= current_user.email %></p>
+            </div>
+            <div class="header-actions">
+                <%= link_to 'Engagement', admin_engagement_path, class: 'btn btn-primary' %>
+                <%= link_to 'Analytics', admin_analytics_path, class: 'btn btn-primary' %>
+                <%= link_to 'Back to Site', root_path, class: 'btn btn-outline' %>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <div class="row">
-            <!-- Left Column -->
-            <div class="col-md-8">
-                <!-- Quick Actions -->
-                <div class="quick-actions">
-                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="d-grid gap-2">
-                                <%= link_to admin_building_analyses_path, class: 'btn btn-primary btn-lg' do %>
-                                    <i class="fas fa-building"></i> Manage Building Library
-                                <% end %>
-                                <%= link_to admin_users_path, class: 'btn btn-warning btn-lg' do %>
-                                    <i class="fas fa-users"></i> Manage Users
-                                <% end %>
-                                <%= link_to admin_places_path, class: 'btn btn-success btn-lg' do %>
-                                    <i class="fas fa-map-marker-alt"></i> Manage Places
-                                <% end %>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-grid gap-2">
-                                <%= link_to building_library_path, class: 'btn btn-info btn-lg', target: '_blank' do %>
-                                    <i class="fas fa-external-link-alt"></i> View Public Library
-                                <% end %>
-                                <%= link_to places_path, class: 'btn btn-info btn-lg', target: '_blank' do %>
-                                    <i class="fas fa-globe"></i> View Places
-                                <% end %>
-                                <%= link_to admin_building_analyses_path(visibility: 'hidden'), class: 'btn btn-secondary btn-lg' do %>
-                                    <i class="fas fa-eye-slash"></i> Review Hidden Buildings
-                                <% end %>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
-                <div class="recent-activity">
-                    <h3><i class="fas fa-clock"></i> Recent Activity</h3>
-                    
-                    <h5>Recent Buildings</h5>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>User</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% @recent_buildings.each do |building| %>
-                                    <tr>
-                                        <td><%= building.id %></td>
-                                        <td><%= building.user&.email || 'No user' %></td>
-                                        <td>
-                                            <span class="badge <%= building.visible_in_library? ? 'badge-success' : 'badge-secondary' %>">
-                                                <%= building.visible_in_library? ? 'Visible' : 'Hidden' %>
-                                            </span>
-                                        </td>
-                                        <td><%= time_ago_in_words(building.created_at) %> ago</td>
-                                        <td>
-                                            <%= link_to admin_building_analysis_path(building), class: 'btn btn-sm btn-outline-primary' do %>
-                                                <i class="fas fa-eye"></i>
-                                            <% end %>
-                                        </td>
-                                    </tr>
-                                <% end %>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <h5 class="mt-4">Recent Users</h5>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Email</th>
-                                    <th>Name</th>
-                                    <th>Joined</th>
-                                    <th>Admin</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% @recent_users.each do |user| %>
-                                    <tr>
-                                        <td><%= user.email %></td>
-                                        <td><%= user.public_name %></td>
-                                        <td><%= time_ago_in_words(user.created_at) %> ago</td>
-                                        <td>
-                                            <% if user.admin? %>
-                                                <span class="badge badge-warning">Admin</span>
-                                            <% else %>
-                                                <span class="badge badge-secondary">User</span>
-                                            <% end %>
-                                        </td>
-                                    </tr>
-                                <% end %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column -->
-            <div class="col-md-4">
-                <!-- Popular Styles -->
-                <div class="style-chart">
-                    <h3><i class="fas fa-chart-bar"></i> Popular Styles</h3>
-                    <% if @style_counts.any? %>
-                        <% @style_counts.each do |style, count| %>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span><%= style %></span>
-                                    <span class="text-muted"><%= count %></span>
-                                </div>
-                                <div class="progress progress-bar-custom">
-                                    <div class="progress-bar" role="progressbar" 
-                                         style="width: <%= (count.to_f / @style_counts.first[1] * 100).round %>%"
-                                         aria-valuenow="<%= count %>" aria-valuemin="0" aria-valuemax="<%= @style_counts.first[1] %>">
-                                    </div>
-                                </div>
-                            </div>
-                        <% end %>
-                    <% else %>
-                        <p class="text-muted">No style data available</p>
+    <div class="wrap">
+        <!-- KPI tiles -->
+        <div class="kpi-grid">
+            <div class="kpi">
+                <div class="label">Total Users</div>
+                <div class="value"><%= number_with_delimiter(@total_users) %></div>
+                <div class="meta">
+                    +<%= @new_users_today %> today · +<%= @new_users_7_days %> this week
+                    <% if @user_growth_rate != 0 %>
+                        · <span class="<%= @user_growth_rate.positive? ? 'delta-up' : 'delta-down' %>"><%= @user_growth_rate.positive? ? '▲' : '▼' %> <%= @user_growth_rate.abs %>%</span> wk/wk
                     <% end %>
                 </div>
+            </div>
+            <div class="kpi">
+                <div class="label">Building Analyses</div>
+                <div class="value"><%= number_with_delimiter(@total_buildings) %></div>
+                <div class="meta">
+                    +<%= @buildings_today %> today · +<%= @buildings_7_days %> this week
+                    <% if @building_growth_rate != 0 %>
+                        · <span class="<%= @building_growth_rate.positive? ? 'delta-up' : 'delta-down' %>"><%= @building_growth_rate.positive? ? '▲' : '▼' %> <%= @building_growth_rate.abs %>%</span> wk/wk
+                    <% end %>
+                </div>
+            </div>
+            <div class="kpi green-accent">
+                <div class="label">Active Users (30d)</div>
+                <div class="value"><%= number_with_delimiter(@active_users_30_days) %></div>
+                <div class="meta"><%= @avg_buildings_per_user %> analyses per contributing user</div>
+            </div>
+            <div class="kpi">
+                <div class="label">AI Images Generated</div>
+                <div class="value"><%= number_with_delimiter(@total_arch_images) %></div>
+                <div class="meta">all time</div>
+            </div>
+        </div>
 
-                <!-- System Info -->
-                <div class="style-chart">
-                    <h3><i class="fas fa-info-circle"></i> System Info</h3>
-                    <table class="table table-sm">
-                        <tr>
-                            <td><strong>Environment:</strong></td>
-                            <td><span class="badge badge-<%= Rails.env.production? ? 'danger' : 'success' %>"><%= Rails.env %></span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Database:</strong></td>
-                            <td>PostgreSQL</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Rails Version:</strong></td>
-                            <td><%= Rails.version %></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Ruby Version:</strong></td>
-                            <td><%= RUBY_VERSION %></td>
-                        </tr>
+        <!-- Audience segments -->
+        <div class="kpi-grid">
+            <div class="kpi green-accent">
+                <div class="label">Paying Subscribers</div>
+                <div class="value"><%= number_with_delimiter(@paying_users) %></div>
+                <div class="meta"><%= @total_users.positive? ? (@paying_users * 100.0 / @total_users).round(1) : 0 %>% of users</div>
+            </div>
+            <div class="kpi">
+                <div class="label">Free Users</div>
+                <div class="value"><%= number_with_delimiter(@free_users) %></div>
+                <div class="meta">win-back &amp; upsell pool</div>
+            </div>
+            <div class="kpi green-accent">
+                <div class="label">Marketing Opt-ins</div>
+                <div class="value"><%= number_with_delimiter(@marketing_opt_ins) %></div>
+                <div class="meta">consented to marketing email</div>
+            </div>
+            <div class="kpi">
+                <div class="label">New Users (30d)</div>
+                <div class="value"><%= number_with_delimiter(@new_users_30_days) %></div>
+                <div class="meta"><%= @buildings_30_days %> analyses in same window</div>
+            </div>
+        </div>
+
+        <!-- 30-day trend -->
+        <div class="card">
+            <h2><i class="fas fa-chart-line"></i> Last 30 Days <span class="hint">daily signups and building analyses</span></h2>
+            <div class="chart-legend">
+                <span class="key"><span class="swatch" style="background: var(--blue)"></span> New users</span>
+                <span class="key"><span class="swatch" style="background: var(--green)"></span> Building analyses</span>
+            </div>
+            <div id="trend-chart-holder">
+                <svg id="trend-chart" width="100%" height="220" role="img" aria-label="Daily new users and building analyses, last 30 days"></svg>
+                <div id="trend-tooltip"></div>
+            </div>
+            <details class="data-table">
+                <summary>View as table</summary>
+                <table>
+                    <thead><tr><th>Date</th><th>New users</th><th>Analyses</th></tr></thead>
+                    <tbody>
+                        <% @daily_activity.each do |d| %>
+                            <tr><td><%= d[:date] %></td><td><%= d[:users] %></td><td><%= d[:buildings] %></td></tr>
+                        <% end %>
+                    </tbody>
+                </table>
+            </details>
+        </div>
+
+        <div class="cols">
+            <div>
+                <!-- Recent buildings -->
+                <div class="card">
+                    <h2><i class="fas fa-building"></i> Recent Buildings <span class="hint"><%= link_to 'manage all', admin_building_analyses_path %></span></h2>
+                    <table class="list">
+                        <thead><tr><th>ID</th><th>User</th><th>Status</th><th>Created</th><th></th></tr></thead>
+                        <tbody>
+                            <% @recent_buildings.each do |building| %>
+                                <tr>
+                                    <td><%= building.id %></td>
+                                    <td><%= building.user&.email || '—' %></td>
+                                    <td>
+                                        <% if building.visible_in_library %>
+                                            <span class="pill pill-green">Visible</span>
+                                        <% else %>
+                                            <span class="pill pill-gray">Hidden</span>
+                                        <% end %>
+                                    </td>
+                                    <td><%= time_ago_in_words(building.created_at) %> ago</td>
+                                    <td><%= link_to 'View', admin_building_analysis_path(building), class: 'btn btn-outline btn-sm' %></td>
+                                </tr>
+                            <% end %>
+                        </tbody>
                     </table>
                 </div>
 
-                <!-- Admin Tools -->
-                <div class="style-chart">
-                    <h3><i class="fas fa-tools"></i> Admin Tools</h3>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-secondary" onclick="showAdminCommands()">
-                            <i class="fas fa-terminal"></i> Show Admin Commands
-                        </button>
-                        <button class="btn btn-outline-info" onclick="exportData()">
-                            <i class="fas fa-download"></i> Export Data
-                        </button>
+                <!-- Recent users -->
+                <div class="card">
+                    <h2><i class="fas fa-user-plus"></i> Recent Users <span class="hint"><%= link_to 'manage all', admin_users_path %></span></h2>
+                    <table class="list">
+                        <thead><tr><th>Email</th><th>Joined</th><th>Plan</th><th>Role</th></tr></thead>
+                        <tbody>
+                            <% @recent_users.each do |user| %>
+                                <tr>
+                                    <td><%= link_to user.email, admin_user_path(user) %></td>
+                                    <td><%= time_ago_in_words(user.created_at) %> ago</td>
+                                    <td>
+                                        <% if user.subscription_status == 'active' %>
+                                            <span class="pill pill-green">Paying</span>
+                                        <% else %>
+                                            <span class="pill pill-gray">Free</span>
+                                        <% end %>
+                                    </td>
+                                    <td>
+                                        <% if user.admin? %>
+                                            <span class="pill pill-blue">Admin</span>
+                                        <% else %>
+                                            <span class="pill pill-gray">User</span>
+                                        <% end %>
+                                    </td>
+                                </tr>
+                            <% end %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <!-- Quick actions -->
+                <div class="card">
+                    <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                    <div class="actions-grid">
+                        <%= link_to 'Manage Buildings', admin_building_analyses_path, class: 'btn btn-primary' %>
+                        <%= link_to 'Manage Users', admin_users_path, class: 'btn btn-primary' %>
+                        <%= link_to 'Manage Places', admin_places_path, class: 'btn btn-primary' %>
+                        <%= link_to 'Public Library', building_library_path, class: 'btn btn-outline' %>
+                        <%= link_to 'View Places', places_path, class: 'btn btn-outline' %>
+                        <%= link_to "Review Hidden (#{@hidden_buildings})", admin_building_analyses_path(filter: 'hidden'), class: 'btn btn-green' %>
+                    </div>
+                </div>
+
+                <!-- Popular styles -->
+                <div class="card">
+                    <h2><i class="fas fa-chart-bar"></i> Popular Styles</h2>
+                    <% max_count = @style_counts.map(&:last).max.to_i %>
+                    <% if @style_counts.any? %>
+                        <% @style_counts.each do |style, count| %>
+                            <div class="style-row">
+                                <span class="name"><%= style.gsub(/\s*\d+%$/, '') %></span>
+                                <span class="count"><%= count %></span>
+                                <div class="style-bar"><div class="fill" style="width: <%= max_count.positive? ? (count * 100.0 / max_count).round : 0 %>%"></div></div>
+                            </div>
+                        <% end %>
+                    <% else %>
+                        <p class="syslist">No visible buildings yet.</p>
+                    <% end %>
+                </div>
+
+                <!-- Content health -->
+                <div class="card">
+                    <h2><i class="fas fa-heartbeat"></i> Content Health</h2>
+                    <div class="syslist">
+                        <div><span>Visible buildings</span> <b><%= number_with_delimiter(@visible_buildings) %></b></div>
+                        <div><span>Hidden buildings</span> <b><%= number_with_delimiter(@hidden_buildings) %></b></div>
+                        <div><span>Places</span> <b><%= @total_places %></b></div>
+                        <div><span>Virtual-tour-ready places</span> <b><%= @places_virtual_tour_ready %></b></div>
+                        <div><span>Physical-tour-ready places</span> <b><%= @places_physical_tour_ready %></b></div>
+                    </div>
+                </div>
+
+                <!-- System info -->
+                <div class="card">
+                    <h2><i class="fas fa-server"></i> System</h2>
+                    <div class="syslist">
+                        <div><span>Environment</span> <b><%= Rails.env %></b></div>
+                        <div><span>Database</span> <b><%= ActiveRecord::Base.connection.adapter_name %></b></div>
+                        <div><span>Rails</span> <b><%= Rails.version %></b></div>
+                        <div><span>Ruby</span> <b><%= RUBY_VERSION %></b></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script>
-        function showAdminCommands() {
-            const commands = `
-Admin Commands:
-• rails admin:make_admin[user@example.com] - Make user admin
-• rails admin:remove_admin[user@example.com] - Remove admin status
-• rails admin:list_admins - List all admins
-• rails console - Interactive console
-• rails db:migrate - Run migrations
-• rails db:seed - Seed database
-            `;
-            alert(commands);
-        }
+        const DAILY = <%= raw @daily_activity.to_json %>;
+        const BLUE = '#0056b3', GREEN = '#28a745';
 
-        function exportData() {
-            // This could be implemented to export building data
-            alert('Export functionality would be implemented here');
-        }
+        function drawTrend() {
+            const svg = document.getElementById('trend-chart');
+            const holder = document.getElementById('trend-chart-holder');
+            const tooltip = document.getElementById('trend-tooltip');
+            const W = holder.clientWidth, H = 220;
+            const pad = { top: 12, right: 12, bottom: 26, left: 34 };
+            svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+            svg.innerHTML = '';
 
-        // Auto-refresh dashboard every 5 minutes
-        setTimeout(function() {
-            location.reload();
-        }, 300000);
+            const maxY = Math.max(1, ...DAILY.map(d => Math.max(d.users, d.buildings)));
+            const x = i => pad.left + i * (W - pad.left - pad.right) / (DAILY.length - 1);
+            const y = v => pad.top + (H - pad.top - pad.bottom) * (1 - v / maxY);
+            const ns = 'http://www.w3.org/2000/svg';
+            const el = (tag, attrs) => {
+                const e = document.createElementNS(ns, tag);
+                for (const k in attrs) e.setAttribute(k, attrs[k]);
+                svg.appendChild(e);
+                return e;
+            };
+
+            for (let g = 0; g <= 3; g++) {
+                const v = Math.round(maxY * g / 3);
+                el('line', { x1: pad.left, x2: W - pad.right, y1: y(v), y2: y(v), stroke: '#e5e7eb', 'stroke-width': 1 });
+                const t = el('text', { x: pad.left - 8, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#8a929e' });
+                t.textContent = v;
+            }
+            DAILY.forEach((d, i) => {
+                if ((i % 7 === 0 && i < DAILY.length - 3) || i === DAILY.length - 1) {
+                    const t = el('text', { x: x(i), y: H - 8, 'text-anchor': 'middle', 'font-size': 11, fill: '#8a929e' });
+                    t.textContent = d.date;
+                }
+            });
+
+            const line = (key, color) => {
+                const pts = DAILY.map((d, i) => `${x(i)},${y(d[key])}`).join(' ');
+                el('polyline', { points: pts, fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
+            };
+            line('users', BLUE);
+            line('buildings', GREEN);
+
+            const cross = el('line', { y1: pad.top, y2: H - pad.bottom, stroke: '#8a929e', 'stroke-width': 1, 'stroke-dasharray': '3,3', visibility: 'hidden' });
+            const dotU = el('circle', { r: 4, fill: BLUE, stroke: '#fff', 'stroke-width': 2, visibility: 'hidden' });
+            const dotB = el('circle', { r: 4, fill: GREEN, stroke: '#fff', 'stroke-width': 2, visibility: 'hidden' });
+
+            svg.addEventListener('mousemove', ev => {
+                const rect = svg.getBoundingClientRect();
+                const mx = (ev.clientX - rect.left) * (W / rect.width);
+                let i = Math.round((mx - pad.left) / ((W - pad.left - pad.right) / (DAILY.length - 1)));
+                i = Math.max(0, Math.min(DAILY.length - 1, i));
+                const d = DAILY[i];
+                cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i));
+                cross.setAttribute('visibility', 'visible');
+                dotU.setAttribute('cx', x(i)); dotU.setAttribute('cy', y(d.users)); dotU.setAttribute('visibility', 'visible');
+                dotB.setAttribute('cx', x(i)); dotB.setAttribute('cy', y(d.buildings)); dotB.setAttribute('visibility', 'visible');
+                tooltip.innerHTML = `<b>${d.date}</b>` +
+                    `<div class="tt-row"><span style="width:8px;height:8px;border-radius:2px;background:${BLUE};display:inline-block"></span> ${d.users} new user${d.users === 1 ? '' : 's'}</div>` +
+                    `<div class="tt-row"><span style="width:8px;height:8px;border-radius:2px;background:${GREEN};display:inline-block"></span> ${d.buildings} analys${d.buildings === 1 ? 'is' : 'es'}</div>`;
+                tooltip.style.display = 'block';
+                const hRect = holder.getBoundingClientRect();
+                let left = (x(i) / W) * hRect.width + 12;
+                if (left + tooltip.offsetWidth > hRect.width) left -= tooltip.offsetWidth + 24;
+                tooltip.style.left = left + 'px';
+                tooltip.style.top = '12px';
+            });
+            svg.addEventListener('mouseleave', () => {
+                cross.setAttribute('visibility', 'hidden');
+                dotU.setAttribute('visibility', 'hidden');
+                dotB.setAttribute('visibility', 'hidden');
+                tooltip.style.display = 'none';
+            });
+        }
+        drawTrend();
+        window.addEventListener('resize', drawTrend);
     </script>
 </body>
 </html>

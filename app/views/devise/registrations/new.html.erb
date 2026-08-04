@@ -266,6 +266,12 @@
                             <%= f.check_box :marketing_opt_in, class: "form-check-input", id: "marketing_opt_in" %>
                             <%= f.label :marketing_opt_in, "Send me occasional updates about new city guides, features, and architecture tips", class: "form-check-label", for: "marketing_opt_in" %>
                         </div>
+                        <div class="form-group form-check mt-2">
+                            <%= f.check_box :terms_of_service, class: "form-check-input", id: "terms_of_service", required: true %>
+                            <label class="form-check-label" for="terms_of_service">
+                                I agree to the <%= link_to "Terms &amp; Conditions".html_safe, terms_path, target: "_blank" %> <span style="color: #c62828;">*</span>
+                            </label>
+                        </div>
                         <div class="actions text-center">
                             <%= f.submit "Sign up", class: "btn btn-primary btn-block" %>
                         </div>

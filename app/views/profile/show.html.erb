@@ -79,7 +79,7 @@
           <% if @achievements.any? %>
             <% @achievements.first(6).each do |achievement| %>
               <div class="achievement-item">
-                <%= image_tag("badges/#{achievement[:icon]}", class: "achievement-icon", alt: achievement[:name]) %>
+                <%= badge_image_tag(achievement[:icon], class: "achievement-icon", alt: achievement[:name]) %>
                 <div class="achievement-info">
                   <h4><%= achievement[:name] %></h4>
                   <p><%= achievement[:description] %></p>
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
   gap: 30px;
   margin-bottom: 40px;
   padding: 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0056b3;
   border-radius: 16px;
   color: white;
 }
@@ -381,8 +381,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .nav-tab.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
+  color: #0056b3;
+  border-bottom-color: #0056b3;
 }
 
 .tab-content {
@@ -614,7 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .nav-link {
   background: none;
   border: none;
-  color: #667eea;
+  color: #0056b3;
   cursor: pointer;
   text-decoration: underline;
   font-size: 0.9em;

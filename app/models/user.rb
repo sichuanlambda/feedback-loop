@@ -16,7 +16,14 @@ class User < ApplicationRecord
   validates :handle, presence: true, uniqueness: true, if: :enforce_profile_completion?
   validates :public_name, presence: true, if: :enforce_profile_completion?
 
+  # Required on the sign-up form. The checkbox always submits "0"/"1", so an
+  # unchecked box fails; OAuth signups never set the attribute (nil) and skip
+  # this — their consent copy lives next to the Google button instead.
+  attr_accessor :terms_of_service
+  validates :terms_of_service, acceptance: { message: "must be accepted to create an account" }
+
   before_create :set_default_credits
+  before_create :set_terms_accepted_at
   before_save :set_marketing_opted_in_at
   before_validation :assign_handle_and_public_name, on: :create
 
@@ -72,5 +79,9 @@ class User < ApplicationRecord
   # Sets default credits for users without an active subscription
   def set_default_credits
     self.credits ||= 5 if subscription_status != 'active'
+  end
+
+  def set_terms_accepted_at
+    self.terms_accepted_at = Time.current if ActiveModel::Type::Boolean.new.cast(terms_of_service)
   end
 end
