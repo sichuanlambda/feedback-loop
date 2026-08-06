@@ -70,9 +70,9 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
-  # Use a real queuing backend for Active Job (and separate queues per environment).
-  # config.active_job.queue_adapter     = :resque
-  # config.active_job.queue_name_prefix = "feedback_app_production"
+  # Route jobs to the Sidekiq worker dyno (the default :async adapter ran jobs
+  # in web-dyno threads, where they die on restart and compete with requests).
+  config.active_job.queue_adapter = :sidekiq
   config.action_mailer.default_url_options = { host: 'app.architecturehelper.com', protocol: 'https' }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {

@@ -172,7 +172,54 @@
 </head>
 <body>
 <div class="container text-center">
-  <% if @image_url.present? %>
+  <% if @arch_image %>
+    <!-- Generation runs in a background job; poll until it finishes -->
+    <div id="generation-progress" style="padding: 60px 20px;">
+      <div style="width: 44px; height: 44px; border: 4px solid #e8f0f9; border-top-color: #0056b3; border-radius: 50%; margin: 0 auto 18px; animation: cmspin 0.9s linear infinite;"></div>
+      <h2 style="font-size: 20px; color: #1f2937; margin-bottom: 6px;">Generating your design…</h2>
+      <p style="color: #6b7280; font-size: 14.5px;">This usually takes about a minute. Hang tight!</p>
+    </div>
+    <style>@keyframes cmspin { to { transform: rotate(360deg); } }</style>
+
+    <div id="generation-result" style="display: none;">
+      <div class="image-container my-8">
+        <img id="generated-image" src="" alt="Generated Design" class="img-fluid">
+      </div>
+      <div class="button-group my-3">
+        <button class="btn btn-primary" onclick="shareTool()">Share Tool</button>
+        <a href="<%= root_path %>" class="btn btn-primary">New Design</a>
+      </div>
+    </div>
+
+    <div id="generation-error" style="display: none; padding: 60px 20px;">
+      <p class="no-design-message">Sorry, the design couldn't be generated this time. <a href="<%= root_path %>" class="btn btn-primary">Try Again</a></p>
+    </div>
+
+    <script>
+      (function() {
+        var statusUrl = '<%= image_status_path(@arch_image.id) %>';
+        var started = Date.now();
+        function poll() {
+          fetch(statusUrl)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (data.status === 'complete' && data.image_url) {
+                document.getElementById('generated-image').src = data.image_url;
+                document.getElementById('generation-progress').style.display = 'none';
+                document.getElementById('generation-result').style.display = 'block';
+              } else if (data.status === 'failed' || Date.now() - started > 5 * 60 * 1000) {
+                document.getElementById('generation-progress').style.display = 'none';
+                document.getElementById('generation-error').style.display = 'block';
+              } else {
+                setTimeout(poll, 3000);
+              }
+            })
+            .catch(function() { setTimeout(poll, 5000); });
+        }
+        setTimeout(poll, 3000);
+      })();
+    </script>
+  <% elsif @image_url.present? %>
     <div class="image-container my-8">
       <img src="<%= @image_url %>" alt="Generated Design" class="img-fluid">
     </div>

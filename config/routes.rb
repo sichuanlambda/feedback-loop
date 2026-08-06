@@ -66,6 +66,7 @@ Rails.application.routes.draw do
   get 'custom_sign_out', to: 'feedbacks#custom_sign_out'
   get 'sign_out_confirmation', to: 'feedbacks#sign_out_confirmation'
   get 'designs/show_image', to: 'designs#show_image', as: 'show_image'
+  get 'designs/image_status/:id', to: 'designs#image_status', as: 'image_status'
   get 'user_creations', to: 'designs#user_creations'
   get 'building_library', to: 'architecture_explorer#building_library'
   post 'add_to_library/:id', to: 'architecture_explorer#add_to_library', as: 'add_to_library'

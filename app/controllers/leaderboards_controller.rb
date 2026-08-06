@@ -27,6 +27,23 @@ class LeaderboardsController < ApplicationController
     track_event('collection_map_view')
     @style_collections = get_collection_map_data
     @top_collectors_by_style = get_top_collectors_by_style
+
+    # Aggregates for the hero strip
+    base = UserStyleCollection.joins(:user).where.not(users: { email: 'atlas@architecturehelper.com' })
+    @total_styles = base.distinct.count(:style_name)
+    @total_collectors = base.distinct.count(:user_id)
+    @total_buildings = base.sum(:building_count)
+
+    # One representative library photo per style for the card headers
+    @style_images = @style_collections.each_with_object({}) do |style_data, images|
+      images[style_data.style_name] = BuildingAnalysis
+        .where(visible_in_library: true)
+        .where.not(image_url: [nil, ''])
+        .where('LOWER(h3_contents) LIKE ?', "%#{style_data.style_name.downcase}%")
+        .order(likes_count: :desc, created_at: :desc)
+        .limit(1)
+        .pick(:image_url)
+    end
   end
 
   private
