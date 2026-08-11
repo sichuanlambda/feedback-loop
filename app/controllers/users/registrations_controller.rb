@@ -6,6 +6,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     super do |resource|
       if resource.persisted?
         track_event('user_signup', { user_id: resource.id, provider: 'email' })
+        claim_guest_analysis_for(resource)
       end
     end
   end

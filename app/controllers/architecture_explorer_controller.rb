@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'open-uri'
 
 class ArchitectureExplorerController < ApplicationController
-  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map, :styles_index, :style_show, :by_style, :style_in_city]
+  before_action :authenticate_user!, except: [:building_library, :by_location, :style_finder, :address_search, :show, :map, :styles_index, :style_show, :by_style, :style_in_city, :new, :create]
   before_action :set_custom_nav
   before_action :check_analysis_view_limit, only: [:show]
   # include BuildingAnalysisProcessor
@@ -199,6 +199,7 @@ class ArchitectureExplorerController < ApplicationController
     if @building_analysis
       @is_shared = @building_analysis.visible_in_library
       @is_owner = user_signed_in? && @building_analysis.user_id == current_user.id
+      @claimable_guest_analysis = !user_signed_in? && session[:guest_analysis_id].to_s == @building_analysis.id.to_s
       @html_content = @building_analysis.html_content
       @image_url = @building_analysis.image_url
 
@@ -320,10 +321,17 @@ class ArchitectureExplorerController < ApplicationController
   def new
     track_event('building_new_form')
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
+    @guest_trial_exhausted = !user_signed_in? && guest_trial_used?
   end
 
   def create
     Rails.logger.debug "Create action called with params: #{params.inspect}"
+
+    # Guests get exactly one trial analysis (session + hashed-IP capped)
+    if !user_signed_in? && guest_trial_used?
+      redirect_to new_user_registration_path, alert: "You've used your free analysis — create a free account to keep exploring."
+      return
+    end
 
     image_url = if params[:image].present?
                   upload_image_to_s3(params[:image])
@@ -342,13 +350,20 @@ class ArchitectureExplorerController < ApplicationController
       address = params[:address].presence || "N/A"
 
       # Create record immediately (html_content nil triggers "Hang tight" on show page)
+      # Guest analyses belong to the system guest user until claimed at sign-up,
+      # and stay out of the public library until then.
       @building_analysis = BuildingAnalysis.create!(
-        user: current_user,
+        user: current_user || User.guest,
         image_url: image_url,
-        visible_in_library: true,
+        visible_in_library: user_signed_in?,
         address: address,
         name: params[:building_name].presence
       )
+
+      unless user_signed_in?
+        session[:guest_analysis_id] = @building_analysis.id
+        track_event('guest_analysis_started', { building_id: @building_analysis.id })
+      end
 
       # Enqueue background job for GPT analysis (avoids R12 timeouts)
       ProcessBuildingAnalysisJob.perform_later(@building_analysis.id, image_url, address)
@@ -766,6 +781,19 @@ class ArchitectureExplorerController < ApplicationController
   rescue StandardError => e
     Rails.logger.error "Exception during upload to S3: #{e.message}"
     return nil
+  end
+
+  # One free analysis per anonymous visitor, tracked by session and hashed IP
+  # (same digest UserEvent.track stores).
+  def guest_trial_used?
+    return true if session[:guest_analysis_id].present?
+
+    ip_hash = request.remote_ip.presence && Digest::SHA256.hexdigest(request.remote_ip)
+    return false if ip_hash.blank?
+
+    UserEvent.where(event_type: 'guest_analysis_started', ip_hash: ip_hash)
+             .where('created_at > ?', 30.days.ago)
+             .exists?
   end
 
   def check_analysis_view_limit

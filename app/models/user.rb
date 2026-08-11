@@ -31,6 +31,18 @@ class User < ApplicationRecord
     admin == true
   end
 
+  GUEST_EMAIL = 'guest@architecturehelper.com'.freeze
+
+  # System account that owns not-yet-claimed guest trial analyses
+  def self.guest
+    find_by(email: GUEST_EMAIL) || begin
+      u = new(email: GUEST_EMAIL, subscription_status: 'inactive')
+      u.password = SecureRandom.hex(24)
+      u.save!(validate: false)
+      u
+    end
+  end
+
   def self.from_omniauth(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
       user.email = auth.info.email

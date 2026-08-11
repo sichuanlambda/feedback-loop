@@ -81,7 +81,7 @@
         <h1 class="mt-5" style="color: #01161e;">Architecture Explorer 🏛️</h1>
         <p style="color: #01161e;">Upload a building image to learn about it and add it to your library.</p>
 
-        <% if user_signed_in? %>
+        <% if user_signed_in? || !@guest_trial_exhausted %>
           <%= form_with url: architecture_explorer_path, local: true, multipart: true, html: { class: "gpt-form-container" } do |form| %>
             <div class="custom-file-upload" style="margin-bottom: 20px;">
               <%= form.file_field :image, direct_upload: true, onchange: "previewImage(event)", class: "custom-file-input" %>
@@ -110,8 +110,19 @@
 
             <%= form.submit "Upload and Analyze", id: "analyze-submit-btn", style: "margin-top: 20px; padding: 10px 20px; border-radius: 6px; font-weight: 600; background: transparent;", disabled: true, title: "Add a photo or address first" %>
           <% end %>
+          <% unless user_signed_in? %>
+            <p style="margin-top: 14px; font-size: 13.5px; color: #6c757d;">
+              Your first analysis is free — no account needed.
+              <%= link_to "Sign up", new_user_registration_path, style: "color: #0056b3; font-weight: 600;" %> to save analyses and get 5 free credits.
+            </p>
+          <% end %>
         <% else %>
-          <p>Please <%= link_to 'sign in', new_user_session_path %> to use this feature.</p>
+          <div style="max-width: 460px; margin: 30px auto; padding: 28px 24px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;">
+            <h2 style="font-size: 20px; color: #1f2937; margin-bottom: 8px;">You've used your free analysis</h2>
+            <p style="color: #4b5563; font-size: 14.5px; margin-bottom: 18px;">Create a free account to keep exploring — you'll get 5 more analyses and a library to save them in.</p>
+            <%= link_to "Create Free Account", new_user_registration_path, class: "btn", style: "background: #0056b3; color: #fff; padding: 10px 22px; border-radius: 6px; font-weight: 600;" %>
+            <p style="margin-top: 12px; font-size: 13px;"><%= link_to "Already have an account? Sign in", new_user_session_path, style: "color: #0056b3;" %></p>
+          </div>
         <% end %>
       </div>
       <div class="text-center" id="loading-text" style="display: none; margin-top: 10px;">

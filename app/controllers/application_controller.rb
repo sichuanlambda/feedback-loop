@@ -3,6 +3,17 @@ class ApplicationController < ActionController::Base
 
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :set_cache_headers
+  before_action :expire_lapsed_subscription
+
+  # Time-boxed paid access (e.g. a customer whose Stripe subscription is gone
+  # but who paid through a date): downgrade automatically once the date passes.
+  def expire_lapsed_subscription
+    return unless user_signed_in?
+    u = current_user
+    if u.subscription_status == 'active' && u.subscription_expires_at.present? && u.subscription_expires_at.past?
+      u.update_columns(subscription_status: 'inactive', subscription_expires_at: nil)
+    end
+  end
 
   def set_cache_headers
     # Public pages get browser + CDN caching; user-specific pages stay private
@@ -16,6 +27,15 @@ class ApplicationController < ActionController::Base
 
   def account
     # Any specific logic for the account page (likely none for a static page)
+  end
+
+  # Attach a guest trial analysis to the account it just signed up for / into
+  def claim_guest_analysis_for(user)
+    analysis_id = session.delete(:guest_analysis_id)
+    return if analysis_id.blank? || user.nil?
+
+    analysis = BuildingAnalysis.find_by(id: analysis_id, user_id: User.guest.id)
+    analysis&.update_columns(user_id: user.id, visible_in_library: true)
   end
 
   private

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_06_084101) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_11_160234) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -250,6 +250,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_06_084101) do
     t.boolean "marketing_opt_in", default: false, null: false
     t.datetime "marketing_opted_in_at"
     t.datetime "terms_accepted_at"
+    t.datetime "subscription_expires_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider"], name: "index_users_on_provider"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
