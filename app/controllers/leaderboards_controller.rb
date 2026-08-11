@@ -40,7 +40,7 @@ class LeaderboardsController < ApplicationController
         .where(visible_in_library: true)
         .where.not(image_url: [nil, ''])
         .where('LOWER(h3_contents) LIKE ?', "%#{style_data.style_name.downcase}%")
-        .order(likes_count: :desc, created_at: :desc)
+        .order(created_at: :desc)
         .limit(1)
         .pick(:image_url)
     end
