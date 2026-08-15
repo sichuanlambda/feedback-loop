@@ -2,6 +2,13 @@ class Users::RegistrationsController < Devise::RegistrationsController
   before_action :set_custom_nav, only: [:new, :edit, :create]
   before_action :configure_account_update_params, only: [:update]
 
+  def new
+    # Arriving from a pricing CTA: send them back to /pricing after signup so
+    # they can finish checkout (Devise reads session[:user_return_to])
+    session[:user_return_to] = '/pricing?src=post_signup' if params[:return_to] == 'pricing'
+    super
+  end
+
   def create
     super do |resource|
       if resource.persisted?

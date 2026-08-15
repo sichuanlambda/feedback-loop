@@ -189,6 +189,16 @@
     </div>
   <% end %>
 
+  <% unless @claimable_guest_analysis || (user_signed_in? && current_user.subscription_status == 'active') %>
+    <div style="background: #f0f7f1; border: 1px solid #28a745; border-radius: 10px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 220px;">
+        <strong style="color: #1f2937;">📸 Curious about a building near you?</strong>
+        <span style="color: #4b5563; font-size: 14px;">Get an AI architecture analysis like this one — your first is free, no account needed.</span>
+      </div>
+      <a href="/architecture_explorer/new?src=building_page" style="background: #28a745; color: #fff; padding: 9px 18px; border-radius: 6px; font-weight: 600; text-decoration: none; white-space: nowrap;">Analyze a Building Free</a>
+    </div>
+  <% end %>
+
   <% if @html_content.present? %>
     <% if @content_gated %>
       <%# === CONTENT GATED VIEW === %>
@@ -206,7 +216,7 @@
             <h2 style="font-size: 24px; margin-bottom: 12px; color: #1a1a1a;">🔒 Unlock Full Analysis</h2>
             <p style="color: #666; font-size: 16px; margin-bottom: 24px;">Sign up free to see complete architectural analysis, style breakdowns, and historical context.</p>
             <% if user_signed_in? %>
-              <a href="/account" class="btn btn-primary" style="font-size: 18px; padding: 12px 32px;">Upgrade to Pro</a>
+              <a href="/pricing?src=analysis_gate" class="btn btn-primary" style="font-size: 18px; padding: 12px 32px;">Upgrade to Pro</a>
             <% else %>
               <a href="<%= new_user_registration_path %>" class="btn btn-primary" style="font-size: 18px; padding: 12px 32px;">Sign Up Free</a>
               <p style="margin-top: 12px; color: #999; font-size: 14px;">Already have an account? <a href="<%= new_user_session_path %>">Sign in</a></p>

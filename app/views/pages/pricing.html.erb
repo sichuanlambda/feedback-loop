@@ -1,0 +1,89 @@
+<% content_for :title, 'Pricing' %>
+<% content_for :head do %>
+<meta name="description" content="Unlimited AI architecture analyses and image generation. Start free — first analysis needs no account.">
+<style>
+  .pricing-wrap { max-width: 900px; margin: 0 auto; padding: 40px 16px 64px; }
+  .pricing-wrap h1 { text-align: center; font-size: 2.2rem; color: #1a1a1a; margin-bottom: 8px; }
+  .pricing-sub { text-align: center; color: #4b5563; font-size: 1.1rem; margin-bottom: 40px; }
+  .plan-grid { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+  .plan-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 28px; width: 300px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: relative; display: flex; flex-direction: column; }
+  .plan-card.highlight { border: 2px solid #0056b3; }
+  .plan-badge { position: absolute; top: -12px; right: 16px; background: #28a745; color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 12px; }
+  .plan-name { font-size: 1rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+  .plan-price { font-size: 2.4rem; font-weight: 800; color: #1a1a1a; margin: 8px 0 2px; }
+  .plan-cadence { color: #6b7280; font-size: 0.95rem; }
+  .plan-features { list-style: none; padding: 0; margin: 20px 0 24px; flex: 1; }
+  .plan-features li { padding: 6px 0; color: #374151; font-size: 15px; }
+  .plan-features li::before { content: "✓ "; color: #28a745; font-weight: 700; }
+  .plan-cta { display: block; text-align: center; background: #0056b3; color: #fff !important; font-weight: 700; font-size: 17px; padding: 13px 0; border-radius: 8px; text-decoration: none; }
+  .plan-cta:hover { background: #004080; text-decoration: none; }
+  .plan-card.free .plan-cta { background: #fff; color: #0056b3 !important; border: 2px solid #0056b3; }
+  .plan-card.free .plan-cta:hover { background: #e8f0f9; }
+  .pricing-note { text-align: center; color: #6b7280; font-size: 14px; margin-top: 24px; }
+</style>
+<% end %>
+
+<div class="pricing-wrap">
+  <h1>Simple pricing</h1>
+  <p class="pricing-sub">Understand and generate architecture with AI. Start free — no account needed for your first analysis.</p>
+
+  <div class="plan-grid">
+    <div class="plan-card free">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0</div>
+      <div class="plan-cadence">forever</div>
+      <ul class="plan-features">
+        <li>1 building analysis — no account needed</li>
+        <li>5 free credits with an account</li>
+        <li>Use credits on analyses or AI images</li>
+        <li>Browse the building library &amp; city guides</li>
+      </ul>
+      <% if user_signed_in? %>
+        <a class="plan-cta" href="/architecture_explorer/new">Analyze a Building</a>
+      <% else %>
+        <a class="plan-cta" href="/architecture_explorer/new">Try It Free</a>
+      <% end %>
+    </div>
+
+    <div class="plan-card highlight" data-plan="monthly">
+      <div class="plan-name">Pro Monthly</div>
+      <div class="plan-price"><%= PLANS[:monthly][:price] %></div>
+      <div class="plan-cadence"><%= PLANS[:monthly][:cadence] %> · cancel anytime</div>
+      <ul class="plan-features">
+        <li>Unlimited architecture &amp; design analyses</li>
+        <li>Unlimited AI image generation</li>
+        <li>Explore analyses by style and location</li>
+        <li>Development potential estimations</li>
+      </ul>
+      <a class="plan-cta js-checkout" data-plan="monthly" href="<%= plan_cta_path(:monthly) %>">Get Pro</a>
+    </div>
+
+    <div class="plan-card" data-plan="annual">
+      <div class="plan-badge"><%= PLANS[:annual][:badge] %></div>
+      <div class="plan-name">Pro Annual</div>
+      <div class="plan-price"><%= PLANS[:annual][:price] %></div>
+      <div class="plan-cadence"><%= PLANS[:annual][:cadence] %> · cancel anytime</div>
+      <ul class="plan-features">
+        <li>Everything in Pro Monthly</li>
+        <li>Best value — <%= PLANS[:annual][:badge] %></li>
+      </ul>
+      <a class="plan-cta js-checkout" data-plan="annual" href="<%= plan_cta_path(:annual) %>">Get Pro Annual</a>
+    </div>
+  </div>
+
+  <p class="pricing-note">Payments handled securely by Stripe. Cancel anytime from your account page.</p>
+</div>
+
+<script>
+  // Funnel attribution: record which plan CTA was clicked before Stripe handoff
+  document.querySelectorAll('.js-checkout').forEach(function (el) {
+    el.addEventListener('click', function () {
+      try {
+        navigator.sendBeacon && navigator.sendBeacon('/api/events', new Blob([JSON.stringify({
+          event_type: 'checkout_click',
+          metadata: { plan: el.dataset.plan, signed_in: <%= user_signed_in? %> }
+        })], { type: 'application/json' }));
+      } catch (e) { /* never block the checkout */ }
+    });
+  });
+</script>

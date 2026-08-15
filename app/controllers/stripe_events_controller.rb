@@ -17,10 +17,16 @@ class StripeEventsController < ApplicationController
     end
 
     case event['type']
+    when 'checkout.session.completed'
+      handle_checkout_completed(event['data']['object'])
     when 'customer.subscription.created', 'invoice.payment_succeeded'
       handle_paid_user(event['data']['object'])
+    when 'customer.subscription.updated'
+      handle_subscription_updated(event['data']['object'])
     when 'customer.subscription.deleted'
       handle_subscription_deleted(event['data']['object'])
+    when 'invoice.payment_failed'
+      Rails.logger.warn "Stripe payment failed for customer #{event['data']['object']['customer']}"
     end
 
     render json: { message: 'Success' }, status: 200
@@ -30,6 +36,31 @@ class StripeEventsController < ApplicationController
 
   def handle_paid_user(object)
     update_subscription_status(object, 'active')
+  end
+
+  # Payment Links fire this with client_reference_id (the app user id, when we
+  # passed one) — the most reliable link between a purchase and an account,
+  # even when the buyer used a different email at checkout.
+  def handle_checkout_completed(object)
+    user = User.find_by(id: object['client_reference_id']) if object['client_reference_id'].present?
+    if user
+      user.update_columns(subscription_status: 'active', stripe_customer_id: object['customer'])
+      Rails.logger.info "Checkout completed: user #{user.email} active (stripe: #{object['customer']})"
+    else
+      # Fall back to customer-id/email matching
+      update_subscription_status(object, 'active')
+    end
+  end
+
+  # Keep local status in sync with Stripe's lifecycle. past_due keeps access
+  # while Stripe retries the card; canceled/unpaid cuts it off.
+  def handle_subscription_updated(object)
+    case object['status']
+    when 'active', 'trialing', 'past_due'
+      update_subscription_status(object, 'active')
+    when 'canceled', 'unpaid', 'incomplete_expired'
+      update_subscription_status(object, 'inactive')
+    end
   end
 
   def handle_subscription_deleted(object)

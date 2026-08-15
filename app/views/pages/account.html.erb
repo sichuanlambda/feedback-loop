@@ -269,8 +269,8 @@
                             <p class="checkmark">Generate Unlimited Architecture Images</p>
                         </ul> 
                             <div class="w-100 text-center mt-4">
-                                <a href="https://buy.stripe.com/6oEeYwea4g6t0jS147" class="btn btn-secondary" role="button">$5 Monthly</a>
-                                <a href="https://buy.stripe.com/00gcQo7LGdYl3w4fZ3" class="btn btn-secondary" role="button">$50 Annually</a>
+                                <a href="<%= checkout_url(:monthly) %>" class="btn btn-secondary" role="button"><%= PLANS[:monthly][:price] %> Monthly</a>
+                                <a href="<%= checkout_url(:annual) %>" class="btn btn-secondary" role="button"><%= PLANS[:annual][:price] %> Annually</a>
                             </div>
                         <p class="text-center mt-2" style="color: grey; font-size: smaller;">Cancel anytime</p>
                     </div>

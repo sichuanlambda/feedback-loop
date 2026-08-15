@@ -333,6 +333,14 @@ class ArchitectureExplorerController < ApplicationController
       return
     end
 
+    # Signed-in free users spend a credit per analysis; subscribers are unlimited
+    if user_signed_in? && !spend_generation_credit
+      track_event('paywall_view', { src: 'analysis_out_of_credits' })
+      redirect_to '/pricing?src=analysis_out_of_credits',
+                  alert: "You're out of free credits — upgrade to Pro for unlimited analyses."
+      return
+    end
+
     image_url = if params[:image].present?
                   upload_image_to_s3(params[:image])
                 elsif params[:external_image_url].present?
@@ -815,6 +823,7 @@ class ArchitectureExplorerController < ApplicationController
     max_views = user_signed_in? ? 10 : 3
 
     @content_gated = view_count > max_views
+    track_event('paywall_view', { src: 'analysis_view_gate', signed_in: user_signed_in? }) if @content_gated
   end
 
   def set_custom_nav

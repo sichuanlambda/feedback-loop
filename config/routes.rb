@@ -72,6 +72,7 @@ Rails.application.routes.draw do
   post 'add_to_library/:id', to: 'architecture_explorer#add_to_library', as: 'add_to_library'
   post 'remove_from_library/:id', to: 'architecture_explorer#remove_from_library', as: 'remove_from_library'
   get '/account', to: 'pages#account'
+  get '/pricing', to: 'pages#pricing', as: :pricing
   get '/terms', to: 'pages#terms', as: :terms
   get '/home', to: 'pages#home'
   get 'building_library/styles/:style_name', to: 'architecture_explorer#by_style', as: 'buildings_by_style'
