@@ -256,14 +256,8 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Assuming 'current_user.subscription_status' holds the subscription status
-    // Replace this with the actual logic you use to determine the subscription status
-    var userSubscriptionStatus = '<%= current_user.subscription_status %>';
-
-    if (userSubscriptionStatus !== 'active') {
-        window.location.href = '/account';
-    }
-
+    // Free users may proceed — generation itself spends a credit server-side
+    // (enforced in DesignsController#submit).
     const optionButtons = document.querySelectorAll('.option-btn');
 
     // Toggle selection state of options

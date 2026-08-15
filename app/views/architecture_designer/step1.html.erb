@@ -873,7 +873,10 @@
         <p>Creating your dream home & finding inspiration</p>
         <p>Mixing influences and styles</p>
         <p>Learning about the architecture around you</p>
-        <button type="button" id="navigateButton" class="btn btn-primary" data-url="/users/sign_up">Subscribe for $5/mo</button>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button type="button" id="navigateButton" class="btn btn-primary" data-url="/architecture_explorer/new?src=hero">Try It Free — No Account Needed</button>
+            <a href="/pricing?src=hero" class="btn btn-primary" style="background: #fff; color: #0056b3; border: 2px solid #0056b3;">See Pricing</a>
+        </div>
     </div>
     <div class="image-collage-container">
         <%= image_tag 'curved wooden building.png', alt: 'Modern architectural building with curved wooden facade', class: 'image-collage-large img-fluid', width: '400', height: '300', loading: 'lazy' %>

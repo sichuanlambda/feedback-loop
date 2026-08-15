@@ -3,7 +3,8 @@ require 'open-uri'
 require 'aws-sdk-s3'
 
 class DesignsController < ApplicationController
-  before_action :authenticate_user!, except: [:style_finder, :submit, :image_status]
+  before_action :authenticate_user!, except: [:style_finder, :image_status]
+  before_action :enforce_generation_allowance, only: [:submit]
   before_action :set_gpt_api_options
   before_action :set_custom_nav
 
@@ -74,6 +75,22 @@ class DesignsController < ApplicationController
   end
 
   private
+
+  # Server-side paywall for AI image generation: subscribers are unlimited,
+  # free users spend one of their credits, out-of-credits goes to /pricing.
+  def enforce_generation_allowance
+    if spend_generation_credit
+      remaining = current_user.reload.credits
+      unless current_user.subscription_status == 'active'
+        track_event('imggen_credit_spent', { remaining: remaining })
+        flash.now[:notice] = "Image generating! Free credits left: #{remaining}."
+      end
+    else
+      track_event('paywall_view', { src: 'imggen_out_of_credits' })
+      redirect_to '/pricing?src=imggen_out_of_credits',
+                  alert: "You're out of free credits — upgrade to Pro for unlimited image generation."
+    end
+  end
 
   def set_gpt_api_options
     api_key = Rails.env.production? ? ENV['GPT_API_KEY_PRODUCTION'] : Rails.application.credentials.openai[:api_key]

@@ -1,5 +1,5 @@
 class PagesController < ApplicationController
-  before_action :authenticate_user!, except: [:terms] # If you're using Devise
+  before_action :authenticate_user!, except: [:terms, :pricing] # If you're using Devise
   before_action :set_user_stats, only: [:account]
 
   def terms
@@ -8,6 +8,11 @@ class PagesController < ApplicationController
 
   def home
     track_event('home_view')
+  end
+
+  def pricing
+    track_event('pricing_view', { src: params[:src] }.compact)
+    @custom_nav = true
   end
 
   def account

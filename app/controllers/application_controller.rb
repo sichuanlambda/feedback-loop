@@ -38,6 +38,14 @@ class ApplicationController < ActionController::Base
     analysis&.update_columns(user_id: user.id, visible_in_library: true)
   end
 
+  # One paid action for the signed-in user: free pass for active subscribers,
+  # otherwise atomically spend one credit. Returns false when out of credits.
+  def spend_generation_credit
+    return true if current_user.subscription_status == 'active'
+
+    User.where(id: current_user.id).where('credits > 0').update_all('credits = credits - 1').positive?
+  end
+
   private
 
   def configure_permitted_parameters
@@ -46,8 +54,7 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    # Specify the path you want to redirect users to after sign-in
-    '/architecture_designer/step1'
+    stored_location_for(resource) || '/architecture_designer/step1'
   end
 
   def after_sign_out_path_for(resource_or_scope)

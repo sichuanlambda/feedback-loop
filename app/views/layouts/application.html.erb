@@ -136,10 +136,14 @@
               <% if current_user.admin? %>
                 <%= link_to 'Admin Panel', admin_dashboard_path, class: 'nav-item nav-link text-warning' %>
               <% end %>
+              <% unless current_user.subscription_status == 'active' %>
+                <%= link_to 'Upgrade', pricing_path(src: 'nav'), class: 'nav-item nav-link', style: 'color: #0056b3; font-weight: 600;' %>
+              <% end %>
               <%= link_to '👤 Profile', '/profile', class: 'nav-item nav-link' %>
               <%= link_to 'Account', '/account', class: 'nav-item nav-link' %>
               <%= link_to 'Logout', custom_sign_out_path, method: :delete, class: 'nav-item nav-link' %>
             <% else %>
+              <%= link_to 'Pricing', pricing_path(src: 'nav'), class: 'nav-item nav-link' %>
               <%= link_to 'Login', new_user_session_path, class: 'nav-item nav-link' %>
               <%= link_to 'Sign up', new_user_registration_path, class: 'nav-item nav-link' %>
             <% end %>
