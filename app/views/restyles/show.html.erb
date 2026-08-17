@@ -1,0 +1,134 @@
+<% content_for :title, "Your Space in #{@arch_image.style_name} Style" %>
+
+<style>
+  .restyle-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  @media (max-width: 768px) {
+    .restyle-compare { grid-template-columns: 1fr; }
+  }
+  .restyle-panel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+  .restyle-panel h2 {
+    font-size: 15px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+  .restyle-panel img {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+  .restyle-btn-primary {
+    background: #0056b3;
+    color: #fff !important;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .restyle-btn-green {
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>
+
+<div class="text-center" style="margin-bottom: 22px;">
+  <h1 style="color: #01161e;">Your space in <%= @arch_image.style_name %> style</h1>
+</div>
+
+<div class="restyle-compare">
+  <div class="restyle-panel">
+    <h2>Before</h2>
+    <img src="<%= @arch_image.source_image_url %>" alt="Original photo">
+  </div>
+  <div class="restyle-panel">
+    <h2>After — <%= @arch_image.style_name %></h2>
+
+    <% if @arch_image.status == 'complete' && @arch_image.image_url.present? %>
+      <img id="restyled-image" src="<%= @arch_image.image_url %>" alt="Restyled in <%= @arch_image.style_name %>">
+    <% elsif @arch_image.status == 'failed' %>
+      <div style="padding: 60px 16px;">
+        <p style="color: #b91c1c; font-size: 14.5px;">Sorry, this restyle couldn't be generated.</p>
+        <a href="<%= restyle_path %>" class="restyle-btn-primary" style="margin-top: 8px;">Try Again</a>
+      </div>
+    <% else %>
+      <div id="restyle-progress" style="padding: 60px 16px;">
+        <div style="width: 44px; height: 44px; border: 4px solid #e8f0f9; border-top-color: #0056b3; border-radius: 50%; margin: 0 auto 16px; animation: rsspin 0.9s linear infinite;"></div>
+        <p style="color: #1f2937; font-weight: 600; margin-bottom: 4px;">Re-imagining your space…</p>
+        <p style="color: #6b7280; font-size: 13.5px;">This usually takes about a minute. Hang tight!</p>
+      </div>
+      <img id="restyled-image" src="" alt="Restyled in <%= @arch_image.style_name %>" style="display: none;">
+      <div id="restyle-error" style="display: none; padding: 60px 16px;">
+        <p style="color: #b91c1c; font-size: 14.5px;">Sorry, this restyle couldn't be generated.</p>
+        <a href="<%= restyle_path %>" class="restyle-btn-primary" style="margin-top: 8px;">Try Again</a>
+      </div>
+      <style>@keyframes rsspin { to { transform: rotate(360deg); } }</style>
+
+      <script>
+        (function() {
+          var statusUrl = '<%= image_status_path(@arch_image.id) %>';
+          var started = Date.now();
+          function poll() {
+            fetch(statusUrl)
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                if (data.status === 'complete' && data.image_url) {
+                  document.getElementById('restyled-image').src = data.image_url;
+                  document.getElementById('restyled-image').style.display = 'inline';
+                  document.getElementById('restyle-progress').style.display = 'none';
+                } else if (data.status === 'failed' || Date.now() - started > 5 * 60 * 1000) {
+                  document.getElementById('restyle-progress').style.display = 'none';
+                  document.getElementById('restyle-error').style.display = 'block';
+                } else {
+                  setTimeout(poll, 3000);
+                }
+              })
+              .catch(function() { setTimeout(poll, 5000); });
+          }
+          setTimeout(poll, 3000);
+        })();
+      </script>
+    <% end %>
+  </div>
+</div>
+
+<div class="text-center" style="margin-top: 26px;">
+  <% if user_signed_in? && @arch_image.user_id == current_user.id %>
+    <!-- Re-run the same photo through a different style -->
+    <%= form_with url: restyle_path, method: :post, local: true, style: "display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;" do %>
+      <%= hidden_field_tag :rerun_from, @arch_image.id %>
+      <%= hidden_field_tag :space_type, @arch_image.space_type %>
+      <%= select_tag :style_name,
+            options_for_select(@styles - [@arch_image.style_name]),
+            include_blank: 'Try another style…',
+            required: true,
+            style: "padding: 9px 12px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 14px;" %>
+      <button type="submit" class="restyle-btn-green">Restyle Again</button>
+    <% end %>
+    <p style="margin-top: 12px;">
+      <%= link_to 'Upload a different photo', restyle_path, style: 'color: #0056b3; font-size: 14px;' %>
+      <span style="color: #d1d5db;">·</span>
+      <%= link_to 'Explore this style', buildings_by_style_path(style_name: @arch_image.style_name.parameterize), style: 'color: #0056b3; font-size: 14px;' %>
+    </p>
+  <% else %>
+    <a href="<%= restyle_path %>" class="restyle-btn-primary">Restyle Your Own Space</a>
+  <% end %>
+</div>

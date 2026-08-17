@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_11_160234) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_17_000001) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -46,6 +46,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_11_160234) do
     t.string "status", default: "complete", null: false
     t.text "prompt"
     t.string "error_message"
+    t.integer "user_id"
+    t.string "kind", default: "generate", null: false
+    t.string "style_name"
+    t.string "space_type"
+    t.string "source_image_url"
+    t.index ["kind"], name: "index_arch_image_gens_on_kind"
+    t.index ["user_id"], name: "index_arch_image_gens_on_user_id"
   end
 
   create_table "building_analyses", force: :cascade do |t|
