@@ -38,15 +38,18 @@
     font-weight: 600;
     text-decoration: none;
     display: inline-block;
-  }
-  .restyle-btn-green {
-    background: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 22px;
-    font-weight: 600;
     cursor: pointer;
+  }
+  .restyle-btn-primary:hover { background: #004080; }
+  .restyle-btn-secondary {
+    background: #fff;
+    color: #0056b3 !important;
+    border: 2px solid #0056b3;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
   }
 </style>
 
@@ -119,9 +122,9 @@
         Create a free account to save this restyle and get a credit for another —
         or go Pro for unlimited restyles of every room and angle.
       </p>
-      <a href="<%= new_user_registration_path %>" class="restyle-btn-green" style="text-decoration: none; display: inline-block;"
+      <a href="<%= new_user_registration_path %>" class="restyle-btn-primary"
          onclick="if (window.AHTrack) AHTrack('restyle_guest_signup_click', {});">Create Free Account</a>
-      <a href="<%= pricing_path(src: 'restyle_guest_result') %>" class="restyle-btn-primary" style="margin-left: 8px;">See Pro Pricing</a>
+      <a href="<%= pricing_path(src: 'restyle_guest_result') %>" class="restyle-btn-secondary" style="margin-left: 8px;">See Pro Pricing</a>
       <p style="margin-top: 12px; font-size: 13px;"><%= link_to "Already have an account? Sign in", new_user_session_path, style: "color: #0056b3;" %></p>
     </div>
   <% elsif user_signed_in? && @arch_image.user_id == current_user.id %>
@@ -134,7 +137,7 @@
             include_blank: 'Try another style…',
             required: true,
             style: "padding: 9px 12px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 14px;" %>
-      <button type="submit" class="restyle-btn-green">Restyle Again</button>
+      <button type="submit" class="restyle-btn-primary">Restyle Again</button>
     <% end %>
     <p style="margin-top: 12px;">
       <%= link_to 'Upload a different photo', restyle_path, style: 'color: #0056b3; font-size: 14px;' %>
