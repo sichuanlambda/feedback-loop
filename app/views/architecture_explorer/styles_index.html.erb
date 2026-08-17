@@ -72,6 +72,8 @@ style_descriptions = {
     From Art Deco skyscrapers to Gothic cathedrals, explore how different design movements shape our cities.
   </p>
 
+  <%= render 'shared/restyle_cta', src: 'styles_index' %>
+
   <div class="row">
     <% @styles_with_counts.each do |style_name, count| %>
       <div class="col-md-4 col-sm-6 mb-4">

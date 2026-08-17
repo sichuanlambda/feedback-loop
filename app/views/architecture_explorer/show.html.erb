@@ -314,6 +314,7 @@
             <a href="/building_library/styles/<%= slug %>" class="explore-link">Explore more <%= style['name'] %> buildings →</a>
           </div>
         <% end %>
+        <%= render 'shared/restyle_cta', style: @building_data['styles'].first['name'], src: 'building_page' %>
       <% end %>
 
       <%# Notable Features %>
