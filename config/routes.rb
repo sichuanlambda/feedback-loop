@@ -81,6 +81,11 @@ Rails.application.routes.draw do
   get '/auth/failure', to: 'sessions#omniauth_failure'
   post '/stripe_events', to: 'stripe_events#create'
   post 'designs/submit', to: 'designs#submit'
+
+  # Restyle My Space: upload a photo of a home/room, re-render it in a canonical style
+  get 'restyle', to: 'restyles#new', as: :restyle
+  post 'restyle', to: 'restyles#create'
+  get 'restyle/:id', to: 'restyles#show', as: :restyle_result
   get 'architecture_explorer/map', to: 'architecture_explorer#map'
 
   # Route for public user profiles (enhanced for sharing)
