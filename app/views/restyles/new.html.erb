@@ -59,7 +59,7 @@
   </p>
 </div>
 
-<% if user_signed_in? %>
+<% if user_signed_in? || @guest_trial_available %>
   <div class="restyle-card">
     <%= form_with url: restyle_path, method: :post, local: true, multipart: true do |form| %>
       <div class="text-center" style="margin-bottom: 20px;">
@@ -91,7 +91,11 @@
 
       <div class="text-center">
         <%= form.submit "Restyle My Space", class: "restyle-submit", id: "restyle-submit-btn", disabled: true, title: "Add a photo and pick a style first" %>
-        <% unless current_user.subscription_status == 'active' %>
+        <% if !user_signed_in? %>
+          <p style="color: #6c757d; font-size: 13px; margin-top: 10px;">
+            Your first restyle is free — no account needed.
+          </p>
+        <% elsif current_user.subscription_status != 'active' %>
           <p style="color: #6c757d; font-size: 13px; margin-top: 10px;">
             Uses 1 credit — you have <%= current_user.credits %> left.
             <%= link_to 'Go unlimited', pricing_path(src: 'restyle_form'), style: 'color: #0056b3; font-weight: 600;' %>
@@ -122,9 +126,11 @@
   </script>
 <% else %>
   <div class="restyle-card text-center">
-    <h2 style="font-size: 20px; color: #1f2937; margin-bottom: 8px;">Create a free account to restyle your space</h2>
+    <h2 style="font-size: 20px; color: #1f2937; margin-bottom: 8px;">You've used your free restyle</h2>
     <p style="color: #4b5563; font-size: 14.5px; margin-bottom: 18px;">
-      You'll get 5 free credits to analyze buildings, generate designs, and restyle photos of your own home.
+      Create a free account for another credit — or go
+      <%= link_to 'Pro', pricing_path(src: 'restyle_trial_used'), style: 'color: #0056b3; font-weight: 600;' %>
+      for unlimited restyles, analyses, and AI designs.
     </p>
     <%= link_to "Create Free Account", new_user_registration_path, class: "btn", style: "background: #0056b3; color: #fff; padding: 10px 22px; border-radius: 6px; font-weight: 600;" %>
     <p style="margin-top: 12px; font-size: 13px;"><%= link_to "Already have an account? Sign in", new_user_session_path, style: "color: #0056b3;" %></p>

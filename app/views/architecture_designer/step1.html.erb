@@ -963,6 +963,9 @@
       </div>
       <div style="margin-top: 22px;">
         <a href="/restyle" class="restyle-showcase-cta" onclick="if (window.AHTrack) AHTrack('restyle_cta_click', { src: 'homepage' });">Restyle My Space</a>
+        <% unless user_signed_in? %>
+          <p style="color: #6c757d; font-size: 13px; margin-top: 8px;">Your first restyle is free — no account needed.</p>
+        <% end %>
       </div>
     </div>
   </div>
