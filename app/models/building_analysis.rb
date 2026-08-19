@@ -4,6 +4,13 @@ class BuildingAnalysis < ApplicationRecord
   # Virtual attribute for distance calculations (used in API)
   attr_accessor :distance
 
+  # Buildings whose image can actually render in an <img> tag: absolute http(s)
+  # URL, excluding the legacy screenshotsearcher bucket (public reads 403).
+  scope :with_showable_image, -> {
+    where("image_url LIKE 'http%'")
+      .where.not("image_url LIKE '%screenshotsearcher.s3%'")
+  }
+
   # Use the 'address' attribute for geocoding
   geocoded_by :address
   # Auto-fetch coordinates after validation, if address changed

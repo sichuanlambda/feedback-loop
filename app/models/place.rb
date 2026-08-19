@@ -59,7 +59,7 @@ class Place < ApplicationRecord
     
     # Fallback to best building analysis image
     best_building = building_analyses_in_place
-      .where.not(image_url: [nil, ''])
+      .with_showable_image
       .order('RANDOM()')
       .first
     
