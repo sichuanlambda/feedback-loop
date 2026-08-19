@@ -91,8 +91,10 @@ class User < ApplicationRecord
   # Sets default credits for users without an active subscription.
   # Assign unconditionally: the DB column default (3) means credits is never
   # nil, so a ||= here would silently keep the wrong default.
+  # 1 credit: the anonymous guest trials (analysis + restyle) are the free
+  # taste; an account gets one more paid action, then Pro.
   def set_default_credits
-    self.credits = 5 if subscription_status != 'active'
+    self.credits = 1 if subscription_status != 'active'
   end
 
   def set_terms_accepted_at

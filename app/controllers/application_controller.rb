@@ -38,6 +38,15 @@ class ApplicationController < ActionController::Base
     analysis&.update_columns(user_id: user.id, visible_in_library: true)
   end
 
+  # Attach a guest trial restyle to the account it just signed up for / into
+  def claim_guest_restyle_for(user)
+    restyle_id = session.delete(:guest_restyle_id)
+    return if restyle_id.blank? || user.nil?
+
+    restyle = ArchImageGen.restyles.find_by(id: restyle_id, user_id: nil)
+    restyle&.update_columns(user_id: user.id)
+  end
+
   # One paid action for the signed-in user: free pass for active subscribers,
   # otherwise atomically spend one credit. Returns false when out of credits.
   def spend_generation_credit

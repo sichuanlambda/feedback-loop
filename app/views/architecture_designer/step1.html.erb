@@ -887,6 +887,91 @@
 </div>
 <% end %>
 
+<!-- Restyle My Space showcase -->
+<style>
+  .restyle-showcase {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px 24px;
+    margin: 20px 0;
+  }
+  .restyle-showcase-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+    max-width: 900px;
+    margin: 18px auto 0;
+  }
+  .restyle-showcase-panel { position: relative; }
+  .restyle-showcase-panel img {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+  }
+  .restyle-showcase-panel .rs-label {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(1, 22, 30, 0.75);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+  .restyle-showcase-arrow { color: #0056b3; font-size: 26px; font-weight: 700; }
+  .restyle-showcase-cta {
+    display: inline-block;
+    background: #0056b3;
+    color: #fff !important;
+    padding: 12px 28px;
+    border-radius: 6px;
+    font-size: 17px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .restyle-showcase-cta:hover { background: #004080; }
+  @media (max-width: 700px) {
+    .restyle-showcase-grid { grid-template-columns: 1fr; }
+    .restyle-showcase-arrow { transform: rotate(90deg); text-align: center; }
+  }
+</style>
+<section>
+  <h2>See Your Own Home in Any Style</h2>
+  <div class="container">
+    <div class="restyle-showcase text-center">
+      <p style="color: #4b5563; max-width: 620px; margin: 0 auto; font-size: 15.5px;">
+        Upload a photo of your house or a room, pick from 49 architecture styles, and AI re-renders
+        <em>your actual space</em> in that style — same layout, same angle, new design language.
+      </p>
+      <div class="restyle-showcase-grid">
+        <div class="restyle-showcase-panel">
+          <img src="https://architecture-explorer.s3.us-east-2.amazonaws.com/uploads/restyle/819aca81-ed39-4d46-a1a9-9e95ee25c690.png" alt="Original home photo" width="280" height="280" loading="lazy">
+          <span class="rs-label">Your home</span>
+        </div>
+        <div class="restyle-showcase-arrow">&rarr;</div>
+        <div class="restyle-showcase-panel">
+          <img src="https://architecture-generated.s3.us-east-2.amazonaws.com/restyles/856ed411-9f9c-4de1-9809-31785e4585a7.png" alt="Same home restyled as Mediterranean Revival" width="280" height="280" loading="lazy">
+          <span class="rs-label">Mediterranean Revival</span>
+        </div>
+        <div class="restyle-showcase-arrow">&rarr;</div>
+        <div class="restyle-showcase-panel">
+          <img src="https://architecture-generated.s3.us-east-2.amazonaws.com/restyles/05f81a75-1a64-4f5e-8ce3-9c6cc4e9ad92.png" alt="Same home restyled as Brutalism" width="280" height="280" loading="lazy">
+          <span class="rs-label">Brutalism</span>
+        </div>
+      </div>
+      <div style="margin-top: 22px;">
+        <a href="/restyle" class="restyle-showcase-cta" onclick="if (window.AHTrack) AHTrack('restyle_cta_click', { src: 'homepage' });">Restyle My Space</a>
+        <% unless user_signed_in? %>
+          <p style="color: #6c757d; font-size: 13px; margin-top: 8px;">Your first restyle is free — no account needed.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- City Guides Section -->
 <% if @places&.any? %>
 <%

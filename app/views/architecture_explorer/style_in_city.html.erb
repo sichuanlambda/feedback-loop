@@ -103,6 +103,10 @@
   <span><%= @city_name %></span>
 </div>
 
+<div style="max-width:1200px;margin:0 auto;padding:0 20px">
+  <%= render 'shared/restyle_cta', style: @style_name, src: 'style_in_city' %>
+</div>
+
 <div class="sic-hero">
   <div style="max-width:1200px;margin:0 auto;padding:0 20px">
     <h1><%= @style_name %> Architecture in <%= @city_name %></h1>

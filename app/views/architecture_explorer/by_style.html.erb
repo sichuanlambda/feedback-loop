@@ -1156,17 +1156,7 @@ hero_building = @analyzed_buildings.first
   <strong><%= @style_name %></strong>
 </div>
 
-<!-- Restyle My Space CTA -->
-<div style="background: #0056b3; border-radius: 12px; padding: 18px 22px; margin: 18px 0; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
-  <div>
-    <div style="color: #fff; font-weight: 700; font-size: 16.5px;">Like <%= @style_name %>? See your own home in it.</div>
-    <div style="color: #d6e6f7; font-size: 13.5px; margin-top: 2px;">Upload a photo of your house or a room and AI re-renders it in <%= @style_name %> style.</div>
-  </div>
-  <a href="<%= restyle_path(style: @style_name) %>" onclick="if (window.AHTrack) AHTrack('restyle_cta_click', { src: 'style_page', style: '<%= j @style_name %>' });"
-     style="background: #28a745; color: #fff; padding: 10px 22px; border-radius: 6px; font-weight: 600; text-decoration: none; white-space: nowrap;">
-    Restyle My Space →
-  </a>
-</div>
+<%= render 'shared/restyle_cta', style: @style_name, src: 'style_page' %>
 
 <div class="style-page-layout">
   <!-- Main Content -->
