@@ -5,21 +5,13 @@
       Architecture Helper
     </a>
     
-    <% if user_signed_in? %>
-      <div class="d-flex align-items-center">
-        <% if current_user.admin? %>
-          <a href="<%= admin_dashboard_path %>" class="btn btn-sm btn-outline-warning me-2">Admin</a>
-        <% end %>
-        <a href="/account" class="btn btn-sm btn-outline-primary">Account</a>
-      </div>
-    <% else %>
-      <div class="d-flex align-items-center">
-        <a href="<%= new_user_session_path %>" class="btn btn-sm btn-outline-primary me-2">Login</a>
-        <a href="<%= new_user_registration_path %>" class="btn btn-sm btn-primary">Sign up</a>
-      </div>
-    <% end %>
+    <button type="button" data-ah-drawer-open aria-label="Open menu" aria-controls="ah-drawer"
+            style="width: 44px; height: 44px; margin: -8px -10px -8px 0; background: none; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#01161e" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
   </div>
 </nav>
+<%= render 'layouts/nav_drawer' %>
 
 <style>
   .mobile-nav {
