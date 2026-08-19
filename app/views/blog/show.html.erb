@@ -1,0 +1,72 @@
+<% content_for :title, @post.title %>
+<% content_for :meta_description, @post.description %>
+<% if @post.hero_image_url.present? %>
+  <% content_for :og_image, @post.hero_image_url %>
+<% end %>
+<% content_for :structured_data do %>
+<script type="application/ld+json">
+<%= raw({
+  '@context' => 'https://schema.org',
+  '@type' => 'BlogPosting',
+  'headline' => @post.title,
+  'description' => @post.description,
+  'image' => @post.hero_image_url.presence,
+  'datePublished' => @post.published_at&.iso8601,
+  'author' => { '@type' => 'Organization', 'name' => 'Architecture Helper' },
+  'publisher' => { '@type' => 'Organization', 'name' => 'Architecture Helper' }
+}.compact.to_json) %>
+</script>
+<% end %>
+<% content_for :head do %>
+<style>
+  .post-wrap { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+  .post-wrap h1.post-heading { color: #1a1a1a; margin-bottom: 8px; font-size: 2rem; }
+  .post-meta { color: #9ca3af; font-size: 14px; margin-bottom: 24px; }
+  .post-hero { width: 100%; border-radius: 12px; margin-bottom: 28px; }
+  .post-content { color: #1f2937; font-size: 17px; line-height: 1.7; }
+  .post-content h2 { margin-top: 36px; font-size: 1.5rem; color: #1a1a1a; }
+  .post-content h3 { margin-top: 28px; font-size: 1.2rem; color: #1a1a1a; }
+  .post-content img { max-width: 100%; border-radius: 8px; }
+  .post-content table { display: block; overflow-x: auto; border-collapse: collapse; margin: 20px 0; }
+  .post-content td, .post-content th { border: 1px solid #e5e7eb; padding: 8px 12px; font-size: 15px; }
+  .post-content a { color: #0056b3; }
+  .post-cta { background: #e8f0f9; border: 1px solid #0056b3; border-radius: 10px; padding: 18px 22px; margin: 36px 0; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .post-cta a.btn-cta { background: #0056b3; color: #fff; padding: 10px 20px; border-radius: 6px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .post-cta a.btn-cta:hover { background: #004080; text-decoration: none; }
+  .related { margin-top: 48px; border-top: 1px solid #e5e7eb; padding-top: 24px; }
+  .related h2 { font-size: 1.2rem; color: #1a1a1a; margin-bottom: 16px; }
+  .related a { display: block; color: #0056b3; padding: 6px 0; }
+</style>
+<% end %>
+
+<div class="post-wrap">
+  <h1 class="post-heading"><%= @post.title %></h1>
+  <% if @post.published_at %>
+    <div class="post-meta"><%= @post.published_at.strftime('%B %-d, %Y') %> · Architecture Helper</div>
+  <% end %>
+  <% if @post.hero_image_url.present? %>
+    <img class="post-hero" src="<%= @post.hero_image_url %>" alt="<%= @post.title %>" onerror="this.style.display='none'">
+  <% end %>
+
+  <div class="post-content">
+    <%= raw @post.body_html %>
+  </div>
+
+  <div class="post-cta">
+    <div style="flex: 1; min-width: 220px;">
+      <strong style="color: #1f2937;">See these ideas on a real building</strong>
+      <span style="color: #4b5563; font-size: 14px;">Upload a photo and get an AI architecture analysis — your first is free, no account needed.</span>
+    </div>
+    <a class="btn-cta" href="/architecture_explorer/new?src=blog">Analyze a Building Free</a>
+  </div>
+
+  <% if @related_posts.any? %>
+    <div class="related">
+      <h2>Keep reading</h2>
+      <% @related_posts.each do |rp| %>
+        <a href="/blog/<%= rp.slug %>"><%= rp.title %></a>
+      <% end %>
+      <a href="/blog" style="color: #6b7280;">All posts →</a>
+    </div>
+  <% end %>
+</div>
