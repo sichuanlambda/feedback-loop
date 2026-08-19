@@ -401,11 +401,20 @@
         <% end %>
       </div>
       <div class="col-md-7">
-        <div id="loader" class="text-center">
-          <h2 class="loading-text">Hang tight, we're working on your analysis</h2>
-          <%= image_tag 'buildinganimation.gif', alt: 'Loading...', id: 'loading-animation', class: 'mx-auto d-block', loading: 'lazy' %>
-        </div>
-        <div id="results" style="display:none;"></div>
+        <% if @analysis_stalled %>
+          <div class="text-center">
+            <h2 class="loading-text">This analysis didn't finish</h2>
+            <p style="color: #6b7280;">Something went wrong when this building was first submitted, so there's nothing to show here yet.</p>
+            <%= link_to 'Analyze a building', architecture_explorer_new_path(src: 'stalled_analysis'),
+                        style: 'display: inline-block; margin-top: 12px; background: #0056b3; color: #fff; padding: 10px 20px; border-radius: 6px; font-weight: 600; text-decoration: none;' %>
+          </div>
+        <% else %>
+          <div id="loader" class="text-center">
+            <h2 class="loading-text">Hang tight, we're working on your analysis</h2>
+            <%= image_tag 'buildinganimation.gif', alt: 'Loading...', id: 'loading-animation', class: 'mx-auto d-block', loading: 'lazy' %>
+          </div>
+          <div id="results" style="display:none;"></div>
+        <% end %>
       </div>
     </div>
   <% end %>

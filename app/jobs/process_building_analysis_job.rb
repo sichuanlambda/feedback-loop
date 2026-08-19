@@ -13,6 +13,14 @@ class ProcessBuildingAnalysisJob < ApplicationJob
 
     gpt_response = GptService.new.send_building_analysis(image_url)
 
+    # An image with no building in it (a street of trees, a blurry sky) comes
+    # back shaped like a response but with no styles. Writing that would fill
+    # the page with a stringified hash, which is worse than leaving it unset.
+    if gpt_response.is_a?(Hash) && gpt_response.key?("styles") && Array(gpt_response["styles"]).empty?
+      Rails.logger.error "[ProcessBuildingAnalysisJob] No styles identified for BuildingAnalysis ##{building_analysis_id} — not writing content"
+      raise "No architectural styles identified for BuildingAnalysis ##{building_analysis_id}"
+    end
+
     if gpt_response.present?
       if gpt_response.is_a?(Hash) && gpt_response.key?("styles")
         # Normalize style names through StyleNormalizer (single source of truth)
@@ -39,9 +47,13 @@ class ProcessBuildingAnalysisJob < ApplicationJob
 
         normalized_names = gpt_response["styles"].map { |s| s["name"] }
 
-        # Update building name if we got one and the record doesn't have one
-        if building_analysis.name.blank? && gpt_response["building_name"].present?
-          building_analysis.update_column(:name, gpt_response["building_name"])
+        # Update building name if we got one and the record doesn't have one.
+        # The model sometimes echoes the prompt's own placeholder wording back
+        # ("Descriptive name", "null") — that must not become a page title.
+        gpt_name = gpt_response["building_name"].to_s.strip
+        gpt_name = nil if gpt_name.match?(/\A(null|n\/a|none|descriptive name.*|name if recognizable.*)\z/i)
+        if building_analysis.name.blank? && gpt_name.present?
+          building_analysis.update_column(:name, gpt_name)
         end
 
         building_analysis.update!(
