@@ -165,6 +165,10 @@ Rails.application.routes.draw do
   get 'development_estimations', to: 'architecture_explorer#development_estimations'
   post 'generate_development_estimation', to: 'architecture_explorer#generate_development_estimation'
 
+  # Blog (recovered architecturehelper.com/blog content — slugs must stay stable)
+  get 'blog', to: 'blog#index', as: :blog_index
+  get 'blog/:slug', to: 'blog#show', as: :blog_post, constraints: { slug: /[a-z0-9-]+/ }
+
   # Style pages (programmatic SEO)
   get 'styles', to: 'architecture_explorer#styles_index', as: 'styles_index'
   get 'styles/:style_name', to: 'architecture_explorer#style_show', as: 'style_show'

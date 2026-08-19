@@ -174,7 +174,7 @@ class PlaceContentGenerator
 
   def try_representative_building_image
     best_building = @place.building_analyses_in_place
-      .where.not(image_url: [nil, ''])
+      .with_showable_image
       .order('RANDOM()')
       .first
     
