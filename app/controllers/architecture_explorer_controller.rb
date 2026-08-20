@@ -47,6 +47,7 @@ class ArchitectureExplorerController < ApplicationController
     else
       @analyzed_buildings = BuildingAnalysis.where(visible_in_library: true)
     end
+    @analyzed_buildings = @analyzed_buildings.with_showable_image
     # Mix buildings from different cities instead of showing newest first
     # (batch imports cause walls of same-city buildings otherwise)
     if params[:search].present?

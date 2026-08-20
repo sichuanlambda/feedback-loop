@@ -1,0 +1,39 @@
+<% content_for :title, 'Architecture Blog' %>
+<% content_for :meta_description, 'Guides and deep dives on architectural styles, building design, and the ideas behind great architecture.' %>
+<% content_for :head do %>
+<style>
+  .blog-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 16px 64px; }
+  .blog-wrap h1 { color: #1a1a1a; margin-bottom: 6px; }
+  .blog-intro { color: #4b5563; margin-bottom: 32px; }
+  .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .blog-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-decoration: none; }
+  .blog-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); text-decoration: none; }
+  .blog-card-img { width: 100%; height: 170px; object-fit: cover; background: #f4f7fa; }
+  .blog-card-body { padding: 16px 18px 20px; display: flex; flex-direction: column; flex: 1; }
+  .blog-card-title { font-size: 1.05rem; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+  .blog-card-desc { color: #4b5563; font-size: 14px; flex: 1; }
+  .blog-card-date { color: #9ca3af; font-size: 12px; margin-top: 12px; }
+</style>
+<% end %>
+
+<div class="blog-wrap">
+  <h1>Architecture Blog</h1>
+  <p class="blog-intro">Guides and deep dives on architectural styles, building design, and the ideas behind great architecture.</p>
+
+  <div class="blog-grid">
+    <% @posts.each do |post| %>
+      <a class="blog-card" href="/blog/<%= post.slug %>">
+        <% if post.hero_image_url.present? %>
+          <img class="blog-card-img" src="<%= post.hero_image_url %>" alt="<%= post.title %>" loading="lazy" onerror="this.style.display='none'">
+        <% end %>
+        <div class="blog-card-body">
+          <div class="blog-card-title"><%= post.title %></div>
+          <div class="blog-card-desc"><%= post.description %></div>
+          <% if post.published_at %>
+            <div class="blog-card-date"><%= post.published_at.strftime('%B %-d, %Y') %></div>
+          <% end %>
+        </div>
+      </a>
+    <% end %>
+  </div>
+</div>
