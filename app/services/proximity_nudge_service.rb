@@ -1,4 +1,6 @@
 class ProximityNudgeService
+  include Rails.application.routes.url_helpers
+
   def self.get_nudges_for_building(user, building_analysis)
     return [] unless user && building_analysis
     return [] if user.email == 'atlas@architecturehelper.com' # Skip Atlas admin
@@ -162,17 +164,14 @@ class ProximityNudgeService
     # Encourage sharing/community
     visible_count = @user.building_analyses.where(visible_in_library: true).count
     if visible_count >= 3 && visible_count < 10
-      profile_path = user_signed_in? ? profile_path(username: @user.handle || @user.id) : nil
-      if profile_path
-        @nudges << {
-          type: 'sharing_encouragement',
-          title: 'Share Your Discoveries',
-          message: "You've shared #{visible_count} buildings with the community. Your profile is looking great!",
-          icon: '🤝',
-          action_text: 'View profile',
-          action_url: profile_path
-        }
-      end
+      @nudges << {
+        type: 'sharing_encouragement',
+        title: 'Share Your Discoveries',
+        message: "You've shared #{visible_count} buildings with the community. Your profile is looking great!",
+        icon: '🤝',
+        action_text: 'View profile',
+        action_url: public_profile_path(username: @user.handle || @user.id)
+      }
     end
   end
 
