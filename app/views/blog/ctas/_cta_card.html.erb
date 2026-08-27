@@ -1,0 +1,8 @@
+<div class="post-cta">
+  <div style="flex: 1; min-width: 220px;">
+    <strong style="color: #1f2937; display: block; margin-bottom: 2px;"><%= heading %></strong>
+    <span style="color: #4b5563; font-size: 14px;"><%= body %></span>
+  </div>
+  <a class="btn-cta" href="<%= href %>"
+     onclick="if (window.AHTrack) AHTrack('blog_cta_click', { slug: '<%= j post.slug %>', cta: '<%= j cta_key %>' });"><%= button_text %></a>
+</div>

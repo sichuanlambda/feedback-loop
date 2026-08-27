@@ -23,7 +23,14 @@ class BlogController < ApplicationController
       redirect_to '/blog', status: :moved_permanently
       return
     end
-    @related_posts = BlogPost.published.where.not(id: @post.id).limit(3)
+    # Same-topic posts first, newest fill the rest
+    @related_posts = BlogPost.published.where.not(id: @post.id)
+                             .where(cta_category: @post.cta_category).limit(3).to_a
+    if @related_posts.size < 3
+      @related_posts += BlogPost.published
+                                .where.not(id: [@post.id] + @related_posts.map(&:id))
+                                .limit(3 - @related_posts.size).to_a
+    end
     @custom_nav = true
   end
 end

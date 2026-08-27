@@ -1,0 +1,8 @@
+<% style_path = post.style_page_path %>
+<%= render 'blog/ctas/cta_card',
+    post: post,
+    cta_key: 'styles',
+    heading: 'See this style on real buildings',
+    body: 'Browse our library of AI-analyzed buildings and spot the features from this guide in the wild.',
+    button_text: style_path ? 'Explore the Style' : 'Explore All Styles',
+    href: "#{style_path || '/styles'}?src=blog_cta_styles" %>
