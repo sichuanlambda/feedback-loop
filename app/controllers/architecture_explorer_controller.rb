@@ -360,6 +360,10 @@ class ArchitectureExplorerController < ApplicationController
                   upload_image_to_s3(params[:external_image_url])
                 elsif params[:previewed_image_url].present?
                   params[:previewed_image_url]
+                elsif params[:address].present?
+                  # Address-only submissions: fetch a Street View photo server-side
+                  street_view = fetch_street_view_image(params[:address])
+                  street_view && upload_image_to_s3(street_view)
                 end
 
     if image_url.blank?

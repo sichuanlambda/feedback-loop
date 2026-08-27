@@ -1,4 +1,6 @@
 class ProximityNudgeService
+  include Rails.application.routes.url_helpers
+
   def self.get_nudges_for_building(user, building_analysis)
     return [] unless user && building_analysis
     return [] if user.email == 'atlas@architecturehelper.com' # Skip Atlas admin
@@ -46,7 +48,7 @@ class ProximityNudgeService
             message: "You have #{collection.building_count} #{normalized_style} buildings. Find #{buildings_needed} more to reach the next milestone!",
             icon: '🏛️',
             action_text: "Explore #{normalized_style}",
-            action_url: style_buildings_path(style: normalized_style.parameterize)
+            action_url: buildings_by_style_path(style_name: normalized_style.parameterize)
           }
         end
       else
@@ -59,7 +61,7 @@ class ProximityNudgeService
             message: "There are #{style_count} #{normalized_style} buildings in this area. Start collecting!",
             icon: '✨',
             action_text: "Start Collection",
-            action_url: style_buildings_path(style: normalized_style.parameterize)
+            action_url: buildings_by_style_path(style_name: normalized_style.parameterize)
           }
         end
       end
@@ -83,7 +85,7 @@ class ProximityNudgeService
             message: "You've analyzed 1 building in #{city}. There are #{total_city_count - 1} more to discover!",
             icon: '🗺️',
             action_text: "Explore #{city}",
-            action_url: by_location_path(city: city.parameterize)
+            action_url: buildings_by_location_path(location_name: city.parameterize)
           }
         elsif user_city_count >= 3 && user_city_count < 10
           milestone_needed = [5, 10, 20].find { |m| m > user_city_count } || 25
@@ -94,7 +96,7 @@ class ProximityNudgeService
             message: "#{user_city_count}/#{milestone_needed} buildings analyzed in #{city}. #{needed} more to go!",
             icon: '🎯',
             action_text: "Continue exploring",
-            action_url: by_location_path(city: city.parameterize)
+            action_url: buildings_by_location_path(location_name: city.parameterize)
           }
         end
       end
@@ -162,17 +164,14 @@ class ProximityNudgeService
     # Encourage sharing/community
     visible_count = @user.building_analyses.where(visible_in_library: true).count
     if visible_count >= 3 && visible_count < 10
-      profile_path = user_signed_in? ? profile_path(username: @user.handle || @user.id) : nil
-      if profile_path
-        @nudges << {
-          type: 'sharing_encouragement',
-          title: 'Share Your Discoveries',
-          message: "You've shared #{visible_count} buildings with the community. Your profile is looking great!",
-          icon: '🤝',
-          action_text: 'View profile',
-          action_url: profile_path
-        }
-      end
+      @nudges << {
+        type: 'sharing_encouragement',
+        title: 'Share Your Discoveries',
+        message: "You've shared #{visible_count} buildings with the community. Your profile is looking great!",
+        icon: '🤝',
+        action_text: 'View profile',
+        action_url: public_profile_path(username: @user.handle || @user.id)
+      }
     end
   end
 
