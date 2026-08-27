@@ -204,6 +204,18 @@ class ArchitectureExplorerController < ApplicationController
       @html_content = @building_analysis.html_content
       @image_url = @building_analysis.image_url
 
+      # A record with no content that was created long ago is not "in progress"
+      # — its analysis never completed and won't without a repair. Showing the
+      # loading spinner forever is worse than sending the visitor somewhere
+      # useful, and these pages were a meaningful share of organic landings.
+      @analysis_stalled = @html_content.blank? && @building_analysis.created_at < 1.hour.ago
+
+      if @analysis_stalled && !@building_analysis.visible_in_library && !@is_owner && !@claimable_guest_analysis
+        redirect_to building_library_path,
+                    notice: "That analysis isn't available — here's the rest of the library."
+        return
+      end
+
       # Detect structured JSON vs legacy HTML
       @is_structured = @html_content.present? && @html_content.strip.start_with?('{')
       if @is_structured
