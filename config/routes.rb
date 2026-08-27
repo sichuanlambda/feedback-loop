@@ -1,4 +1,12 @@
 Rails.application.routes.draw do
+  # The naked domain (and www) 301 to the canonical app subdomain with the
+  # path preserved, so legacy backlinks land on the recovered pages.
+  constraints(host: /\A(www\.)?architecturehelper\.com\z/i) do
+    match '(*path)',
+          to: redirect(status: 301) { |_params, req| "https://app.architecturehelper.com#{req.fullpath}" },
+          via: :all, format: false
+  end
+
   devise_for :users, controllers: {
     sessions: 'users/sessions',
     registrations: 'users/registrations',
