@@ -172,9 +172,9 @@ style_info_hash = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://app.architecturehelper.com/" },
-    { "@type": "ListItem", "position": 2, "name": "Styles", "item": "https://app.architecturehelper.com/styles" },
-    { "@type": "ListItem", "position": 3, "name": "<%= @style_name %>", "item": "https://app.architecturehelper.com/styles/<%= @style_name.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+$/, '') %>" }
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://architecturehelper.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Styles", "item": "https://architecturehelper.com/styles" },
+    { "@type": "ListItem", "position": 3, "name": "<%= @style_name %>", "item": "https://architecturehelper.com/styles/<%= @style_name.downcase.gsub(/[^a-z0-9]+/, '-').gsub(/-+$/, '') %>" }
   ]
 }
 </script>

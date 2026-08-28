@@ -149,7 +149,7 @@ module ApplicationHelper
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "Architecture Helper",
-      "url": "https://app.architecturehelper.com",
+      "url": "https://architecturehelper.com",
       "description": "AI-powered architecture design analysis and generation tool. Explore architectural styles, analyze buildings, and discover architecture from around the world.",
       "sameAs": [
         # Add social media URLs if available
@@ -157,7 +157,7 @@ module ApplicationHelper
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "Customer Service",
-        "url": "https://app.architecturehelper.com/about"
+        "url": "https://architecturehelper.com/about"
       }
     }
 

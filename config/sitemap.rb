@@ -1,6 +1,6 @@
 # Set the host name for URL creation. CANONICAL_HOST lets the domain flip
 # (app.architecturehelper.com -> architecturehelper.com) without a code change.
-SitemapGenerator::Sitemap.default_host = ENV.fetch('CANONICAL_HOST', 'https://app.architecturehelper.com')
+SitemapGenerator::Sitemap.default_host = ENV.fetch('CANONICAL_HOST', 'https://architecturehelper.com')
 
 # Generate both compressed and uncompressed sitemaps
 SitemapGenerator::Sitemap.create_index = true
