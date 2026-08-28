@@ -34,23 +34,32 @@
         }
         #search-bar:focus { border-color: #0056b3; }
 
-        /* City pill buttons */
-        .city-pill {
-            display: inline-flex; align-items: center; gap: 4px;
-            padding: 5px 14px; border-radius: 20px; border: 1px solid #dee2e6;
-            background: #f8f9fa; font-size: 12px; font-weight: 500; cursor: pointer;
-            transition: all 0.2s; white-space: nowrap; flex-shrink: 0; text-decoration: none; color: #333;
+        /* Places dropdown */
+        #places-select {
+            flex: 0 0 auto; max-width: 190px;
+            padding: 6px 10px; border: 1px solid #dee2e6; border-radius: 20px;
+            background: #f8f9fa; font-size: 12px; font-weight: 500; color: #333;
+            cursor: pointer; outline: none; -webkit-appearance: none; appearance: none;
         }
-        .city-pill:hover { background: #0056b3; color: #fff; border-color: #0056b3; }
-        .city-pill.active { background: #0056b3; color: #fff; border-color: #0056b3; }
+        #places-select:hover, #places-select:focus { border-color: #0056b3; color: #0056b3; }
 
         /* Near Me button */
         .near-me-btn {
-            padding: 5px 14px; border-radius: 20px; border: 1px solid #28a745;
+            padding: 5px 14px; border-radius: 20px; border: 1px solid #0056b3;
             background: #fff; font-size: 12px; font-weight: 500; cursor: pointer;
-            transition: all 0.2s; white-space: nowrap; flex-shrink: 0; color: #28a745;
+            transition: all 0.2s; white-space: nowrap; flex-shrink: 0; color: #0056b3;
         }
-        .near-me-btn:hover { background: #28a745; color: #fff; }
+        .near-me-btn:hover { background: #0056b3; color: #fff; }
+
+        /* Go-anywhere location search (Mapbox geocoder) */
+        #geo-search { flex: 0 1 240px; min-width: 150px; }
+        #geo-search .mapboxgl-ctrl-geocoder {
+            width: 100%; min-width: 0; max-width: none;
+            border: 1px solid #dee2e6; border-radius: 20px; box-shadow: none;
+            font-size: 13px;
+        }
+        #geo-search .mapboxgl-ctrl-geocoder--input { padding: 6px 30px; height: 32px; }
+        #geo-search .mapboxgl-ctrl-geocoder--icon-search { top: 7px; left: 8px; }
 
         /* Map */
         #map { position: absolute; top: 54px; bottom: 0; left: 0; right: 0; }
@@ -119,21 +128,40 @@
             color: white; border-radius: 12px; font-size: 12px;
         }
 
-        /* Filter container */
+        /* Filter container (also the legend: chips carry pin colors) */
         #filter-container {
             position: absolute; top: 64px; left: 10px; z-index: 5;
-            background: white; padding: 14px; border-radius: 8px;
+            background: white; padding: 12px 14px; border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 320px; border: 1px solid #e1e5e9;
         }
-        .filter-section { margin-bottom: 10px; }
-        .filter-section h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: #555; }
-        .filter-options { display: flex; flex-wrap: wrap; gap: 6px; max-height: 100px; overflow-y: auto; }
+        .filter-header { display: flex; align-items: center; gap: 8px; }
+        .filter-header h4 { margin: 0; font-size: 14px; font-weight: 600; color: #555; flex: 1; }
+        .filter-clear {
+            border: none; background: none; color: #0056b3; font-size: 12px;
+            font-weight: 500; cursor: pointer; padding: 2px 4px;
+        }
+        .filter-clear:hover { text-decoration: underline; }
+        .filter-collapse {
+            border: 1px solid #dee2e6; background: #f8f9fa; color: #555; width: 22px; height: 22px;
+            border-radius: 50%; font-size: 14px; line-height: 1; cursor: pointer;
+        }
+        #filter-container.collapsed #filter-body { display: none; }
+        #style-search {
+            width: 100%; box-sizing: border-box; margin: 10px 0 8px; padding: 5px 10px;
+            border: 1px solid #dee2e6; border-radius: 14px; font-size: 12px; outline: none;
+        }
+        #style-search:focus { border-color: #0056b3; }
+        .filter-options { display: flex; flex-wrap: wrap; gap: 6px; max-height: 240px; overflow-y: auto; }
         .style-option {
+            display: inline-flex; align-items: center; gap: 5px;
             background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 16px;
-            padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all 0.2s; user-select: none;
+            padding: 4px 10px; font-size: 12px; cursor: pointer; transition: all 0.2s; user-select: none;
         }
         .style-option:hover { background: #e9ecef; }
         .style-option.selected { background: #0056b3; color: white; border-color: #0056b3; }
+        .style-option .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .style-option .count { color: #6c757d; font-size: 11px; }
+        .style-option.selected .count { color: #cfe2ff; }
 
         /* Satellite toggle */
         #style-switcher {
@@ -154,16 +182,6 @@
         input:checked + .slider { background-color: #2196F3; }
         input:checked + .slider:before { transform: translateX(20px); }
         #style-label { font-size: 12px; font-weight: 500; }
-
-        /* Legend */
-        #legend {
-            position: absolute; bottom: 30px; right: 10px; z-index: 5;
-            background: white; padding: 10px 14px; border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.12); font-size: 11px; max-height: 240px; overflow-y: auto;
-        }
-        #legend h4 { margin: 0 0 6px; font-size: 12px; font-weight: 600; }
-        .legend-item { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
-        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
         /* Tour route */
         .tour-marker {
@@ -186,9 +204,8 @@
             #sidebar { width: 100%; }
             #sidebar.closed { right: -100%; }
             #filter-container { width: calc(100% - 20px); }
-            #legend { bottom: 70px; right: 10px; max-width: 160px; }
-            .city-pill { padding: 4px 10px; font-size: 11px; }
             #search-bar { flex: 0 1 120px; min-width: 100px; }
+            #geo-search { flex: 0 1 160px; min-width: 120px; }
         }
     </style>
 </head>
@@ -196,8 +213,11 @@
     <!-- Toolbar with search, city pills, near me -->
     <div id="map-toolbar">
         <span class="brand"><a href="/">🏛 Architecture Explorer</a></span>
-        <input type="text" id="search-bar" placeholder="Search buildings...">
-        <div id="city-buttons"></div>
+        <div id="geo-search" title="Fly to any city or address"></div>
+        <input type="text" id="search-bar" placeholder="Filter buildings...">
+        <select id="places-select" title="Jump to a place with collected buildings">
+            <option value="" selected>🏙 Places</option>
+        </select>
         <button class="near-me-btn" id="near-me-btn">📍 Near Me</button>
     </div>
 
@@ -213,13 +233,18 @@
     </div>
     <button id="sidebar-open-btn" class="sidebar-open-btn">☰</button>
 
-    <!-- Filter container -->
+    <!-- Style filter (doubles as the legend: chips carry the pin colors) -->
     <div id="filter-container">
-        <div class="filter-section">
+        <div class="filter-header" id="filter-header">
             <h4>Filter by Style</h4>
-            <div class="filter-options" id="style-options"></div>
+            <button type="button" id="filter-clear" class="filter-clear" hidden>Clear</button>
+            <button type="button" id="filter-collapse" class="filter-collapse" aria-label="Collapse style filter">−</button>
         </div>
-        <div id="results-count" style="font-size:11px;color:#6c757d;margin-top:6px;"></div>
+        <div id="filter-body">
+            <input type="text" id="style-search" placeholder="Find a style...">
+            <div class="filter-options" id="style-options"></div>
+            <div id="results-count" style="font-size:11px;color:#6c757d;margin-top:6px;"></div>
+        </div>
     </div>
 
     <!-- Satellite toggle -->
@@ -229,12 +254,6 @@
             <span class="slider"></span>
         </label>
         <span id="style-label">Streets</span>
-    </div>
-
-    <!-- Legend -->
-    <div id="legend">
-        <h4>Styles</h4>
-        <div id="legend-items"></div>
     </div>
 
     <div id="loading" style="position:absolute;top:64px;left:10px;background:white;padding:5px;z-index:6;">Loading...</div>
@@ -299,33 +318,31 @@
         ? places.map(p => ({ name: p.name, slug: p.slug, lat: p.latitude, lng: p.longitude, zoom: p.zoom_level || 12 }))
         : Object.entries(CITY_COORDS).map(([name, c]) => ({ name, slug: name.toLowerCase().replace(/\s+/g, '-'), lat: c.lat, lng: c.lng, zoom: c.zoom }));
 
-      // Render city pills
-      const cityContainer = document.getElementById('city-buttons');
-      cities.forEach(city => {
-        const btn = document.createElement('a');
-        btn.className = 'city-pill';
-        btn.textContent = city.name;
-        btn.href = '#';
-        btn.title = 'Fly to ' + city.name;
-        if (places.length > 0) {
-          btn.href = '/places/' + city.slug;
-        }
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          document.querySelectorAll('.city-pill').forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-          map.flyTo({ center: [city.lng, city.lat], zoom: city.zoom, essential: true });
-        });
-        cityContainer.appendChild(btn);
-      });
-
       // Create map — center on Atlantic to show US + EU
       const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v9',
         center: [-30, 40],
-        zoom: 2.5
+        zoom: 2.5,
+        hash: true // shareable URLs: #zoom/lat/lng survives reload and copy-paste
       });
+
+      // Go-anywhere location search: flies to any city/address, no marker clutter
+      const geocoder = new MapboxGeocoder({
+        accessToken: mapboxAccessToken,
+        mapboxgl: mapboxgl,
+        marker: false,
+        placeholder: 'Go to a city or address',
+        flyTo: { zoom: 13 }
+      });
+      document.getElementById('geo-search').appendChild(geocoder.onAdd(map));
+
+      // Native geolocate control (live blue-dot tracking) alongside Near Me
+      map.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true,
+        showUserHeading: true
+      }), 'bottom-right');
 
       const buildings = <%= raw @building_analyses.to_json %>;
       const markers = [];
@@ -343,43 +360,94 @@
       let activeFilters = { styles: [] };
       let searchQuery = '';
 
-      // Build legend
-      const legendItems = document.getElementById('legend-items');
-      const usedStyles = new Set();
-      buildings.forEach(b => (b.h3_contents || []).forEach(s => usedStyles.add(s)));
-      Object.entries(STYLE_COLORS).forEach(([style, color]) => {
-        if (usedStyles.has(style)) {
-          const item = document.createElement('div');
-          item.className = 'legend-item';
-          item.innerHTML = '<span class="legend-dot" style="background:' + color + '"></span>' + style;
-          legendItems.appendChild(item);
-        }
+      // Places dropdown: curated places ranked by how many pinned buildings they hold
+      const placesSelect = document.getElementById('places-select');
+      const cityCounts = {};
+      buildings.forEach(b => {
+        const c = (b.city || '').toLowerCase();
+        if (c) cityCounts[c] = (cityCounts[c] || 0) + 1;
       });
-      // Add default
-      const defItem = document.createElement('div');
-      defItem.className = 'legend-item';
-      defItem.innerHTML = '<span class="legend-dot" style="background:' + DEFAULT_COLOR + '"></span>Other';
-      legendItems.appendChild(defItem);
-
-      // Populate style filter options
-      const allStyles = new Set();
-      buildings.forEach(b => (b.h3_contents || []).forEach(s => allStyles.add(s)));
-      Array.from(allStyles).sort().forEach(style => {
-        const option = document.createElement('div');
-        option.className = 'style-option';
-        option.textContent = style;
-        option.dataset.style = style;
-        option.addEventListener('click', function() {
-          this.classList.toggle('selected');
-          updateActiveFilters();
-          updateMarkers();
-          updateBuildingList();
+      cities
+        .map(city => Object.assign({}, city, { count: cityCounts[city.name.toLowerCase()] || 0 }))
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+        .forEach(city => {
+          const opt = document.createElement('option');
+          opt.value = city.name;
+          opt.textContent = city.count > 0 ? city.name + ' (' + city.count + ')' : city.name;
+          opt.dataset.lat = city.lat;
+          opt.dataset.lng = city.lng;
+          opt.dataset.zoom = city.zoom;
+          placesSelect.appendChild(opt);
         });
-        styleOptions.appendChild(option);
+      placesSelect.addEventListener('change', function() {
+        const opt = this.selectedOptions[0];
+        if (!opt || !opt.dataset.lat) return;
+        map.flyTo({
+          center: [parseFloat(opt.dataset.lng), parseFloat(opt.dataset.lat)],
+          zoom: parseFloat(opt.dataset.zoom) || 12,
+          essential: true
+        });
       });
+
+      // Style filter chips: pin-colored dots + counts, most collected first.
+      // The chips double as the legend, so the separate legend box is gone.
+      const styleCounts = {};
+      buildings.forEach(b => (b.h3_contents || []).forEach(s => styleCounts[s] = (styleCounts[s] || 0) + 1));
+      Object.entries(styleCounts)
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .forEach(([style, count]) => {
+          const option = document.createElement('div');
+          option.className = 'style-option';
+          option.dataset.style = style;
+          const dot = document.createElement('span');
+          dot.className = 'dot';
+          dot.style.background = getStyleColor([style]);
+          const label = document.createElement('span');
+          label.textContent = style;
+          const countEl = document.createElement('span');
+          countEl.className = 'count';
+          countEl.textContent = count;
+          option.append(dot, label, countEl);
+          option.addEventListener('click', function() {
+            this.classList.toggle('selected');
+            updateActiveFilters();
+            updateMarkers();
+            updateBuildingList();
+          });
+          styleOptions.appendChild(option);
+        });
+
+      // Find-a-style search narrows the chip list (selected chips stay visible)
+      const styleSearch = document.getElementById('style-search');
+      styleSearch.addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('.style-option').forEach(o => {
+          o.style.display = (!q || o.dataset.style.toLowerCase().includes(q) || o.classList.contains('selected')) ? '' : 'none';
+        });
+      });
+
+      // Clear all selected styles
+      const filterClear = document.getElementById('filter-clear');
+      filterClear.addEventListener('click', function() {
+        document.querySelectorAll('.style-option.selected').forEach(o => o.classList.remove('selected'));
+        updateActiveFilters();
+        updateMarkers();
+        updateBuildingList();
+      });
+
+      // Collapse/expand the panel; start collapsed on small screens
+      const filterContainer = document.getElementById('filter-container');
+      const filterCollapse = document.getElementById('filter-collapse');
+      function setFilterCollapsed(collapsed) {
+        filterContainer.classList.toggle('collapsed', collapsed);
+        filterCollapse.textContent = collapsed ? '+' : '−';
+      }
+      filterCollapse.addEventListener('click', () => setFilterCollapsed(!filterContainer.classList.contains('collapsed')));
+      if (window.innerWidth <= 768) setFilterCollapsed(true);
 
       function updateActiveFilters() {
         activeFilters.styles = Array.from(document.querySelectorAll('.style-option.selected')).map(o => o.dataset.style);
+        filterClear.hidden = activeFilters.styles.length === 0;
       }
 
       function filterBuildings(list) {
@@ -607,9 +675,10 @@
         updateBuildingList();
         document.getElementById('loading').style.display = 'none';
 
-        // If no tour, fit to all building bounds
+        // If no tour and no shared #zoom/lat/lng position, fit to all building bounds
         const params = new URLSearchParams(window.location.search);
-        if (!params.get('tour')) {
+        const hasSharedPosition = /^#[\d.-]+\//.test(window.location.hash);
+        if (!params.get('tour') && !hasSharedPosition) {
           const validBuildings = buildings.filter(b => b.longitude && b.latitude);
           if (validBuildings.length > 0) {
             const bounds = new mapboxgl.LngLatBounds();
