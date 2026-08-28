@@ -13,6 +13,17 @@
     <%= link_to "← Back to Leaderboards", leaderboards_path, class: "cmap-back" %>
   </div>
 
+  <!-- Live world map access -->
+  <a href="/architecture_explorer/map" class="cmap-map-banner"
+     onclick="if (window.AHTrack) AHTrack('map_cta_click', { src: 'collection_map' });">
+    <span class="cmap-map-banner-icon">🗺️</span>
+    <span class="cmap-map-banner-text">
+      <strong>Explore the live collection map</strong>
+      <span>Every collected building pinned on a world map. Search any city, filter by style, or see what is around you right now.</span>
+    </span>
+    <span class="cmap-map-banner-btn">Open the Map</span>
+  </a>
+
   <!-- Style carousel -->
   <% styles_with_images = @style_collections.select { |s| @style_images[s.style_name].present? } %>
   <% if styles_with_images.any? %>
@@ -107,6 +118,20 @@
   .cmap-stat .n { color: var(--blue); font-weight: 800; font-size: 18px; }
   .cmap-back { font-size: 13.5px; color: var(--blue); }
   .cmap-back:hover { text-decoration: underline; }
+
+  /* Live map banner */
+  .cmap-map-banner { display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
+                     padding: 18px 20px; border: 1px solid var(--border); border-radius: 12px;
+                     background: var(--blue-tint); transition: box-shadow .2s; }
+  .cmap-map-banner:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.10); }
+  .cmap-map-banner-icon { font-size: 34px; flex-shrink: 0; }
+  .cmap-map-banner-text { flex: 1; min-width: 200px; }
+  .cmap-map-banner-text strong { display: block; color: var(--ink); font-size: 16px; margin-bottom: 2px; }
+  .cmap-map-banner-text span { color: var(--ink-2); font-size: 13.5px; }
+  .cmap-map-banner-btn { flex-shrink: 0; padding: 10px 20px; background: var(--blue); color: #fff;
+                         border-radius: 8px; font-weight: 600; font-size: 14px; }
+  .cmap-map-banner:hover .cmap-map-banner-btn { background: var(--blue-dark); }
+  @media (max-width: 600px) { .cmap-map-banner { flex-wrap: wrap; } }
 
   /* Carousel */
   .cmap-carousel-wrap { position: relative; margin-bottom: 28px; }
