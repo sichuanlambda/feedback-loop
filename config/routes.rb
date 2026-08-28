@@ -1,10 +1,12 @@
 Rails.application.routes.draw do
-  # The naked domain (and www) 301 to the canonical app subdomain with the
-  # path preserved, so legacy backlinks land on the recovered pages.
-  constraints(host: /\A(www\.)?architecturehelper\.com\z/i) do
+  # architecturehelper.com is the canonical host: the app subdomain and www
+  # 301 to it with the path preserved. /stripe_events is exempt because
+  # Stripe still posts webhooks to the app host and does not follow redirects.
+  constraints(host: /\A(www\.|app\.)architecturehelper\.com\z/i) do
     match '(*path)',
-          to: redirect(status: 301) { |_params, req| "https://app.architecturehelper.com#{req.fullpath}" },
-          via: :all, format: false
+          to: redirect(status: 301) { |_params, req| "https://architecturehelper.com#{req.fullpath}" },
+          via: :all, format: false,
+          constraints: ->(req) { req.path != '/stripe_events' }
   end
 
   devise_for :users, controllers: {
