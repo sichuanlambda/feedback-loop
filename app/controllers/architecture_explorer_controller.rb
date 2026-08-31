@@ -775,6 +775,9 @@ class ArchitectureExplorerController < ApplicationController
     elsif input.respond_to?(:path)
       # Input is a file or a Tempfile, directly use it
       file_name = input.original_filename if input.respond_to?(:original_filename)
+      # Tempfiles (e.g. fetched Street View images) have no original_filename;
+      # without a fallback the S3 key becomes a bare "uploads/" prefix
+      file_name ||= "upload_#{Time.now.to_i}_#{SecureRandom.hex(4)}#{File.extname(input.path).presence || '.jpg'}"
       temp_file_path = input.path
     else
       Rails.logger.error "Invalid input for upload_image_to_s3"
