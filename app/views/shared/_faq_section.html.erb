@@ -1,0 +1,24 @@
+<%# Visible FAQ block + matching FAQPage JSON-LD. locals: faqs, heading (optional) %>
+<% items = normalize_faqs(faqs) %>
+<% if items.any? %>
+  <% content_for :structured_data do %>
+    <%= faq_structured_data(items) %>
+  <% end %>
+  <section class="faq-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading"><%= local_assigns[:heading].presence || "Frequently Asked Questions" %></h2>
+    <% items.each do |f| %>
+      <div class="faq-item">
+        <h3><%= f[:question] %></h3>
+        <p><%= sanitize(f[:answer], tags: %w[a strong em], attributes: %w[href]) %></p>
+      </div>
+    <% end %>
+  </section>
+  <style>
+    .faq-section { margin: 40px 0 8px; }
+    .faq-section h2 { font-size: 1.5rem; color: #1a1a2e; margin-bottom: 18px; }
+    .faq-item { padding: 14px 0; border-top: 1px solid #e5e7eb; }
+    .faq-item h3 { font-size: 1.05rem; font-weight: 600; color: #1a1a1a; margin: 0 0 6px; }
+    .faq-item p { margin: 0; color: #374151; line-height: 1.6; }
+    .faq-item a { color: #0056b3; }
+  </style>
+<% end %>

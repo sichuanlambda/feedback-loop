@@ -17,6 +17,9 @@ class PlaceContentGenerator
       
       # Generate hero image
       generate_hero_image unless @place.has_hero_image?
+
+      # FAQ (rendered on the page + FAQPage schema)
+      generate_faq if @place.faq.blank?
       
       # Update place with generation timestamp
       @place.update(content_generated_at: Time.current)
@@ -38,16 +41,26 @@ class PlaceContentGenerator
     styles_summary = @place.architectural_styles_summary
     top_styles = styles_summary.first(3).map(&:first)
     
-    # Create content using GPT or similar AI service
-    content_prompt = build_content_prompt(top_styles)
-    generated_content = generate_content_with_ai(content_prompt)
-    
-    if generated_content.present?
-      @place.update(content: generated_content)
+    generated = generate_content_with_ai(top_styles)
+
+    if generated && generated[:content].present?
+      @place.update(content: generated[:content], faq: generated[:faq].presence || @place.faq)
     else
       # Fallback to basic content
       @place.update(content: generate_fallback_content(top_styles))
     end
+  end
+
+  # FAQ only, for places that already have an article (backfill). Public so
+  # the rake task can call it directly.
+  def generate_faq
+    return @place.faq if @place.faq.present?
+
+    top_styles = @place.architectural_styles_summary.first(4)
+    result = GptService.new.chat_json(faq_prompt(top_styles), max_tokens: 1200)
+    faq = clean_faq(result && result['faq'])
+    @place.update(faq: faq) if faq.any?
+    faq
   end
 
   def generate_seo_meta
@@ -104,20 +117,76 @@ class PlaceContentGenerator
     end
   end
 
-  def build_content_prompt(styles)
-    styles_text = styles.any? ? styles.join(', ') : 'various architectural styles'
-    
-    "Write a comprehensive but concise HTML article about the architecture of #{@place.name}. " \
-    "Focus on the main architectural styles found in the area: #{styles_text}. " \
-    "Include sections about historical context, notable buildings, and contemporary developments. " \
-    "Use proper HTML tags (h2, h3, p) and keep it engaging for architecture enthusiasts. " \
-    "Length should be 300-500 words."
+  def building_notes(limit = 24)
+    @place.building_analyses_in_place.with_showable_image.order(created_at: :desc).first(limit).map do |b|
+      name = b.display_name || b.display_address.to_s.split(',').first
+      styles = begin
+        StyleNormalizer.normalize_array(JSON.parse(b.h3_contents.to_s)).first(3)
+      rescue JSON::ParserError
+        []
+      end
+      line = "- #{name}"
+      line += " (#{b.display_address})" if b.display_address.present? && b.display_address != name
+      line += " [#{styles.join(', ')}]" if styles.any?
+      line += " url=/architecture_explorer/#{b.id}"
+      line
+    end.join("\n")
   end
 
-  def generate_content_with_ai(prompt)
-    # This would integrate with your existing GPT service
-    # For now, return nil to trigger fallback
-    nil
+  def styles_note(top_styles)
+    summary = @place.architectural_styles_summary
+    return 'no style data yet' if summary.empty?
+    summary.map { |style, count| "#{style} (#{count})" }.join(', ')
+  end
+
+  def content_prompt(top_styles)
+    <<~PROMPT
+      You write city architecture guides for Architecture Helper, a site that documents real buildings with AI analysis.
+
+      Write the guide for #{@place.name}. The library currently holds #{@place.building_analyses_in_place.count} documented buildings there.
+      Styles by frequency in the library: #{styles_note(top_styles)}.
+      Documented buildings (name, address, styles, page url):
+      #{building_notes}
+
+      Return JSON with exactly these keys:
+      {
+        "content_html": "An HTML article of 900 to 1200 words using only <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em> and <a> tags. Structure: an opening section with no heading (2 paragraphs); <h2>Architectural history of #{@place.name}</h2> (200 to 280 words: periods, the events and economy that shaped building, local materials and traditions); <h2>Signature styles</h2> with one <h3> per major style in the library, 90 to 140 words each, naming specific documented buildings as examples; <h2>Where to look</h2> (150 to 220 words on neighbourhoods, streets or districts and what each is known for); <h2>Notable buildings</h2> as a <ul> where each <li> names a documented building, links it with <a href=\"url\"> using the url given above, and adds one sentence on why it matters; <h2>Tips for exploring #{@place.name}'s architecture</h2> (120 to 180 words). Only link buildings from the list. Do not invent architects, dates or addresses; if you are not certain of a fact about a listed building, describe what is visible instead.",
+        "faq": [ { "question": "...", "answer": "..." } ]
+      }
+
+      FAQ rules: 5 questions a visitor or a search user would actually ask about #{@place.name}'s architecture (dominant style, best areas to walk, oldest or most famous buildings, how the city's architecture compares to nearby cities, whether the notable buildings can be visited). Plain-text answers of 40 to 80 words, specific to #{@place.name}, grounded in the buildings above where possible.
+
+      Style rules: knowledgeable and specific, written for architecture enthusiasts planning a visit. The article must be at least 900 words; if the documented list is short, spend the extra length on the city's real architectural history, districts and building traditions rather than padding. No marketing fluff, no exclamation marks, never use em dashes, and avoid stock phrases such as "rich tapestry", "vibrant", "nestled", "testament to", "boasts" and "gem".
+    PROMPT
+  end
+
+  def faq_prompt(top_styles)
+    summary = ActionController::Base.helpers.strip_tags(@place.content.to_s).squish.truncate(1800)
+    <<~PROMPT
+      Architecture Helper has a city architecture guide for #{@place.name}. Here is a summary of it:
+      #{summary}
+
+      Styles by frequency in our library for #{@place.name}: #{styles_note(top_styles)}.
+      Some documented buildings:
+      #{building_notes(12)}
+
+      Return JSON: { "faq": [ { "question": "...", "answer": "..." } ] } with 5 questions a visitor or search user would actually ask about #{@place.name}'s architecture (dominant style, best areas to walk, oldest or most famous buildings, how it compares to nearby cities, whether notable buildings can be visited). Plain-text answers, 40 to 80 words each, specific to #{@place.name}, consistent with the guide. No exclamation marks, never use em dashes.
+    PROMPT
+  end
+
+  # Returns { content:, faq: } or nil so generate_content can fall back.
+  # City guides are the flagship long-form pages (a few dozen of them), so
+  # they get the full model; the many style-in-city pages use the mini one.
+  def generate_content_with_ai(top_styles)
+    result = GptService.new.chat_json(content_prompt(top_styles), model: 'gpt-4o', max_tokens: 4000)
+    return nil unless result && result['content_html'].to_s.strip.present?
+
+    { content: GeneratedCopy.clean(result['content_html'].to_s.strip), faq: clean_faq(result['faq']) }
+  end
+
+  def clean_faq(raw)
+    return [] unless raw.is_a?(Array)
+    GeneratedCopy.clean_faq(raw.first(6))
   end
 
   def generate_fallback_content(styles)

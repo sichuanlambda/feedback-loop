@@ -36,7 +36,14 @@ SitemapGenerator::Sitemap.create do
     add "/building_library/styles/#{slug}", :changefreq => 'weekly', :priority => 0.7
   end
 
+  # Style-in-city pages (programmatic SEO). Only pairs deep enough to index;
+  # thinner ones are served noindex by the controller.
+  StyleCityPage.indexable_pairs.each do |(style, city), _count|
+    add StyleCityPage.path_for(style, city), :changefreq => 'weekly', :priority => 0.7
+  end
+
   # Add all published places
+  add '/places', :changefreq => 'weekly', :priority => 0.8
   Place.where(published: true).find_each do |place|
     add place_path(place),
         :lastmod => place.updated_at,

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_27_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_02_120000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -171,6 +171,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_27_000001) do
     t.string "representative_image_url"
     t.datetime "content_generated_at"
     t.string "image_source", default: "placeholder"
+    t.json "faq"
     t.index ["content_generated_at"], name: "index_places_on_content_generated_at"
     t.index ["featured"], name: "index_places_on_featured"
     t.index ["image_source"], name: "index_places_on_image_source"
@@ -188,6 +189,19 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_27_000001) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_screenshot_analyses_on_user_id"
+  end
+
+  create_table "style_city_pages", force: :cascade do |t|
+    t.string "style_name", null: false
+    t.string "city_slug", null: false
+    t.string "city_name", null: false
+    t.text "intro_html"
+    t.json "faq"
+    t.integer "building_count", default: 0, null: false
+    t.datetime "generated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["style_name", "city_slug"], name: "index_style_city_pages_on_style_name_and_city_slug", unique: true
   end
 
   create_table "user_achievements", force: :cascade do |t|

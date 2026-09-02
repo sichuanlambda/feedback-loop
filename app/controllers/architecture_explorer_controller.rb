@@ -120,10 +120,11 @@ class ArchitectureExplorerController < ApplicationController
 
     @style_name = canonical
 
-    # Cities that have this style (use unpaginated query for full city data)
-    @cities = all_buildings.pluck(:address).compact.map { |a| a.split(',').last(2).first.to_s.strip }.reject(&:blank?).tally.sort_by { |_c, n| -n }
+    # Cities that have this style, counted on the buildings' city column so
+    # the counts match the style-in-city pages these link to.
+    @cities = StyleCityPage.pairs_for_style(@style_name)
     @places = begin
-      Place.where("LOWER(name) IN (?)", @cities.map { |c, _| c.downcase }).limit(12)
+      Place.where("LOWER(name) IN (?)", @cities.map { |c, _| c.downcase }).limit(20)
     rescue
       []
     end
@@ -658,15 +659,13 @@ class ArchitectureExplorerController < ApplicationController
 
   def style_in_city
     @style_name = StyleNormalizer.normalize(params[:style_name])
-    @city_slug = params[:city_slug]
-    @place = Place.find_by("LOWER(REPLACE(name, ' ', '-')) = ?", @city_slug.downcase)
-    @city_name = @place&.name || @city_slug.titleize
-    
-    track_event('style_in_city_view', { 
-      style_name: @style_name,
-      city_name: @city_name,
-      place_id: @place&.id
-    })
+    @city_slug = params[:city_slug].to_s.downcase
+    # The buildings' city column is what this page filters on, so resolve the
+    # slug against it first ("krakow" -> "Kraków"); fall back to a Place name.
+    resolved_city = StyleCityPage.resolve_city(@city_slug)
+    @place = Place.find_by("LOWER(REPLACE(name, ' ', '-')) = ?", @city_slug)
+    @place ||= Place.find_by('LOWER(name) = ?', resolved_city.downcase) if resolved_city
+    @city_name = resolved_city || @place&.name || @city_slug.titleize
 
     variants = StyleNormalizer::CANONICAL_STYLES[@style_name] || [@style_name.downcase]
     conditions = variants.map { |v| "LOWER(h3_contents) LIKE ?" }
@@ -679,6 +678,17 @@ class ArchitectureExplorerController < ApplicationController
       .order(created_at: :desc)
 
     @total_count = @buildings.count
+    # Any style x any string used to render a 200 with an empty grid: an
+    # unbounded set of indexable empty pages. Empty -> 404; thin -> noindex.
+    raise ActiveRecord::RecordNotFound, "No #{@style_name} buildings in #{@city_name}" if @total_count.zero?
+    @indexable = @total_count >= StyleCityPage::MIN_BUILDINGS
+    @page = StyleCityPage.generated.find_by(style_name: @style_name, city_slug: @city_name.parameterize)
+
+    track_event('style_in_city_view', {
+      style_name: @style_name,
+      city_name: @city_name,
+      place_id: @place&.id
+    })
 
     # Get same style in other cities for cross-linking
     @other_cities = BuildingAnalysis
