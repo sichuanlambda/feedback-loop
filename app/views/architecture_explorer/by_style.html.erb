@@ -1235,11 +1235,13 @@ hero_building = @analyzed_buildings.first
     <% if @cities.any? %>
       <h2>Where to Find <%= @style_name %> Architecture</h2>
       <div class="cities-list">
-        <% @cities.first(15).each do |city, count| %>
+        <% @cities.first(20).each do |city, count| %>
           <%
             place = @places.respond_to?(:detect) ? @places.detect { |p| p.name.to_s.downcase == city.downcase } : nil
           %>
-          <% if place %>
+          <% if count >= StyleCityPage::MIN_BUILDINGS %>
+            <a href="<%= StyleCityPage.path_for(@style_name, city) %>" class="city-tag" title="<%= @style_name %> architecture in <%= city %>"><%= city %> (<%= count %>)</a>
+          <% elsif place %>
             <a href="<%= place_path(place) %>" class="city-tag"><%= city %> (<%= count %>)</a>
           <% else %>
             <span class="city-tag"><%= city %> (<%= count %>)</span>
@@ -1273,6 +1275,8 @@ hero_building = @analyzed_buildings.first
         <p><%= style_info[:why_it_matters] %></p>
       </div>
     <% end %>
+
+    <%= render 'shared/faq_section', faqs: style_default_faqs(@style_name, style_info, @cities, @related_styles) %>
 
   </div>
 

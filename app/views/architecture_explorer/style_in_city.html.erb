@@ -1,8 +1,11 @@
 <% content_for :title, "#{@style_name} Architecture in #{@city_name}" %>
 <% content_for :meta_description, "Explore #{@total_count} #{@style_name} buildings in #{@city_name}. Discover the #{@style_name.downcase} architectural heritage, notable examples, and design characteristics unique to #{@city_name}." %>
-<% content_for :canonical_url, request.original_url %>
+<% content_for :canonical_url, request.original_url.split('?').first %>
 
 <%= content_for :head do %>
+<% unless @indexable %>
+<meta name="robots" content="noindex, follow">
+<% end %>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -81,6 +84,13 @@
   .sic-sidebar-section a:hover { background: #e8863a; color: white; }
   .sic-sidebar-section .count { color: #999; font-size: 0.8rem; }
 
+  .sic-intro {
+    max-width: 860px; margin: 0 auto 36px; padding: 0 20px;
+    font-size: 1.05rem; line-height: 1.7; color: #374151;
+  }
+  .sic-intro p { margin-bottom: 16px; }
+  .sic-intro h2 { font-size: 1.3rem; color: #1a1a2e; margin: 24px 0 10px; }
+
   .sic-breadcrumb {
     max-width: 1200px; margin: 20px auto; padding: 0 20px;
     font-size: 0.9rem; color: #666;
@@ -130,6 +140,22 @@
       <% end %>
     </div>
   </div>
+</div>
+
+<div class="sic-intro">
+  <% if @page&.intro_html.present? %>
+    <%= sanitize(@page.intro_html, tags: %w[p strong em a h2 h3 ul li], attributes: %w[href]) %>
+  <% else %>
+    <p>
+      Architecture Helper has documented <strong><%= @total_count %> <%= @style_name %> <%= 'building'.pluralize(@total_count) %></strong> in <%= @city_name %>,
+      each analyzed from a photograph to identify the style, its key elements and historical context.
+      <% examples = @buildings.first(3).map { |b| b.display_name || b.display_address.to_s.split(',').first }.reject(&:blank?) %>
+      <% if examples.any? %>Examples include <%= examples.to_sentence %>.<% end %>
+      <% if @related_styles_in_city.any? %>
+        Alongside <%= @style_name %>, buildings in <%= @city_name %> are most often identified as <%= @related_styles_in_city.first(3).map(&:first).to_sentence %>.
+      <% end %>
+    </p>
+  <% end %>
 </div>
 
 <% if @buildings.any? %>
@@ -187,6 +213,12 @@
     <% end %>
   </div>
   <% end %>
+</div>
+
+<div style="max-width:1200px;margin:0 auto;padding:0 20px">
+  <%= render 'shared/faq_section',
+             faqs: (@page&.faqs.presence || style_city_default_faqs(@style_name, @city_name, @buildings.to_a, @related_styles_in_city, @other_cities)),
+             heading: "#{@style_name} in #{@city_name}: Common Questions" %>
 </div>
 
 <div style="text-align:center;padding:40px 20px">

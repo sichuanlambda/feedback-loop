@@ -114,6 +114,19 @@
                 <p>Explore the map to discover analyzed buildings in <%= @place.name %>. Each building has been analyzed using AI to identify its architectural characteristics and historical context.</p>
               </div>
             <% end %>
+
+            <% if @style_city_links.present? %>
+              <h2>Architectural styles in <%= @place.name %></h2>
+              <p>Browse the documented buildings by style:</p>
+              <div class="style-city-links">
+                <% @style_city_links.first(12).each do |style, count| %>
+                  <a href="<%= StyleCityPage.path_for(style, @place.name) %>" class="style-city-link"><%= style %> <span><%= count %></span></a>
+                <% end %>
+              </div>
+            <% end %>
+            <%= render 'shared/faq_section',
+                       faqs: (@place.faq.presence || place_default_faqs(@place, @top_styles, @buildings_submitted_count)),
+                       heading: "#{@place.name} Architecture FAQ" %>
           </div>
         </div>
 
@@ -1220,6 +1233,12 @@ ${window.location.origin}
 });
 </script>
 
+<style>
+  .style-city-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 24px; }
+  .style-city-link { display: inline-block; padding: 6px 14px; background: #f0f4ff; border: 1px solid #d0d8e8; border-radius: 20px; color: #0056b3; text-decoration: none; font-size: 0.9rem; }
+  .style-city-link:hover { background: #0056b3; color: #fff; text-decoration: none; }
+  .style-city-link span { opacity: 0.7; font-size: 0.8rem; margin-left: 4px; }
+</style>
 <style>
 .place-page {
   min-height: 100vh;

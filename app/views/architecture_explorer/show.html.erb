@@ -345,6 +345,8 @@
         </div>
       <% end %>
 
+      <%= render 'shared/faq_section', faqs: building_default_faqs(@building_analysis, @building_data) %>
+
     <% else %>
       <%# === LEGACY HTML VIEW === %>
       <% if @building_analysis.name.present? %>

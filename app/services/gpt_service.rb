@@ -29,6 +29,30 @@ class GptService
     response.code == 200 ? parse_response(response) : nil
   end
 
+  # Generic JSON-mode chat completion for content generation. Returns the
+  # parsed object, or nil on any API/parse failure (callers fall back).
+  def chat_json(prompt, model: "gpt-4o-mini", max_tokens: 3000, temperature: 0.7)
+    body = {
+      model: model,
+      max_tokens: max_tokens,
+      temperature: temperature,
+      response_format: { type: "json_object" },
+      messages: [{ role: "user", content: prompt }]
+    }.to_json
+
+    response = self.class.post('/chat/completions', @options.merge(body: body, timeout: 180))
+    unless response.code == 200
+      Rails.logger.error "GptService.chat_json: #{response.code} #{response.body.to_s.truncate(300)}"
+      return nil
+    end
+
+    content = response.parsed_response.dig('choices', 0, 'message', 'content')
+    JSON.parse(content.to_s)
+  rescue JSON::ParserError, StandardError => e
+    Rails.logger.error "GptService.chat_json failed: #{e.class}: #{e.message}"
+    nil
+  end
+
   def send_image_url(image_url)
     Rails.logger.debug "GptService: Received image_url: #{image_url}"
     max_tokens = 1000

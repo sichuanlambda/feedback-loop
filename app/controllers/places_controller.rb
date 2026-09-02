@@ -49,6 +49,10 @@ class PlacesController < ApplicationController
 
     # Calculate style statistics for this place
     calculate_place_style_metrics
+
+    # Deep links into the style-in-city pages that are worth indexing
+    @style_city_links = StyleCityPage.pairs_for_city(@place.name)
+                                     .select { |_, count| count >= StyleCityPage::MIN_BUILDINGS }
   end
 
   def index
