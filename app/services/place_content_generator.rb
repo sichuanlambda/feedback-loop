@@ -32,6 +32,18 @@ class PlaceContentGenerator
     end
   end
 
+  # FAQ only, for places that already have an article (backfill). Public so
+  # the rake task can call it directly.
+  def generate_faq
+    return @place.faq if @place.faq.present?
+
+    top_styles = @place.architectural_styles_summary.first(4)
+    result = GptService.new.chat_json(faq_prompt(top_styles), max_tokens: 1200)
+    faq = clean_faq(result && result['faq'])
+    @place.update(faq: faq) if faq.any?
+    faq
+  end
+
   private
 
   def generate_content
@@ -51,17 +63,6 @@ class PlaceContentGenerator
     end
   end
 
-  # FAQ only, for places that already have an article (backfill). Public so
-  # the rake task can call it directly.
-  def generate_faq
-    return @place.faq if @place.faq.present?
-
-    top_styles = @place.architectural_styles_summary.first(4)
-    result = GptService.new.chat_json(faq_prompt(top_styles), max_tokens: 1200)
-    faq = clean_faq(result && result['faq'])
-    @place.update(faq: faq) if faq.any?
-    faq
-  end
 
   def generate_seo_meta
     return if @place.meta_title.present? && @place.meta_description.present?
