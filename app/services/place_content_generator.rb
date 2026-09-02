@@ -119,7 +119,9 @@ class PlaceContentGenerator
   end
 
   def building_notes(limit = 24)
-    @place.building_analyses_in_place.with_showable_image.order(created_at: :desc).first(limit).map do |b|
+    # Every visible building in the box: image showability is irrelevant to
+    # grounding the text, and filtering on it left some cities with no examples.
+    @place.building_analyses_in_place.order(created_at: :desc).first(limit).map do |b|
       name = b.display_name || b.display_address.to_s.split(',').first
       styles = begin
         StyleNormalizer.normalize_array(JSON.parse(b.h3_contents.to_s)).first(3)
