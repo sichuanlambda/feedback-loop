@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title><%= content_for?(:title) ? "#{content_for(:title)} | Architecture Helper" : "Architecture Helper — AI-Powered Architecture Design Analysis" %></title>
+  <%# content_for is already escaped; interpolating it into a String escaped it twice ("&" became "&amp;amp;") %>
+  <title><% if content_for?(:title) %><%= content_for(:title) %> | Architecture Helper<% else %>Architecture Helper — AI-Powered Architecture Design Analysis<% end %></title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <% if content_for?(:meta_description) %>
     <meta name="description" content="<%= content_for(:meta_description) %>">

@@ -23,6 +23,7 @@ class User < ApplicationRecord
   validates :terms_of_service, acceptance: { message: "must be accepted to create an account" }
 
   before_create :set_default_credits
+  after_create_commit :schedule_unused_credit_reminder
   before_create :set_terms_accepted_at
   before_save :set_marketing_opted_in_at
   before_validation :assign_handle_and_public_name, on: :create
@@ -52,6 +53,15 @@ class User < ApplicationRecord
       user.handle = user.handle.blank? ? generate_unique_handle : user.handle
       user.public_name = user.public_name.blank? ? generate_unique_public_name : user.public_name
     end
+  end
+
+  def schedule_unused_credit_reminder
+    return if email == GUEST_EMAIL || subscription_status == 'active'
+
+    UnusedCreditReminderJob.set(wait: 24.hours).perform_later(id)
+  rescue => e
+    # Never let a queue outage block a signup
+    Rails.logger.error "Could not schedule credit reminder for user #{id}: #{e.message}"
   end
 
   def self.generate_unique_handle

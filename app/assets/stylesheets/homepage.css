@@ -415,6 +415,8 @@ body {
 .cg-scroll-arrow:hover { background: var(--ah-blue); color: #fff; border-color: var(--ah-blue); }
 .cg-scroll-arrow.left { left: -18px; }
 .cg-scroll-arrow.right { right: -18px; }
+/* Phones swipe the row; the arrows hung 18px outside the viewport and made the page scroll sideways */
+@media (max-width: 768px) { .cg-scroll-arrow { display: none; } }
 .cg-view-all { text-align: center; }
 
 /* ---------- Analyze ---------- */

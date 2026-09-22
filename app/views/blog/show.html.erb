@@ -48,9 +48,18 @@
     <img class="post-hero" src="<%= @post.hero_image_url %>" alt="<%= @post.title %>" onerror="this.style.display='none'">
   <% end %>
 
+  <%# The end-of-post CTA sits ~10 screens down on a phone and almost nobody
+      reaches it, so repeat it inline before the second section heading. %>
+  <% body_top, body_rest = split_post_body_for_inline_cta(@post.body_html) %>
   <div class="post-content">
-    <%= raw @post.body_html %>
+    <%= raw body_top %>
   </div>
+  <% if body_rest.present? %>
+    <%= render "blog/ctas/#{@post.cta_partial}", post: @post, placement: 'inline' %>
+    <div class="post-content">
+      <%= raw body_rest %>
+    </div>
+  <% end %>
 
   <%= render "blog/ctas/#{@post.cta_partial}", post: @post %>
 

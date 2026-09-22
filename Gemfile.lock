@@ -274,6 +274,8 @@ GEM
       nio4r (~> 2.0)
     racc (1.7.3)
     rack (3.0.8)
+    rack-attack (6.8.0)
+      rack (>= 1.0, < 4)
     rack-protection (4.0.0)
       base64 (>= 0.1.0)
       rack (>= 3.0.0, < 4)
@@ -418,6 +420,7 @@ DEPENDENCIES
   omniauth-rails_csrf_protection
   pg
   puma (>= 5.0)
+  rack-attack
   rails (~> 7.1.1)
   rails_12factor
   redis (>= 4.0.1)

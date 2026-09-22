@@ -11,6 +11,11 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     if @user.persisted?
       claim_guest_analysis_for(@user)
       claim_guest_restyle_for(@user)
+      if @user.previously_new_record?
+        track_event('user_signup', { user_id: @user.id, provider: 'google_oauth2' })
+        # Same first stop as email signups: the upload form their free credit is for
+        store_location_for(@user, architecture_explorer_new_path(src: 'post_signup')) if session[:user_return_to].blank?
+      end
       sign_in_and_redirect @user, event: :authentication
       set_flash_message(:notice, :success, kind: "Google") if is_navigational_format?
     else

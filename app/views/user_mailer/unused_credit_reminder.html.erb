@@ -1,0 +1,13 @@
+<p>Hi<%= " #{@user.public_name}" if @user.public_name.present? && !@user.public_name.start_with?('User ') %>,</p>
+
+<p>You created an Architecture Helper account yesterday, and your free credit is still unused.</p>
+
+<p>Snap or upload a photo of any building — your house, your office, something you walked past — and you'll get its architectural styles, the features that give each style away, and the history behind it. It takes about 30 seconds.</p>
+
+<p><a href="<%= @analyze_url %>" style="display: inline-block; background: #0056b3; color: #ffffff; padding: 12px 24px; border-radius: 6px; font-weight: bold; text-decoration: none;">Analyze a building</a></p>
+
+<p>Prefer to play with your own place? You can also spend the credit to <a href="<%= @restyle_url %>">re-render your home in any architectural style</a>.</p>
+
+<p>— Nathan, Architecture Helper</p>
+
+<p style="color: #888888; font-size: 12px;">This is a one-time note about the account you just created. You won't get further reminders.</p>

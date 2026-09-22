@@ -25,6 +25,46 @@ class BuildingAnalysis < ApplicationRecord
     address.presence&.then { |a| a == 'N/A' ? nil : a }
   end
 
+  # Normalized style names from h3_contents (stored as a JSON array string)
+  def style_names
+    return [] if h3_contents.blank?
+
+    parsed = h3_contents.is_a?(String) ? JSON.parse(h3_contents) : h3_contents
+    Array(parsed).map(&:to_s).reject(&:blank?).uniq
+  rescue JSON::ParserError
+    []
+  end
+
+  # Page title for search results. Unnamed buildings used to all share
+  # "Building Analysis", so fall back to a description built from styles + city.
+  def seo_title(structured_name = nil)
+    "#{seo_subject(structured_name)} — Architecture Analysis"
+  end
+
+  def seo_description(overview = nil, structured_name = nil)
+    return overview.truncate(155) if overview.present?
+
+    styles = style_names.first(3).to_sentence
+    influences = styles.present? ? " Shows #{styles} influences." : ''
+    "AI architecture analysis of #{seo_subject(structured_name)}.#{influences} Styles, notable features, and design elements explained.".truncate(155)
+  end
+
+  # "Chrysler Building, New York" when named; otherwise
+  # "Art Deco & Gothic Revival Building in Chicago", down to "Building #123".
+  def seo_subject(structured_name = nil)
+    named = structured_name.presence || display_name
+    named = nil if named&.match?(/\A(building|building analysis|null)\z/i)
+    place = city.presence
+    return [named, (place unless named.include?(place.to_s))].compact.join(', ') if named && place
+    return named if named
+
+    styles = style_names.first(2).join(' & ')
+    subject = styles.present? ? "#{styles} Building" : 'Building'
+    subject += " in #{place}" if place
+    subject += " ##{id}" unless styles.present? || place
+    subject
+  end
+
   # Method to generate Google Street View URL
   def street_view_url(size: "600x400")
     api_key = Rails.application.credentials.google_maps[:api_key]

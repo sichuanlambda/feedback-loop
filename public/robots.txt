@@ -2,6 +2,12 @@ User-agent: *
 Disallow: /admin/
 Disallow: /users/
 Disallow: /api/
+# Machine endpoints with nothing to index (image proxies, polling, JSON)
+Disallow: /proxy/
+Disallow: /architecture_explorer/*/status
+Disallow: /architecture_explorer/*/building_data
+Disallow: /architecture_explorer/*/similar
+Disallow: /architecture_explorer/*/nearby
 Allow: /
 
 # Sitemap

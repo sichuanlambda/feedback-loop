@@ -1,12 +1,10 @@
 <%
-# Extract SEO data
-building_name = @is_structured && @building_data ? @building_data['building_name'] : (@building_analysis.name || "Building Analysis")
-meta_title = @is_structured && @building_data ? "#{@building_data['building_name']} — Architecture Helper" : "Building Analysis — Architecture Helper"
-meta_description = @is_structured && @building_data && @building_data['overview'] ? 
-  "#{@building_data['overview'].truncate(150)}" : 
-  "Architectural analysis of #{building_name}. Discover the architectural styles, notable features, and design elements."
-  
-# Set SEO meta tags
+# Extract SEO data. The layout appends "| Architecture Helper", so titles here
+# carry no site name.
+structured_name = @is_structured && @building_data ? @building_data['building_name'] : nil
+overview = @is_structured && @building_data ? @building_data['overview'] : nil
+meta_title = @building_analysis.seo_title(structured_name)
+meta_description = @building_analysis.seo_description(overview, structured_name)
 %>
 
 <% content_for :title, meta_title %>
