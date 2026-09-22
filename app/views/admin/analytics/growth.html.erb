@@ -69,8 +69,9 @@
 <body>
     <%
       r = @report
-      cur = r[:kpis][:current]
-      prev = r[:kpis][:previous]
+      cur = r ? r[:kpis][:current] : {}
+      prev = r ? r[:kpis][:previous] : {}
+      days = r ? r[:days] : @days
       pct = ->(n, d) { d.to_i.positive? ? (n.to_f / d * 100).round(1) : 0 }
       delta = ->(key) {
         was = prev[key].to_i
@@ -79,7 +80,7 @@
         next "<span class=\"delta up\">new</span>".html_safe if was.zero?
         change = ((now - was) * 100.0 / was).round
         cls = change >= 0 ? 'up' : 'down'
-        "<span class=\"delta #{cls}\">#{change >= 0 ? '+' : ''}#{change}%</span> vs prior #{r[:days]}d".html_safe
+        "<span class=\"delta #{cls}\">#{change >= 0 ? '+' : ''}#{change}%</span> vs prior #{days}d".html_safe
       }
       week_name = ->(w) { w =~ /\A\d{4}-\d{2}-\d{2}\z/ ? Date.parse(w).strftime('%b %-d') : w }
     %>
@@ -87,17 +88,17 @@
         <div class="wrap">
             <div>
                 <h1>Growth</h1>
-                <p class="subtitle">Real visitors only (crawlers excluded) · last <%= r[:days] %> days · cached hourly</p>
+                <p class="subtitle">Real visitors only (crawlers excluded) · last <%= days %> days<% if r %> · built <%= time_ago_in_words(r[:built_at]) %> ago, refreshes hourly<% end %></p>
             </div>
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <% [30, 60, 90].each do |d| %>
-                    <%= link_to "#{d}d", admin_growth_path(days: d, exclude_internal: @exclude_internal ? nil : '0'), class: "btn btn-outline btn-sm #{'btn-active' if r[:days] == d}" %>
+                    <%= link_to "#{d}d", admin_growth_path(days: d, exclude_internal: @exclude_internal ? nil : '0'), class: "btn btn-outline btn-sm #{'btn-active' if days == d}" %>
                 <% end %>
                 <span class="toggle-note">
                     <% if @exclude_internal %>
-                        Internal users excluded · <%= link_to 'include', admin_growth_path(days: r[:days], exclude_internal: '0') %>
+                        Internal users excluded · <%= link_to 'include', admin_growth_path(days: days, exclude_internal: '0') %>
                     <% else %>
-                        Internal users included · <%= link_to 'exclude', admin_growth_path(days: r[:days]) %>
+                        Internal users included · <%= link_to 'exclude', admin_growth_path(days: days) %>
                     <% end %>
                 </span>
                 <%= link_to 'Dashboard', admin_dashboard_path, class: 'btn btn-outline' %>
@@ -108,6 +109,13 @@
     </div>
 
     <div class="wrap">
+      <% if r.nil? %>
+        <meta http-equiv="refresh" content="20">
+        <div class="card" data-state="building">
+            <h2><i class="fas fa-hourglass-half"></i> Building the report</h2>
+            <p style="margin: 0; color: var(--ink-secondary);">The first build for this window runs on the worker and takes about a minute. This page refreshes itself every 20 seconds.</p>
+        </div>
+      <% else %>
         <div class="kpi-grid">
             <div class="kpi">
                 <div class="label">Sessions</div>
@@ -118,6 +126,11 @@
                 <div class="label">Engaged sessions</div>
                 <div class="value" data-kpi="engaged"><%= number_with_delimiter(cur[:engaged]) %></div>
                 <div class="meta">2+ pages · <%= delta.call(:engaged) %></div>
+            </div>
+            <div class="kpi">
+                <div class="label">Browser-verified</div>
+                <div class="value" data-kpi="verified"><%= number_with_delimiter(cur[:verified]) %></div>
+                <div class="meta">sessions that ran JavaScript · counted since Sep 22, 2026</div>
             </div>
             <div class="kpi">
                 <div class="label">From search</div>
@@ -254,6 +267,7 @@
                 </table>
             </div>
         </div>
+      <% end %>
     </div>
 </body>
 </html>

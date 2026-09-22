@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_02_120000) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_22_150000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -226,6 +226,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_02_120000) do
     t.string "ip_hash"
     t.string "user_agent"
     t.datetime "created_at", null: false
+    t.boolean "bot", default: false, null: false
+    t.index ["bot", "created_at"], name: "index_user_events_on_bot_and_created_at"
     t.index ["created_at"], name: "index_user_events_on_created_at"
     t.index ["event_type", "created_at"], name: "index_user_events_on_event_type_and_created_at"
     t.index ["session_id"], name: "index_user_events_on_session_id"

@@ -68,7 +68,16 @@ Rails.application.configure do
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
 
   # Use a different cache store in production.
-  # config.cache_store = :mem_cache_store
+  # Shared between the web and worker dynos: background jobs (GrowthReportJob)
+  # write reports that the web dyno reads. Heroku Redis presents a
+  # self-signed certificate, hence the relaxed verify mode (Sidekiq does the same).
+  config.cache_store = :redis_cache_store, {
+    url: ENV['REDIS_URL'],
+    ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE },
+    namespace: 'cache',
+    expires_in: 1.day,
+    error_handler: ->(method:, returning:, exception:) { Rails.logger.warn("Redis cache #{method} failed: #{exception.message}") }
+  }
 
   # Route jobs to the Sidekiq worker dyno (the default :async adapter ran jobs
   # in web-dyno threads, where they die on restart and compete with requests).

@@ -314,6 +314,11 @@
       })
     }).catch(function() {}); // Silently fail to avoid breaking the page
   };
+  // Browser-verified pageview: scrapers with spoofed browser headers never run
+  // this, so /admin/growth can count real people (feeds the "verified" KPI).
+  if (!location.pathname.startsWith('/admin')) {
+    AHTrack('js_pageview', { path: location.pathname });
+  }
 </script>
 
 </body>

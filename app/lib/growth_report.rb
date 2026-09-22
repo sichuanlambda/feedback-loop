@@ -83,6 +83,9 @@ class GrowthReport
       sessions: sessions(@pageviews.where(created_at: win)),
       engaged: engaged_sessions(win),
       search: sessions(@pageviews.where(created_at: win).where(search_ref)),
+      # Sessions that ran the JS beacon (layout AHTrack('js_pageview')): a
+      # scraper sending a browser User-Agent never does. Recorded since 2026-09-22.
+      verified: sessions(@base.where(event_type: 'js_pageview', created_at: win)),
       signups: users_in(win).count,
       tools: sessions(@base.where(event_type: TOOL_EVENTS, created_at: win))
     }
