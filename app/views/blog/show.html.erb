@@ -33,6 +33,9 @@
   .post-cta { background: #e8f0f9; border: 1px solid #0056b3; border-radius: 10px; padding: 18px 22px; margin: 36px 0; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
   .post-cta a.btn-cta { background: #0056b3; color: #fff; padding: 10px 20px; border-radius: 6px; font-weight: 600; text-decoration: none; white-space: nowrap; }
   .post-cta a.btn-cta:hover { background: #004080; text-decoration: none; }
+  /* TinyAdz slots: blog posts only, always after a CTA, collapse when nothing is served */
+  .post-ad { margin: 28px 0; }
+  .post-ad:empty { margin: 0; }
   .related { margin-top: 48px; border-top: 1px solid #e5e7eb; padding-top: 24px; }
   .related h2 { font-size: 1.2rem; color: #1a1a1a; margin-bottom: 16px; }
   .related a { display: block; color: #0056b3; padding: 6px 0; }
@@ -56,12 +59,14 @@
   </div>
   <% if body_rest.present? %>
     <%= render "blog/ctas/#{@post.cta_partial}", post: @post, placement: 'inline' %>
+    <div class="post-ad" ta-ad-container=""></div>
     <div class="post-content">
       <%= raw body_rest %>
     </div>
   <% end %>
 
   <%= render "blog/ctas/#{@post.cta_partial}", post: @post %>
+  <div class="post-ad" ta-ad-container=""></div>
 
   <% if @related_posts.any? %>
     <div class="related">
@@ -73,3 +78,6 @@
     </div>
   <% end %>
 </div>
+
+<%# TinyAdz — blog pages only; demo ads outside production so localhost never serves real ones %>
+<script src="https://cdn.apitiny.net/scripts/v2.0/main.js" data-site-id="680224994f403e3470159cfa" data-test-mode="<%= Rails.env.production? ? 'false' : 'true' %>" async></script>

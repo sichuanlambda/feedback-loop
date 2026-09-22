@@ -9,6 +9,13 @@ Rails.application.routes.draw do
           constraints: ->(req) { req.path != '/stripe_events' }
   end
 
+  # IndexNow ownership key for `rake seo:indexnow`; the value lives in ENV so
+  # nothing is committed. 404s until INDEXNOW_KEY is set.
+  get 'indexnow-key.txt', to: proc { |_env|
+    key = ENV['INDEXNOW_KEY'].to_s
+    [key.present? ? 200 : 404, { 'content-type' => 'text/plain' }, [key]]
+  }
+
   devise_for :users, controllers: {
     sessions: 'users/sessions',
     registrations: 'users/registrations',
