@@ -71,8 +71,14 @@ not a paper.
 4. Refresh the sitemap (served from git, so it must be regenerated against
    production and committed): `bin/refresh_sitemap`, then commit
    `public/sitemap*.xml.gz`, push, deploy again.
-5. Optional hero images (costs OpenAI credits, needs `GPT_API_KEY_PRODUCTION`):
+5. Tell Bing/Yandex/Naver/Seznam about the new posts (Google has no equivalent;
+   it picks them up from the sitemap, or request indexing by hand in Search
+   Console): `heroku run "rake seo:indexnow DAYS=7" -a boiling-atoll-02251`.
+6. Optional hero images (costs OpenAI credits, needs `GPT_API_KEY_PRODUCTION`):
    `heroku run "rake blog:generate_heroes LIMIT=5" -a boiling-atoll-02251`.
+
+Blog posts carry TinyAdz slots after each CTA (`app/views/blog/show.html.erb`);
+product pages never do.
 
 ## Topic backlog
 
