@@ -1,6 +1,7 @@
 <% style_path = post.style_page_path %>
 <%= render 'blog/ctas/cta_card',
     post: post,
+    placement: local_assigns[:placement],
     cta_key: 'styles',
     heading: 'See this style on real buildings',
     body: 'Browse our library of AI-analyzed buildings and spot the features from this guide in the wild.',

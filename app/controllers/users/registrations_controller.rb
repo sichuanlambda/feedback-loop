@@ -34,6 +34,12 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   protected
 
+  # New accounts land on the thing their free credit is for. Most signups used
+  # to arrive at the designer homepage and never run a single analysis.
+  def after_sign_up_path_for(resource)
+    stored_location_for(resource) || architecture_explorer_new_path(src: 'post_signup')
+  end
+
   def set_custom_nav
     @custom_nav = true
   end

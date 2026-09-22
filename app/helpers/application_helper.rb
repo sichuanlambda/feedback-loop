@@ -35,10 +35,21 @@ module ApplicationHelper
     tags.join.html_safe
   end
 
+  # Splits a blog post body before its second <h2> so a CTA can sit between the
+  # halves. Short posts (fewer than two headings) come back whole.
+  def split_post_body_for_inline_cta(body_html)
+    body = body_html.to_s
+    first = body.index(/<h2[\s>]/i)
+    second = first && body.index(/<h2[\s>]/i, first + 3)
+    return [body, nil] unless second
+
+    [body[0...second], body[second..]]
+  end
+
   def building_structured_data(building_analysis, building_data = nil)
     return '' unless building_analysis
 
-    name = building_data&.dig('building_name') || building_analysis.name || "Building"
+    name = building_analysis.seo_subject(building_data&.dig('building_name'))
     address = building_analysis.address if building_analysis.address.present? && building_analysis.address != "N/A"
     
     base_data = {

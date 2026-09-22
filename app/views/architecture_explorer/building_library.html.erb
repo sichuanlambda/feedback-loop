@@ -1,3 +1,5 @@
+<% content_for :title, "Building Library: AI-Analyzed Buildings by Style and City" %>
+<% content_for :meta_description, "Browse a community library of AI-analyzed buildings from around the world. Filter by architectural style or city, and add your own building for free." %>
 <style>
       .container{
         text-align: center; /* Center align the text */
@@ -537,8 +539,10 @@
             </div>
         </div>
     <% else %>
-        <!-- Alternative content for non-logged-in users -->
-        <div class="container text-center mt-5">
+        <!-- Alternative content for non-logged-in users. Hidden on phones, where it
+             filled the whole first screen before any building appeared; the green
+             "Analyze a Building Free" strip below carries the CTA there. -->
+        <div class="container text-center mt-5 d-none d-md-block">
             <h2>Discover and Generate Architecture</h2>
             <p>Join the community and unlock the full potential of architectural exploration</p>
             <ul class="list-unstyled">

@@ -1,9 +1,10 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# ScreenshotAnalysis has no belongs_to :user, so reference the fixture id directly.
 
 one:
   extracted_text: MyText
-  screenshot: one
+  user_id: <%= ActiveRecord::FixtureSet.identify(:one) %>
 
 two:
   extracted_text: MyText
-  screenshot: two
+  user_id: <%= ActiveRecord::FixtureSet.identify(:two) %>

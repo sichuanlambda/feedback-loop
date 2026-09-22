@@ -1,3 +1,5 @@
+<% content_for :title, "Create a Free Account" %>
+<% content_for :meta_description, "Create a free Architecture Helper account to save building analyses, get an extra free credit, and build your architecture library." %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,8 +34,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* Make sure it covers the full viewport height */
-            width: 100vw; /* Cover full viewport width */
+            min-height: 100vh; /* min-, not fixed: a fixed height centered the taller-than-screen form and clipped its top under the nav on phones */
+            width: 100%;
+        }
+        /* mobile_responsive.css forces img { height: auto !important }, so size the logo by width */
+        .signup-logo { width: 50px; height: auto; }
+        .form-check-input { width: 20px; height: 20px; margin-top: .15rem; }
+        .form-check-label { padding-left: 10px; }
+        @media (max-width: 768px) {
+            .container { align-items: flex-start; min-height: 0; padding-top: 0; margin-top: 8px !important; }
+            .login-container { padding-top: 8px; }
+            /* Logo beside the heading instead of stacked above it */
+            .card-header { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 12px; }
+            .card-header h5 { margin: 0; font-size: 1.05rem; text-align: left; }
+            .signup-logo { width: 36px; }
+            .form-check { padding-top: 4px; padding-bottom: 4px; }
         }
         .login-container {
             width: 100%; /* Adjust based on desired width, e.g., 600px or 50% */
@@ -226,7 +241,7 @@
             <div class="login-container">
                 <div class="card-header text-center">
                     <!-- Adjust the header text for signing up -->
-                    <img src="<%= asset_path('archilogo.png') %>" alt="Architecture Helper Logo" style="height: 50px;">
+                    <img src="<%= asset_path('archilogo.png') %>" alt="Architecture Helper Logo" class="signup-logo" width="50" height="50">
                     <h5>Create Your Architecture Helper Account</h5>
                 </div>
                 <div class="card-body">
@@ -251,15 +266,14 @@
                         <%= render "devise/shared/error_messages", resource: resource %>
                         <div class="form-group">
                             <%= f.label :email %>
-                            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+                            <%= f.email_field :email, autocomplete: "email", class: "form-control" %>
                         </div>
                         <div class="form-group">
                             <%= f.label :password %>
+                            <%# No confirmation field: it pushed "Sign up" below the fold on phones. Devise
+                                only checks confirmation when it is submitted; typos go through password reset. %>
                             <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
-                        </div>
-                        <div class="form-group">
-                            <%= f.label :password_confirmation %>
-                            <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
+                            <small class="form-text text-muted">At least <%= @minimum_password_length || 6 %> characters</small>
                         </div>
                         <div class="form-group form-check mt-3">
                             <%= f.check_box :marketing_opt_in, class: "form-check-input", id: "marketing_opt_in" %>
@@ -268,7 +282,7 @@
                         <div class="form-group form-check mt-2">
                             <%= f.check_box :terms_of_service, class: "form-check-input", id: "terms_of_service", required: true %>
                             <label class="form-check-label" for="terms_of_service">
-                                I agree to the <%= link_to "Terms &amp; Conditions".html_safe, terms_path, target: "_blank" %> <span style="color: #c62828;">*</span>
+                                I agree to the <%= link_to "Terms &amp; Conditions".html_safe, terms_path, target: "_blank" %>&nbsp;<span style="color: #c62828;">*</span>
                             </label>
                         </div>
                         <div class="actions text-center">

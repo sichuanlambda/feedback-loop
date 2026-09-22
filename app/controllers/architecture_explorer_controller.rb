@@ -336,6 +336,9 @@ class ArchitectureExplorerController < ApplicationController
     track_event('building_new_form')
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
     @guest_trial_exhausted = !user_signed_in? && guest_trial_used?
+    # Shows first-timers what they'll get before they commit a photo
+    @sample_analysis = BuildingAnalysis.where(visible_in_library: true, featured: true).with_showable_image.order(:featured_order).first ||
+                       BuildingAnalysis.where(visible_in_library: true).with_showable_image.order(views_count: :desc).first
   end
 
   def create
@@ -837,6 +840,15 @@ class ArchitectureExplorerController < ApplicationController
   def check_analysis_view_limit
     # Premium users (active subscription) get unlimited views
     if user_signed_in? && current_user.subscription_status == 'active'
+      @content_gated = false
+      return
+    end
+
+    # Crawlers read every analysis, like Googlebot (which keeps no cookies) always
+    # could. Cookie-keeping AI crawlers were hitting the gate ~2,400 times a month
+    # and indexing blurred pages. Skipping the session write also stops us
+    # minting a session per bot request.
+    if bot_request?
       @content_gated = false
       return
     end

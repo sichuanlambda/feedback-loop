@@ -95,6 +95,9 @@ gem 'omniauth-rails_csrf_protection'
 
 gem 'sidekiq'
 
+# Throttles scrapers that hammer the site (see config/initializers/rack_attack.rb)
+gem 'rack-attack'
+
 gem 'rails_12factor', group: :production
 
 gem 'dotenv-rails', groups: [:development, :test]

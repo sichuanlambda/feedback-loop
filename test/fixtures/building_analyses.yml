@@ -1,11 +1,20 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+# Named, structured-era building
+one:
+  user: one
+  name: Chrysler Building
+  city: New York City
+  h3_contents: '["Art Deco"]'
+  html_content: "<h1>Architecture and Design Analysis</h1><h3>Art Deco</h3><p>Stepped crown.</p>"
+  image_url: https://example.com/chrysler.jpg
+  visible_in_library: true
+
+# Unnamed legacy building: title must come from styles + city
+two:
+  user: two
+  city: Chicago
+  h3_contents: '["Art Deco", "Gothic Revival", "Modernism"]'
+  html_content: "<h1>Architecture and Design Analysis</h1><h3>Art Deco</h3><p>Setbacks.</p>"
+  image_url: https://example.com/legacy.jpg
+  visible_in_library: true

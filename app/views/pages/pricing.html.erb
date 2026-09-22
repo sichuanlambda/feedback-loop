@@ -20,6 +20,11 @@
   .plan-card.free .plan-cta { background: #fff; color: #0056b3 !important; border: 2px solid #0056b3; }
   .plan-card.free .plan-cta:hover { background: #e8f0f9; }
   .pricing-note { text-align: center; color: #6b7280; font-size: 14px; margin-top: 24px; }
+  /* Phones stack the cards: lead with Pro instead of a full screen of the Free plan */
+  @media (max-width: 768px) {
+    .plan-card { width: 100%; max-width: 360px; padding: 22px; }
+    .plan-card.free { order: 3; }
+  }
 </style>
 <% end %>
 

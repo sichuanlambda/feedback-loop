@@ -89,7 +89,7 @@
   .building-card img { width: 100%; height: 140px; object-fit: cover; }
   .building-card-body { padding: 10px 12px; }
   .building-card-body h5 { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .building-card-badge { display: inline-block; background: #0056b3; color: #fff; font-size: 0.7rem; padding: 2px 8px; border-radius: 8px; }
+  .building-card-badge { display: inline-block; background: #0056b3; color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 8px; }
 
   /* Explore style cards */
   .explore-style-card { border: 1px solid #e9ecef; border-radius: 12px; padding: 16px; text-decoration: none; color: inherit; display: block; transition: box-shadow 0.2s, transform 0.2s; }
@@ -159,9 +159,9 @@
 
   @media (max-width: 768px) {
     .building-header h1 { font-size: 1.6rem; }
+    /* Photo first on mobile: legacy pages put the entire analysis in col-md-7,
+       which pushed the building image ~2 screens down. */
     .hero-row .col-md-5, .hero-row .col-md-7 { margin-bottom: 20px; order: unset; }
-    .hero-row .col-md-7 { order: 1; } /* Content first on mobile */
-    .hero-row .col-md-5 { order: 2; } /* Image second on mobile */
     .style-card { padding: 16px; margin-bottom: 20px; }
     .building-card { min-width: 200px; max-width: 220px; }
     .legacy-content { padding: 0; }
@@ -230,7 +230,7 @@
 
       <%# Header %>
       <div class="building-header">
-        <h1><%= @building_data['building_name'] || @building_analysis.name || "Building Analysis" %></h1>
+        <h1><%= @building_analysis.seo_subject(@building_data['building_name']) %></h1>
         <div class="building-meta">
           <% if @building_data['architect'].present? && @building_data['architect'] != 'null' %><span><%= @building_data['architect'] %></span><% end %>
           <% if @building_data['year_built'].present? && @building_data['year_built'] != 'null' %><span>Built <%= @building_data['year_built'] %></span><% end %>
@@ -247,7 +247,7 @@
         <div class="col-md-5">
           <div class="hero-image">
             <% if @image_url.present? %>
-              <img src="<%= @image_url %>" alt="<%= @building_data['building_name'] %>" width="500" height="375" loading="lazy">
+              <img src="<%= @image_url %>" alt="<%= @building_analysis.seo_subject(@building_data['building_name']) %>" width="500" height="375" fetchpriority="high">
             <% end %>
           </div>
           <% if @is_owner %>
@@ -357,7 +357,7 @@
         <div class="col-md-5">
           <div class="hero-image">
             <% if @image_url.present? %>
-              <img src="<%= @image_url %>" alt="Building Image" width="500" height="375" loading="lazy">
+              <img src="<%= @image_url %>" alt="<%= @building_analysis.seo_subject %>" width="500" height="375" fetchpriority="high">
             <% end %>
           </div>
           <% if @is_owner %>
@@ -398,7 +398,7 @@
       <div class="col-md-5">
         <% if @image_url.present? %>
           <div class="hero-image">
-            <img src="<%= @image_url %>" alt="Building Image" width="500" height="375" loading="lazy">
+            <img src="<%= @image_url %>" alt="<%= @building_analysis.seo_subject %>" width="500" height="375" fetchpriority="high">
           </div>
         <% end %>
       </div>
@@ -611,6 +611,9 @@
   }
 
   function checkAnalysisStatus() {
+    // Only poll while the loading state is on screen. This used to fire on every
+    // finished building page too, re-downloading the whole analysis as JSON.
+    if (!document.getElementById('loader')) return;
     if (checkCount >= maxChecks) {
       console.log('Max check attempts reached.');
       return;
