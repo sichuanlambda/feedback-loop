@@ -137,6 +137,7 @@
                 <p class="subtitle">Signed in as <%= current_user.email %></p>
             </div>
             <div class="header-actions">
+                <%= link_to 'Growth', admin_growth_path, class: 'btn btn-primary' %>
                 <%= link_to 'Engagement', admin_engagement_path, class: 'btn btn-primary' %>
                 <%= link_to 'Analytics', admin_analytics_path, class: 'btn btn-primary' %>
                 <%= link_to 'Back to Site', root_path, class: 'btn btn-outline' %>

@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     get 'dashboard', to: 'dashboard#index'
     get 'analytics', to: 'analytics#index'
     get 'engagement', to: 'analytics#engagement'
+    get 'growth', to: 'analytics#growth'
     resources :building_analyses do
       member do
         patch :toggle_visibility

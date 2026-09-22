@@ -10,7 +10,7 @@ module Admin
       excluded_user_ids = @exclude_internal ? User.where(email: EXCLUDED_EMAILS).pluck(:id) : []
 
       base = UserEvent.all
-      base = base.where.not(user_id: excluded_user_ids) if excluded_user_ids.any?
+      base = base.where('user_id IS NULL OR user_id NOT IN (?)', excluded_user_ids) if excluded_user_ids.any?
       identified = base.where.not(user_id: nil)
 
       today_start = Date.current.beginning_of_day
@@ -41,6 +41,17 @@ module Admin
       end.sort_by { |row| -row[:users] }
     end
 
+    # Human-only growth funnel: sources, landing pages, upload funnel, devices.
+    # Heavy over the historical (bot-laden) rows, so cached for an hour.
+    def growth
+      @exclude_internal = params[:exclude_internal] != '0'
+      @days = (params[:days] || 30).to_i.clamp(7, 90)
+      excluded = @exclude_internal ? User.where(email: EXCLUDED_EMAILS).pluck(:id) : []
+      @report = Rails.cache.fetch(['admin-growth', @days, excluded, Date.current], expires_in: 1.hour) do
+        GrowthReport.new(days: @days, exclude_user_ids: excluded).build
+      end
+    end
+
     def index
       @exclude_internal = params[:exclude_internal] != '0'
       @timeframe = (params[:timeframe] || '30').to_i
@@ -49,7 +60,7 @@ module Admin
       excluded_user_ids = @exclude_internal ? User.where(email: EXCLUDED_EMAILS).pluck(:id) : []
 
       base = UserEvent.where(created_at: @start_date..)
-      base = base.where.not(user_id: excluded_user_ids) if excluded_user_ids.any?
+      base = base.where('user_id IS NULL OR user_id NOT IN (?)', excluded_user_ids) if excluded_user_ids.any?
 
       # === Summary stats ===
       @total_events = base.count
@@ -127,7 +138,7 @@ module Admin
 
       # === Live feed ===
       feed = UserEvent.order(created_at: :desc)
-      feed = feed.where.not(user_id: excluded_user_ids) if excluded_user_ids.any?
+      feed = feed.where('user_id IS NULL OR user_id NOT IN (?)', excluded_user_ids) if excluded_user_ids.any?
       @recent_events = feed.limit(100).includes(:user)
     end
 

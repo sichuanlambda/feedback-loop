@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growth | Admin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #0056b3; --blue-dark: #004080; --blue-tint: #e8f0f9;
+            --green: #28a745; --green-dark: #1e7e34; --green-tint: #e9f6ec;
+            --red: #c62828;
+            --ink: #1f2937; --ink-secondary: #4b5563; --ink-muted: #8a929e;
+            --surface: #ffffff; --page-bg: #f4f6f8; --border: #e5e7eb;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: var(--page-bg); color: var(--ink); font-size: 15px; line-height: 1.5; }
+        a { color: var(--blue); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .wrap { max-width: 1160px; margin: 0 auto; padding: 0 20px 48px; }
+        .admin-header { background: var(--surface); border-bottom: 3px solid var(--blue); padding: 20px 0; margin-bottom: 24px; }
+        .admin-header .wrap { padding-bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .admin-header h1 { font-size: 22px; margin: 0; font-weight: 700; }
+        .admin-header .subtitle { color: var(--ink-muted); font-size: 13px; margin: 2px 0 0; }
+        .btn { display: inline-block; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; border: 1px solid transparent; cursor: pointer; }
+        .btn:hover { text-decoration: none; }
+        .btn-primary { background: var(--blue); color: #fff; }
+        .btn-primary:hover { background: var(--blue-dark); color: #fff; }
+        .btn-outline { background: var(--surface); color: var(--blue); border-color: var(--blue); }
+        .btn-outline:hover { background: var(--blue-tint); }
+        .btn-sm { padding: 5px 10px; font-size: 13px; }
+        .btn-active { background: var(--blue-tint); }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 20px; }
+        .card h2 { font-size: 15px; font-weight: 700; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+        .card h2 i { color: var(--blue); font-size: 14px; }
+        .card h2 .hint { font-weight: 400; color: var(--ink-muted); font-size: 12px; margin-left: auto; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; border-top: 3px solid var(--blue); }
+        .kpi.green-accent { border-top-color: var(--green); }
+        .kpi .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); }
+        .kpi .value { font-size: 30px; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+        .kpi .meta { font-size: 12.5px; color: var(--ink-secondary); }
+        .delta { font-weight: 700; }
+        .delta.up { color: var(--green-dark); }
+        .delta.down { color: var(--red); }
+        table.list { width: 100%; border-collapse: collapse; font-size: 14px; }
+        table.list th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); font-weight: 600; padding: 6px 10px; border-bottom: 2px solid var(--border); }
+        table.list th.num, table.list td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        table.list td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+        table.list tr:last-child td { border-bottom: none; }
+        .bar-cell { min-width: 120px; }
+        .bar-track { height: 8px; border-radius: 4px; background: var(--blue-tint); overflow: hidden; }
+        .bar-track .fill { height: 100%; background: var(--blue); border-radius: 4px; }
+        .funnel { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+        .step { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+        .step .label { font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+        .step .value { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .step .rate { font-size: 12.5px; color: var(--ink-secondary); }
+        .tag { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border-radius: 10px; background: var(--blue-tint); color: var(--blue-dark); }
+        .tag.ai { background: #f3e8ff; color: #6b21a8; }
+        .tag.social { background: #fff4e5; color: #9a5b00; }
+        .tag.other, .tag.auth { background: var(--page-bg); color: var(--ink-secondary); }
+        .toggle-note { font-size: 12.5px; color: var(--ink-muted); }
+        .note { font-size: 12.5px; color: var(--ink-muted); margin: 10px 0 0; }
+    </style>
+</head>
+<body>
+    <%
+      r = @report
+      cur = r[:kpis][:current]
+      prev = r[:kpis][:previous]
+      pct = ->(n, d) { d.to_i.positive? ? (n.to_f / d * 100).round(1) : 0 }
+      delta = ->(key) {
+        was = prev[key].to_i
+        now = cur[key].to_i
+        next '' if was.zero? && now.zero?
+        next "<span class=\"delta up\">new</span>".html_safe if was.zero?
+        change = ((now - was) * 100.0 / was).round
+        cls = change >= 0 ? 'up' : 'down'
+        "<span class=\"delta #{cls}\">#{change >= 0 ? '+' : ''}#{change}%</span> vs prior #{r[:days]}d".html_safe
+      }
+      week_name = ->(w) { w =~ /\A\d{4}-\d{2}-\d{2}\z/ ? Date.parse(w).strftime('%b %-d') : w }
+    %>
+    <div class="admin-header">
+        <div class="wrap">
+            <div>
+                <h1>Growth</h1>
+                <p class="subtitle">Real visitors only (crawlers excluded) · last <%= r[:days] %> days · cached hourly</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <% [30, 60, 90].each do |d| %>
+                    <%= link_to "#{d}d", admin_growth_path(days: d, exclude_internal: @exclude_internal ? nil : '0'), class: "btn btn-outline btn-sm #{'btn-active' if r[:days] == d}" %>
+                <% end %>
+                <span class="toggle-note">
+                    <% if @exclude_internal %>
+                        Internal users excluded · <%= link_to 'include', admin_growth_path(days: r[:days], exclude_internal: '0') %>
+                    <% else %>
+                        Internal users included · <%= link_to 'exclude', admin_growth_path(days: r[:days]) %>
+                    <% end %>
+                </span>
+                <%= link_to 'Dashboard', admin_dashboard_path, class: 'btn btn-outline' %>
+                <%= link_to 'Engagement', admin_engagement_path, class: 'btn btn-outline' %>
+                <%= link_to 'Full Analytics', admin_analytics_path, class: 'btn btn-primary' %>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <div class="kpi-grid">
+            <div class="kpi">
+                <div class="label">Sessions</div>
+                <div class="value" data-kpi="sessions"><%= number_with_delimiter(cur[:sessions]) %></div>
+                <div class="meta"><%= delta.call(:sessions) %></div>
+            </div>
+            <div class="kpi">
+                <div class="label">Engaged sessions</div>
+                <div class="value" data-kpi="engaged"><%= number_with_delimiter(cur[:engaged]) %></div>
+                <div class="meta">2+ pages · <%= delta.call(:engaged) %></div>
+            </div>
+            <div class="kpi">
+                <div class="label">From search</div>
+                <div class="value" data-kpi="search"><%= number_with_delimiter(cur[:search]) %></div>
+                <div class="meta"><%= delta.call(:search) %></div>
+            </div>
+            <div class="kpi green-accent">
+                <div class="label">Used a tool</div>
+                <div class="value" data-kpi="tools"><%= number_with_delimiter(cur[:tools]) %></div>
+                <div class="meta">analysis, restyle or design started · <%= delta.call(:tools) %></div>
+            </div>
+            <div class="kpi green-accent">
+                <div class="label">Signups</div>
+                <div class="value" data-kpi="signups"><%= number_with_delimiter(cur[:signups]) %></div>
+                <div class="meta"><%= delta.call(:signups) %></div>
+            </div>
+            <div class="kpi green-accent">
+                <div class="label">Paying now</div>
+                <div class="value" data-kpi="paying"><%= number_with_delimiter(r[:kpis][:paying]) %></div>
+                <div class="meta">active subscriptions</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-chart-line"></i> Week by week <span class="hint">sessions by week started · last 12 weeks · current week is partial</span></h2>
+            <table class="list">
+                <thead>
+                    <tr><th>Week of</th><th class="num">From search</th><th class="num">Any external referrer</th><th class="num">Used a tool</th><th class="num">Signups</th><th class="bar-cell"></th></tr>
+                </thead>
+                <tbody>
+                    <% max_search = [r[:weekly].map { |w| w[:search] }.max.to_i, 1].max %>
+                    <% r[:weekly].each do |w| %>
+                        <tr>
+                            <td><%= week_name.call(w[:week]) %></td>
+                            <td class="num"><%= w[:search] %></td>
+                            <td class="num"><%= w[:external] %></td>
+                            <td class="num"><%= w[:tools] %></td>
+                            <td class="num"><%= w[:signups] %></td>
+                            <td class="bar-cell"><div class="bar-track"><div class="fill" style="width: <%= pct.call(w[:search], max_search) %>%"></div></div></td>
+                        </tr>
+                    <% end %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-filter"></i> Funnel <span class="hint">sessions for the tool steps, accounts for the signup steps</span></h2>
+            <div class="funnel">
+                <div class="step"><div class="label">Upload form views</div><div class="value" data-funnel="form_views"><%= r[:funnel][:form_views] %></div><div class="rate">sessions</div></div>
+                <div class="step"><div class="label">Photo selected</div><div class="value" data-funnel="photo_selected"><%= r[:funnel][:photo_selected] %></div><div class="rate"><%= pct.call(r[:funnel][:photo_selected], r[:funnel][:form_views]) %>% of form views</div></div>
+                <div class="step"><div class="label">Analyses started</div><div class="value" data-funnel="analyses_started"><%= r[:funnel][:analyses_started] %></div><div class="rate"><%= pct.call(r[:funnel][:analyses_started], r[:funnel][:form_views]) %>% of form views</div></div>
+                <div class="step"><div class="label">Restyle form views</div><div class="value" data-funnel="restyle_views"><%= r[:funnel][:restyle_views] %></div><div class="rate">sessions</div></div>
+                <div class="step"><div class="label">Restyles started</div><div class="value" data-funnel="restyles_started"><%= r[:funnel][:restyles_started] %></div><div class="rate"><%= pct.call(r[:funnel][:restyles_started], r[:funnel][:restyle_views]) %>% of restyle views</div></div>
+                <div class="step"><div class="label">Signups</div><div class="value" data-funnel="signups"><%= r[:funnel][:signups] %></div><div class="rate">new accounts</div></div>
+                <div class="step"><div class="label">Activated</div><div class="value" data-funnel="activated"><%= r[:funnel][:activated] %></div><div class="rate"><%= pct.call(r[:funnel][:activated], r[:funnel][:signups]) %>% of signups ran something</div></div>
+                <div class="step"><div class="label">New paying</div><div class="value" data-funnel="new_paying"><%= r[:funnel][:new_paying] %></div><div class="rate"><%= pct.call(r[:funnel][:new_paying], r[:funnel][:signups]) %>% of signups</div></div>
+            </div>
+            <p class="note">"Photo selected" only counts from the day the upload form started reporting it, so it reads low for windows that reach further back.</p>
+        </div>
+
+        <div class="two-col">
+            <div class="card">
+                <h2><i class="fas fa-external-link-alt"></i> Where visitors come from <span class="hint">sessions with an outside referrer</span></h2>
+                <table class="list">
+                    <thead><tr><th>Site</th><th></th><th class="num">Sessions</th></tr></thead>
+                    <tbody>
+                        <% if r[:sources].empty? %>
+                            <tr><td colspan="3" style="color: var(--ink-muted);">No referred sessions in this window.</td></tr>
+                        <% end %>
+                        <% r[:sources].each do |s| %>
+                            <tr data-source="<%= s[:host] %>">
+                                <td><%= s[:host] %></td>
+                                <td><span class="tag <%= s[:kind] %>"><%= s[:kind] %></span></td>
+                                <td class="num"><%= s[:sessions] %></td>
+                            </tr>
+                        <% end %>
+                    </tbody>
+                </table>
+                <p class="note">Direct visits and visitors whose browser hides the referrer are not listed.</p>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-search"></i> Landing pages from search <span class="hint">first page seen by search visitors</span></h2>
+                <table class="list">
+                    <thead><tr><th>Page</th><th class="num">Sessions</th></tr></thead>
+                    <tbody>
+                        <% if r[:landing].empty? %>
+                            <tr><td colspan="2" style="color: var(--ink-muted);">No search visits in this window.</td></tr>
+                        <% end %>
+                        <% r[:landing].each do |l| %>
+                            <tr data-landing="<%= l[:path] %>">
+                                <td><a href="<%= l[:path] %>"><%= l[:path].to_s.truncate(60) %></a></td>
+                                <td class="num"><%= l[:sessions] %></td>
+                            </tr>
+                        <% end %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <div class="card">
+                <h2><i class="fas fa-mobile-alt"></i> Devices</h2>
+                <table class="list">
+                    <thead><tr><th>Device</th><th class="num">Sessions</th><th class="num">Used a tool</th><th class="num">Signups</th></tr></thead>
+                    <tbody>
+                        <% r[:devices].each do |d| %>
+                            <tr data-device="<%= d[:device] %>">
+                                <td><%= d[:device].capitalize %></td>
+                                <td class="num" data-col="sessions"><%= d[:sessions] %></td>
+                                <td class="num" data-col="tools"><%= d[:tools] %></td>
+                                <td class="num" data-col="signups"><%= d[:signups] %></td>
+                            </tr>
+                        <% end %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-mouse-pointer"></i> Calls to action &amp; email</h2>
+                <table class="list">
+                    <tbody>
+                        <% r[:clicks][:blog_cta].sort.each do |placement, n| %>
+                            <tr><td>Blog CTA clicks (<%= placement %>)</td><td class="num"><%= n %></td></tr>
+                        <% end %>
+                        <tr><td>Restyle CTA clicks</td><td class="num"><%= r[:clicks][:restyle_cta] %></td></tr>
+                        <tr><td>Checkout clicks</td><td class="num"><%= r[:clicks][:checkout] %></td></tr>
+                        <tr><td>Credit reminder emails sent</td><td class="num"><%= r[:clicks][:reminders_sent] %></td></tr>
+                        <tr><td>Sessions arriving from the reminder email</td><td class="num"><%= r[:clicks][:reminder_visits] %></td></tr>
+                        <% r[:clicks][:pricing_by_src].each do |src, n| %>
+                            <tr><td>Pricing views via <code><%= src %></code></td><td class="num"><%= n %></td></tr>
+                        <% end %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

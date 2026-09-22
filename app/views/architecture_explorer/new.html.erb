@@ -217,7 +217,7 @@ function previewImage(event) {
         output.style.display = 'block';
     };
     reader.readAsDataURL(file);
-    if (window.plausible) plausible('Upload: photo selected');
+    if (window.AHTrack) AHTrack('upload_photo_selected');  // feeds /admin/growth
 }
 
 // Photo pickers: one file input, with `capture` toggled so "Take a Photo" opens
