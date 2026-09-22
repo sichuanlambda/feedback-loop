@@ -1,12 +1,31 @@
 class ApplicationController < ActionController::Base
   include Trackable
 
+  # Runs before tracking so the slash version is never logged as a pageview.
+  prepend_before_action :redirect_trailing_slash
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :set_cache_headers
   before_action :expire_lapsed_subscription
 
   # Time-boxed paid access (e.g. a customer whose Stripe subscription is gone
   # but who paid through a date): downgrade automatically once the date passes.
+  # Every page was reachable at both /path and /path/, and each declared
+  # itself canonical, so search engines saw two competing copies of the whole
+  # site. The old blog used trailing slashes and those are what Google still
+  # has indexed, so they must 301 to the slash-less URLs the sitemap lists.
+  def redirect_trailing_slash
+    return unless request.get? || request.head?
+
+    # The router normalizes request.path before we get here; only the
+    # original request line still shows the slash.
+    path, query = request.original_fullpath.split('?', 2)
+    return unless path.length > 1 && path.end_with?('/')
+
+    clean = path.sub(%r{/+\z}, '')
+    clean = "#{clean}?#{query}" if query.present?
+    redirect_to clean, status: :moved_permanently
+  end
+
   def expire_lapsed_subscription
     return unless user_signed_in?
     u = current_user
