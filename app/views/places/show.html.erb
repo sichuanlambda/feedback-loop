@@ -1,4 +1,5 @@
-<% content_for :title, @place.meta_title || "#{@place.name} Architecture Guide" %>
+<%# Stored meta_titles end in "| Architecture Helper", which the layout appends again %>
+<% content_for :title, (@place.meta_title.presence || "#{@place.name} Architecture Guide").sub(/\s*\|\s*Architecture Helper\z/i, '') %>
 <% content_for :meta_description, @place.meta_description || "Explore the architecture of #{@place.name}. Discover the main architectural styles, notable buildings, and historical context." %>
 
 <% content_for :head do %>

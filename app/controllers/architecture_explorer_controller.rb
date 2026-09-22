@@ -336,9 +336,17 @@ class ArchitectureExplorerController < ApplicationController
     track_event('building_new_form')
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
     @guest_trial_exhausted = !user_signed_in? && guest_trial_used?
-    # Shows first-timers what they'll get before they commit a photo
-    @sample_analysis = BuildingAnalysis.where(visible_in_library: true, featured: true).with_showable_image.order(:featured_order).first ||
-                       BuildingAnalysis.where(visible_in_library: true).with_showable_image.order(views_count: :desc).first
+    # Shows first-timers what they'll get before they commit a photo. Only
+    # columns that exist in production are used here: schema.rb lists
+    # featured/views_count, but no migration ever added them there.
+    @sample_analysis = begin
+      BuildingAnalysis.where(visible_in_library: true).with_showable_image
+                      .where.not(html_content: [nil, '']).where.not(name: [nil, ''])
+                      .order(id: :desc).first
+    rescue StandardError => e
+      Rails.logger.warn "Sample analysis lookup failed: #{e.message}"
+      nil
+    end
   end
 
   def create
