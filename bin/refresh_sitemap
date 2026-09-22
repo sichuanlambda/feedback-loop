@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Regenerates the sitemap against production data and copies it into public/.
+#
+# The sitemap is served from git (public/sitemap*.xml.gz), so a plain
+# `heroku run rake sitemap:generate` only writes to the ephemeral one-off dyno
+# and never reaches the site. This runs it there, streams both files back as
+# base64, and decodes them into the repo. Commit and deploy afterwards.
+set -euo pipefail
+
+APP="${HEROKU_APP:-boiling-atoll-02251}"
+cd "$(dirname "$0")/.."
+
+OUT=$(heroku run --no-tty \
+  "rake sitemap:generate >/dev/null 2>&1; echo SM1; base64 -w0 public/sitemap1.xml.gz; echo; echo SMI; base64 -w0 public/sitemap.xml.gz; echo" \
+  -a "$APP" 2>/dev/null)
+
+echo "$OUT" | awk '/^SM1$/{f=1;next} /^SMI$/{f=0} f' | tr -d '\r' | base64 -d > public/sitemap1.xml.gz
+echo "$OUT" | awk '/^SMI$/{f=1;next} f' | tr -d '\r' | base64 -d > public/sitemap.xml.gz
+
+gunzip -t public/sitemap1.xml.gz public/sitemap.xml.gz
+echo "sitemap1.xml.gz: $(gunzip -c public/sitemap1.xml.gz | grep -o '<loc>' | wc -l | tr -d ' ') URLs"
