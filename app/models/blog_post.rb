@@ -69,6 +69,17 @@ class BlogPost < ApplicationRecord
     nil
   end
 
+  CONTENT_ATTRIBUTES = %w[title description body_html].freeze
+
+  # The date shown as "Updated" and sent as dateModified: only text changes count.
+  def content_modified_at
+    [content_updated_at, published_at].compact.max || updated_at
+  end
+
+  def content_revised?
+    published_at.present? && content_modified_at.to_date > published_at.to_date + 1
+  end
+
   def cta_partial
     CTA_CATEGORIES.include?(cta_category) ? cta_category : 'analyze'
   end

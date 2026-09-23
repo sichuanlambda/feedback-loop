@@ -23,6 +23,7 @@ namespace :blog do
         hero_image_url: data['hero_image'].presence,
         published_at: (Time.zone.parse(data['published_at']) rescue nil)
       )
+      post.content_updated_at = Time.current if fresh || (post.changes.keys & BlogPost::CONTENT_ATTRIBUTES).any?
       post.save!
       fresh ? created += 1 : updated += 1
     end
@@ -38,16 +39,20 @@ namespace :blog do
     puts "CTA categories: #{BlogPost.group(:cta_category).count.sort_by { |_k, v| -v }.to_h}"
   end
 
-  desc 'Generate hero images for published posts missing one (gpt-image-1). LIMIT=n to batch.'
+  desc 'Generate hero images (gpt-image-1) for published posts missing one. LIMIT=n to batch; SLUGS=a,b to target or regenerate specific posts; QUALITY=low|medium|high; STYLE="extra prompt text".'
   task generate_heroes: :environment do
     api_key = Rails.env.production? ? ENV['GPT_API_KEY_PRODUCTION'] : Rails.application.credentials.openai[:api_key]
     abort 'OpenAI API key not found' if api_key.blank?
 
     scope = BlogPost.where(published: true)
-                    .where("hero_image_url IS NULL OR hero_image_url = ''")
-                    .order(:id)
+    scope = if ENV['SLUGS'].present?
+              scope.where(slug: ENV['SLUGS'].split(',').map(&:strip))
+            else
+              scope.where("hero_image_url IS NULL OR hero_image_url = ''").order(:id)
+            end
     limit = ENV['LIMIT'].to_i
     scope = scope.limit(limit) if limit.positive?
+    quality = %w[low medium high].include?(ENV['QUALITY']) ? ENV['QUALITY'] : 'medium'
 
     s3 = Aws::S3::Resource.new(region: 'us-east-2')
     total = scope.count
@@ -56,11 +61,11 @@ namespace :blog do
     scope.each do |post|
       prompt = "Editorial hero photograph for an architecture blog post titled " \
                "\"#{post.title}\". Photorealistic, natural light, magazine quality. " \
-               "No text, no watermarks, no borders."
+               "No text, no watermarks, no borders. #{ENV['STYLE']}".strip
       response = HTTParty.post(
         'https://api.openai.com/v1/images/generations',
         body: { model: 'gpt-image-1', prompt: prompt, n: 1,
-                size: '1536x1024', quality: 'medium' }.to_json,
+                size: '1536x1024', quality: quality }.to_json,
         headers: { 'Authorization' => "Bearer #{api_key}",
                    'Content-Type' => 'application/json' },
         timeout: 300
