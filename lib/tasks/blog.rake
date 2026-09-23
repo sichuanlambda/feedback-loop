@@ -59,9 +59,7 @@ namespace :blog do
     done = failed = 0
 
     scope.each do |post|
-      prompt = "Editorial hero photograph for an architecture blog post titled " \
-               "\"#{post.title}\". Photorealistic, natural light, magazine quality. " \
-               "No text, no watermarks, no borders. #{ENV['STYLE']}".strip
+      prompt = HeroImage.prompt(post, style: ENV['STYLE'])
       response = HTTParty.post(
         'https://api.openai.com/v1/images/generations',
         body: { model: 'gpt-image-1', prompt: prompt, n: 1,
@@ -78,11 +76,13 @@ namespace :blog do
         next
       end
 
-      obj = s3.bucket('architecture-generated').object("blog-heroes/#{post.slug}.png")
-      obj.put(body: Base64.decode64(image_b64), content_type: 'image/png')
+      png = Base64.decode64(image_b64)
+      jpeg = HeroImage.compress(png)
+      obj = s3.bucket('architecture-generated').object("blog-heroes/#{post.slug}.jpg")
+      obj.put(body: jpeg, content_type: 'image/jpeg', cache_control: 'public, max-age=31536000')
       post.update_columns(hero_image_url: obj.public_url)
       done += 1
-      puts "OK   #{post.slug} (#{done + failed}/#{total})"
+      puts "OK   #{post.slug} (#{done + failed}/#{total}) #{png.bytesize / 1024}KB png -> #{jpeg.bytesize / 1024}KB jpg"
       sleep 2
     rescue => e
       failed += 1
@@ -92,5 +92,22 @@ namespace :blog do
 
     puts "Hero generation complete: #{done} generated, #{failed} failed, " \
          "#{BlogPost.where(published: true).where("hero_image_url IS NULL OR hero_image_url = ''").count} still missing"
+  end
+
+  desc 'Re-encode existing PNG hero images (blog-heroes/*.png) as web-sized JPEGs. No API cost.'
+  task compress_heroes: :environment do
+    s3 = Aws::S3::Resource.new(region: 'us-east-2')
+    scope = BlogPost.where("hero_image_url LIKE '%/blog-heroes/%.png'")
+    puts "#{scope.count} PNG hero(es) to re-encode"
+    scope.find_each do |post|
+      png = HTTParty.get(post.hero_image_url, timeout: 60).body
+      jpeg = HeroImage.compress(png)
+      obj = s3.bucket('architecture-generated').object("blog-heroes/#{post.slug}.jpg")
+      obj.put(body: jpeg, content_type: 'image/jpeg', cache_control: 'public, max-age=31536000')
+      post.update_columns(hero_image_url: obj.public_url)
+      puts "OK   #{post.slug} #{png.bytesize / 1024}KB -> #{jpeg.bytesize / 1024}KB"
+    rescue => e
+      puts "FAIL #{post.slug}: #{e.class} #{e.message.truncate(120)}"
+    end
   end
 end
