@@ -74,8 +74,14 @@ not a paper.
 5. Tell Bing/Yandex/Naver/Seznam about the new posts (Google has no equivalent;
    it picks them up from the sitemap, or request indexing by hand in Search
    Console): `heroku run "rake seo:indexnow DAYS=7" -a boiling-atoll-02251`.
-6. Optional hero images (costs OpenAI credits, needs `GPT_API_KEY_PRODUCTION`):
-   `heroku run "rake blog:generate_heroes LIMIT=5" -a boiling-atoll-02251`.
+6. Hero images (about $0.07 each in OpenAI credit, needs `GPT_API_KEY_PRODUCTION`):
+   `heroku run "rake blog:generate_heroes" -a boiling-atoll-02251` fills every
+   post that lacks one, as a ~250 KB JPEG. `SLUGS=a,b` regenerates specific
+   posts; `STYLE="…"` appends to the prompt. The prompt comes from
+   `HeroImage.prompt` (uses the description, spells out comparison posts, and
+   forbids people); look at the result for any post about a named person or
+   a specific building before trusting it. For a long run use
+   `heroku run:detached` and follow `heroku logs --dyno run.NNNN`.
 
 Blog posts carry TinyAdz slots after each CTA (`app/views/blog/show.html.erb`);
 product pages never do.
