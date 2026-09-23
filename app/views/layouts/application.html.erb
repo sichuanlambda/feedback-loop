@@ -11,7 +11,7 @@
   <% end %>
   <meta property="og:title" content="<%= content_for?(:title) ? content_for(:title) : 'Architecture Helper' %>">
   <meta property="og:description" content="<%= content_for?(:meta_description) ? content_for(:meta_description) : 'Explore architectural styles, analyze buildings with AI, and discover architecture from around the world.' %>">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="<%= content_for?(:og_type) ? content_for(:og_type) : 'website' %>">
   <meta property="og:site_name" content="Architecture Helper">
   <% if content_for?(:og_image) %>
     <meta property="og:image" content="<%= content_for(:og_image) %>">

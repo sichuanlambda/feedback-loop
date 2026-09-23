@@ -21,6 +21,21 @@ class BlogAdsAndIndexnowTest < ActionDispatch::IntegrationTest
     assert_operator first_cta, :<, first_ad, "the ad slot must come after the CTA, not before it"
   end
 
+  test "blog posts are tagged as articles with publish and modified dates" do
+    post = two_section_post
+    get blog_post_path(slug: post.slug)
+
+    assert_select "meta[property='og:type'][content=article]", 1
+    assert_select "meta[property='article:published_time']", 1
+    schema = JSON.parse(css_select("script[type='application/ld+json']").first.text)
+    assert_equal "BlogPosting", schema["@type"]
+    assert_equal "http://www.example.com/blog/test-post", schema["mainEntityOfPage"]
+    assert schema["dateModified"].present?
+
+    get pricing_path
+    assert_select "meta[property='og:type'][content=website]", 1
+  end
+
   test "product pages stay ad-free" do
     [architecture_explorer_new_path, pricing_path, "/building_library",
      architecture_explorer_show_path(building_analyses(:one)), new_user_registration_path].each do |path|
