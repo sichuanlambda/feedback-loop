@@ -31,6 +31,18 @@ class GrowthPagesTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "only real navigations count as page views" do
+    assert_difference -> { UserEvent.where(event_type: "page_view").count }, 1 do
+      get pricing_path, headers: { "User-Agent" => IPHONE, "Sec-Fetch-Mode" => "navigate" }
+    end
+    assert_no_difference -> { UserEvent.count } do
+      # what a service-worker precache or a prefetch looks like: no page_view, no pricing_view
+      get pricing_path, headers: { "User-Agent" => IPHONE, "Sec-Fetch-Mode" => "cors" }
+      get pricing_path, headers: { "User-Agent" => IPHONE, "Sec-Fetch-Mode" => "no-cors" }
+    end
+    assert_not_equal "", UserEvent.where(event_type: "page_view").last.session_id, "missing sessions are stored as NULL, not empty strings"
+  end
+
   test "view gate still meters people but never blurs pages for crawlers" do
     gate_buildings = Array.new(4) do |i|
       BuildingAnalysis.create!(user: users(:one), name: "Gate #{i}", html_content: "<h3>Art Deco</h3><p>x</p>", visible_in_library: true)

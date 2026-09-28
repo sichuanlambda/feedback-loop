@@ -1,4 +1,11 @@
 namespace :events do
+  desc "Flag cookie-keeping crawlers (3+ pages fetched in one second, no JS beacon). DAYS=n window, default 3."
+  task flag_parallel_crawlers: :environment do
+    days = (ENV['DAYS'] || 3).to_i
+    n = UserEvent.flag_parallel_crawlers!(since: days.days.ago)
+    puts "Flagged #{n} rows from parallel-fetching sessions in the last #{days} days."
+  end
+
   desc "Flag historical crawler rows in user_events (bot = true). Safe to re-run; batches of 50k."
   task backfill_bot: :environment do
     scope = UserEvent.where(bot: false).where.not(user_agent: [nil, ''])

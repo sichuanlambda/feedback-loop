@@ -29,6 +29,7 @@ class GrowthReportJob < ApplicationJob
   end
 
   def perform(days, exclude_user_ids)
+    UserEvent.flag_parallel_crawlers!(since: 3.days.ago)
     report = GrowthReport.new(days: days, exclude_user_ids: exclude_user_ids).build.merge(built_at: Time.current)
     Rails.cache.write(self.class.cache_key(days, exclude_user_ids), report, expires_in: TTL)
   ensure

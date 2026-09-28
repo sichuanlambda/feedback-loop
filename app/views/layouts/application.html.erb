@@ -314,11 +314,22 @@
       })
     }).catch(function() {}); // Silently fail to avoid breaking the page
   };
-  // Browser-verified pageview: scrapers with spoofed browser headers never run
-  // this, so /admin/growth can count real people (feeds the "verified" KPI).
-  if (!location.pathname.startsWith('/admin')) {
-    AHTrack('js_pageview', { path: location.pathname });
-  }
+  // Browser-verified pageview, sent on the first scroll, tap, click or key, or
+  // after 10 seconds with the tab visible. Scripted browsers load and leave
+  // without doing any of that, so /admin/growth's "verified" KPI counts people.
+  (function () {
+    if (location.pathname.startsWith('/admin')) return;
+    var sent = false;
+    function send() {
+      if (sent) return;
+      sent = true;
+      AHTrack('js_pageview', { path: location.pathname });
+    }
+    ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (name) {
+      window.addEventListener(name, send, { once: true, passive: true });
+    });
+    setTimeout(function () { if (document.visibilityState === 'visible') send(); }, 10000);
+  })();
 </script>
 
 </body>
