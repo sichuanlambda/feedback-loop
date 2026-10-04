@@ -135,51 +135,6 @@ class GptService
     response.code == 200 ? parse_architecture_response(response) : nil
   end
 
-  def send_development_estimation(image_url, address, custom_prompt, analysis_mode = 'report')
-    base_prompt = case analysis_mode
-    when 'report'
-      "You are a real estate development expert. Based on this satellite image, please provide a detailed analysis in HTML format that covers the following:\n\n"
-    when 'metrics'
-      "Based on this satellite image, provide only the numerical answer or metric. No explanation or context needed. Just the number or percentage. For example, if asked about tree count, respond with just '42' or if asked about parking coverage respond with just '35%'. Here's what to analyze:\n\n"
-    end
-
-    augmented_prompt = base_prompt + custom_prompt
-
-    Rails.logger.debug "Sending augmented prompt: #{augmented_prompt}"
-
-    body = {
-      model: "gpt-4o-mini",
-      max_tokens: 1000,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: augmented_prompt
-            },
-            {
-              type: "image_url",
-              image_url: { url: image_url }
-            }
-          ]
-        }
-      ]
-    }
-
-    response = self.class.post('/chat/completions', @options.merge(body: body.to_json))
-    Rails.logger.debug "GPT Response: #{response.body}"
-
-    if response.code == 200
-      parsed_response = parse_development_response(response)
-      Rails.logger.debug "Parsed Response: #{parsed_response}"
-      parsed_response
-    else
-      Rails.logger.error "GPT Error: #{response.code} - #{response.body}"
-      nil
-    end
-  end
-
   def analyze_style_preferences(styles_data)
     Rails.logger.debug "GptService: Analyzing style preferences: #{styles_data}"
 
@@ -270,18 +225,6 @@ class GptService
     end
   rescue JSON::ParserError => e
     Rails.logger.error "JSON Parsing Error: #{e.message}"
-    nil
-  end
-
-  def parse_development_response(response)
-    parsed = JSON.parse(response.body)
-    Rails.logger.debug "Parsing response: #{parsed}"  # Debug log
-
-    {
-      "analysis" => parsed.dig("choices", 0, "message", "content")
-    }
-  rescue => e
-    Rails.logger.error "Parse error: #{e.message}"
     nil
   end
 end

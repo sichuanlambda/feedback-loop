@@ -111,7 +111,6 @@ Rails.application.routes.draw do
   get '/profile/:username', to: 'profile#public_profile', as: 'public_profile'
 
   get 'proxy/fetch_street_view', to: 'proxy#fetch_street_view'
-  get 'proxy/fetch_satellite_view', to: 'proxy#fetch_satellite_view'
 
   # Routes for SearchesController
   get '/searches/new', to: 'searches#new'
@@ -179,9 +178,6 @@ Rails.application.routes.draw do
   # New Research Prompt Route
   get 'research_prompt', to: 'research_prompt#index', as: 'research_prompt'
   post 'research_prompt', to: 'research_prompt#create'
-
-  get 'development_estimations', to: 'architecture_explorer#development_estimations'
-  post 'generate_development_estimation', to: 'architecture_explorer#generate_development_estimation'
 
   # Blog (recovered architecturehelper.com/blog content — slugs must stay stable)
   get 'blog', to: 'blog#index', as: :blog_index

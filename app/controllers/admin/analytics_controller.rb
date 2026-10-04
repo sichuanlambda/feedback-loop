@@ -111,8 +111,7 @@ module Admin
         'Design Flow'      => 'design_step1',
         'Library Browse'   => 'building_library_view',
         'Profile View'     => 'profile_view',
-        'Leaderboard'      => 'leaderboard_view',
-        'Dev Estimation'   => 'dev_estimation_view'
+        'Leaderboard'      => 'leaderboard_view'
       }.map do |label, evt|
         sess = base.by_type(evt).where.not(session_id: nil).distinct.count(:session_id)
         pct = (sess.to_f / total_sess * 100).round(1)

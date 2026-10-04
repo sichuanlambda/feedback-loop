@@ -571,47 +571,6 @@ class ArchitectureExplorerController < ApplicationController
     render 'architecture_explorer/map_places_and_styles/denver_architecture'
   end
 
-  def development_estimations
-    track_event('dev_estimation_view')
-    # Just renders the view
-  end
-
-  def generate_development_estimation
-    image_url = params[:previewed_image_url]
-    address = params[:address]
-    custom_prompt = params[:custom_prompt]
-    analysis_mode = params[:analysis_mode]
-    
-    track_event('dev_estimation_generate', { 
-      analysis_mode: analysis_mode,
-      has_custom_prompt: custom_prompt.present?,
-      address: address
-    })
-
-    begin
-      gpt_service = GptService.new
-      result = gpt_service.send_development_estimation(image_url, address, custom_prompt, analysis_mode)
-
-      if result && result["analysis"]
-        render json: {
-          success: true,
-          estimation: result["analysis"]
-        }
-      else
-        render json: {
-          success: false,
-          error: "Failed to generate estimation"
-        }
-      end
-    rescue => e
-      Rails.logger.error "Development Estimation Error: #{e.message}"
-      render json: {
-        success: false,
-        error: "Failed to generate estimation: #{e.message}"
-      }
-    end
-  end
-
   def analyze_style_preferences
     styles = params[:styles]
     
