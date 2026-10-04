@@ -36,14 +36,17 @@ module ApplicationHelper
   end
 
   # Splits a blog post body before its second <h2> so a CTA can sit between the
-  # halves. Short posts (fewer than two headings) come back whole.
-  def split_post_body_for_inline_cta(body_html)
+  # halves. Short posts (fewer than two headings) come back whole. With
+  # after_intro the split moves up to the first <h2>, provided the post opens
+  # with an introduction rather than a heading.
+  def split_post_body_for_inline_cta(body_html, after_intro: false)
     body = body_html.to_s
     first = body.index(/<h2[\s>]/i)
     second = first && body.index(/<h2[\s>]/i, first + 3)
-    return [body, nil] unless second
+    at = after_intro && first && body[0...first].present? ? first : second
+    return [body, nil] unless at
 
-    [body[0...second], body[second..]]
+    [body[0...at], body[at..]]
   end
 
   def building_structured_data(building_analysis, building_data = nil)

@@ -68,14 +68,37 @@ class GrowthPagesTest < ActionDispatch::IntegrationTest
   end
 
   test "email signup lands on the upload form with the free credit called out" do
-    post user_registration_path, params: { user: {
+    post user_registration_path, params: human_form.merge(user: {
       email: "new@example.com", password: "password123", password_confirmation: "password123", terms_of_service: "1"
-    } }, headers: { "User-Agent" => IPHONE }
+    }), headers: { "User-Agent" => IPHONE }
 
     assert_redirected_to architecture_explorer_new_path(src: "post_signup")
     follow_redirect! headers: { "User-Agent" => IPHONE }
     assert_includes response.body, "your account is ready"
     assert_includes response.body, "1 free credit"
+  end
+
+  test "signup form carries the bot checks and scripted submissions create no account" do
+    browse new_user_registration_path
+    assert_select "form#new_user input[name=subject_line]", 1
+    assert_select "form#new_user input[name=fg_ts]", 1
+    assert_select "form#new_user input[name=fg_js][value='']", 1
+
+    account = { email: "script@example.com", password: "password123", terms_of_service: "1" }
+    {
+      "no_js" => human_form.except(:fg_js),
+      "honeypot" => human_form.merge(subject_line: "Hello"),
+      "too_fast" => human_form(rendered: Time.current),
+      "expired" => human_form(rendered: 3.days.ago),
+      "no_token" => human_form.merge(fg_ts: "forged")
+    }.each do |reason, guard|
+      assert_no_difference "User.count", reason do
+        post user_registration_path, params: guard.merge(user: account), headers: { "User-Agent" => IPHONE }
+      end
+      assert_response :unprocessable_entity, reason
+      assert_includes response.body, "confirm that sign-up", reason
+      assert_equal reason, UserEvent.where(event_type: "signup_blocked").last.metadata["reason"]
+    end
   end
 
   test "signup page sizes the logo by width and has a real title" do

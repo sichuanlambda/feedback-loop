@@ -1,6 +1,7 @@
 class Users::RegistrationsController < Devise::RegistrationsController
   before_action :set_custom_nav, only: [:new, :edit, :create]
   before_action :configure_account_update_params, only: [:update]
+  before_action :reject_scripted_signup, only: [:create]
 
   def new
     # Arriving from a pricing CTA: send them back to /pricing after signup so
@@ -42,6 +43,21 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def set_custom_nav
     @custom_nav = true
+  end
+
+  # Re-renders the form instead of creating the account. A real person caught
+  # by mistake (JavaScript still loading, a tab left open for days) gets a
+  # fresh form and succeeds on the second try.
+  def reject_scripted_signup
+    reason = form_guard_failure
+    return unless reason
+
+    track_event('signup_blocked', { reason: reason })
+    build_resource(sign_up_params)
+    clean_up_passwords(resource)
+    set_minimum_password_length
+    resource.errors.add(:base, "We couldn't confirm that sign-up. Please enter your password and try again.")
+    render :new, status: :unprocessable_entity
   end
 
   # Permit the new parameters for account update

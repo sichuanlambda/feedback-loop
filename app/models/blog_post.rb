@@ -24,6 +24,13 @@ class BlogPost < ApplicationRecord
     'modernist' => 'Modernist'
   }.freeze
 
+  # Posts about identifying buildings, styles and cities get the in-article
+  # analysis form (blog/ctas/tryit); restyle and design posts keep a link
+  # card, since those tools need a photo or a longer brief.
+  TRYIT_CATEGORIES = %w[analyze styles city].freeze
+  # One-tap examples for that form: landmarks with a clear Street View shot.
+  TRYIT_EXAMPLES = ['Lincoln Memorial, Washington DC', 'Flatiron Building, New York', 'Painted Ladies, San Francisco'].freeze
+
   validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
   validates :title, presence: true
   validates :cta_category, inclusion: { in: CTA_CATEGORIES }, allow_nil: true
@@ -82,6 +89,10 @@ class BlogPost < ApplicationRecord
 
   def cta_partial
     CTA_CATEGORIES.include?(cta_category) ? cta_category : 'analyze'
+  end
+
+  def tryit_form?
+    TRYIT_CATEGORIES.include?(cta_partial)
   end
 
   private

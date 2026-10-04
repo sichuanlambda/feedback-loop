@@ -13,3 +13,11 @@ module ActiveSupport
     # Add more helper methods to be used by all tests here...
   end
 end
+
+class ActionDispatch::IntegrationTest
+  # The FormGuard fields a real browser sends: form rendered a while ago,
+  # JavaScript ran, honeypot left empty.
+  def human_form(rendered: 10.seconds.ago)
+    { fg_ts: Rails.application.message_verifier(:form_guard).generate(rendered.to_i), fg_js: "1", subject_line: "" }
+  end
+end

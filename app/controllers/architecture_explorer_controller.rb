@@ -352,6 +352,14 @@ class ArchitectureExplorerController < ApplicationController
   def create
     Rails.logger.debug "Create action called with params: #{params.inspect}"
 
+    # The in-article form on blog posts sits in front of every scraper that
+    # reads the blog, and each submission costs a Street View fetch and a model
+    # call, so it carries the FormGuard checks.
+    if params[:src] == 'blog_tryit' && form_guard_failure
+      redirect_to architecture_explorer_new_path(src: 'blog_tryit')
+      return
+    end
+
     # Guests get exactly one trial analysis (session + hashed-IP capped)
     if !user_signed_in? && guest_trial_used?
       redirect_to new_user_registration_path, alert: "You've used your free analysis — create a free account to keep exploring."
@@ -399,7 +407,7 @@ class ArchitectureExplorerController < ApplicationController
 
       unless user_signed_in?
         session[:guest_analysis_id] = @building_analysis.id
-        track_event('guest_analysis_started', { building_id: @building_analysis.id })
+        track_event('guest_analysis_started', { building_id: @building_analysis.id, src: params[:src].presence }.compact)
       end
 
       # Enqueue background job for GPT analysis (avoids R12 timeouts)

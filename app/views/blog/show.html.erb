@@ -39,6 +39,17 @@
   .post-cta { background: #e8f0f9; border: 1px solid #0056b3; border-radius: 10px; padding: 18px 22px; margin: 36px 0; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
   .post-cta a.btn-cta { background: #0056b3; color: #fff; padding: 10px 20px; border-radius: 6px; font-weight: 600; text-decoration: none; white-space: nowrap; }
   .post-cta a.btn-cta:hover { background: #004080; text-decoration: none; }
+  .post-tryit { display: block; position: relative; margin: 28px 0; }
+  .post-tryit .tryit-copy strong { color: #1f2937; display: block; margin-bottom: 2px; }
+  .post-tryit .tryit-copy span { color: #4b5563; font-size: 14px; }
+  .post-tryit .tryit-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  /* 16px keeps iOS from zooming the page when the field takes focus */
+  .post-tryit input[type=text] { flex: 1; min-width: 200px; padding: 10px 12px; border: 1px solid #9db8d6; border-radius: 6px; font-size: 16px; }
+  .post-tryit button.btn-cta { background: #0056b3; color: #fff; padding: 10px 20px; border: 0; border-radius: 6px; font-weight: 600; font-size: 16px; white-space: nowrap; cursor: pointer; }
+  .post-tryit button.btn-cta:hover { background: #004080; }
+  .post-tryit .tryit-examples { margin-top: 10px; font-size: 14px; color: #4b5563; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .post-tryit .tryit-examples button { background: #fff; border: 1px solid #9db8d6; border-radius: 999px; padding: 4px 12px; font-size: 14px; color: #0056b3; cursor: pointer; }
+  .post-tryit .tryit-examples a { color: #4b5563; text-decoration: underline; }
   /* TinyAdz slots: blog posts only, always after a CTA, collapse when nothing is served */
   .post-ad { margin: 28px 0; }
   .post-ad:empty { margin: 0; }
@@ -58,13 +69,19 @@
   <% end %>
 
   <%# The end-of-post CTA sits ~10 screens down on a phone and almost nobody
-      reaches it, so repeat it inline before the second section heading. %>
-  <% body_top, body_rest = split_post_body_for_inline_cta(@post.body_html) %>
+      reaches it, so repeat it inline before the second section heading. Posts
+      that take the analysis form show it right after the introduction: most
+      readers leave after one page, so it has to sit where they still are. %>
+  <% body_top, body_rest = split_post_body_for_inline_cta(@post.body_html, after_intro: @post.tryit_form?) %>
   <div class="post-content">
     <%= raw body_top %>
   </div>
   <% if body_rest.present? %>
-    <%= render "blog/ctas/#{@post.cta_partial}", post: @post, placement: 'inline' %>
+    <% if @post.tryit_form? %>
+      <%= render 'blog/ctas/tryit', post: @post %>
+    <% else %>
+      <%= render "blog/ctas/#{@post.cta_partial}", post: @post, placement: 'inline' %>
+    <% end %>
     <div class="post-ad" ta-ad-container=""></div>
     <div class="post-content">
       <%= raw body_rest %>

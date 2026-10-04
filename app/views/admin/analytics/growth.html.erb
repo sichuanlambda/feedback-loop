@@ -135,7 +135,7 @@
             <div class="kpi">
                 <div class="label">From search</div>
                 <div class="value" data-kpi="search"><%= number_with_delimiter(cur[:search]) %></div>
-                <div class="meta"><%= delta.call(:search) %></div>
+                <div class="meta"><span data-kpi="search_verified"><%= number_with_delimiter(cur[:search_verified]) %></span> browser-verified · <%= delta.call(:search) %></div>
             </div>
             <div class="kpi green-accent">
                 <div class="label">Used a tool</div>
@@ -155,10 +155,10 @@
         </div>
 
         <div class="card">
-            <h2><i class="fas fa-chart-line"></i> Week by week <span class="hint">sessions by week started · last 12 weeks · current week is partial</span></h2>
+            <h2><i class="fas fa-chart-line"></i> Week by week <span class="hint">by week started · last 12 weeks · current week is partial</span></h2>
             <table class="list">
                 <thead>
-                    <tr><th>Week of</th><th class="num">From search</th><th class="num">Any external referrer</th><th class="num">Used a tool</th><th class="num">Signups</th><th class="bar-cell"></th></tr>
+                    <tr><th>Week of</th><th class="num">From search</th><th class="num">Verified from search</th><th class="num">Any external referrer</th><th class="num">Used a tool</th><th class="num">Signups</th><th class="bar-cell"></th></tr>
                 </thead>
                 <tbody>
                     <% max_search = [r[:weekly].map { |w| w[:search] }.max.to_i, 1].max %>
@@ -166,6 +166,7 @@
                         <tr>
                             <td><%= week_name.call(w[:week]) %></td>
                             <td class="num"><%= w[:search] %></td>
+                            <td class="num"><%= w[:search_verified] %></td>
                             <td class="num"><%= w[:external] %></td>
                             <td class="num"><%= w[:tools] %></td>
                             <td class="num"><%= w[:signups] %></td>
@@ -193,37 +194,39 @@
 
         <div class="two-col">
             <div class="card">
-                <h2><i class="fas fa-external-link-alt"></i> Where visitors come from <span class="hint">sessions with an outside referrer</span></h2>
+                <h2><i class="fas fa-external-link-alt"></i> Where visitors come from <span class="hint">visits with an outside referrer</span></h2>
                 <table class="list">
-                    <thead><tr><th>Site</th><th></th><th class="num">Sessions</th></tr></thead>
+                    <thead><tr><th>Site</th><th></th><th class="num">Visits</th><th class="num">Verified</th></tr></thead>
                     <tbody>
                         <% if r[:sources].empty? %>
-                            <tr><td colspan="3" style="color: var(--ink-muted);">No referred sessions in this window.</td></tr>
+                            <tr><td colspan="4" style="color: var(--ink-muted);">No referred visits in this window.</td></tr>
                         <% end %>
                         <% r[:sources].each do |s| %>
                             <tr data-source="<%= s[:host] %>">
                                 <td><%= s[:host] %></td>
                                 <td><span class="tag <%= s[:kind] %>"><%= s[:kind] %></span></td>
                                 <td class="num"><%= s[:sessions] %></td>
+                                <td class="num" data-col="verified"><%= s[:verified] %></td>
                             </tr>
                         <% end %>
                     </tbody>
                 </table>
-                <p class="note">Direct visits and visitors whose browser hides the referrer are not listed.</p>
+                <p class="note">A visit is one address on one day. "Verified" counts sessions whose browser ran JavaScript and reported the referrer itself (recorded since October 2026); the gap between the two columns is mostly scrapers sending a fake referrer. Direct visits and visitors whose browser hides the referrer are not listed.</p>
             </div>
 
             <div class="card">
                 <h2><i class="fas fa-search"></i> Landing pages from search <span class="hint">first page seen by search visitors</span></h2>
                 <table class="list">
-                    <thead><tr><th>Page</th><th class="num">Sessions</th></tr></thead>
+                    <thead><tr><th>Page</th><th class="num">Visits</th><th class="num">Verified</th></tr></thead>
                     <tbody>
                         <% if r[:landing].empty? %>
-                            <tr><td colspan="2" style="color: var(--ink-muted);">No search visits in this window.</td></tr>
+                            <tr><td colspan="3" style="color: var(--ink-muted);">No search visits in this window.</td></tr>
                         <% end %>
                         <% r[:landing].each do |l| %>
                             <tr data-landing="<%= l[:path] %>">
                                 <td><a href="<%= l[:path] %>"><%= l[:path].to_s.truncate(60) %></a></td>
                                 <td class="num"><%= l[:sessions] %></td>
+                                <td class="num" data-col="verified"><%= l[:verified] %></td>
                             </tr>
                         <% end %>
                     </tbody>
@@ -258,6 +261,7 @@
                         <% end %>
                         <tr><td>Restyle CTA clicks</td><td class="num"><%= r[:clicks][:restyle_cta] %></td></tr>
                         <tr><td>Checkout clicks</td><td class="num"><%= r[:clicks][:checkout] %></td></tr>
+                        <tr><td>Scripted signups blocked</td><td class="num"><%= r[:clicks][:signups_blocked] %></td></tr>
                         <tr><td>Credit reminder emails sent</td><td class="num"><%= r[:clicks][:reminders_sent] %></td></tr>
                         <tr><td>Sessions arriving from the reminder email</td><td class="num"><%= r[:clicks][:reminder_visits] %></td></tr>
                         <% r[:clicks][:pricing_by_src].each do |src, n| %>

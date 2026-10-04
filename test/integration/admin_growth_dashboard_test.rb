@@ -26,7 +26,7 @@ class AdminGrowthDashboardTest < ActionDispatch::IntegrationTest
   test "counts people, ignores crawlers, and attributes search traffic" do
     event("page_view", "s1", HUMAN, { path: "/blog/gothic", referrer: "https://www.google.com/" })
     event("page_view", "s1", HUMAN, { path: "/pricing", referrer: "https://architecturehelper.com/blog/gothic" })
-    event("js_pageview", "s1", HUMAN, { path: "/blog/gothic" })
+    event("js_pageview", "s1", HUMAN, { path: "/blog/gothic", referrer: "https://www.google.com/" })
     event("page_view", "s2", HUMAN, { path: "/", referrer: nil })
     event("building_new_form", "s2", HUMAN)
     event("guest_analysis_started", "s2", HUMAN, { building_id: 1 })
@@ -44,14 +44,32 @@ class AdminGrowthDashboardTest < ActionDispatch::IntegrationTest
     assert_select "[data-kpi=engaged]", text: "1"
     assert_select "[data-kpi=verified]", text: "1"
     assert_select "[data-kpi=search]", text: "1"
+    assert_select "[data-kpi=search_verified]", text: "1"
     assert_select "[data-kpi=tools]", text: "1"
     assert_select "[data-funnel=form_views]", text: "1"
     assert_select "[data-funnel=analyses_started]", text: "1"
-    assert_select "tr[data-source='google.com'] td.num", text: "1"
+    assert_select "tr[data-source='google.com'] td.num", text: "1", count: 2
     assert_select "tr[data-source='bing.com']", 0
-    assert_select "tr[data-landing='/blog/gothic'] td.num", text: "1"
+    assert_select "tr[data-landing='/blog/gothic'] td.num", text: "1", count: 2
     assert_select "tr[data-device=mobile] [data-col=sessions]", text: "2"
     assert_select "tr[data-device=desktop] [data-col=sessions]", text: "0"
+  end
+
+  test "search landings with no session id count once per address per day" do
+    # Landing requests were stored without a session id until October 2026
+    landing = { path: "/blog/gothic", referrer: "https://www.google.com/" }
+    2.times { UserEvent.create!(event_type: "page_view", ip_hash: "aaa", user_agent: HUMAN, metadata: landing, created_at: 1.day.ago) }
+    UserEvent.create!(event_type: "page_view", ip_hash: "bbb", user_agent: HUMAN, metadata: landing, created_at: 1.day.ago)
+    # ...and a cookie-less scraper now gets a new session on every hit
+    3.times { |i| UserEvent.create!(event_type: "page_view", session_id: "x#{i}", ip_hash: "ccc", user_agent: HUMAN, metadata: landing, created_at: 1.day.ago) }
+
+    GrowthReportJob.perform_now(30, [])
+    get admin_growth_path
+
+    assert_select "[data-kpi=search]", text: "3"
+    assert_select "[data-kpi=search_verified]", text: "0"
+    assert_select "tr[data-source='google.com'] td.num:not([data-col])", text: "3"
+    assert_select "tr[data-landing='/blog/gothic'] td.num[data-col=verified]", text: "0"
   end
 
   test "shows a building state and queues one build until the report exists" do

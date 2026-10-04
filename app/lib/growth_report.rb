@@ -23,6 +23,7 @@ class GrowthReport
     # where.not(user_id: ids) would also drop every signed-out row (NULL user_id)
     @base = @base.where('user_id IS NULL OR user_id NOT IN (?)', exclude_user_ids) if exclude_user_ids.any?
     @pageviews = @base.where(event_type: 'page_view')
+    @verified = @base.where(event_type: 'js_pageview')
   end
 
   def build
@@ -65,6 +66,18 @@ class GrowthReport
     "#{md('referrer')} IS NOT NULL AND #{md('referrer')} <> '' AND #{md('referrer')} NOT LIKE '%architecturehelper.com%'"
   end
 
+  # One visit per address per day. Referred traffic is counted this way rather
+  # than by session: until 2026-10 a visitor's landing request (the one that
+  # carries the referrer) was stored without a session id, and a cookie-less
+  # scraper gets a new session on every hit.
+  def visit_key
+    "DISTINCT COALESCE(ip_hash || CAST(DATE(created_at) AS TEXT), session_id)"
+  end
+
+  def visits(scope)
+    scope.count(Arel.sql(visit_key))
+  end
+
   def users_in(win)
     User.where(created_at: win).where.not(email: User::GUEST_EMAIL)
   end
@@ -82,10 +95,14 @@ class GrowthReport
     {
       sessions: sessions(@pageviews.where(created_at: win)),
       engaged: engaged_sessions(win),
-      search: sessions(@pageviews.where(created_at: win).where(search_ref)),
+      search: visits(@pageviews.where(created_at: win).where(search_ref)),
       # Sessions that ran the JS beacon (layout AHTrack('js_pageview')): a
       # scraper sending a browser User-Agent never does. Recorded since 2026-09-22.
-      verified: sessions(@base.where(event_type: 'js_pageview', created_at: win)),
+      verified: sessions(@verified.where(created_at: win)),
+      # The beacon reports its own referrer since 2026-10, so this is search
+      # traffic known to be people; `search` above also holds scrapers that
+      # send a search referrer.
+      search_verified: sessions(@verified.where(created_at: win).where(search_ref)),
       signups: users_in(win).count,
       tools: sessions(@base.where(event_type: TOOL_EVENTS, created_at: win))
     }
@@ -97,11 +114,12 @@ class GrowthReport
 
   def weekly
     since = (@now - 12.weeks).beginning_of_week
-    rows = Hash.new { |h, k| h[k] = { search: 0, external: 0, signups: 0, tools: 0 } }
+    rows = Hash.new { |h, k| h[k] = { search: 0, search_verified: 0, external: 0, signups: 0, tools: 0 } }
     add = ->(key, counts) { counts.each { |week, n| rows[week_label(week)][key] = n } }
 
-    add.call(:search, @pageviews.where('created_at >= ?', since).where(search_ref).group(Arel.sql(week_expr)).distinct.count(:session_id))
-    add.call(:external, @pageviews.where('created_at >= ?', since).where(external_ref).group(Arel.sql(week_expr)).distinct.count(:session_id))
+    add.call(:search, visits(@pageviews.where('created_at >= ?', since).where(search_ref).group(Arel.sql(week_expr))))
+    add.call(:search_verified, @verified.where('created_at >= ?', since).where(search_ref).group(Arel.sql(week_expr)).distinct.count(:session_id))
+    add.call(:external, visits(@pageviews.where('created_at >= ?', since).where(external_ref).group(Arel.sql(week_expr))))
     add.call(:tools, @base.where(event_type: TOOL_EVENTS).where('created_at >= ?', since).group(Arel.sql(week_expr)).distinct.count(:session_id))
     add.call(:signups, users_in(since..@now).group(Arel.sql(week_expr)).count)
 
@@ -113,10 +131,15 @@ class GrowthReport
   end
 
   def sources
-    counts = @pageviews.where(created_at: @window).where(external_ref)
-                       .group(Arel.sql(md('referrer'))).distinct.count(:session_id)
-    by_host = Hash.new(0)
-    counts.each do |ref, n|
+    by_host = by_referrer_host(visits(@pageviews.where(created_at: @window).where(external_ref).group(Arel.sql(md('referrer')))))
+    verified = by_referrer_host(@verified.where(created_at: @window).where(external_ref)
+                                         .group(Arel.sql(md('referrer'))).distinct.count(:session_id))
+    by_host.map { |host, n| { host: host, sessions: n, verified: verified[host], kind: classify(host) } }
+           .sort_by { |r| -r[:sessions] }.first(25)
+  end
+
+  def by_referrer_host(counts)
+    counts.each_with_object(Hash.new(0)) do |(ref, n), by_host|
       host = begin
         URI.parse(ref.to_s.strip).host || ref.to_s
       rescue URI::Error
@@ -124,8 +147,6 @@ class GrowthReport
       end
       by_host[host.to_s.sub(/\Awww\./, '')] += n
     end
-    by_host.map { |host, n| { host: host, sessions: n, kind: classify(host) } }
-           .sort_by { |r| -r[:sessions] }.first(25)
   end
 
   def classify(host)
@@ -138,10 +159,11 @@ class GrowthReport
   end
 
   def landing_pages
-    @pageviews.where(created_at: @window).where(search_ref)
-              .group(Arel.sql(md('path'))).distinct.count(:session_id)
-              .sort_by { |_, n| -n }.first(20)
-              .map { |path, n| { path: path, sessions: n } }
+    verified = @verified.where(created_at: @window).where(search_ref)
+                        .group(Arel.sql(md('path'))).distinct.count(:session_id)
+    visits(@pageviews.where(created_at: @window).where(search_ref).group(Arel.sql(md('path'))))
+      .sort_by { |_, n| -n }.first(20)
+      .map { |path, n| { path: path, sessions: n, verified: verified[path].to_i } }
   end
 
   def funnel
@@ -178,6 +200,7 @@ class GrowthReport
       blog_cta: win.where(event_type: 'blog_cta_click').group(Arel.sql("COALESCE(#{md('placement')}, 'end')")).count,
       restyle_cta: win.where(event_type: 'restyle_cta_click').count,
       checkout: win.where(event_type: 'checkout_click').count,
+      signups_blocked: win.where(event_type: 'signup_blocked').count,
       reminders_sent: win.where(event_type: 'credit_reminder_sent').count,
       reminder_visits: sessions(win.where(event_type: 'page_view').where("#{md('params')} LIKE '%credit_reminder_email%'")),
       pricing_by_src: win.where(event_type: 'pricing_view').group(Arel.sql("COALESCE(#{md('src')}, '(none)')")).count

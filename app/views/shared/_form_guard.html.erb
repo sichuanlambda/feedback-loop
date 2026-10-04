@@ -1,0 +1,16 @@
+<%# Bot checks for a public form; see FormGuard. Must be rendered inside the <form>. %>
+<div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;" aria-hidden="true">
+  <label>Leave this field empty <input type="text" name="<%= FormGuard::HONEYPOT_FIELD %>" value="" tabindex="-1" autocomplete="off"></label>
+</div>
+<input type="hidden" name="fg_ts" value="<%= form_guard_token %>">
+<input type="hidden" name="fg_js" value="">
+<script>
+  (function () {
+    var form = document.currentScript.closest('form');
+    if (!form) return;
+    function mark() { form.querySelector('[name=fg_js]').value = '1'; }
+    ['pointerdown', 'keydown', 'touchstart', 'focusin', 'submit'].forEach(function (name) {
+      form.addEventListener(name, mark, true);
+    });
+  })();
+</script>

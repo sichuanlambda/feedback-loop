@@ -307,6 +307,7 @@
   window.AHTrack = function(eventType, metadata) {
     fetch('/api/events', {
       method: 'POST',
+      keepalive: true, // lets a click be recorded even though the page is navigating away
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         event_type: eventType, 
@@ -323,7 +324,14 @@
     function send() {
       if (sent) return;
       sent = true;
-      AHTrack('js_pageview', { path: location.pathname });
+      // The referrer rides along (minus its query string) so /admin/growth can
+      // attribute verified visits to a source; same-site referrers are dropped.
+      var data = { path: location.pathname };
+      try {
+        var ref = document.referrer && new URL(document.referrer);
+        if (ref && ref.hostname !== location.hostname) data.referrer = (ref.origin + ref.pathname).slice(0, 300);
+      } catch (e) {}
+      AHTrack('js_pageview', data);
     }
     ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(function (name) {
       window.addEventListener(name, send, { once: true, passive: true });

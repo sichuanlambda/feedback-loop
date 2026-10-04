@@ -25,6 +25,9 @@ class Rack::Attack
   # Credential stuffing guard on sign-in
   throttle('logins/ip', limit: 10, period: 5.minutes) { |req| req.ip if req.post? && req.path == '/users/sign_in' }
 
+  # Account creation: nobody needs more than a few from one address
+  throttle('signups/ip', limit: 5, period: 1.hour) { |req| req.ip if req.post? && req.path == '/users' }
+
   self.throttled_responder = lambda do |request|
     retry_after = (request.env['rack.attack.match_data'] || {})[:period]
     [429, { 'Content-Type' => 'text/plain', 'Retry-After' => retry_after.to_s }, ["Too many requests. Please slow down and try again shortly.\n"]]

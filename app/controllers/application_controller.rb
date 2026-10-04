@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Trackable
+  include FormGuard
 
   # Runs before tracking so the slash version is never logged as a pageview.
   prepend_before_action :redirect_trailing_slash
