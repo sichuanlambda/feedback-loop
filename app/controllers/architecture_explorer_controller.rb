@@ -314,9 +314,8 @@ class ArchitectureExplorerController < ApplicationController
     h3_contents.map { |content| content.gsub(/[^\w\s]/, '').gsub(/\d/, '').strip }
   end
 
-  def fetch_street_view_image(address)
-    api_key = Rails.application.credentials.google_maps[:api_key]
-    url = "https://maps.googleapis.com/maps/api/streetview?size=600x400&location=#{URI.encode_www_form_component(address)}&key=#{api_key}"
+  def fetch_street_view_image(address, radius: nil)
+    url = StreetView.image_url(address, radius: radius)
 
     begin
       image_data = URI.open(url).read
@@ -333,7 +332,17 @@ class ArchitectureExplorerController < ApplicationController
   end
 
   def new
-    track_event('building_new_form')
+    # Arriving with an address (the blog's in-article form, or an address-only
+    # submission bounced back from create): show the Street View photo and
+    # have the visitor confirm it is the right building before analyzing it.
+    if params[:address].present? && !bot_request?
+      @street_view_address = params[:address].to_s.strip.first(200)
+      @street_view = StreetView.find(@street_view_address)
+    end
+    track_event('building_new_form', {
+      src: params[:src].presence,
+      street_view: (@street_view ? 'found' : 'missing' if @street_view_address)
+    }.compact)
     @mapbox_access_token = Rails.application.credentials.mapbox[:access_token]
     @guest_trial_exhausted = !user_signed_in? && guest_trial_used?
     # Shows first-timers what they'll get before they commit a photo. Only
@@ -352,12 +361,20 @@ class ArchitectureExplorerController < ApplicationController
   def create
     Rails.logger.debug "Create action called with params: #{params.inspect}"
 
-    # The in-article form on blog posts sits in front of every scraper that
-    # reads the blog, and each submission costs a Street View fetch and a model
-    # call, so it carries the FormGuard checks.
-    if params[:src] == 'blog_tryit' && form_guard_failure
-      redirect_to architecture_explorer_new_path(src: 'blog_tryit')
-      return
+    # An address with no photo is only analyzed once the visitor has seen the
+    # Street View shot and confirmed it (see #new). That also keeps a free
+    # trial or credit from being spent on an address Street View has no photo
+    # of. The confirm button carries the FormGuard checks: this path costs a
+    # Street View fetch and a model call, and the blog links every reader to it.
+    address_only = params[:address].present? &&
+                   %i[image external_image_url previewed_image_url].none? { |key| params[key].present? }
+    if address_only
+      confirmed = params[:confirmed] == '1' && form_guard_failure(min_age: 0).nil?
+      street_view = confirmed && StreetView.find(params[:address])
+      unless street_view
+        redirect_to architecture_explorer_new_path(address: params[:address], src: params[:src].presence)
+        return
+      end
     end
 
     # Guests get exactly one trial analysis (session + hashed-IP capped)
@@ -382,8 +399,8 @@ class ArchitectureExplorerController < ApplicationController
                   params[:previewed_image_url]
                 elsif params[:address].present?
                   # Address-only submissions: fetch a Street View photo server-side
-                  street_view = fetch_street_view_image(params[:address])
-                  street_view && upload_image_to_s3(street_view)
+                  photo = fetch_street_view_image(params[:address], radius: street_view[:radius])
+                  photo && upload_image_to_s3(photo)
                 end
 
     if image_url.blank?

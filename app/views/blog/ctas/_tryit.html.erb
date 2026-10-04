@@ -1,17 +1,17 @@
-<%# Starts an analysis from inside the article: an address is enough (the
-    server fetches the Street View photo), and a guest's first one needs no
-    account. The link cards this replaces drew 11 clicks from roughly 3,000
-    blog visits a month. %>
-<%= form_with url: architecture_explorer_path, local: true, html: { class: 'post-cta post-tryit' } do |form| %>
+<%# Sends the reader's address to the upload page, which shows the Street
+    View photo for them to confirm before analyzing it; a guest's first
+    analysis needs no account. A plain GET, so a cached copy of the post never
+    carries a stale form token. The link cards this replaces drew 11 clicks
+    from roughly 3,000 blog visits a month. %>
+<%= form_with url: architecture_explorer_new_path, method: :get, local: true, html: { class: 'post-cta post-tryit' } do |form| %>
   <%= hidden_field_tag :src, 'blog_tryit', id: nil %>
-  <%= render 'shared/form_guard' %>
   <div class="tryit-copy">
     <strong>What style is the building on your street?</strong>
     <span>Type any address and get its architectural style, key features and history in about 30 seconds. Free, no account needed.</span>
   </div>
   <div class="tryit-row">
     <%= form.text_field :address, required: true, placeholder: 'Address or landmark', 'aria-label': 'Address or landmark', autocomplete: 'off', id: nil %>
-    <button type="submit" class="btn-cta">Analyze It Free</button>
+    <button type="submit" class="btn-cta">Find the Building</button>
   </div>
   <div class="tryit-examples">
     Try:
@@ -32,9 +32,6 @@
       });
       form.addEventListener('submit', function () {
         if (window.AHTrack) AHTrack('blog_cta_click', { slug: '<%= j post.slug %>', cta: 'tryit', placement: 'tryit' });
-        var button = form.querySelector('button[type=submit]');
-        button.disabled = true;
-        button.textContent = 'Starting…';
       });
     })();
   </script>

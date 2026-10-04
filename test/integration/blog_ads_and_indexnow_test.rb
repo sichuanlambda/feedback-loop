@@ -21,14 +21,15 @@ class BlogAdsAndIndexnowTest < ActionDispatch::IntegrationTest
     assert_operator first_cta, :<, first_ad, "the ad slot must come after the CTA, not before it"
   end
 
-  test "identification posts put an analysis form right after the introduction" do
+  test "identification posts put an address form right after the introduction" do
     post = two_section_post
     get blog_post_path(slug: post.slug)
 
-    assert_select "form.post-tryit[action='#{architecture_explorer_path}'][method=post]", 1 do
+    # A GET to the confirm step: no form token to go stale on a cached page
+    assert_select "form.post-tryit[action='#{architecture_explorer_new_path}'][method=get]", 1 do
       assert_select "input[name=address][required]", 1
       assert_select "input[name=src][value=blog_tryit]", 1
-      assert_select "input[name=fg_ts]", 1
+      assert_select "input[name=authenticity_token]", 0
       assert_select "button[data-tryit-example]", BlogPost::TRYIT_EXAMPLES.size
     end
     assert_operator response.body.index("post-tryit\""), :<, response.body.index("<h2>One</h2>")
@@ -44,14 +45,6 @@ class BlogAdsAndIndexnowTest < ActionDispatch::IntegrationTest
     assert_select "form.post-tryit", 0
     assert_select "a.btn-cta[href*='blog_cta_restyle']", 2
     assert_operator response.body.index("<h2>One</h2>"), :<, response.body.index('class="post-cta"')
-  end
-
-  test "the in-article form starts a guest analysis from an address, but not for a script" do
-    address = { address: "Lincoln Memorial, Washington DC", src: "blog_tryit" }
-    assert_no_difference "BuildingAnalysis.count" do
-      post architecture_explorer_path, params: address
-    end
-    assert_redirected_to architecture_explorer_new_path(src: "blog_tryit")
   end
 
   test "blog posts are tagged as articles with publish and modified dates" do

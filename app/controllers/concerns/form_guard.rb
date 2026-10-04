@@ -24,8 +24,10 @@ module FormGuard
     Rails.application.message_verifier(:form_guard).generate(Time.current.to_i)
   end
 
-  # nil when the submission looks human, otherwise the check it failed.
-  def form_guard_failure
+  # nil when the submission looks human, otherwise the check it failed. Pass
+  # min_age: 0 for a form that is a single button and can honestly be
+  # submitted the moment it appears.
+  def form_guard_failure(min_age: MIN_AGE)
     return 'honeypot' if params[HONEYPOT_FIELD].present?
     return 'no_js' unless params[:fg_js] == '1'
 
@@ -33,7 +35,7 @@ module FormGuard
     return 'no_token' unless rendered_at.is_a?(Integer)
 
     age = Time.current.to_i - rendered_at
-    return 'too_fast' if age < MIN_AGE
+    return 'too_fast' if age < min_age
     return 'expired' if age > MAX_AGE
 
     nil

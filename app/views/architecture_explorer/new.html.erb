@@ -88,6 +88,12 @@
     .upload-btn-secondary { background: #fff; color: #0056b3; border: 1px solid #0056b3; }
     .upload-hint { margin: 12px 0 0; font-size: 13px; color: #6c757d; }
     .upload-change { margin-top: 10px; background: none; border: none; color: #0056b3; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: underline; }
+    .sv-confirm { max-width: 520px; margin: 0 auto 28px; padding: 16px; border: 1px solid #0056b3; border-radius: 14px; background: #f5f9fd; }
+    .sv-confirm h2 { font-size: 20px; color: #01161e; margin: 0 0 12px; }
+    .sv-confirm img { width: 100%; height: auto; border-radius: 10px; background: #e5e7eb; display: block; }
+    .sv-confirm .sv-address { margin: 10px 0 12px; color: #374151; font-size: 15px; }
+    .sv-missing { max-width: 520px; margin: 0 auto 24px; padding: 12px 16px; border: 1px solid #d97706; border-radius: 10px; background: #fff8eb; color: #1f2937; font-size: 15px; text-align: left; }
+    .sv-missing strong { display: block; margin-bottom: 2px; }
     .upload-address { margin: 0 auto 8px; text-align: left; max-width: 520px; }
     .upload-submit { margin-top: 16px; min-height: 50px; width: 100%; max-width: 520px; padding: 12px 20px; border-radius: 8px; font-weight: 700; font-size: 17px; background: #0056b3; color: #fff; border: 1px solid #0056b3; cursor: pointer; }
     .upload-submit:disabled { background: #e5e7eb; border-color: #e5e7eb; color: #8a929e; cursor: not-allowed; }
@@ -118,7 +124,28 @@
         <% end %>
 
         <% if user_signed_in? || !@guest_trial_exhausted %>
+          <% if @street_view %>
+            <div class="sv-confirm" id="street-view-confirm">
+              <h2>Is this the building?</h2>
+              <img src="/proxy/fetch_street_view?<%= { location: @street_view_address, radius: @street_view[:radius] }.compact.to_query %>" alt="Street View photo of <%= @street_view_address %>" width="600" height="400">
+              <p class="sv-address"><%= @street_view_address %></p>
+              <%= form_with url: architecture_explorer_path, local: true do %>
+                <%= hidden_field_tag :address, @street_view_address, id: nil %>
+                <%= hidden_field_tag :src, params[:src], id: nil %>
+                <%= hidden_field_tag :confirmed, '1', id: nil %>
+                <%= render 'shared/form_guard' %>
+                <button type="submit" class="upload-submit" style="margin-top: 0;">Yes, Analyze This Building</button>
+              <% end %>
+              <p class="upload-hint">Not the right one? Correct the address or upload your own photo below.</p>
+            </div>
+          <% elsif @street_view_address.present? %>
+            <div class="sv-missing" id="street-view-missing">
+              <strong>We couldn't find a street-level photo of &ldquo;<%= @street_view_address %>&rdquo;.</strong>
+              Add the city and state to the address below, or upload your own photo of the building.
+            </div>
+          <% end %>
           <%= form_with url: architecture_explorer_path, local: true, multipart: true, html: { class: "gpt-form-container" } do |form| %>
+            <%= hidden_field_tag :src, params[:src], id: nil if params[:src].present? %>
             <%= form.file_field :image, direct_upload: true, accept: "image/*", onchange: "previewImage(event)", class: "custom-file-input" %>
 
             <div class="upload-dropzone" id="upload-dropzone">
@@ -141,7 +168,7 @@
             <div class="upload-address">
               <label for="address-field" style="font-weight: 600; color: #333; font-size: 14px;">No photo? Enter an address instead <span style="font-weight: 400; color: #6c757d;">(optional)</span></label>
               <div style="display: flex; gap: 8px; margin-top: 4px;">
-                <%= form.text_field :address, placeholder: "123 Main St, Denver, CO", style: "flex:1; min-width: 0; padding: 10px 12px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 16px;", id: "address-field" %>
+                <%= form.text_field :address, value: @street_view_address, placeholder: "123 Main St, Denver, CO", style: "flex:1; min-width: 0; padding: 10px 12px; border: 1px solid #dee2e6; border-radius: 6px; font-size: 16px;", id: "address-field" %>
                 <button type="button" id="geo-fill-btn" aria-label="Use my location" title="Use my location"
                         style="width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #0056b3; background: #fff; color: #0056b3; border-radius: 6px; cursor: pointer; flex-shrink: 0;">
                   <svg id="geo-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

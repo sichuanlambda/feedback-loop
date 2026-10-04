@@ -4,16 +4,9 @@ require 'cgi'
 
 class ProxyController < ApplicationController
   def fetch_street_view
-    base_url = "https://maps.googleapis.com/maps/api/streetview"
-    size = "600x400"
-    location = params[:location] # Get the location parameter from the client request
-    key = ENV['GOOGLE_MAPS_API_KEY']
-
-    # Correctly encode the location parameter
-    encoded_location = CGI.escape(location)
-
-    # Construct the URL with query parameters
-    url = "#{base_url}?size=#{size}&location=#{encoded_location}&key=#{key}"
+    # radius is passed by the confirm step so the preview is the same photo
+    # that will be analyzed (see StreetView.find)
+    url = StreetView.image_url(params[:location].to_s, radius: params[:radius].presence)
 
     uri = URI(url)
     response = Net::HTTP.get_response(uri)
