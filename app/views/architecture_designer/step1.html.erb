@@ -93,7 +93,7 @@
       <% fstyles = featured_place.architectural_styles_summary.first(4) %>
       <%= link_to place_path(featured_place), class: "cg-featured" do %>
         <% if featured_place.best_representative_image.present? %>
-          <img src="<%= featured_place.best_representative_image %>" alt="Architecture of <%= featured_place.name %>" width="600" height="420" loading="lazy">
+          <img src="<%= featured_place.best_representative_image %>" alt="<%= featured_place.image_alt %>" width="600" height="420" loading="lazy">
         <% end %>
         <div class="cg-featured-overlay"></div>
         <div class="cg-featured-content">
@@ -116,8 +116,8 @@
       <% sstyles = place.architectural_styles_summary.first(3) %>
       <%= link_to place_path(place), class: "cg-stacked-card" do %>
         <div class="cg-stacked-img">
-          <% if place.best_representative_image.present? %>
-            <img src="<%= place.best_representative_image %>" alt="Architecture of <%= place.name %>" width="180" height="120" loading="lazy">
+          <% if place.card_image_url.present? %>
+            <img src="<%= place.card_image_url %>" alt="<%= place.image_alt %>" width="180" height="120" loading="lazy">
           <% end %>
         </div>
         <div class="cg-stacked-body">
@@ -138,26 +138,27 @@
   <!-- Scrollable Row -->
   <% if scroll_places.any? %>
   <div class="cg-scroll-wrapper">
-    <button type="button" class="cg-scroll-arrow left" onclick="document.getElementById('cg-scroll').scrollBy({left:-440,behavior:'smooth'})" aria-label="Scroll left">&#8249;</button>
+    <button type="button" class="cg-scroll-arrow left" onclick="document.getElementById('cg-scroll').scrollBy({left:-480,behavior:'smooth'})" aria-label="Scroll left">&#8249;</button>
     <div class="cg-scroll-row" id="cg-scroll">
       <% scroll_places.each do |place| %>
         <% rc = place.building_analyses_in_place.count %>
         <% rstyle = place.architectural_styles_summary.first(1) %>
         <%= link_to place_path(place), class: "cg-scroll-card" do %>
           <div class="cg-scroll-card-img">
-            <% if place.best_representative_image.present? %>
-              <img src="<%= place.best_representative_image %>" alt="Architecture of <%= place.name %>" width="200" height="130" loading="lazy">
+            <% if place.card_image_url.present? %>
+              <img src="<%= place.card_image_url %>" alt="<%= place.image_alt %>" width="240" height="160" loading="lazy">
             <% end %>
-            <span class="cg-count-badge"><%= rc %></span>
           </div>
           <div class="cg-scroll-card-body">
             <h5><%= place.name %></h5>
-            <span class="cg-scroll-meta"><%= rstyle.any? ? rstyle.first[0].gsub(/\s*\d+%$/, '') : '' %></span>
+            <span class="cg-scroll-meta">
+              <%= pluralize(rc, 'building') %><% if rstyle.any? %> <span aria-hidden="true">&middot;</span> <%= rstyle.first[0].gsub(/\s*\d+%$/, '') %><% end %>
+            </span>
           </div>
         <% end %>
       <% end %>
     </div>
-    <button type="button" class="cg-scroll-arrow right" onclick="document.getElementById('cg-scroll').scrollBy({left:440,behavior:'smooth'})" aria-label="Scroll right">&#8250;</button>
+    <button type="button" class="cg-scroll-arrow right" onclick="document.getElementById('cg-scroll').scrollBy({left:480,behavior:'smooth'})" aria-label="Scroll right">&#8250;</button>
   </div>
   <% end %>
 

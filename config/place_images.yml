@@ -1,0 +1,178 @@
+# One hand-picked photo per city guide, all from Wikimedia Commons under free licenses.
+# Keys are Place names. `file` is the Commons file name (without the File: prefix).
+# After editing, run `rake places:set_hero_images` to copy the photos to S3.
+# The author and license here are what the guide page shows as the photo credit.
+
+"Savannah":
+  file: "Forsyth Park Fountain (1).jpg"
+  author: "Jennifer Morrow"
+  license: "CC BY 2.0"
+  alt: "The Forsyth Park fountain beneath live oaks in Savannah, Georgia"
+
+"Sydney":
+  file: "Sydney Opera House and Harbour Bridge Dusk (3) 2019-06-21.jpg"
+  author: "Benh Lieu Song"
+  license: "CC BY-SA 4.0"
+  alt: "Sydney Opera House and the Harbour Bridge at dusk"
+
+"Philadelphia":
+  file: "Philadelphia from South Street Bridge July 2016 panorama 2.jpg"
+  author: "King of Hearts"
+  license: "CC BY-SA 3.0"
+  alt: "Philadelphia skyline seen from the South Street Bridge"
+
+"Denver":
+  file: "Full Denver skyline.jpg"
+  author: "James St. John"
+  license: "CC BY 2.0"
+  alt: "Denver skyline behind City Park with the Rocky Mountains beyond"
+
+"Toronto":
+  file: "Toronto - ON - Skyline10.jpg"
+  author: "Taxiarchos228"
+  license: "Free Art License"
+  alt: "Toronto skyline and the CN Tower at night"
+
+"Den Haag":
+  file: "Den Haag (24951667287).jpg"
+  author: "Fred Romero"
+  license: "CC BY 2.0"
+  alt: "The Binnenhof and Mauritshuis on the Hofvijver with The Hague's towers behind"
+
+"Boston":
+  file: "Charles River Esplanade Boston May 2018 panorama.jpg"
+  author: "King of Hearts"
+  license: "CC BY-SA 4.0"
+  alt: "Back Bay buildings reflected in the Charles River Esplanade lagoon, Boston"
+
+"Miami":
+  file: "Miami, Florida skyline.jpg"
+  author: "Wilfredor"
+  license: "CC0"
+  alt: "Miami skyline across Biscayne Bay"
+
+"Kraków":
+  file: "Barbakan przed wschodem słońca.jpg"
+  author: "Gswito"
+  license: "CC BY-SA 4.0"
+  alt: "The Kraków Barbican before sunrise"
+
+"Bruges":
+  file: "1010 Church of Our Lady (Bruges) Photo by Giles Laurent.jpg"
+  author: "Giles Laurent"
+  license: "CC BY-SA 4.0"
+  alt: "Aerial view of the Church of Our Lady and the rooftops of Bruges"
+
+"San Diego":
+  file: "San Diego Reflecting Pond.jpg"
+  author: "Rufustelestrat"
+  license: "CC BY 2.5"
+  alt: "Downtown San Diego skyline reflected in the bay at night"
+
+"Monterey":
+  file: "Monterey Bay (12175).jpg"
+  author: "Rhododendrites"
+  license: "CC BY-SA 4.0"
+  alt: "Cannery Row along the Monterey Bay shoreline"
+
+"Minneapolis":
+  file: "Downtown Minneapolis skyline across the Mississippi River.jpg"
+  author: "Guywelch2000"
+  license: "CC BY 4.0"
+  alt: "Downtown Minneapolis skyline across the Mississippi River"
+
+"Barcelona":
+  file: "Sagrada Familia, Torre Mapfre y Hotel Arts.jpg"
+  author: "zenilorac"
+  license: "CC BY 2.0"
+  alt: "Barcelona skyline with the Sagrada Família and the sea beyond"
+
+"Singapore":
+  file: "Skyline of the Central Business District of Singapore with Esplanade Bridge in the evening.jpg"
+  author: "Basile Morin"
+  license: "CC BY-SA 4.0"
+  alt: "Singapore's Central Business District skyline and Esplanade Bridge in the evening"
+
+"Melbourne":
+  file: "Princes Bridge and Melbourne skyline, southwest view 20230219 1.jpg"
+  author: "DXR"
+  license: "CC BY-SA 4.0"
+  alt: "Princes Bridge and the Melbourne skyline"
+
+"New Orleans":
+  file: "Jackson Square, The Cabildo, St. Louis Catherdral, Presbytere, New Orleans, LA.jpg"
+  author: "Spatms"
+  license: "CC BY-SA 4.0"
+  alt: "St. Louis Cathedral, the Cabildo and the Presbytère on Jackson Square, New Orleans"
+
+"Detroit":
+  file: "Detroit skyline from Windsor riverfront.jpg"
+  author: "Andrew Heneen"
+  license: "CC BY 4.0"
+  alt: "Detroit skyline seen from the Windsor riverfront"
+
+"New York":
+  file: "View of Empire State Building from Rockefeller Center New York City dllu.jpg"
+  author: "Dllu"
+  license: "CC BY-SA 4.0"
+  alt: "The Empire State Building and Manhattan at sunset from Rockefeller Center"
+
+"Chicago":
+  file: "Chicago River toward Michigan Avenue at blue hour.jpg"
+  author: "Norbert Nagel"
+  license: "CC BY-SA 4.0"
+  alt: "The Chicago River toward Michigan Avenue and the Wrigley Building at blue hour"
+
+"San Francisco":
+  file: "Painted Ladies San Francisco January 2013 panorama 2.jpg"
+  author: "King of Hearts"
+  license: "CC BY-SA 3.0"
+  alt: "The Painted Ladies on Alamo Square with the San Francisco skyline behind"
+
+"Amsterdam":
+  file: "Colorful windows and canal houses at blue hour with water reflection in Damrak Amsterdam Netherlands.jpg"
+  author: "Basile Morin"
+  license: "CC BY-SA 4.0"
+  alt: "Canal houses on the Damrak in Amsterdam at blue hour"
+
+"Kansas City":
+  file: "Kansas city (16778782291).jpg"
+  author: "Dean Hochman"
+  license: "CC BY 2.0"
+  alt: "Union Station and the downtown Kansas City skyline"
+
+"Edinburgh":
+  file: "Skyline of Edinburgh.jpg"
+  author: "Andrew Colin"
+  license: "CC BY 2.0"
+  alt: "Edinburgh skyline from Calton Hill with the Dugald Stewart Monument"
+
+"Houston":
+  file: "Downtown Houston, TX Skyline - 2018.jpg"
+  author: "David Daniel Turner"
+  license: "CC BY 4.0"
+  alt: "Downtown Houston skyline over Buffalo Bayou Park"
+
+"Atlanta":
+  file: "Jackson Street Bridge, Atlanta, United States (Unsplash vXtX07KVcE8).jpg"
+  author: "Joey Kyber"
+  license: "CC0"
+  alt: "Atlanta skyline from the Jackson Street Bridge at night"
+
+"Los Angeles":
+  file: "LA Skyline Mountains2.jpg"
+  author: "Nserrano"
+  license: "CC BY-SA 3.0"
+  alt: "Downtown Los Angeles skyline beneath the snow-capped San Gabriel Mountains"
+
+"London":
+  file: "City of London skyline from London City Hall - Sept 2015 - Crop Aligned.jpg"
+  author: "Colin and Kim Hansen"
+  license: "CC BY-SA 4.0"
+  alt: "The City of London skyline across the Thames"
+
+"Washington":
+  file: "United States Capitol - west front.jpg"
+  author: "Architect of the Capitol"
+  license: "public domain"
+  alt: "The west front of the United States Capitol"

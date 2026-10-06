@@ -1,9 +1,9 @@
 <% building_count = place.building_analyses_in_place.count %>
 <% styles = place.architectural_styles_summary.first(3) %>
 <%= link_to place_path(place), class: "place-card", data: { region: region, name: place.name.downcase, buildings: building_count } do %>
-  <% if place.best_representative_image.present? %>
+  <% if place.card_image_url.present? %>
     <div class="place-card-image">
-      <img src="<%= place.best_representative_image %>" alt="<%= place.name %> architecture" loading="lazy" class="card-image">
+      <img src="<%= place.card_image_url %>" alt="<%= place.image_alt %>" loading="lazy" class="card-image">
       <div class="image-overlay"></div>
       <span class="place-card-badge"><%= building_count %> buildings</span>
     </div>
