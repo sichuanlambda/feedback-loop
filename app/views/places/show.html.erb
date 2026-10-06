@@ -55,7 +55,11 @@
               <!-- Hero image from database -->
               <div class="hero-image">
                 <%= image_tag @place.hero_image_url, alt: @place.hero_image_alt || "Architecture of #{@place.name}", class: "hero-image-img", width: "500", height: "350", fetchpriority: "high" %>
-                <% if @place.image_source.present? && @place.image_source != 'placeholder' %>
+                <% if (photo = PlaceImage.for(@place)) %>
+                  <div class="image-credit">
+                    <small>Photo: <%= link_to photo.credit, photo.source_url, target: '_blank', rel: 'noopener nofollow' %>, via Wikimedia Commons</small>
+                  </div>
+                <% elsif @place.image_source.present? && @place.image_source != 'placeholder' %>
                   <div class="image-credit">
                     <small>Image: <%= @place.image_source.humanize %></small>
                   </div>
@@ -1323,6 +1327,11 @@ ${window.location.origin}
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+.image-credit a {
+  color: inherit;
+  text-decoration: underline;
 }
 
 .place-stats {

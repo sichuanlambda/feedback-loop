@@ -66,6 +66,17 @@ class Place < ApplicationRecord
     best_building&.image_url
   end
 
+  # Smaller rendition of the hero for cards; falls back to the full image.
+  def card_image_url
+    return representative_image_url if hero_image_url.present? && representative_image_url.present?
+
+    best_representative_image
+  end
+
+  def image_alt
+    hero_image_alt.presence || "Architecture of #{name}"
+  end
+
   def architectural_styles_summary
     buildings = building_analyses_in_place
     return [] if buildings.empty?
