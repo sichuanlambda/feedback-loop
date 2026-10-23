@@ -65,6 +65,22 @@ class BuildingAnalysis < ApplicationRecord
     subject
   end
 
+  # Alt text for the building's photo: what it is, its style and where, which
+  # is what image search matches on ("Flatiron Building, New York: Beaux-Arts
+  # architecture"). Unnamed buildings already lead with their style.
+  def image_alt
+    subject = seo_subject
+    styles = style_names.first(2)
+    return subject if styles.empty? || subject.include?(styles.first)
+
+    "#{subject}: #{styles.join(' and ')} architecture"
+  end
+
+  # True when image_url is a photo we can list in the image sitemap
+  def showable_image?
+    image_url.to_s.start_with?('http') && !image_url.include?('screenshotsearcher.s3')
+  end
+
   # Method to generate Google Street View URL
   def street_view_url(size: "600x400")
     api_key = Rails.application.credentials.google_maps[:api_key]

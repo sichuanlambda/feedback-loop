@@ -163,7 +163,7 @@
   <% @buildings.each do |building| %>
     <a href="<%= architecture_explorer_show_path(building) %>" class="sic-card">
       <% if building.image_url.present? %>
-        <img src="<%= building.image_url %>" alt="<%= building.name || building.address %>" loading="lazy" width="400" height="200">
+        <img src="<%= building.image_url %>" alt="<%= building.image_alt %>" loading="lazy" width="400" height="200">
       <% end %>
       <div class="sic-card-body">
         <h3><%= building.name.present? ? building.name : building.address %></h3>

@@ -16,11 +16,14 @@ SitemapGenerator::Sitemap.create do
 
   # Blog (recovered architecturehelper.com/blog content)
   add '/blog', :changefreq => 'weekly', :priority => 0.8
+  # Each page lists its main photo (image sitemap) so it can surface in image
+  # search. Photos live on S3 and other hosts, which Google accepts.
   BlogPost.published.find_each do |post|
     add "/blog/#{post.slug}",
         :lastmod => post.updated_at,
         :changefreq => 'monthly',
-        :priority => 0.7
+        :priority => 0.7,
+        :images => post.hero_image_url.present? ? [{ loc: post.hero_image_url }] : []
   end
 
   # Style pages (programmatic SEO)
@@ -45,10 +48,12 @@ SitemapGenerator::Sitemap.create do
   # Add all published places
   add '/places', :changefreq => 'weekly', :priority => 0.8
   Place.where(published: true).find_each do |place|
+    image = place.best_representative_image
     add place_path(place),
         :lastmod => place.updated_at,
         :changefreq => 'weekly',
-        :priority => 0.8
+        :priority => 0.8,
+        :images => image.to_s.start_with?('http') ? [{ loc: image }] : []
   end
 
   # Add building analysis pages (if they're public)
@@ -56,6 +61,7 @@ SitemapGenerator::Sitemap.create do
     add architecture_explorer_show_path(building),
         :lastmod => building.updated_at,
         :changefreq => 'monthly',
-        :priority => 0.6
+        :priority => 0.6,
+        :images => building.showable_image? ? [{ loc: building.image_url }] : []
   end
 end

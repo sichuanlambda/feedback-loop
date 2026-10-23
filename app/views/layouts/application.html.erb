@@ -13,6 +13,10 @@
   <meta property="og:description" content="<%= content_for?(:meta_description) ? content_for(:meta_description) : 'Explore architectural styles, analyze buildings with AI, and discover architecture from around the world.' %>">
   <meta property="og:type" content="<%= content_for?(:og_type) ? content_for(:og_type) : 'website' %>">
   <meta property="og:site_name" content="Architecture Helper">
+  <%# Pinterest domain claim: set PINTEREST_DOMAIN_VERIFY to the code from Pinterest's "Claim website" %>
+  <% if ENV['PINTEREST_DOMAIN_VERIFY'].present? %>
+    <meta name="p:domain_verify" content="<%= ENV['PINTEREST_DOMAIN_VERIFY'] %>">
+  <% end %>
   <% if content_for?(:og_image) %>
     <meta property="og:image" content="<%= content_for(:og_image) %>">
   <% end %>
